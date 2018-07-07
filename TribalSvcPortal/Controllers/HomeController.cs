@@ -4,14 +4,23 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using TribalSvcPortal.Models;
+using TribalSvcPortal.AppLogic.DataAccessLayer;
+using TribalSvcPortal.ViewModels;
 
 namespace TribalSvcPortal.Controllers
 {
     public class HomeController : Controller
     {
+        private readonly IDbPortal _DbPortal;
+        public HomeController(IDbPortal DbPortal)
+        {
+            _DbPortal = DbPortal;
+        }
+
         public IActionResult Index()
         {
+            _DbPortal.GetT_OE_SYS_LOG();
+
             return View();
         }
 

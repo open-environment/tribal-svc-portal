@@ -2,49 +2,128 @@
 <html>
 <head>
     <meta charset="utf-8" />
+    <meta name="description" content="The Tribal Services Portal allows people to discover and use tribal services." />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - TribalSvcPortal</title>
-
+    <title>@ViewData["Title"] - Tribal Services Portal</title>
+    <link rel="shortcut icon" href="@Url.Content("~/favicon.ico")">
     <environment include="Development">
         <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
+
+        <link rel="stylesheet" href="~/css/fonts.css" />
+        <link rel="stylesheet" href="~/fonts/clip-style.css" />
+        <link rel="stylesheet" href="~/css/main.css" />
+        <link rel="stylesheet" href="~/css/main-responsive.css" />
+        <link rel="stylesheet" href="~/css/theme_dark.css" />
         <link rel="stylesheet" href="~/css/site.css" />
+        @*<link rel="stylesheet" href="~/css/site.min.css" asp-append-version="true" />*@
     </environment>
     <environment exclude="Development">
+        <link rel="stylesheet" href="~/css/site.min.css" asp-append-version="true" />
         <link rel="stylesheet" href="https://ajax.aspnetcdn.com/ajax/bootstrap/3.3.7/css/bootstrap.min.css"
               asp-fallback-href="~/lib/bootstrap/dist/css/bootstrap.min.css"
               asp-fallback-test-class="sr-only" asp-fallback-test-property="position" asp-fallback-test-value="absolute" />
-        <link rel="stylesheet" href="~/css/site.min.css" asp-append-version="true" />
     </environment>
+    @RenderSection("customstyles", required: false)
+
+    @if (IsSectionDefined("HeaderJS"))
+    {
+        @RenderSection("HeaderJS");
+    }
 </head>
 <body>
+    <!-- start: HEADER -->
     <nav class="navbar navbar-inverse navbar-fixed-top">
+        <!-- start: TOP NAVIGATION CONTAINER -->
         <div class="container">
-            <div class="navbar-header">
+
+            <div class="navbar-header pull-left">
                 <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="clip-user-3"></span>
+                </button>
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse-left">
                     <span class="sr-only">Toggle navigation</span>
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                <a asp-area="" asp-controller="Home" asp-action="Index" class="navbar-brand">TribalSvcPortal</a>
+                <a asp-area="" asp-controller="Home" asp-action="Index" class="navbar-brand">Tribal Services Portal</a>
             </div>
             <div class="navbar-collapse collapse">
                 <ul class="nav navbar-nav">
-                    <li><a asp-area="" asp-controller="Home" asp-action="Index">Home</a></li>
-                    <li><a asp-area="" asp-controller="Home" asp-action="About">About</a></li>
-                    <li><a asp-area="" asp-controller="Home" asp-action="Contact">Contact</a></li>
                 </ul>
                 @await Html.PartialAsync("_LoginPartial")
             </div>
         </div>
     </nav>
-    <div class="container body-content">
-        @RenderBody()
-        <hr />
-        <footer>
-            <p>&copy; 2018 - TribalSvcPortal</p>
-        </footer>
+    <!-- end: HEADER -->
+    <!-- start: MAIN CONTAINER -->
+    <div class="main-container">
+        @if (User.Identity.IsAuthenticated)
+        {
+            <div class="navbar-content">
+                <!-- start: LEFT MENU -->
+                @Html.Partial("_LeftMenu")
+                <!-- end: LEFT MENU -->
+            </div>
+        }
+        <div class="main-content">
+            <div class="container" style="min-height: 760px;">
+
+                @if (!(ViewBag.HideTitle ?? false))
+                {
+                    <div class="row">
+                        <div class="col-sm-12">
+                            @if (ViewBag.ShowBack == true)
+                            {
+                                <button type="button" class="btn btn-return pull-right" style="margin-top:20px;" onclick="history.go(-1);"><i class="glyphicon glyphicon-arrow-left"></i> Back</button>
+                            }
+                            @if (ViewBag.ShowBadge == true)
+                            {
+                                <div href="#modal-form" class="badge-alert pull-right  modal-it" data-toggle="modal">
+                                    <img src="/Content/Images/badges/recognised-post.png" alt="Badges" style="width:45px; margin-left:20px" />
+                                    <p class="publicbadgenamedesc" style="font-size:10px;">@ViewBag.BadgeCount Badges Earned</p>
+                                </div>
+                            }
+                            <!-- start: PAGE TITLE & BREADCRUMB -->
+                            <ul class="breadcrumb no-border no-radius b-b b-light pull-in">
+                                <li><a href="@Url.Action("Index", "Home")"><i class="fa fa-home"></i> Home</a></li>
+                                <li class="active">Initialize</li>
+                            </ul>
+                            <div class="page-header">
+                                <h1>@ViewBag.Title <small>@ViewBag.SubTitle</small></h1>
+                                <div class="subsubheader">@ViewBag.SubSubTitle</div>
+                            </div>
+                            <!-- end: PAGE TITLE & BREADCRUMB -->
+                        </div>
+                    </div>
+                }
+
+                @RenderBody()
+            </div>
+        </div>
     </div>
+    <!-- start: FOOTER -->
+    <div class="footer clearfix" style="background-color:#e5e5e5 !important;">
+        <div class="footer-inner">
+            <a href="https://e-enterprisefortheenvironment.net">
+                <img src="~/Content/Images/footer-logo.png" />
+            </a>
+        </div>
+        <div class="footer-items">
+            <span class="go-top" style="margin-left:20px;"><i class="clip-chevron-up"></i></span>
+        </div>
+        <div class=" footer-items footer-right">
+            <a href="@Url.Action("TermsAndConditions","Home")">Terms & Conditions </a>
+        </div>
+        <div class=" footer-items footer-right">
+            <a href="@Url.Action("Contact", "Home")">Contact </a> |
+        </div>
+        <div class=" footer-items footer-right">
+            <a href="@Url.Action("About", "Home")">About</a> |
+        </div>
+    </div>
+    <!-- end: FOOTER -->
 
     <environment include="Development">
         <script src="~/lib/jquery/dist/jquery.js"></script>

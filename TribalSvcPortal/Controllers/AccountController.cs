@@ -10,8 +10,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using TribalSvcPortal.Models;
-using TribalSvcPortal.Models.AccountViewModels;
+using TribalSvcPortal.Data.Models;
+using TribalSvcPortal.ViewModels.AccountViewModels;
 using TribalSvcPortal.Services;
 
 namespace TribalSvcPortal.Controllers

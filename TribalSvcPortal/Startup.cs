@@ -8,9 +8,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using TribalSvcPortal.Data;
-using TribalSvcPortal.Models;
 using TribalSvcPortal.Services;
+using TribalSvcPortal.Data.Models;
+using TribalSvcPortal.AppLogic.DataAccessLayer;
 
 namespace TribalSvcPortal
 {
@@ -37,6 +37,8 @@ namespace TribalSvcPortal
             services.AddTransient<IEmailSender, EmailSender>();
 
             services.AddMvc();
+
+            services.AddScoped<IDbPortal, DbPortal>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
