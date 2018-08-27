@@ -49,6 +49,7 @@ namespace TribalSvcPortal
             // Add application services.
             services.AddTransient<IEmailSender, EmailSender>();
             services.AddScoped<IDbPortal, DbPortal>();
+            services.AddScoped<IDbOpenDump, DbOpenDump>();
 
             //configure identity server with in-memory stores, keys, clients and scopes
             services.AddIdentityServer()

@@ -15,7 +15,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
 
     public interface IDbOpenDump
     {
-
+        List<UserOrgDisplayType> GetT_OD_SITES_bySearch(string orgID, string searchStr);
     }
 
     public class DbOpenDump : IDbOpenDump

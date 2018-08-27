@@ -21,13 +21,19 @@
                     <div class="col-md-6">
                         <div class="form-group">
                             <label>Search:</label>
-                            @*@Html.DropDownListFor(model => model.project.PROJECT_CONTACT_IDX, Model.ddl_AgencyUsers, "", new { @class = "form-control" })*@
+                            @Html.TextBoxFor(model => model.selStr, new { @class = "form-control", @placeholder = "Search site name or address" })
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
                             <label>Status:</label>
-                            @*@Html.DropDownListFor(model => model.project.PROJECT_CONTACT_IDX, Model.ddl_AgencyUsers, "", new { @class = "form-control" })*@
+                            @Html.DropDownListFor(model => model.selStatus, Model.ddl_Status, "", new { @class = "form-control" })
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Organization:</label>
+                            @Html.DropDownListFor(model => model.selOrg, Model.ddl_Org, "", new { @class = "form-control" })
                         </div>
                     </div>
                 </div>
@@ -65,7 +71,51 @@
     <!--  ************************************** TAB CONTENT *********************************************************-->
     <div class="tab-content">
         <div class="tab-pane in active" id="tabList">
-            List
+
+            <div class="table-responsive">
+                <table class="table table-striped m-b-none" data-ride="datatables">
+                    <tr>
+                        <th style="min-width:70px"></th>
+                        <th>Site Name</th>
+                        <th>Site Address</th>
+                        <th>Reported By</th>
+                        <th>Reported On</th>
+                    </tr>
+
+                    @*@foreach (var item in Model)*@
+                    @for (int i = 0; i < 10; i++)
+                    {
+                        <tr>
+                            <td style="min-width:65px">
+                                <a href="@Url.Action(" DumpEdit","OpenDump", new { id=1})" class="btn btn-rounded btn-xs btn-info"><i class="glyphicon glyphicon-pencil"></i></a>
+                                <div class="delete-section" style="display:inline">
+                                    <a class=" btn btn-rounded btn-xs btn-danger delete-link"><i class="glyphicon glyphicon-remove"></i></a>
+                                    @*<div class="btn btn-rounded btn-xs btn-warning delete-confirm" style="display:none" data-delete-id="@item.SiteId" data-delete-p="/OpenDump/SiteDelete"><b>Confirm Delete</b></div>*@
+                                </div>
+                            </td>
+                            <td>
+                                Test Site
+                                @*@Html.DisplayFor(modelItem => item.ClientId)*@
+                            </td>
+                            <td>
+                                Test Address
+                                @*@Html.DisplayFor(modelItem => item.ClientName)*@
+                            </td>
+                            <td>
+                                Report By
+                                @*@Html.DisplayFor(modelItem => item.ClientUrl)*@
+                            </td>
+                            <td>
+                                1/1/2018
+                                @*@Html.DisplayFor(modelItem => item.ClientGrantType)*@
+                            </td>
+
+                        </tr>
+                    }
+
+                </table>
+            </div>
+
         </div>
         <div class="tab-pane" id="tabMap">
             Map
@@ -73,3 +123,7 @@
     </div>
 </div>
 <!-- *********************** END TABS ****************************************** -->
+
+@section scripts {
+    <script src="~/js/confirm_delete.js"></script>
+}
