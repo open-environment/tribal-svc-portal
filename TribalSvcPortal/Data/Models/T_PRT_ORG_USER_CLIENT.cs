@@ -3,10 +3,10 @@ using System.Collections.Generic;
 
 namespace TribalSvcPortal.Data.Models
 {
-    public partial class TPrtTenantUserClient
+    public partial class T_PRT_ORG_USER_CLIENT
     {
-        public int TenantUserClientIdx { get; set; }
-        public int TenantUserIdx { get; set; }
+        public int OrgUserClientIdx { get; set; }
+        public int OrgUserIdx { get; set; }
         public string ClientId { get; set; }
         public bool AdminInd { get; set; }
         public string StatusInd { get; set; }
@@ -15,7 +15,7 @@ namespace TribalSvcPortal.Data.Models
         public string ModifyUserId { get; set; }
         public DateTime? ModifyDt { get; set; }
 
-        public TPrtClients Client { get; set; }
-        public TPrtTenantUsers TenantUserIdxNavigation { get; set; }
+        public T_PRT_CLIENTS Client { get; set; }
+        public T_PRT_ORG_USERS OrgUserIdxNavigation { get; set; }
     }
 }

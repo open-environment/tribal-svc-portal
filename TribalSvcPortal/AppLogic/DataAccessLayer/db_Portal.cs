@@ -4,50 +4,54 @@ using System.Linq;
 using System.Threading.Tasks;
 using TribalSvcPortal.Data.Models;
 using TribalSvcPortal.AppLogic.BusinessLogicLayer;
+using Microsoft.AspNetCore.Identity;
 
 namespace TribalSvcPortal.AppLogic.DataAccessLayer
 {
-    public class UserTenantsDisplayType
+    public class UserOrgDisplayType
     {
-        public int TENANT_USER_IDX { get; set; }
-        public string TENANT_ID { get; set; }
-        public bool? TENANT_ADMIN_IND { get; set; }
+        public int ORG_USER_IDX { get; set; }
+        public string ORG_ID { get; set; }
+        public bool? ORG_ADMIN_IND { get; set; }
         public string STATUS_IND { get; set; }
-        public string TENANT_NAME { get; set; }
+        public string ORG_NAME { get; set; }
     }
 
-    public class TenantUserClientDisplayType
+    public class OrgUserClientDisplayType
     {
-        public int TENANT_USER_CLIENT_IDX { get; set; }
-        public int TENANT_USER_IDX { get; set; }
+        public int ORG_USER_CLIENT_IDX { get; set; }
+        public int ORG_USER_IDX { get; set; }
         public string CLIENT_ID { get; set; }
         public bool ADMIN_IND { get; set; }
         public string STATUS_IND { get; set; }
-        public string TENANT_ID { get; set; }
+        public string ORG_ID { get; set; }
         public string UserID { get; set; }
         public string UserName { get; set; }
-        public string TENANT_CLIENT_ALIAS { get; set; }
+        public string ORG_CLIENT_ALIAS { get; set; }
     }
 
 
     public interface IDbPortal
     {
-        List<TPrtClients> GetT_PRT_CLIENTS();
-        TPrtClients GetT_PRT_CLIENTS_ByClientID(string id);
+        string GetT_PRT_APP_SETTING(string settingName);
+        List<T_PRT_APP_SETTINGS> GetT_PRT_APP_SETTING_List();
+        int InsertUpdateT_PRT_APP_SETTING(int sETTING_IDX, string sETTING_NAME, string sETTING_VALUE, bool? eNCRYPT_IND, string sETTING_VALUE_SALT, string cREATE_USER);
+        List<T_PRT_CLIENTS> GetT_PRT_CLIENTS();
+        T_PRT_CLIENTS GetT_PRT_CLIENTS_ByClientID(string id);
         string InsertUpdateT_PRT_CLIENTS(string cLIENT_ID, string cLIENT_NAME, string cLIENT_GRANT_TYPE, string cLIENT_REDIRECT_URI, string cLIENT_POST_LOGOUT_URI, string cLIENT_URL);
-        List<TPrtTenants> GetT_PRT_TENANTS();
-        TPrtTenantUsers GetT_PRT_TENANT_USERS_ByTenantUserID(int id);
-        List<UserTenantsDisplayType> GetT_PRT_TENANT_USERS_ByUserID(string id);
-        int InsertUpdateT_PRT_TENANT_USERS(int? tENANT_USER_IDX, string tENANT_ID, string _Id, bool? tENANT_ADMIN_IND, string sTATUS_IND, string cREATE_USER);
-        int DeleteT_PRT_TENANT_USERS(int id);
-        List<TenantUserClientDisplayType> GetT_PRT_TENANT_USERS_CLIENT_ByTenantUserID(int _TenantUserIDX);
-        List<TenantUserClientDisplayType> GetT_PRT_TENANT_USERS_CLIENT_ByUserID(string _UserIDX);
-        IEnumerable<TPrtClients> GetT_PRT_TENANT_USERS_CLIENT_DistinctClientByUserID(string UserID);
-        int InsertUpdateT_PRT_TENANT_USERS_CLIENT(int? tENANT_USER_CLIENT_IDX, int? tENANT_USER_IDX, string cLIENT_ID, bool? aDMIN_IND, string sTATUS_IND, string cREATE_USER);
-        int DeleteT_PRT_TENANT_USER_CLIENT(int id);
-        int InsertT_OE_SYS_LOG(string logType, string logMsg);
-
-        TOeSysLog GetT_OE_SYS_LOG();
+        List<T_PRT_ORGANIZATIONS> GetT_PRT_ORGANIZATIONS();
+        T_PRT_ORG_USERS GetT_PRT_ORG_USERS_ByOrgUserID(int id);
+        List<UserOrgDisplayType> GetT_PRT_ORG_USERS_ByUserID(string id);
+        int InsertUpdateT_PRT_ORG_USERS(int? oRG_USER_IDX, string oRG_ID, string _Id, bool? oRG_ADMIN_IND, string sTATUS_IND, string cREATE_USER);
+        int DeleteT_PRT_ORG_USERS(int id);
+        List<OrgUserClientDisplayType> GetT_PRT_ORG_USERS_CLIENT_ByOrgUserID(int _OrgUserIDX);
+        List<OrgUserClientDisplayType> GetT_PRT_ORG_USERS_CLIENT_ByUserID(string _UserIDX);
+        IEnumerable<T_PRT_CLIENTS> GetT_PRT_ORG_USERS_CLIENT_DistinctClientByUserID(string UserID);
+        int InsertUpdateT_PRT_ORG_USERS_CLIENT(int? oRG_USER_CLIENT_IDX, int? oRG_USER_IDX, string cLIENT_ID, bool? aDMIN_IND, string sTATUS_IND, string cREATE_USER);
+        int DeleteT_PRT_ORG_USER_CLIENT(int id);
+        int InsertT_PRT_SYS_LOG(string logType, string logMsg);
+        IEnumerable<IdentityRole> GetT_PRT_ROLES_BelongingToUser(string UserID);
+        T_PRT_SYS_LOG GetT_PRT_SYS_LOG();
     }
 
     public class DbPortal : IDbPortal
@@ -59,31 +63,102 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
         }
 
 
-        //**************************** T_PRT_CLIENTS ***********************************************
-        public List<TPrtClients> GetT_PRT_CLIENTS()
+        //*****************APP SETTINGS**********************************
+        public string GetT_PRT_APP_SETTING(string settingName)
         {
             try
             {
-                return ctx.TPrtClients.ToList();
+                return (from a in ctx.T_PRT_APP_SETTINGS
+                        where a.SettingName == settingName
+                        select a).FirstOrDefault().SettingValue;
             }
             catch (Exception ex)
             {
-                Utils.LogEFException(ex);
+                LogEFException(ex);
+                return "";
+            }
+        }
+
+        public List<T_PRT_APP_SETTINGS> GetT_PRT_APP_SETTING_List()
+        {
+                try
+                {
+                    return (from a in ctx.T_PRT_APP_SETTINGS
+                            orderby a.SettingIdx
+                            select a).ToList();
+                }
+                catch (Exception ex)
+                {
+                    LogEFException(ex);
+                    return null;
+                }
+        }
+
+        public int InsertUpdateT_PRT_APP_SETTING(int sETTING_IDX, string sETTING_NAME, string sETTING_VALUE, bool? eNCRYPT_IND, string sETTING_VALUE_SALT, string cREATE_USER)
+        {
+            try
+            {
+                Boolean insInd = false;
+
+                T_PRT_APP_SETTINGS e = (from c in ctx.T_PRT_APP_SETTINGS
+                                        where c.SettingIdx == sETTING_IDX
+                                    select c).FirstOrDefault();
+
+                if (e == null)
+                {
+                    insInd = true;
+                    e = new T_PRT_APP_SETTINGS();
+                }
+
+                if (sETTING_NAME != null) e.SettingName = sETTING_NAME;
+                if (sETTING_VALUE != null) e.SettingValue = sETTING_VALUE;
+
+                e.ModifyDt = System.DateTime.Now;
+                e.ModifyUserId = cREATE_USER;
+
+                if (insInd)
+                    ctx.T_PRT_APP_SETTINGS.Add(e);
+
+                ctx.SaveChanges();
+                return e.SettingIdx;
+            }
+            catch (Exception ex)
+            {
+                LogEFException(ex);
+                return 0;
+            }
+        }
+
+
+        //*****************APP SETTINGS CUSTOM**********************************
+
+
+
+        //**************************** T_PRT_CLIENTS ***********************************************
+        public List<T_PRT_CLIENTS> GetT_PRT_CLIENTS()
+        {
+            try
+            {
+                return ctx.T_PRT_CLIENTS.ToList();
+            }
+            catch (Exception ex)
+            {
+                LogEFException(ex);
                 return null;
             }
         }
 
-        public TPrtClients GetT_PRT_CLIENTS_ByClientID(string id)
+        public T_PRT_CLIENTS GetT_PRT_CLIENTS_ByClientID(string id)
         {
             try
             {
-                return (from a in ctx.TPrtClients
+                return (from a in ctx.T_PRT_CLIENTS
                         where a.ClientId == id
                         select a).FirstOrDefault();
             }
             catch (Exception ex)
             {
-                Utils.LogEFException(ex);
+                LogEFException(ex);
                 return null;
             }
         }
@@ -94,16 +169,16 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             {
                 Boolean insInd = false;
 
-                TPrtClients e = null;
+                T_PRT_CLIENTS e = null;
 
-                e = (from c in ctx.TPrtClients
-                        where c.ClientId == cLIENT_ID
+                e = (from c in ctx.T_PRT_CLIENTS
+                     where c.ClientId == cLIENT_ID
                         select c).FirstOrDefault();
 
                 if (e == null)
                 {
                     insInd = true;
-                    e = new TPrtClients();
+                    e = new T_PRT_CLIENTS();
                 }
 
                 if (cLIENT_ID != null) e.ClientId = cLIENT_ID;
@@ -114,104 +189,104 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
                 if (cLIENT_URL != null) e.ClientUrl = cLIENT_URL;
 
                 if (insInd)
-                    ctx.TPrtClients.Add(e);
+                    ctx.T_PRT_CLIENTS.Add(e);
 
                 ctx.SaveChanges();
                 return e.ClientId;
             }
             catch (Exception ex)
             {
-                Utils.LogEFException(ex);
+                LogEFException(ex);
                 return null;
             }
         }
 
 
 
-        //******************************T_PRT_TENANTS***********************************************
-        public List<TPrtTenants> GetT_PRT_TENANTS()
+        //******************************T_PRT_ORGANIZATIONS***********************************************
+        public List<T_PRT_ORGANIZATIONS> GetT_PRT_ORGANIZATIONS()
         {
             try
             {
-                return ctx.TPrtTenants.ToList();
+                return ctx.T_PRT_ORGANIZATIONS.ToList();
             }
             catch (Exception ex)
             {
-                Utils.LogEFException(ex);
+                LogEFException(ex);
                 return null;
             }
         }
 
 
 
-        //******************************T_PRT_TENANT_USERS***********************************************
-        public TPrtTenantUsers GetT_PRT_TENANT_USERS_ByTenantUserID(int id)
+        //******************************T_PRT_ORG_USERS***********************************************
+        public T_PRT_ORG_USERS GetT_PRT_ORG_USERS_ByOrgUserID(int id)
         {
             try
             {
-                return (from a in ctx.TPrtTenantUsers
-                           where a.TenantUserIdx == id
+                return (from a in ctx.T_PRT_ORG_USERS
+                           where a.OrgUserIdx == id
                            select a).FirstOrDefault();
             }
             catch (Exception ex)
             {
-                Utils.LogEFException(ex);
+                LogEFException(ex);
                 return null;
             }
         }
 
-        public List<UserTenantsDisplayType> GetT_PRT_TENANT_USERS_ByUserID(string UserId)
+        public List<UserOrgDisplayType> GetT_PRT_ORG_USERS_ByUserID(string UserId)
         {
             try
             {
-                var xxx = (from a in ctx.TPrtTenantUsers
-                            join b in ctx.TPrtTenants on a.TenantId equals b.TenantId
-                            where a.Id == UserId
-                            orderby b.TenantName
-                            select new UserTenantsDisplayType
-                            {
-                                TENANT_USER_IDX = a.TenantUserIdx,
-                                TENANT_ID = b.TenantId,
-                                TENANT_ADMIN_IND = a.TenantAdminInd,
-                                STATUS_IND = a.StatusInd,
-                                TENANT_NAME = b.TenantName
-                            }).ToList();
+                var xxx = (from a in ctx.T_PRT_ORG_USERS
+                           join b in ctx.T_PRT_ORGANIZATIONS on a.OrgId equals b.OrgId
+                           where a.Id == UserId
+                           orderby b.OrgName
+                           select new UserOrgDisplayType
+                           {
+                               ORG_USER_IDX = a.OrgUserIdx,
+                               ORG_ID = b.OrgId,
+                               ORG_ADMIN_IND = a.OrgAdminInd,
+                               STATUS_IND = a.StatusInd,
+                               ORG_NAME = b.OrgName
+                           }).ToList();
 
                 return xxx;
             }
             catch (Exception ex)
             {
-                Utils.LogEFException(ex);
+                LogEFException(ex);
                 return null;
             }
         }
 
-        public int InsertUpdateT_PRT_TENANT_USERS(int? tENANT_USER_IDX, string tENANT_ID, string _Id, bool? tENANT_ADMIN_IND, string sTATUS_IND, string cREATE_USER)
+        public int InsertUpdateT_PRT_ORG_USERS(int? oRG_USER_IDX, string oRG_ID, string _Id, bool? oRG_ADMIN_IND, string sTATUS_IND, string cREATE_USER)
         {
 
             try
             {
                 Boolean insInd = false;
 
-                TPrtTenantUsers e = null;
+                T_PRT_ORG_USERS e = null;
 
-                e = (from c in ctx.TPrtTenantUsers
-                        where c.TenantUserIdx == tENANT_USER_IDX
-                        select c).FirstOrDefault();
+                e = (from c in ctx.T_PRT_ORG_USERS
+                     where c.OrgUserIdx == oRG_USER_IDX
+                     select c).FirstOrDefault();
 
-                //now try to grab from user and tenant id
+                //now try to grab from user and org id
                 if (e == null)
                 {
-                    e = (from c in ctx.TPrtTenantUsers
-                            where c.TenantId.ToUpper() == tENANT_ID.ToUpper()
-                            && c.Id == _Id
-                            select c).FirstOrDefault();
+                    e = (from c in ctx.T_PRT_ORG_USERS
+                         where c.OrgId.ToUpper() == oRG_ID.ToUpper()
+                         && c.Id == _Id
+                         select c).FirstOrDefault();
                 }
 
                 if (e == null)
                 {
                     insInd = true;
-                    e = new TPrtTenantUsers
+                    e = new T_PRT_ORG_USERS
                     {
                         CreateDt = System.DateTime.Now,
                         CreateUserId = cREATE_USER
@@ -223,30 +298,30 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
                     e.ModifyUserId = cREATE_USER;
                 }
 
-                if (tENANT_ID != null) e.TenantId = tENANT_ID;
+                if (oRG_ID != null) e.OrgId = oRG_ID;
                 if (_Id != null) e.Id = _Id;
-                if (tENANT_ADMIN_IND != null) e.TenantAdminInd = tENANT_ADMIN_IND ?? false;
+                if (oRG_ADMIN_IND != null) e.OrgAdminInd = oRG_ADMIN_IND ?? false;
                 if (sTATUS_IND != null) e.StatusInd = sTATUS_IND;
 
                 if (insInd)
-                    ctx.TPrtTenantUsers.Add(e);
+                    ctx.T_PRT_ORG_USERS.Add(e);
 
                 ctx.SaveChanges();
-                return e.TenantUserIdx;
+                return e.OrgUserIdx;
             }
             catch (Exception ex)
             {
-                Utils.LogEFException(ex);
+                LogEFException(ex);
                 return 0;
             }
 
         }
 
-        public int DeleteT_PRT_TENANT_USERS(int id)
+        public int DeleteT_PRT_ORG_USERS(int id)
         {
             try
             {
-                TPrtTenantUsers rec = new TPrtTenantUsers { TenantUserIdx = id };
+                T_PRT_ORG_USERS rec = new T_PRT_ORG_USERS { OrgUserIdx = id };
                 ctx.Entry(rec).State = Microsoft.EntityFrameworkCore.EntityState.Deleted;
                 ctx.SaveChanges();
 
@@ -254,30 +329,30 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             }
             catch (Exception ex)
             {
-                Utils.LogEFException(ex);
+                LogEFException(ex);
                 return 0;
             }
         }
 
 
 
-        //******************************T_PRT_TENANT_USER_CLIENT***********************************************
-        public List<TenantUserClientDisplayType> GetT_PRT_TENANT_USERS_CLIENT_ByTenantUserID(int _TenantUserIDX)
+        //******************************T_PRT_ORG_USER_CLIENT***********************************************
+        public List<OrgUserClientDisplayType> GetT_PRT_ORG_USERS_CLIENT_ByOrgUserID(int _OrgUserIDX)
         {
             try
             {
-                var xxx = (from a in ctx.TPrtTenantUserClient
-                            join b in ctx.TPrtTenantUsers on a.TenantUserIdx equals b.TenantUserIdx
-                            where a.TenantUserIdx == _TenantUserIDX
-                            orderby a.ClientId
-                            select new TenantUserClientDisplayType
+                var xxx = (from a in ctx.T_PRT_ORG_USER_CLIENT
+                           join b in ctx.T_PRT_ORG_USERS on a.OrgUserIdx equals b.OrgUserIdx
+                           where a.OrgUserIdx == _OrgUserIDX
+                           orderby a.ClientId
+                            select new OrgUserClientDisplayType
                             {
-                                TENANT_USER_CLIENT_IDX = a.TenantUserClientIdx,
-                                TENANT_USER_IDX = a.TenantUserIdx,
+                                ORG_USER_CLIENT_IDX = a.OrgUserClientIdx,
+                                ORG_USER_IDX = a.OrgUserIdx,
                                 CLIENT_ID = a.ClientId,
                                 ADMIN_IND = a.AdminInd,
                                 STATUS_IND = a.StatusInd,
-                                TENANT_ID = b.TenantId,
+                                ORG_ID = b.OrgId,
                                 UserID = b.Id,
                                 UserName = b.Id
                             }).ToList();
@@ -286,49 +361,49 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             }
             catch (Exception ex)
             {
-                Utils.LogEFException(ex);
+                LogEFException(ex);
                 return null;
             }
 
         }
 
-        public List<TenantUserClientDisplayType> GetT_PRT_TENANT_USERS_CLIENT_ByUserID(string _UserIDX)
+        public List<OrgUserClientDisplayType> GetT_PRT_ORG_USERS_CLIENT_ByUserID(string _UserIDX)
         {
             try
             {
-                var xxx = (from a in ctx.TPrtTenantUserClient
-                            join b in ctx.TPrtTenantUsers on a.TenantUserIdx equals b.TenantUserIdx
-                            join c in ctx.TPrtTenantClientAlias on new { a.ClientId, b.TenantId } equals new { c.ClientId, c.TenantId }
+                var xxx = (from a in ctx.T_PRT_ORG_USER_CLIENT
+                            join b in ctx.T_PRT_ORG_USERS on a.OrgUserIdx equals b.OrgUserIdx
+                           join c in ctx.T_PRT_ORG_CLIENT_ALIAS on new { a.ClientId, b.OrgId } equals new { c.ClientId, c.OrgId }
                             where b.Id == _UserIDX
-                            select new TenantUserClientDisplayType
+                            select new OrgUserClientDisplayType
                             {
-                                TENANT_USER_CLIENT_IDX = a.TenantUserClientIdx,
-                                TENANT_USER_IDX = a.TenantUserIdx,
+                                ORG_USER_CLIENT_IDX = a.OrgUserClientIdx,
+                                ORG_USER_IDX = a.OrgUserIdx,
                                 CLIENT_ID = a.ClientId,
                                 ADMIN_IND = a.AdminInd,
                                 STATUS_IND = a.StatusInd,
-                                TENANT_ID = b.TenantId,
+                                ORG_ID = b.OrgId,
                                 UserID = b.Id,
                                 UserName = b.Id,
-                                TENANT_CLIENT_ALIAS = c.TenantClientAlias
+                                ORG_CLIENT_ALIAS = c.OrgClientAlias
                             }).ToList();
 
                 return xxx;
             }
             catch (Exception ex)
             {
-                Utils.LogEFException(ex);
+                LogEFException(ex);
                 return null;
             }
         }
 
-        public IEnumerable<TPrtClients> GetT_PRT_TENANT_USERS_CLIENT_DistinctClientByUserID(string UserID)
+        public IEnumerable<T_PRT_CLIENTS> GetT_PRT_ORG_USERS_CLIENT_DistinctClientByUserID(string UserID)
         {
             try
             {
-                var xxx = (from a in ctx.TPrtTenantUserClient
-                            join b in ctx.TPrtTenantUsers on a.TenantUserIdx equals b.TenantUserIdx
-                            join c in ctx.TPrtClients on a.ClientId equals c.ClientId
+                var xxx = (from a in ctx.T_PRT_ORG_USER_CLIENT
+                           join b in ctx.T_PRT_ORG_USERS on a.OrgUserIdx equals b.OrgUserIdx
+                           join c in ctx.T_PRT_CLIENTS on a.ClientId equals c.ClientId
                             where b.Id == UserID
                             orderby a.ClientId
                             select c).ToList().Distinct();
@@ -337,36 +412,36 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             }
             catch (Exception ex)
             {
-                Utils.LogEFException(ex);
+                LogEFException(ex);
                 return null;
             }
         }
 
-        public int InsertUpdateT_PRT_TENANT_USERS_CLIENT(int? tENANT_USER_CLIENT_IDX, int? tENANT_USER_IDX, string cLIENT_ID, bool? aDMIN_IND, string sTATUS_IND, string cREATE_USER)
+        public int InsertUpdateT_PRT_ORG_USERS_CLIENT(int? oRG_USER_CLIENT_IDX, int? oRG_USER_IDX, string cLIENT_ID, bool? aDMIN_IND, string sTATUS_IND, string cREATE_USER)
         {
             try
             {
                 Boolean insInd = false;
 
-                TPrtTenantUserClient e = null;
+                T_PRT_ORG_USER_CLIENT e = null;
 
-                e = (from c in ctx.TPrtTenantUserClient
-                        where c.TenantUserClientIdx == tENANT_USER_CLIENT_IDX
+                e = (from c in ctx.T_PRT_ORG_USER_CLIENT
+                     where c.OrgUserClientIdx == oRG_USER_CLIENT_IDX
                         select c).FirstOrDefault();
 
-                //now try to grab from user and tenant id
+                //now try to grab from user and org id
                 if (e == null)
                 {
-                    e = (from c in ctx.TPrtTenantUserClient
-                            where c.ClientId.ToUpper() == cLIENT_ID.ToUpper()
-                            && c.TenantUserIdx == tENANT_USER_IDX
+                    e = (from c in ctx.T_PRT_ORG_USER_CLIENT
+                         where c.ClientId.ToUpper() == cLIENT_ID.ToUpper()
+                            && c.OrgUserIdx == oRG_USER_IDX
                             select c).FirstOrDefault();
                 }
 
                 if (e == null)
                 {
                     insInd = true;
-                    e = new TPrtTenantUserClient
+                    e = new T_PRT_ORG_USER_CLIENT
                     {
                         CreateDt = System.DateTime.Now,
                         CreateUserId = cREATE_USER
@@ -378,30 +453,30 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
                     e.ModifyUserId = cREATE_USER;
                 }
 
-                if (tENANT_USER_IDX != null) e.TenantUserIdx = tENANT_USER_IDX ?? 0;
+                if (oRG_USER_IDX != null) e.OrgUserIdx = oRG_USER_IDX ?? 0;
                 if (cLIENT_ID != null) e.ClientId = cLIENT_ID;
                 if (aDMIN_IND != null) e.AdminInd = aDMIN_IND ?? false;
                 if (sTATUS_IND != null) e.StatusInd = sTATUS_IND;
 
                 if (insInd)
-                    ctx.TPrtTenantUserClient.Add(e);
+                    ctx.T_PRT_ORG_USER_CLIENT.Add(e);
 
                 ctx.SaveChanges();
-                return e.TenantUserIdx;
+                return e.OrgUserIdx;
             }
             catch (Exception ex)
             {
-                Utils.LogEFException(ex);
+                LogEFException(ex);
                 return 0;
             }
 
         }
 
-        public int DeleteT_PRT_TENANT_USER_CLIENT(int id)
+        public int DeleteT_PRT_ORG_USER_CLIENT(int id)
         {
             try
             {
-                TPrtTenantUserClient rec = new TPrtTenantUserClient { TenantUserClientIdx = id };
+                T_PRT_ORG_USER_CLIENT rec = new T_PRT_ORG_USER_CLIENT { OrgUserClientIdx = id };
                 ctx.Entry(rec).State = Microsoft.EntityFrameworkCore.EntityState.Deleted;
                 ctx.SaveChanges();
 
@@ -409,26 +484,44 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             }
             catch (Exception ex)
             {
-                Utils.LogEFException(ex);
+                LogEFException(ex);
                 return 0;
             }
 
         }
 
 
-
-        //*****************SYS_LOG**********************************
-        public int InsertT_OE_SYS_LOG(string logType, string logMsg)
+        //*****************ROLES**********************************
+        public IEnumerable<IdentityRole> GetT_PRT_ROLES_BelongingToUser(string UserID)
         {
             try
             {
-                TOeSysLog e = new TOeSysLog
+                return (from r in ctx.Roles
+                           join ur in ctx.UserRoles on r.Id equals ur.RoleId
+                           where ur.UserId == UserID
+                           select r).ToList();
+            }
+            catch (Exception ex)
+            {
+                LogEFException(ex);
+                return null;
+            }
+        }
+
+
+
+        //*****************SYS_LOG**********************************
+        public int InsertT_PRT_SYS_LOG(string logType, string logMsg)
+        {
+            try
+            {
+                T_PRT_SYS_LOG e = new T_PRT_SYS_LOG
                 {
                     LogType = logType,
                     LogMsg = logMsg,
                     LogDt = System.DateTime.Now
                 };
-                ctx.TOeSysLog.Add(e);
+                ctx.T_PRT_SYS_LOG.Add(e);
                 ctx.SaveChanges();
                 return e.SysLogId;
             }
@@ -438,9 +531,45 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             }
         }
 
-        public TOeSysLog GetT_OE_SYS_LOG()
+        public T_PRT_SYS_LOG GetT_PRT_SYS_LOG()
         {
             return null;
         }
+
+
+        /// <summary>
+        /// General purpose logging of any Entity Framework methods to database
+        /// </summary>
+        /// <param name="ex">Exception to log</param>
+        public void LogEFException(Exception ex)
+        {
+            //string err = "";
+            //if (ex is DbEntityValidationException)
+            //{
+            //    DbEntityValidationException dbex = (DbEntityValidationException)ex;
+            //    foreach (var eve in dbex.EntityValidationErrors)
+            //    {
+            //        err += "Entity error type" + eve.Entry.Entity.GetType().Name;  //maybe add eve.Entry.State too
+            //        foreach (var ve in eve.ValidationErrors)
+            //            err += " property: " + ve.PropertyName + " error: " + ve.ErrorMessage;
+            //    }
+            //}
+            //else
+            //{
+            //    if (ex.InnerException != null)
+            //    {
+            //        if (ex.InnerException.Message == "An error occurred while updating the entries. See the inner exception for details.")
+            //        {
+            //            err = ex.InnerException.InnerException.ToString();
+            //        }
+            //    }
+            //    else
+            //        err = (ex.InnerException != null ? ex.InnerException.Message : "");
+            //}
+
+            string err = (ex.InnerException != null ? ex.InnerException.Message : "");
+            InsertT_PRT_SYS_LOG("ERROR", err.SubStringPlus(0, 2000));
+        }
+
     }
 }

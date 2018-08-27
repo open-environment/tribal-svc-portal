@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using TribalSvcPortal.Data.Models;
 using TribalSvcPortal.ViewModels;
-using TribalSvcPortal.Models.AdminViewModels;
+using TribalSvcPortal.ViewModels.AdminViewModels;
 using TribalSvcPortal.AppLogic.DataAccessLayer;
 
 namespace TribalSvcPortal.Controllers
@@ -17,12 +17,17 @@ namespace TribalSvcPortal.Controllers
     [Authorize]
     public class AdminController : Controller
     {
-        private readonly RoleManager<IdentityRole> _roleManager;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IDbPortal _DbPortal;
 
-        public AdminController(IDbPortal DbPortal)
+        public AdminController(
+            UserManager<ApplicationUser> userManager,
+            RoleManager<IdentityRole> roleManager, 
+            IDbPortal DbPortal)
         {
+            _userManager = userManager;
+            _roleManager = roleManager;
             _DbPortal = DbPortal;
         }
 
@@ -56,41 +61,38 @@ namespace TribalSvcPortal.Controllers
         }
 
 
-        //[Authorize(Roles = "PortalAdmin")]
-        //public async Task<IActionResult> UserEdit(string id)
-        //{
-        //    //roles the user is assigned 
-        //    var RolesInUser = from itemA in _IDcontext.Roles
-        //                      join itemB in _IDcontext.UserRoles on itemA.Id equals itemB.RoleId
-        //                      where itemB.UserId == id
-        //                      select itemA;
+        [Authorize(Roles = "PortalAdmin")]
+        public async Task<IActionResult> UserEdit(string id)
+        {
+            //roles the user is assigned 
+            var RolesInUser = _DbPortal.GetT_PRT_ROLES_BelongingToUser(id);
 
-        //    var allRoles = _roleManager.Roles.ToList();  //  get all roles 
+            var allRoles = _roleManager.Roles.ToList();  //  get all roles 
 
-        //    var model = new UserEditViewModel
-        //    {
-        //        appUser = await _userManager.FindByIdAsync(id),
-        //        UserRoles = RolesInUser.Select(x => new SelectListItem
-        //        {
-        //            Value = x.Name,
-        //            Text = x.Name
-        //        }),
-        //        RoleNotInUser = allRoles.Except(RolesInUser).OrderBy(a => a.Name).Select(x => new SelectListItem
-        //        {
-        //            Value = x.Name,
-        //            Text = x.Name
-        //        }),
-        //        UserTenants = _DbPortal.GetT_PRT_TENANT_USERS_ByUserID(id),
-        //        ddl_Tenants = _DbPortal.GetT_PRT_TENANTS().Select(x => new SelectListItem
-        //        {
-        //            Value = x.TenantId.ToString(),
-        //            Text = x.TenantName
-        //        })
-        //    };
+            var model = new UserEditViewModel
+            {
+                appUser = await _userManager.FindByIdAsync(id),
+                UserRoles = RolesInUser.Select(x => new SelectListItem
+                {
+                    Value = x.Name,
+                    Text = x.Name
+                }),
+                RoleNotInUser = allRoles.Except(RolesInUser).OrderBy(a => a.Name).Select(x => new SelectListItem
+                {
+                    Value = x.Name,
+                    Text = x.Name
+                }),
+                UserOrgs = _DbPortal.GetT_PRT_ORG_USERS_ByUserID(id),
+                ddl_Orgs = _DbPortal.GetT_PRT_ORGANIZATIONS().Select(x => new SelectListItem
+                {
+                    Value = x.OrgId.ToString(),
+                    Text = x.OrgName
+                })
+            };
 
-        //    var users = await _userManager.FindByIdAsync(id);
-        //    return View(model);
-        //}
+            var users = await _userManager.FindByIdAsync(id);
+            return View(model);
+        }
 
 
         [Authorize(Roles = "PortalAdmin")]
@@ -98,7 +100,6 @@ namespace TribalSvcPortal.Controllers
         public async Task<ActionResult> UserEdit(UserEditViewModel model, string submitButton)
         {
             ApplicationUser _user = await _userManager.FindByIdAsync(model.appUser.Id);
-
             if (_user != null)
             {
                 IdentityResult SuccID = new IdentityResult();
@@ -108,20 +109,25 @@ namespace TribalSvcPortal.Controllers
                 {
                     foreach (string r in model.Role_Not_In_User_Selected)
                         SuccID = await _userManager.AddToRoleAsync(_user, r);
-
-                    if (SuccID.Succeeded)
-                        TempData["Success"] = "Update successful.";
-
                 }
                 // REMOVE USER FROM ROLE
                 else if (submitButton == "Remove")
                 {
                     foreach (string r in model.Users_Role_Selected)
                         SuccID = await _userManager.RemoveFromRoleAsync(_user, r);
-
-                    if (SuccID.Succeeded)
-                        TempData["Success"] = "Update successful.";
                 }
+                else
+                {
+                    //update fields
+                    _user.FIRST_NAME = model.appUser.FIRST_NAME;
+                    _user.LAST_NAME = model.appUser.LAST_NAME;
+                    _user.Email = model.appUser.Email;
+                    _user.UserName = model.appUser.Email;
+                    SuccID = await _userManager.UpdateAsync(_user);
+                }
+
+                if (SuccID.Succeeded)
+                    TempData["Success"] = "Update successful.";
             }
 
             return RedirectToAction("UserEdit", new { id = model.appUser.Id });
@@ -143,33 +149,33 @@ namespace TribalSvcPortal.Controllers
         }
 
 
-        //******************************* TENANT USERS **********************************************************
+        //******************************* ORG USERS **********************************************************
         [HttpPost]
-        public IActionResult TenantUserEdit(string uidx, string tenant_id, string AdminInd, string StatusInd)
+        public IActionResult OrgUserEdit(string uidx, string org_id, string AdminInd, string StatusInd)
         {
             if (ModelState.IsValid)
             {
-                int newID = _DbPortal.InsertUpdateT_PRT_TENANT_USERS(null, tenant_id, uidx, (AdminInd == "A" ? true : false), StatusInd, User.Identity.Name);
+                int newID = _DbPortal.InsertUpdateT_PRT_ORG_USERS(null, org_id, uidx, (AdminInd == "A" ? true : false), StatusInd, User.Identity.Name);
 
                 if (newID == 0)
-                    TempData["Error"] = "Error adding user";
+                    TempData["Error"] = "Unable to add user to organization.";
                 else
-                    TempData["Success"] = "Record successfully added";
+                    TempData["Success"] = "Record successfully added.";
             }
             else
-                TempData["Error"] = "Error adding user";
+                TempData["Error"] = "Unable to add user to organization.";
 
             return RedirectToAction("UserEdit", "Admin", new { id = uidx });
         }
 
         [HttpPost]
-        public IActionResult TenantUserDelete(int id, string id2)
+        public IActionResult OrgUserDelete(int id, string id2)
         {
-            int SuccID = _DbPortal.DeleteT_PRT_TENANT_USERS(id);
+            int SuccID = _DbPortal.DeleteT_PRT_ORG_USERS(id);
             if (SuccID > 0)
                 TempData["Success"] = "Record has been deleted.";
             else
-                TempData["Error"] = "Unable to delete tenant user.";
+                TempData["Error"] = "Unable to delete user from organization.";
 
             return RedirectToAction("UserEdit", new { id = id2 });
         }
@@ -192,7 +198,7 @@ namespace TribalSvcPortal.Controllers
 
         [Authorize(Roles = "PortalAdmin")]
         [HttpPost, ValidateAntiForgeryToken]
-        public ActionResult ClientEdit(TPrtClients model)
+        public ActionResult ClientEdit(T_PRT_CLIENTS model)
         {
 
             if (model != null)
@@ -212,15 +218,15 @@ namespace TribalSvcPortal.Controllers
 
 
 
-        //******************************* TENANTS **********************************************************
-        public IActionResult TenantList()
+        //******************************* ORGANIZATIONS **********************************************************
+        public IActionResult OrgList()
         {
-            var model = _DbPortal.GetT_PRT_TENANTS();
+            var model = _DbPortal.GetT_PRT_ORGANIZATIONS();
             return View(model);
         }
 
 
-        public IActionResult TenantEdit()
+        public IActionResult OrgEdit()
         {
             return View();
         }
@@ -228,14 +234,14 @@ namespace TribalSvcPortal.Controllers
 
 
 
-        //************************************ TENANT USER CLIENT  ***************************************
-        public IActionResult TenantUserClients(int id)
+        //************************************ ORGANIZATION USER CLIENT  ***************************************
+        public IActionResult OrgUserClients(int id)
         {
-            var model = new TenantUserEditViewModel
+            var model = new OrgUserEditViewModel
             {
-                UserIDX = _DbPortal.GetT_PRT_TENANT_USERS_ByTenantUserID(id).Id,
-                TenantUserIDX = id,
-                TenantUserClients = _DbPortal.GetT_PRT_TENANT_USERS_CLIENT_ByTenantUserID(id),
+                UserIDX = _DbPortal.GetT_PRT_ORG_USERS_ByOrgUserID(id).Id,
+                OrgUserIDX = id,
+                OrgUserClients = _DbPortal.GetT_PRT_ORG_USERS_CLIENT_ByOrgUserID(id),
                 ddl_Clients = _DbPortal.GetT_PRT_CLIENTS().Select(x => new SelectListItem
                 {
                     Value = x.ClientId,
@@ -247,11 +253,11 @@ namespace TribalSvcPortal.Controllers
         }
 
         [HttpPost]
-        public IActionResult TenantUserClientEdit(int tenant_user_idx, string client_id, string AdminInd, string StatusInd)
+        public IActionResult OrgUserClientEdit(int org_user_idx, string client_id, string AdminInd, string StatusInd)
         {
             if (ModelState.IsValid)
             {
-                int newID = _DbPortal.InsertUpdateT_PRT_TENANT_USERS_CLIENT(null, tenant_user_idx, client_id, (AdminInd == "1" ? true : false), StatusInd, User.Identity.Name);
+                int newID = _DbPortal.InsertUpdateT_PRT_ORG_USERS_CLIENT(null, org_user_idx, client_id, (AdminInd == "1" ? true : false), StatusInd, User.Identity.Name);
 
                 if (newID == 0)
                     TempData["Error"] = "Error adding user";
@@ -261,22 +267,83 @@ namespace TribalSvcPortal.Controllers
             else
                 TempData["Error"] = "Error adding user";
 
-            return RedirectToAction("TenantUserClients", "Admin", new { id = tenant_user_idx });
+            return RedirectToAction("OrgUserClients", "Admin", new { id = org_user_idx });
         }
 
         [HttpPost]
-        public IActionResult TenantUserClientDelete(int id, string id2)
+        public IActionResult OrgUserClientDelete(int id, string id2)
         {
-            int SuccID = _DbPortal.DeleteT_PRT_TENANT_USER_CLIENT(id);
+            int SuccID = _DbPortal.DeleteT_PRT_ORG_USER_CLIENT(id);
             if (SuccID > 0)
                 TempData["Success"] = "Record has been deleted.";
             else
-                TempData["Error"] = "Unable to delete tenant user.";
+                TempData["Error"] = "Unable to delete client access from user.";
 
-            return RedirectToAction("TenantUserClients", new { id = id2 });
+            return RedirectToAction("OrgUserClients", new { id = id2 });
         }
 
 
+
+        //************************************ SETTINGS ***************************************
+        public ActionResult Settings()
+        {
+            //T_OE_APP_SETTINGS_CUSTOM custSettings = _DbPortal.g db_Ref.GetT_OE_APP_SETTING_CUSTOM();
+
+            var model = new SettingsViewModel
+            {
+                app_settings = _DbPortal.GetT_PRT_APP_SETTING_List(),
+                //TermsAndConditions = custSettings.TERMS_AND_CONDITIONS,
+                //Announcements = custSettings.ANNOUNCEMENTS
+            };
+            return View(model);
+        }
+
+        [HttpPost, ValidateAntiForgeryToken]
+        public ActionResult Settings(SettingsViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                string UserID = _userManager.GetUserId(User);
+
+                int SuccID = _DbPortal.InsertUpdateT_PRT_APP_SETTING(model.edit_app_setting.SettingIdx, model.edit_app_setting.SettingName, model.edit_app_setting.SettingValue, false, null, UserID);
+                if (SuccID > 0)
+                    TempData["Success"] = "Data Saved.";
+                else
+                    TempData["Error"] = "Data Not Saved.";
+            }
+
+            return RedirectToAction("Settings");
+        }
+
+        //[HttpPost, ValidateAntiForgeryToken]
+        //public ActionResult CustomSettings(SettingsViewModel model)
+        //{
+        //    if (ModelState.IsValid)
+        //    {
+        //        int SuccID = _DbPortal.InsertUpdateT_PRT_APP_SETTING_CUSTOM(model.TermsAndConditions, null);
+        //        if (SuccID > 0)
+        //            TempData["Success"] = "Data Saved.";
+        //        else
+        //            TempData["Error"] = "Data Not Saved.";
+        //    }
+
+        //    return RedirectToAction("Settings");
+        //}
+
+        //[HttpPost, ValidateAntiForgeryToken]
+        //public ActionResult CustomSettingsAnnounce(SettingsViewModel model)
+        //{
+        //    if (ModelState.IsValid)
+        //    {
+        //        int SuccID = _DbPortal.InsertUpdateT_PRT_APP_SETTING_CUSTOM(null, model.Announcements ?? "");
+        //        if (SuccID > 0)
+        //            TempData["Success"] = "Data Saved.";
+        //        else
+        //            TempData["Error"] = "Data Not Saved.";
+        //    }
+
+        //    return RedirectToAction("Settings");
+        //}
 
     }
 

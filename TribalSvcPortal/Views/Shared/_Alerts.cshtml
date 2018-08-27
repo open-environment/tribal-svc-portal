@@ -1,0 +1,23 @@
+﻿<script type="text/javascript">
+    $(function() {
+        // use toastr to display the alerts
+        toastr.options = {
+            "closeButton": true,
+            "positionClass": "toast-top-right"
+        }
+
+        @if (TempData["Error"] != null)
+        {
+            <text>
+            toastr.warning("@TempData["Error"]");
+            </text>
+        }
+
+        @if (TempData["Success"] != null)
+        {
+            <text>
+            toastr.success("@TempData["Success"]");
+            </text>
+        }
+    });
+</script>

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace TribalSvcPortal.Data.Models
 {
-    public partial class TOeSysLog
+    public partial class T_PRT_SYS_LOG
     {
         public int SysLogId { get; set; }
         public DateTime LogDt { get; set; }

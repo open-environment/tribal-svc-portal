@@ -1,0 +1,183 @@
+﻿@model TribalSvcPortal.ViewModels.AdminViewModels.SettingsViewModel
+@{
+    ViewBag.Title = "Global Settings";
+    ViewBag.SubTitle = "Manage global application settings.";
+}
+
+
+<div class="panel-group accordion-custom accordion-teal" id="accordion">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h4 class="panel-title">
+                <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#collapseOne" aria-expanded="true">
+                    General Settings
+                </a>
+            </h4>
+        </div>
+        <div id="collapseOne" class="panel-collapse collapse in" aria-expanded="true" style="">
+            <div class="panel-body">
+
+                <div class="row">
+                    <div class="col-sm-12">
+                        <section class="panel panel-default">
+                            <div class="table-responsive">
+                                <table class="table table-striped m-b-none" data-ride="datatables">
+                                    <tr>
+                                        <th>Edit</th>
+                                        <th>Setting Name</th>
+                                        <th>Setting Description</th>
+                                        <th>Setting Value</th>
+                                    </tr>
+
+                                    @foreach (var item in Model.app_settings)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <a href="#modal-form" class="btn btn-rounded btn-xs btn-info modal-it" data-toggle="modal"><i class="glyphicon glyphicon-pencil"></i></a>
+                                                @Html.HiddenFor(modelItem => item.SettingIdx)
+                                                @Html.HiddenFor(modelItem => item.SettingName)
+                                                @if (item.EncryptInd != true)
+                                                {
+                                                    @Html.HiddenFor(modelItem => item.SettingValue)
+                                                }
+                                                @Html.HiddenFor(modelItem => item.EncryptInd)
+                                            </td>
+                                            <td>
+                                                @Html.DisplayFor(modelItem => item.SettingName)
+                                            </td>
+                                            <td>
+                                                @Html.DisplayFor(modelItem => item.SettingDesc)
+                                            </td>
+                                            <td>
+                                                @(item.EncryptInd != true ? item.SettingValue : "*********************")
+                                            </td>
+                                        </tr>
+                                    }
+                                </table>
+                            </div>
+                        </section>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h4 class="panel-title">
+                <a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#accordion" href="#collapseTwo" aria-expanded="false">
+                    Terms &amp; Conditions
+                </a>
+            </h4>
+        </div>
+        <div id="collapseTwo" class="panel-collapse collapse" aria-expanded="false" style="height: 0px;">
+            <div class="panel-body">
+                @using (Html.BeginForm("CustomSettings", "Admin", FormMethod.Post))
+                {
+                    @Html.AntiForgeryToken()
+                    <div class="form-group">
+                        @Html.EditorFor(model => model.TermsAndConditions)
+                        @Html.ValidationMessageFor(model => model.TermsAndConditions)
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <button id="btnSave" type="submit" class="btn btn-primary">Save</button>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h4 class="panel-title">
+                <a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#accordion" href="#collapseThree" aria-expanded="false">
+                    Announcements
+                </a>
+            </h4>
+        </div>
+        <div id="collapseThree" class="panel-collapse collapse" aria-expanded="false" style="height: 0px;">
+            <div class="panel-body">
+                @using (Html.BeginForm("CustomSettingsAnnounce", "Admin", FormMethod.Post))
+                {
+                    @Html.AntiForgeryToken()
+                    <div class="form-group">
+                        @Html.EditorFor(model => model.Announcements)
+                        @Html.ValidationMessageFor(model => model.Announcements)
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <button id="btnSave" type="submit" class="btn btn-primary">Save</button>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<!-- START MODAL FORM  -->
+<div class="modal fade" id="modal-form" style="display: none;" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-sm-12 ">
+                        <h3 class="m-t-none m-b">Edit Setting</h3>
+
+                        @using (Html.BeginForm("Settings", "Admin", FormMethod.Post))
+                        {
+                            @Html.AntiForgeryToken()
+                            @Html.HiddenFor(model => model.edit_app_setting.SettingIdx)
+
+                            <div class="panel-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>Global Setting Name</label>
+                                            @Html.TextBoxFor(model => model.edit_app_setting.SettingName, new { @class = "form-control", @readonly = "readonly" })
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>Global Setting Value</label>
+                                            @Html.TextBoxFor(model => model.edit_app_setting.SettingValue, new { @class = "form-control" })
+                                            @Html.ValidationMessageFor(model => model.edit_app_setting.SettingValue)
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <button id="btnSave" type="submit" class="btn btn-sm btn-primary">Save</button>
+                                        <button type="submit" class="btn btn-sm btn-default" data-dismiss="modal">Cancel</button>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+<!-- END MODAL FORM -->
+
+@section Scripts {
+    <script type="text/javascript">
+        $(document).ready(function () {
+            //create an event when button is clicked to display modal
+            $(".modal-it").click(function () {
+                $('#edit_app_setting_SETTING_IDX').val($(this).parent('td').find('#item_SETTING_IDX').val());
+                $('#edit_app_setting_SETTING_NAME').val($(this).parent('td').find('#item_SETTING_NAME').val());
+                if ($(this).parent('td').find('#item_ENCRYPT_IND').val() != 'True')
+                    $('#edit_app_setting_SETTING_VALUE').val($(this).parent('td').find('#item_SETTING_VALUE').val());
+                else
+                    $('#edit_app_setting_SETTING_VALUE').val('');
+            });
+        });
+    </script>
+}

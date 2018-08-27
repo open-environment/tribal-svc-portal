@@ -3,12 +3,12 @@ using System.Collections.Generic;
 
 namespace TribalSvcPortal.Data.Models
 {
-    public partial class TPrtClients
+    public partial class T_PRT_CLIENTS
     {
-        public TPrtClients()
+        public T_PRT_CLIENTS()
         {
-            TPrtClientRoles = new HashSet<TPrtClientRoles>();
-            TPrtTenantUserClient = new HashSet<TPrtTenantUserClient>();
+            T_PRT_CLIENT_ROLES = new HashSet<T_PRT_CLIENT_ROLES>();
+            T_PRT_ORG_USER_CLIENT = new HashSet<T_PRT_ORG_USER_CLIENT>();
         }
 
         public string ClientId { get; set; }
@@ -18,8 +18,9 @@ namespace TribalSvcPortal.Data.Models
         public string ClientPostLogoutUri { get; set; }
         public string ClientUrl { get; set; }
         public byte[] ClientImage { get; set; }
+        public bool ClientLocalInd { get; set; }
 
-        public ICollection<TPrtClientRoles> TPrtClientRoles { get; set; }
-        public ICollection<TPrtTenantUserClient> TPrtTenantUserClient { get; set; }
+        public ICollection<T_PRT_CLIENT_ROLES> T_PRT_CLIENT_ROLES { get; set; }
+        public ICollection<T_PRT_ORG_USER_CLIENT> T_PRT_ORG_USER_CLIENT { get; set; }
     }
 }

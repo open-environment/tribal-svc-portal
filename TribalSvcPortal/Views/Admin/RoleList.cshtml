@@ -1,4 +1,30 @@
-﻿
-@*
-    For more information on enabling MVC for empty projects, visit http://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@model IEnumerable<IdentityRole>
+@{
+    ViewData["Title"] = "Role List";
+}
+
+<section class="panel panel-default">
+    <div class="table-responsive">
+        <table class="table table-striped m-b-none" data-ride="datatables">
+            <tr>
+                <th>Role ID</th>
+                <th>Role Name</th>
+            </tr>
+
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Id)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Name)
+                    </td>
+                </tr>
+            }
+
+        </table>
+    </div>
+
+</section>
+

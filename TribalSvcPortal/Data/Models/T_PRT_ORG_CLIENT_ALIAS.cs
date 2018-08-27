@@ -3,10 +3,10 @@ using System.Collections.Generic;
 
 namespace TribalSvcPortal.Data.Models
 {
-    public partial class TPrtTenantClientAlias
+    public partial class T_PRT_ORG_CLIENT_ALIAS
     {
-        public string TenantId { get; set; }
+        public string OrgId { get; set; }
         public string ClientId { get; set; }
-        public string TenantClientAlias { get; set; }
+        public string OrgClientAlias { get; set; }
     }
 }

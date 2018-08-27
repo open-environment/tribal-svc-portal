@@ -1,0 +1,79 @@
+﻿@model T_PRT_CLIENTS
+@{
+    ViewData["Title"] = "Client Edit";
+    ViewData["SubTitle"] = "Edit details about a client application";
+}
+
+<!-- START: MAIN CONTENT -->
+<section class="panel panel-default">
+    <header class="panel-heading">Client Details</header>
+    <div class="panel-body">
+
+        @using (Html.BeginForm())
+        {
+            @Html.AntiForgeryToken()
+            @Html.ValidationSummary(true)
+
+            if (Model != null)
+            {
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Client ID</label>
+                            @Html.TextBoxFor(model => model.ClientId, new { @class = "form-control" })
+                            @Html.ValidationMessageFor(model => model.ClientId)
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Client Name</label>
+                            @Html.TextBoxFor(model => model.ClientName, new { @class = "form-control" })
+                            @Html.ValidationMessageFor(model => model.ClientName)
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Grant Type</label>
+                            @Html.TextBoxFor(model => model.ClientGrantType, new { @class = "form-control" })
+                            @Html.ValidationMessageFor(model => model.ClientGrantType)
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label>Client URL</label>
+                            @Html.TextBoxFor(model => model.ClientUrl, new { @class = "form-control", @placeholder = "URL of client application" })
+                            @Html.ValidationMessageFor(model => model.ClientUrl)
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label>Redirect URI</label>
+                            @Html.TextBoxFor(model => model.ClientRedirectUri, new { @class = "form-control", @placeholder = "URI used for OIDC callback" })
+                            @Html.ValidationMessageFor(model => model.ClientRedirectUri)
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label>Post Logout URI</label>
+                            @Html.TextBoxFor(model => model.ClientPostLogoutUri, new { @class = "form-control" })
+                            @Html.ValidationMessageFor(model => model.ClientPostLogoutUri)
+                        </div>
+                    </div>
+                </div>
+            }
+
+            <p>
+                <button type="submit" class="btn btn-primary">Save</button>
+                <a class=" btn btn-warning" href="@Url.Action("ClientList" )">Back to List</a>
+            </p>
+        }
+
+    </div>
+</section>
+

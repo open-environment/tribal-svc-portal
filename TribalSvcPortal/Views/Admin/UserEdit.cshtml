@@ -1,0 +1,221 @@
+﻿@model TribalSvcPortal.ViewModels.AdminViewModels.UserEditViewModel
+@{
+    ViewData["Title"] = "User Details";
+    ViewData["SubTitle"] = "";
+}
+
+<!-- START: MAIN CONTENT -->
+<section class="panel panel-default">
+    <header class="panel-heading">User Details</header>
+    <div class="panel-body">
+
+        @using (Html.BeginForm())
+        {
+            @Html.AntiForgeryToken()
+            @Html.ValidationSummary(true)
+            @Html.HiddenFor(model => model.appUser.Id)
+
+            if (Model != null)
+            {
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>User Name</label>
+                            @Html.TextBoxFor(model => model.appUser.Email, new { @class = "form-control", @placeholder = "User Name" })
+                            @Html.ValidationMessageFor(model => model.appUser.UserName)
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>User ID</label>
+                            @Html.TextBoxFor(model => model.appUser.Id, new { @readonly = "readonly", @class = "form-control" })
+                            @Html.ValidationMessageFor(model => model.appUser.Id)
+                        </div>
+                    </div>
+                </div>
+            }
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label>First Name</label>
+                        @Html.TextBoxFor(model => model.appUser.FIRST_NAME, new { @class = "form-control", @placeholder = "First Name" })
+                        @Html.ValidationMessageFor(model => model.appUser.FIRST_NAME)
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label>Last Name</label>
+                        @Html.TextBoxFor(model => model.appUser.LAST_NAME, new { @class = "form-control", @placeholder = "Last Name" })
+                        @Html.ValidationMessageFor(model => model.appUser.LAST_NAME)
+                    </div>
+                </div>
+            </div>
+
+
+            <p>
+                <button type="submit" class="btn btn-sm btn-primary">Save</button>
+                <a class=" btn btn-sm btn-warning" href="@Url.Action("UserList" )">Back to List</a>
+            </p>
+
+        }
+
+    </div>
+</section>
+
+<!-- start: USER ROLE ASSIGNMENT -->
+<div class="panel panel-default">
+    <div class="panel-heading">
+        User Role Assignment
+    </div>
+    <div class="panel-body">
+
+        @using (Html.BeginForm("UserEdit", "Admin", FormMethod.Post, new { @class = "" }))
+        {
+            @Html.AntiForgeryToken()
+            @Html.ValidationSummary(true)
+            @Html.HiddenFor(model => model.appUser.Id)
+
+            <div class="row" style="padding-left: 15px">
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label>Available Roles</label>
+                        @Html.ListBoxFor(model => model.Role_Not_In_User_Selected, Model.RoleNotInUser, new { @class = "form-control", size = 5 })
+                    </div>
+                </div>
+                <div class="col-sm-3">
+                    <div class="form-group">
+                        <br /><br />
+                        <button type="submit" name="submitButton" value="Add" class="btn btn-success btn-sm btn-block">
+                            Assign Role <i class="clip-arrow-right"></i>
+                        </button>
+                        <br />
+                        <button type="submit" name="submitButton" value="Remove" class="btn btn-success btn-sm  btn-block">
+                            <i class="clip-arrow-left"></i> Remove Role
+                        </button>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label>Roles Assigned to User</label>
+                        @Html.ListBoxFor(model => model.Users_Role_Selected, Model.UserRoles, new { @class = "form-control", size = 5 })
+                        @Html.ValidationMessageFor(model => model.Users_Role_Selected)
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+<!-- end: USER ROLE ASSIGNMENT -->
+<!-- start: ORGANIZATION ACCESS-->
+<div class="panel panel-default">
+    <div class="panel-heading">
+        Organization Access
+    </div>
+    <div class="panel-body">
+        <div class="table-responsive">
+            <table class="table table-striped m-b-none" data-ride="datatables">
+                <tr>
+                    <th></th>
+                    <th>Organization</th>
+                    <th>Is Admin?</th>
+                    <th>Status</th>
+                </tr>
+
+                @foreach (var item in Model.UserOrgs)
+                {
+                    <tr>
+                        <td>
+                            <a href="@Url.Action("TenantUserClients","Admin", new { id=item.ORG_USER_IDX })" class="btn btn-rounded btn-xs btn-info"><i class="glyphicon glyphicon-pencil"></i> Clients</a>
+                            <div class="delete-section" style="display:inline">
+                                <a class=" btn btn-rounded btn-xs btn-danger delete-link"><i class="glyphicon glyphicon-remove"></i></a>
+                                <div class="btn btn-rounded btn-xs btn-warning delete-confirm" style="display:none" data-delete-id="@item.ORG_USER_IDX" data-delete-id2="@Model.appUser.Id" data-delete-p="/Admin/TenantUserDelete"><b>Confirm Delete</b></div>
+                            </div>
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.ORG_NAME)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.ORG_ADMIN_IND)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.STATUS_IND)
+                        </td>
+                    </tr>
+                }
+
+            </table>
+        </div>
+
+        <p>
+            <a href="#modal-form" class="btn btn-s-md btn-primary add-it" data-toggle="modal">Add Organization Access</a>
+        </p>
+
+    </div>
+</div>
+<!-- end: ORG ACCESS-->
+<!-- START MODAL ORG ACCESS -->
+<div class="modal fade" id="modal-form" style="display: none;" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-sm-12 ">
+                        <h3 class="m-t-none m-b">Add Organization Access</h3>
+
+                        @using (Html.BeginForm("OrgUserEdit", "Admin", FormMethod.Post, new { @class = "" }))
+                        {
+                            @Html.AntiForgeryToken()
+                            @Html.Hidden("uidx", Model.appUser.Id)
+
+                            <div class="panel-body" style="padding: 0px">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            Tenant:
+                                            @Html.DropDownList("org_id", Model.ddl_Orgs, "", new { @class = "form-control" })
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            Admin Access:
+                                            @Html.DropDownList("AdminInd", new List<SelectListItem>
+                                           {
+                                               new SelectListItem{ Text="User", Value = "U" },
+                                               new SelectListItem{ Text="Admin", Value = "A" }
+                                           }, new { @class = "form-control" })
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            Status:
+                                            @Html.DropDownList("StatusInd", new List<SelectListItem>
+                                       {
+                                           new SelectListItem{ Text="Approved", Value = "A" },
+                                           new SelectListItem{ Text="Pending", Value = "P" }
+                                       }, new { @class = "form-control" })
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <button id="picLoc" type="submit" class="btn btn-sm btn-primary"><strong>Save</strong></button>
+                                        <button type="submit" class="btn btn-sm btn-default" data-dismiss="modal"><strong>Cancel</strong></button>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+<!-- END MODAL TENANT ACCESS -->
+
+@section scripts {
+    <script src="~/js/confirm_delete.js"></script>
+}

@@ -1,4 +1,5 @@
 ﻿@using TribalSvcPortal.HtmlHelpers
+
 @*@using EECIP.App_Logic.DataAccessLayer*@
 
 <div class="main-navigation navbar-collapse collapse navbar-collapse-left">
@@ -17,106 +18,123 @@
                 <span class="title">Home</span><span class="selected"></span>
             </a>
         </li>
-        <li class="lvl1 @Html.ActivePage("Dashboard", "Search")">
-            <a href="@Url.Action("Search","Dashboard")">
-                <i class="clip-search-3"></i>
-                <span class="title">Search Inventory</span><span class="selected"></span>
+
+        <li class="lvl1 @Html.ActivePage("Dashboard", "Index2")">
+            <a href="@Url.Action("Index2","Dashboard")">
+                <i class="clip-droplet"></i>
+                <span class="title">Open Waters <i class="clip-new-tab"></i></span>
             </a>
         </li>
+
+        <li class="lvl1 @Html.ActivePage("Dashboard", "Index3")">
+            <a href="@Url.Action("Index3","Dashboard")">
+                <i class="glyphicon glyphicon-plus "></i>
+                <span class="title">Emergency Hound <i class="clip-new-tab"></i></span>
+            </a>
+        </li>
+
         <li class="open">
             <a href="javascript:void(0)">
-                <i class="clip-pencil-3"></i>
-                <span class="title">Edit Profiles </span><i class="icon-arrow"></i>
-                <span class="selected"></span>
+                <i class="clip-leaf"></i>
+                <span class="title">Open Dump </span>
+                <i class="icon-arrow"></i>
             </a>
-            @*<ul class="sub-menu" style="display:block;">
-                    <li class="@Html.ActivePage("Account", "UserProfile")">
-                        <a href="@Url.Action("UserProfile", "Account", new { id = db_Accounts.GetUserIDX() })">
-                            <span class="title">User Profile </span>
-                        </a>
-                    </li>
-                    <li class="@Html.ActivePage("Dashboard", "Agency")">
-                        <a href="@Url.Action("Agency", "Dashboard")">
-                            <span class="title">Agency Profile </span>
-                        </a>
-                    </li>
-                    <li class="@Html.ActivePage("Dashboard", "Projects")">
-                        <a href="@Url.Action("Projects", "Dashboard")">
-                            <span class="title">Agency Projects </span>
-                        </a>
-                    </li>
-                    <li class="@Html.ActivePage("Dashboard", "Governance")">
-                        <a href="@Url.Action("Governance", "Dashboard")">
-                            <span class="title">Governance Materials </span>
-                        </a>
-                    </li>
-                </ul>*@
+            <ul class="sub-menu" style="display:block;">
+                <li class="@Html.ActivePage("OpenDump", "Search")">
+                    <a href="@Url.Action("Search", "OpenDump")">
+                        <span class="title">Search Dumps </span>
+                    </a>
+                </li>
+                <li class="@Html.ActivePage("OpenDump", "RefData")">
+                    <a href="@Url.Action("RefData", "OpenDump")">
+                        <span class="title">Reference Data </span>
+                    </a>
+                </li>
+            </ul>
         </li>
 
-
-        @if (User.IsInRole("Admins"))
+        @if (User.IsInRole("PortalAdmin"))
         {
-            <li>
-                <a href="javascript:;">
+            <li class="open">
+                <a href="javascript:void(0)">
                     <i class="clip-cog-2"></i>
                     <span class="title">Administration</span>
                     <i class="icon-arrow"></i>
+                    <span class="selected"></span>
                 </a>
-                <ul class="sub-menu">
-                        <li class="@Html.ActivePage("Admin", "Settings")">
-                            <a href="@Url.Action("Settings","Admin")">
-                                <span class="title">Global Config </span>
-                            </a>
-                        </li>
-                        <li class="@Html.ActivePage("Admin", "Ref")">
-                            <a href="javascript:;">
-                                <span class="title">Security Config</span>
-                                <i class="icon-arrow"></i>
-                            </a>
-                            <ul class="sub-menu">
-                                <li class="lvl3 @Html.ActivePage("Admin", "UserList")">
-                                    <a href="@Url.Action("UserList","Admin")">
-                                        <span class="title">Users </span>
-                                    </a>
-                                </li>
-                                <li class="lvl3 @Html.ActivePage("Admin", "RoleList")">
-                                    <a href="@Url.Action("RoleList","Admin")">
-                                        <span class="title">Roles </span>
-                                    </a>
-                                </li>
-                                <li class="lvl3 @Html.ActivePage("Admin", "ClientList")">
-                                    <a href="@Url.Action("ClientList","Admin")">
-                                        <span class="title">Clients </span>
-                                    </a>
-                                </li>
-                                <li class="lvl3 @Html.ActivePage("Admin", "TenantList")">
-                                    <a href="@Url.Action("TenantList","Admin")">
-                                        <span class="title">Tenants </span>
-                                    </a>
-                                </li>
-                            </ul>
-                        </li>
-                        <li class="@Html.ActivePage("Admin", "Ref")">
-                            <a href="javascript:;">
-                                <span class="title">Reference Data</span>
-                                <i class="icon-arrow"></i>
-                            </a>
-                            <ul class="sub-menu">
-                                <li class="lvl3 @Html.ActivePage("Admin", "RefAgencies")">
-                                    <a href="@Url.Action("RefAgencies","Admin")">
-                                        <span class="title">Agencies</span>
-                                    </a>
-                                </li>
-                                <li class="lvl3 @Html.ActivePage("Admin", "RefAgencies")">
-                                    <a href="@Url.Action("RefAgencies","Admin", new { typ = "Governance" })">
-                                        <span class="title">Governance Groups</span>
-                                    </a>
-                                </li>
+                <ul class="sub-menu" style="display:block;">
+                    <li class="@Html.ActivePage("Admin", "Settings")">
+                        <a href="@Url.Action("Settings","Admin")">
+                            <span class="title">Global Config </span>
+                        </a>
+                    </li>
+                    <li class="@Html.ActivePage("Admin", "Ref")">
+                        <a href="javascript:;">
+                            <span class="title">Security Config</span>
+                            <i class="icon-arrow"></i>
+                        </a>
+                        <ul class="sub-menu">
+                            <li class="lvl3 @Html.ActivePage("Admin", "UserList")">
+                                <a href="@Url.Action("UserList","Admin")">
+                                    <span class="title">Users </span>
+                                </a>
+                            </li>
+                            <li class="lvl3 @Html.ActivePage("Admin", "RoleList")">
+                                <a href="@Url.Action("RoleList","Admin")">
+                                    <span class="title">Roles </span>
+                                </a>
+                            </li>
+                            <li class="lvl3 @Html.ActivePage("Admin", "ClientList")">
+                                <a href="@Url.Action("ClientList","Admin")">
+                                    <span class="title">Clients </span>
+                                </a>
+                            </li>
+                            <li class="lvl3 @Html.ActivePage("Admin", "OrgList")">
+                                <a href="@Url.Action("OrgList","Admin")">
+                                    <span class="title">Organizations </span>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="@Html.ActivePage("Admin", "EmailConfig")">
+                        <a href="@Url.Action("EmailConfig","Admin")">
+                            <span class="title">Email Config </span>
+                        </a>
+                    </li>
+                    <li class="@Html.ActivePage("Admin", "Ref")">
+                        <a href="javascript:;">
+                            <span class="title">Reference Data</span>
+                            <i class="icon-arrow"></i>
+                        </a>
+                        <ul class="sub-menu">
+                            <li class="lvl3 @Html.ActivePage("Admin", "RefAgencies")">
+                                <a href="@Url.Action("RefAgencies","Admin")">
+                                    <span class="title">Agencies</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="@Html.ActivePage("Admin", "Ref")">
+                        <a href="javascript:;">
+                            <span class="title">Logging</span>
+                            <i class="icon-arrow"></i>
+                        </a>
+                        <ul class="sub-menu">
+                            <li class="lvl3 @Html.ActivePage("Admin", "SysLog")">
+                                <a href="@Url.Action("SysLog","Admin")">
+                                    <span class="title">General Log</span>
+                                </a>
+                            </li>
+                            <li class="lvl3 @Html.ActivePage("Admin", "EmailLog")">
+                                <a href="@Url.Action("EmailLog","Admin")">
+                                    <span class="title">Email Log</span>
+                                </a>
+                            </li>
 
-                            </ul>
-                        </li>
+                        </ul>
+                    </li>
 
-                    </ul>
+                </ul>
             </li>
         }
 

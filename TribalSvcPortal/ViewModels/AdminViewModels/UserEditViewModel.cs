@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using TribalSvcPortal.AppLogic.DataAccessLayer;
 using TribalSvcPortal.Data.Models;
 
-namespace TribalSvcPortal.Models.AdminViewModels
+namespace TribalSvcPortal.ViewModels.AdminViewModels
 {
     public class UserEditViewModel
     {
@@ -12,8 +12,8 @@ namespace TribalSvcPortal.Models.AdminViewModels
         public IEnumerable<SelectListItem> RoleNotInUser { get; set; }
         public IEnumerable<string> Users_Role_Selected { get; set; }
         public IEnumerable<string> Role_Not_In_User_Selected { get; set; }
-        public List<UserTenantsDisplayType> UserTenants { get; set; }
-        public IEnumerable<SelectListItem> ddl_Tenants { get; set; }
+        public List<UserOrgDisplayType> UserOrgs { get; set; }
+        public IEnumerable<SelectListItem> ddl_Orgs { get; set; }
     }
 
 

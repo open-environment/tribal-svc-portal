@@ -8,19 +8,6 @@ namespace TribalSvcPortal.AppLogic.BusinessLogicLayer
 {
     public static class Utils
     {
-        private static readonly IDbPortal _DbPortal;
-
-        /// <summary>
-        /// General purpose logging of any Entity Framework methods to database
-        /// </summary>
-        /// <param name="ex">Exception to log</param>
-        public static void LogEFException(Exception ex)
-        {
-            string err = (ex.InnerException != null ? ex.InnerException.Message : "");
-            _DbPortal.InsertT_OE_SYS_LOG("ERROR", err.SubStringPlus(0, 2000));
-        }
-
-
         /// <summary>
         ///  Better than built-in SubString by handling cases where string is too short
         /// </summary>
@@ -35,12 +22,5 @@ namespace TribalSvcPortal.AppLogic.BusinessLogicLayer
             return str.Substring(index, length);
         }
 
-
-
-
-
-
     }
-
-
 }

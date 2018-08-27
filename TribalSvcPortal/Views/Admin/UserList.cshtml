@@ -1,0 +1,58 @@
+﻿@model IEnumerable<ApplicationUser>
+@{
+    ViewData["Title"] = "User List";
+    ViewData["SubTitle"] = "View and manage the list of users that can access the tribal portal and client applications";
+}
+
+<section class="panel panel-default">
+    <div class="table-responsive">
+
+        <table class="table table-striped m-b-none" data-ride="datatables">
+            <tr>
+                <th></th>
+                <th>User ID</th>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Last Login Date</th>
+                <th>Phone</th>
+                <th>Active</th>
+                <th>Created Date</th>
+            </tr>
+
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        <a href="@Url.Action("UserEdit","Admin", new { id=item.Id })" class="btn btn-rounded btn-xs btn-info"><i class="glyphicon glyphicon-pencil"></i></a>
+                        <div class="delete-section" style="display:inline">
+                            <a class="btn btn-rounded btn-xs btn-danger delete-link"><i class="glyphicon glyphicon-remove"></i></a>
+                            <div class="btn btn-rounded btn-xs btn-warning delete-confirm" style="display:none" data-delete-id="@item.Id" data-delete-p="/Admin/UserDelete"><b>Confirm Delete</b></div>
+                        </div>
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.UserName)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.FIRST_NAME)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.LAST_NAME)
+                    </td>
+                    <td></td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.PhoneNumber)
+                    </td>
+                    <td></td>
+                    <td></td>
+                </tr>
+            }
+
+        </table>
+
+    </div>
+
+</section>
+
+@section scripts {
+    <script src="~/js/confirm_delete.js"></script>
+}

@@ -65,6 +65,18 @@ html {
     border-color: #199C98 !important;
 }
 
+.page-header {
+    margin-top: 10px;
+    margin-right: 0px;
+    margin-bottom: 10px;
+    margin-left: 0px;
+}
+
+    .page-header > h1 {
+        margin-bottom: 0;
+    
+    }
+
 @media (min-width: 768px) {
     .modal-dialog {
         margin-top: 100px;
@@ -148,6 +160,10 @@ html {
 .btn-icon {
     background-color: #199C98;
     border: 0px solid #199C98;
+}
+
+.color-eecip {
+    color: #199C98;
 }
 
 .btn-eecip {

@@ -14,6 +14,7 @@
         <link rel="stylesheet" href="~/css/main.css" />
         <link rel="stylesheet" href="~/css/main-responsive.css" />
         <link rel="stylesheet" href="~/css/theme_dark.css" />
+        <link rel="stylesheet" href="~/css/toastr.css" />
         <link rel="stylesheet" href="~/css/site.css" />
         @*<link rel="stylesheet" href="~/css/site.min.css" asp-append-version="true" />*@
     </environment>
@@ -50,8 +51,7 @@
                 <a asp-area="" asp-controller="Home" asp-action="Index" class="navbar-brand">Tribal Services Portal</a>
             </div>
             <div class="navbar-collapse collapse">
-                <ul class="nav navbar-nav">
-                </ul>
+                <ul class="nav navbar-nav"></ul>
                 @await Html.PartialAsync("_LoginPartial")
             </div>
         </div>
@@ -61,11 +61,31 @@
     <div class="main-container">
         @if (User.Identity.IsAuthenticated)
         {
-            <div class="navbar-content">
-                <!-- start: LEFT MENU -->
-                @Html.Partial("_LeftMenu")
-                <!-- end: LEFT MENU -->
-            </div>
+        <div class="navbar-content">
+            <!-- start: LEFT MENU -->
+            @Html.Partial("_LeftMenu")
+            <!-- end: LEFT MENU -->
+        </div>
+        }
+        else
+        {
+            <style>
+                .page-header {
+                    display: none;
+                }
+
+                .main-content {
+                    margin-left: 0px;
+                }
+
+                    .main-content .container {
+                        padding: 0 !important;
+                    }
+
+                .core-box {
+                    min-height: 170px;
+                }
+            </style>
         }
         <div class="main-content">
             <div class="container" style="min-height: 760px;">
@@ -78,16 +98,9 @@
                             {
                                 <button type="button" class="btn btn-return pull-right" style="margin-top:20px;" onclick="history.go(-1);"><i class="glyphicon glyphicon-arrow-left"></i> Back</button>
                             }
-                            @if (ViewBag.ShowBadge == true)
-                            {
-                                <div href="#modal-form" class="badge-alert pull-right  modal-it" data-toggle="modal">
-                                    <img src="/Content/Images/badges/recognised-post.png" alt="Badges" style="width:45px; margin-left:20px" />
-                                    <p class="publicbadgenamedesc" style="font-size:10px;">@ViewBag.BadgeCount Badges Earned</p>
-                                </div>
-                            }
                             <!-- start: PAGE TITLE & BREADCRUMB -->
                             <ul class="breadcrumb no-border no-radius b-b b-light pull-in">
-                                <li><a href="@Url.Action("Index", "Home")"><i class="fa fa-home"></i> Home</a></li>
+                                <li><a href="@Url.Action("Index", "Home")"><i class="clip-home"></i> Home</a></li>
                                 <li class="active">Initialize</li>
                             </ul>
                             <div class="page-header">
@@ -106,8 +119,8 @@
     <!-- start: FOOTER -->
     <div class="footer clearfix" style="background-color:#e5e5e5 !important;">
         <div class="footer-inner">
-            <a href="https://e-enterprisefortheenvironment.net">
-                <img src="~/Content/Images/footer-logo.png" />
+            <a href="@Url.Action("Index","Home")">
+                <img src="~/Images/footer-logo.png" style="opacity:0.2; height: 26px;" />
             </a>
         </div>
         <div class="footer-items">
@@ -128,6 +141,7 @@
     <environment include="Development">
         <script src="~/lib/jquery/dist/jquery.js"></script>
         <script src="~/lib/bootstrap/dist/js/bootstrap.js"></script>
+        <script src="~/js/toastr.js" asp-append-version="true"></script>
         <script src="~/js/site.js" asp-append-version="true"></script>
     </environment>
     <environment exclude="Development">
@@ -145,7 +159,13 @@
         </script>
         <script src="~/js/site.min.js" asp-append-version="true"></script>
     </environment>
-
+    <script>
+        jQuery(document).ready(function () {
+            Main.init();
+            $('[data-toggle="tooltip"]').tooltip();
+        });
+    </script>
+    @Html.Partial("_Alerts")
     @RenderSection("Scripts", required: false)
 </body>
 </html>

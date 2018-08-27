@@ -1,0 +1,57 @@
+﻿@model IEnumerable<T_PRT_CLIENTS>
+@{
+    ViewData["Title"] = "Client List";
+    ViewData["SubTitle"] = "The list of tribes or tribal agencies that are registered in the portal.";
+}
+
+<section class="panel panel-default">
+    <div class="table-responsive">
+        <table class="table table-striped m-b-none" data-ride="datatables">
+            <tr>
+                <th style="min-width:70px"></th>
+                <th>Client ID</th>
+                <th>Client Name</th>
+                <th>Grant Type</th>
+                <th>Client URI</th>
+                <th>Redirect URI</th>
+                <th>Post Logout URI</th>
+            </tr>
+
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td style="min-width:65px">
+                        <a href="@Url.Action("ClientEdit","Admin", new { id=item.ClientId })" class="btn btn-rounded btn-xs btn-info"><i class="glyphicon glyphicon-pencil"></i></a>
+                        <div class="delete-section" style="display:inline">
+                            <a class=" btn btn-rounded btn-xs btn-danger delete-link"><i class="glyphicon glyphicon-remove"></i></a>
+                            <div class="btn btn-rounded btn-xs btn-warning delete-confirm" style="display:none" data-delete-id="@item.ClientId" data-delete-p="/Admin/ClientDelete"><b>Confirm Delete</b></div>
+                        </div>
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.ClientId)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.ClientName)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.ClientUrl)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.ClientGrantType)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.ClientRedirectUri)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.ClientPostLogoutUri)
+                    </td>
+                </tr>
+            }
+
+        </table>
+    </div>
+</section>
+
+@section scripts {
+    <script src="~/js/confirm_delete.js"></script>
+}

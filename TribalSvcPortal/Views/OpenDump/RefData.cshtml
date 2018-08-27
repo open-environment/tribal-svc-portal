@@ -1,0 +1,77 @@
+﻿@model TribalSvcPortal.ViewModels.OpenDumpViewModels.RefDataViewModel
+@{
+    ViewBag.Title = "Open Dump Reference Data";
+    ViewBag.SubTitle = "Edit the reference data used by the Open Dump Module.";
+}
+
+<!-- render the top dropdown -->
+@using (Html.BeginForm("RefData", "Open Dump", FormMethod.Post, new { @class = "form-horizontal" }))
+{
+    <div class="form-group">
+        <label class="col-sm-2 control-label">
+            Data Category:
+        </label>
+        <div class="col-sm-6">
+            @Html.DropDownListFor(model => model.sel_tag_cat, Model.ddl_tag_cats, "", new { @class = "form-control", @onchange = "document.location.href = '/Admin/RefTags?selTag=' + this.options[this.selectedIndex].value;" })
+            @if (!string.IsNullOrEmpty(Model.sel_tag_cat))
+            {
+                <span class="help-block"><i class="clip-question"></i> @Html.DisplayFor(model => model.sel_tag_cat_desc)</span>
+            }
+        </div>
+    </div>
+}
+
+
+@if (!string.IsNullOrEmpty(Model.sel_tag_cat))
+{
+    <div class="row">
+        <div class="col-sm-12">
+            <section class="panel panel-default">
+                <div class="table-responsive">
+                    <table class="table table-striped m-b-none" data-ride="datatables">
+                        <tr>
+                            <th style="min-width: 70px;">Edit</th>
+                            <th>Name</th>
+                            <th>Description</th>
+                            <th>Category</th>
+                        </tr>
+                        @foreach (var item in Model.tags)
+                        {
+                            <tr>
+                                <td>
+                                    <a href="#modal-form" class="btn btn-rounded btn-xs btn-info modal-it" data-toggle="modal"><i class="glyphicon glyphicon-pencil"></i></a>
+                                    <div class="delete-section" style="display:inline">
+                                        <a class=" btn btn-rounded btn-xs btn-danger delete-link"><i class="glyphicon glyphicon-remove"></i></a>
+                                        <div class="btn btn-rounded btn-xs btn-warning delete-confirm" style="display:none" data-delete-id="@item.TAG_IDX" data-delete-p="/Admin/RefTagsDelete"><b>Confirm Delete</b></div>
+                                    </div>
+
+                                    @Html.HiddenFor(modelItem => item.TAG_IDX)
+                                    @Html.HiddenFor(modelItem => item.TAG_NAME)
+                                    @Html.HiddenFor(modelItem => item.TAG_DESC)
+                                    @Html.HiddenFor(modelItem => item.TAG_CAT_NAME)
+                                    @Html.HiddenFor(modelItem => item.PROMOTE_IND)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.TAG_NAME)
+                                    @if (item.PROMOTE_IND)
+                                    {
+                                        <span class="label label-success">promoted</span>
+                                    }
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.TAG_DESC)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.TAG_CAT_NAME)
+                                </td>
+                            </tr>
+                        }
+                    </table>
+                </div>
+            </section>
+            <p>
+                <a id="add-it" href="#modal-form" data-toggle="modal" class="add-it btn btn-rounded  btn-rounded btn-success"><i class="glyphicon glyphicon-plus"></i> Add New</a>
+            </p>
+        </div>
+    </div>
+}

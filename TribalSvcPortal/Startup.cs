@@ -11,34 +11,54 @@ using Microsoft.Extensions.DependencyInjection;
 using TribalSvcPortal.Services;
 using TribalSvcPortal.Data.Models;
 using TribalSvcPortal.AppLogic.DataAccessLayer;
+using Microsoft.AspNetCore.Hosting.Internal;
 
 namespace TribalSvcPortal
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration)
+        public Startup(IHostingEnvironment env, IConfiguration config)
         {
-            Configuration = configuration;
+            HostingEnvironment = env;
+            Configuration = config;
         }
 
+        public IHostingEnvironment HostingEnvironment { get; }
         public IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            //Add database connection
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
-            services.AddIdentity<ApplicationUser, IdentityRole>()
-                .AddEntityFrameworkStores<ApplicationDbContext>()
-                .AddDefaultTokenProviders();
-
-            // Add application services.
-            services.AddTransient<IEmailSender, EmailSender>();
+            //Add ASP.NET Identity and configure its settings
+            services.AddIdentity<ApplicationUser, IdentityRole>(x =>
+            {
+                x.Password.RequiredLength = 8;
+                x.Password.RequireUppercase = false;
+                x.Password.RequireLowercase = false;
+                x.Password.RequireNonAlphanumeric = false;
+            })
+            .AddEntityFrameworkStores<ApplicationDbContext>()
+            .AddDefaultTokenProviders();
 
             services.AddMvc();
 
+            // Add application services.
+            services.AddTransient<IEmailSender, EmailSender>();
             services.AddScoped<IDbPortal, DbPortal>();
+
+            //configure identity server with in-memory stores, keys, clients and scopes
+            services.AddIdentityServer()
+                .AddDeveloperSigningCredential(true)  //adds a demo signing certificate
+                .AddInMemoryIdentityResources(Config.GetIdentityResources())
+                .AddInMemoryClients(Config.GetClientsHardCode())
+//                .AddInMemoryClients(Config.GetClients2())
+                .AddAspNetIdentity<ApplicationUser>()
+                .AddProfileService<CustomProfileService>()
+                ;
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -56,6 +76,8 @@ namespace TribalSvcPortal
             }
 
             app.UseStaticFiles();
+
+            app.UseIdentityServer();
 
             app.UseAuthentication();
 
