@@ -30,7 +30,6 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
         public string ORG_CLIENT_ALIAS { get; set; }
     }
 
-
     public interface IDbPortal
     {
         string GetT_PRT_APP_SETTING(string settingName);

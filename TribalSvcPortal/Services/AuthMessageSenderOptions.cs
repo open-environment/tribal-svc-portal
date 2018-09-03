@@ -5,8 +5,9 @@ using System.Threading.Tasks;
 
 namespace TribalSvcPortal.Services
 {
-    public interface IEmailSender
+    public class AuthMessageSenderOptions
     {
-        Task SendEmailAsync(string To, string subject, string message);
+        public string SendGridUser { get; set; }
+        public string SendGridKey { get; set; }
     }
 }
