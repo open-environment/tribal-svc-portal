@@ -55,8 +55,8 @@ namespace TribalSvcPortal
             services.AddIdentityServer()
                 .AddDeveloperSigningCredential(true)  //adds a demo signing certificate
                 .AddInMemoryIdentityResources(Config.GetIdentityResources())
-                .AddInMemoryClients(Config.GetClientsHardCode())
-//                .AddInMemoryClients(Config.GetClients2())
+                //.AddInMemoryClients(Config.GetClientsHardCode())
+                .AddInMemoryClients(Config.GetClients2())
                 .AddAspNetIdentity<ApplicationUser>()
                 .AddProfileService<CustomProfileService>()
                 ;

@@ -13,6 +13,11 @@ using Microsoft.Extensions.Options;
 using TribalSvcPortal.Data.Models;
 using TribalSvcPortal.ViewModels.AccountViewModels;
 using TribalSvcPortal.Services;
+using TribalSvcPortal.AppLogic.DataAccessLayer;
+using TribalSvcPortal.AppLogic.BusinessLogicLayer;
+using System.Text.Encodings.Web;
+using Microsoft.EntityFrameworkCore;
+using System.IO;
 
 namespace TribalSvcPortal.Controllers
 {
@@ -23,18 +28,20 @@ namespace TribalSvcPortal.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly IEmailSender _emailSender;
-        private readonly ILogger _logger;
-
+        private readonly ILogger _logger;       
+        private readonly IDbPortal _DbPortal;
         public AccountController(
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
             IEmailSender emailSender,
-            ILogger<AccountController> logger)
+            IDbPortal DbPortal,
+        ILogger<AccountController> logger)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _emailSender = emailSender;
             _logger = logger;
+            _DbPortal = DbPortal;
         }
 
         [TempData]
@@ -227,6 +234,7 @@ namespace TribalSvcPortal.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Register(RegisterViewModel model, string returnUrl = null)
         {
+           
             ViewData["ReturnUrl"] = returnUrl;
             if (ModelState.IsValid)
             {
@@ -238,10 +246,91 @@ namespace TribalSvcPortal.Controllers
 
                     var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
                     var callbackUrl = Url.EmailConfirmationLink(user.Id, code, Request.Scheme);
-                   // await _emailSender.SendEmailConfirmationAsync(model.Email, callbackUrl);
+                    // await _emailSender.SendEmailConfirmationAsync(model.Email, callbackUrl);
+                    //   await Utils.SendEmail(null, model.Email, null, null, "Confirm your email",
+                    //$"Please confirm your account by clicking this link: <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>link</a>", null, null, callbackUrl, null);
+
+
+                    //code
+                    string mailServer = _DbPortal.GetT_PRT_APP_SETTING("EMAIL_SERVER");
+                    string Port = _DbPortal.GetT_PRT_APP_SETTING("EMAIL_PORT");
+                    string smtpUser = _DbPortal.GetT_PRT_APP_SETTING("EMAIL_SECURE_USER");
+                    string smtpUserPwd = _DbPortal.GetT_PRT_APP_SETTING("EMAIL_SECURE_PWD");
+
+                    string from = null;
+                    string[] cc = null;
+                    string[] bcc = null;
+                    byte[] attach = null;
+                    string attachFileName = null;
+                    //*************SET MESSAGE SENDER *********************                   
+                    if (from == null)
+                    {
+                        from = _DbPortal.GetT_PRT_APP_SETTING("EMAIL_FROM");
+                    }
+
+                    //************** REROUTE TO SENDGRID HELPER IF SENDGRID ENABLED ******
+                    if (mailServer == "smtp.sendgrid.net")
+                    {
+                        //bool SendStatus = SendGridHelper.SendGridEmail(from, to, cc, bcc, subj, body, smtpUserPwd, bodyHTML).GetAwaiter().GetResult();
+                        //return SendStatus;   
+                        await _emailSender.SendEmailConfirmationAsync(model.Email, callbackUrl);
+                        // return;
+                    }
+                    else
+                    {
+
+                        System.Net.Mail.MailMessage message = new System.Net.Mail.MailMessage();
+                        message.From = new System.Net.Mail.MailAddress(from);
+                        message.To.Add(model.Email);
+                        if (cc != null)
+                        {
+                            foreach (string cc1 in cc)
+                            {
+                                message.CC.Add(cc1);
+                            }
+                        }
+                        if (bcc != null)
+                        {
+                            foreach (string bcc1 in bcc)
+                            {
+                                message.Bcc.Add(bcc1);
+                            }
+                        }
+
+                        message.Subject = "Confirm your email";
+                        message.Body = "Please confirm your account by clicking this link: <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>link</a>";
+                        //*************ATTACHMENT START**************************
+                        if (attach != null)
+                        {
+                            System.Net.Mail.Attachment att = new System.Net.Mail.Attachment(new MemoryStream(attach), attachFileName);
+                            message.Attachments.Add(att);
+                        }
+                        //*************ATTACHMENT END****************************
+
+
+                        //***************SET SMTP SERVER *************************
+                        if (smtpUser.Length > 0)  //smtp server requires authentication
+                        {
+                            var smtp = new System.Net.Mail.SmtpClient(mailServer, Convert.ToInt32(Port))
+                            {
+                                Credentials = new System.Net.NetworkCredential(smtpUser, smtpUserPwd),
+                                EnableSsl = true
+                            };
+                            smtp.Send(message);
+
+                        }
+                        else
+                        {
+                            System.Net.Mail.SmtpClient smtp = new System.Net.Mail.SmtpClient(mailServer);
+                            smtp.Send(message);
+                        }
+                    }
+
+
+
+                    //code end
 
                     //Prevent newly registered users from being automatically logged
-
                     //await _signInManager.SignInAsync(user, isPersistent: false);
 
                     _logger.LogInformation("User created a new account with password.");

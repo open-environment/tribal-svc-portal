@@ -9,16 +9,19 @@ using IdentityServer4.Services;
 using Microsoft.AspNetCore.Identity;
 using IdentityServer4.Extensions;
 using TribalSvcPortal.AppLogic.DataAccessLayer;
+using Microsoft.EntityFrameworkCore;
 
 namespace TribalSvcPortal
 {
     internal class Config
     {
-        private readonly IDbPortal _DbPortal;
-        public Config(IDbPortal DbPortal)
-        {
-            _DbPortal = DbPortal;
-        }
+        private static readonly DbContextOptions<ApplicationDbContext> _contextOptions = new DbContextOptions<ApplicationDbContext>();
+        static ApplicationDbContext _context = new ApplicationDbContext(_contextOptions);
+        static IDbPortal _DbPortal = new DbPortal(_context);
+        //public Config(IDbPortal DbPortal)
+        //{
+        //    _DbPortal = DbPortal;
+        //}
 
 
         //Returns list of Clients
@@ -59,11 +62,11 @@ namespace TribalSvcPortal
             };
         }
 
-        public IEnumerable<Client> GetClients2()
+        public static IEnumerable<Client> GetClients2()
         {
             List<Client> _clients = new List<Client>();
 
-            var dbclients = _DbPortal.GetT_PRT_CLIENTS();
+            List<T_PRT_CLIENTS> dbclients = _DbPortal.GetT_PRT_CLIENTS();
             //var dbclients = db_PortalStatic.GetT_PRT_CLIENTS();
             foreach (T_PRT_CLIENTS dbclient in dbclients)
             {

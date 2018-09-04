@@ -7,12 +7,17 @@ using System.IO;
 using System.Threading.Tasks;
 using TribalSvcPortal.Services;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 namespace TribalSvcPortal.AppLogic.BusinessLogicLayer
 {
     public static class Utils
-    {
-       
+    {       
+       // private static readonly DbContextOptions<ApplicationDbContext> _contextOptions = new DbContextOptions<ApplicationDbContext>();
+      //  private static IOptions<AuthMessageSenderOptions> _optionsAccessor = new IOptions<AuthMessageSenderOptions>();      
+       // private static IEmailSender _emailSender = new EmailSender(_optionsAccessor);
+     
+
         /// <summary>
         ///  Better than built-in SubString by handling cases where string is too short
         /// </summary>
@@ -38,14 +43,14 @@ namespace TribalSvcPortal.AppLogic.BusinessLogicLayer
         /// <param name="attach">Attachment as byte array</param>
         /// <param name="attachFileName">Attachment file name including extension e.g. test.doc</param>
         /// <returns></returns>
-        //public static async Task<bool> SendEmail(string from, string to, List<string> cc, List<string> bcc, string subj, string body, byte[] attach, string attachFileName, string bodyHTML = null)
+        //public static async Task<bool> SendEmail(string from, string to, List<string> cc, List<string> bcc, string subj, string body, byte[] attach, string attachFileName, string callbackUrl, string bodyHTML = null)
         //{
         //    try
         //    {
         //        //************* GET SMTP SERVER SETTINGS ****************************
-        //        // IEmailSender _emailSender = new EmailSender();
-        //        ApplicationDbContext _context = new ApplicationDbContext(DbContextOptions<ApplicationDbContext> options);
-             
+
+
+        //        ApplicationDbContext _context = new ApplicationDbContext(_contextOptions);
         //        IDbPortal oDbPortal = new DbPortal(_context);
 
         //        string mailServer = oDbPortal.GetT_PRT_APP_SETTING("EMAIL_SERVER");
@@ -62,10 +67,11 @@ namespace TribalSvcPortal.AppLogic.BusinessLogicLayer
         //        if (mailServer == "smtp.sendgrid.net")
         //        {
         //            //bool SendStatus = SendGridHelper.SendGridEmail(from, to, cc, bcc, subj, body, smtpUserPwd, bodyHTML).GetAwaiter().GetResult();
-        //            //return SendStatus;                 
+        //            //return SendStatus;     
+                   
 
-        //           // await _emailSender.SendEmailConfirmationAsync(model.Email, callbackUrl);
-
+        //            await _emailSender.SendEmailConfirmationAsync(to, callbackUrl);
+        //            return true;
         //        }
 
         //        System.Net.Mail.MailMessage message = new System.Net.Mail.MailMessage();
@@ -96,7 +102,7 @@ namespace TribalSvcPortal.AppLogic.BusinessLogicLayer
         //        //***************SET SMTP SERVER *************************
         //        if (smtpUser.Length > 0)  //smtp server requires authentication
         //        {
-        //            var smtp = new System.Net.Mail.SmtpClient(mailServer, Port.ConvertOrDefault<int>())
+        //            var smtp = new System.Net.Mail.SmtpClient(mailServer, Convert.ToInt32(Port))
         //            {
         //                Credentials = new System.Net.NetworkCredential(smtpUser, smtpUserPwd),
         //                EnableSsl = true
@@ -111,19 +117,14 @@ namespace TribalSvcPortal.AppLogic.BusinessLogicLayer
 
         //        return true;
 
-
         //    }
         //    catch (Exception ex)
         //    {
         //        if (ex.InnerException != null)
-        //        //    db_Ref.InsertT_OE_SYS_LOG("EMAIL ERR", ex.InnerException.ToString());
-        //        //else if (ex.Message != null)
-        //        //    db_Ref.InsertT_OE_SYS_LOG("EMAIL ERR", ex.Message.ToString());
-        //        //else
-        //        //    db_Ref.InsertT_OE_SYS_LOG("EMAIL ERR", "Unknown error");
 
-        //        return false;
+        //            return false;
         //    }
+        //    return false;
         //}
 
         #endregion
