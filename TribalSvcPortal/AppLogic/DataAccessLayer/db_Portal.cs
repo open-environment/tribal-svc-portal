@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using TribalSvcPortal.Data.Models;
 using TribalSvcPortal.AppLogic.BusinessLogicLayer;
 using Microsoft.AspNetCore.Identity;
+using System.Data.Entity.Validation;
 
 namespace TribalSvcPortal.AppLogic.DataAccessLayer
 {
@@ -51,6 +52,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
         int InsertT_PRT_SYS_LOG(string logType, string logMsg);
         IEnumerable<IdentityRole> GetT_PRT_ROLES_BelongingToUser(string UserID);
         T_PRT_SYS_LOG GetT_PRT_SYS_LOG();
+       // void LogEFException(Exception ex);
     }
 
     public class DbPortal : IDbPortal
@@ -542,31 +544,32 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
         /// <param name="ex">Exception to log</param>
         public void LogEFException(Exception ex)
         {
-            //string err = "";
-            //if (ex is DbEntityValidationException)
-            //{
-            //    DbEntityValidationException dbex = (DbEntityValidationException)ex;
-            //    foreach (var eve in dbex.EntityValidationErrors)
-            //    {
-            //        err += "Entity error type" + eve.Entry.Entity.GetType().Name;  //maybe add eve.Entry.State too
-            //        foreach (var ve in eve.ValidationErrors)
-            //            err += " property: " + ve.PropertyName + " error: " + ve.ErrorMessage;
-            //    }
-            //}
-            //else
-            //{
-            //    if (ex.InnerException != null)
-            //    {
-            //        if (ex.InnerException.Message == "An error occurred while updating the entries. See the inner exception for details.")
-            //        {
-            //            err = ex.InnerException.InnerException.ToString();
-            //        }
-            //    }
-            //    else
-            //        err = (ex.InnerException != null ? ex.InnerException.Message : "");
-            //}
+           
+            string err = "";
+            if (ex is DbEntityValidationException)
+            {
+                DbEntityValidationException dbex = (DbEntityValidationException)ex;
+                foreach (var eve in dbex.EntityValidationErrors)
+                {
+                    err += "Entity error type" + eve.Entry.Entity.GetType().Name;  //maybe add eve.Entry.State too
+                    foreach (var ve in eve.ValidationErrors)
+                        err += " property: " + ve.PropertyName + " error: " + ve.ErrorMessage;
+                }
+            }
+            else
+            {
+                if (ex.InnerException != null)
+                {
+                    if (ex.InnerException.Message == "An error occurred while updating the entries. See the inner exception for details.")
+                    {
+                        err = ex.InnerException.InnerException.ToString();
+                    }
+                }
+                else
+                    err = (ex.InnerException != null ? ex.InnerException.Message : "");
+            }
 
-            string err = (ex.InnerException != null ? ex.InnerException.Message : "");
+            //string err = (ex.InnerException != null ? ex.InnerException.Message : "");
             InsertT_PRT_SYS_LOG("ERROR", err.SubStringPlus(0, 2000));
         }
 

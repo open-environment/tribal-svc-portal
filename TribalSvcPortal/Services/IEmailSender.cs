@@ -7,6 +7,6 @@ namespace TribalSvcPortal.Services
 {
     public interface IEmailSender
     {
-        Task SendEmailAsync(string To, string subject, string message);
+        Task SendEmailAsync(string To, string subject, string message, string from);
     }
 }

@@ -3,6 +3,7 @@ using SendGrid;
 using SendGrid.Helpers.Mail;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
@@ -20,17 +21,17 @@ namespace TribalSvcPortal.Services
        
         public AuthMessageSenderOptions Options { get; } //set only via Secret Manager
 
-        public Task SendEmailAsync(string To, string subject, string message)
+        public Task SendEmailAsync(string To, string subject, string message,string from)
         {
             //return Task.CompletedTask;
-            return Execute(Options.SendGridKey, subject, message, To);
+            return Execute(Options.SendGridKey, subject, message, To, from);
         }
-        public Task Execute(string apiKey, string subject, string message, string To)
+        public Task Execute(string apiKey, string subject, string message, string To, string from)
         {
             var client = new SendGridClient(apiKey);
             var msg = new SendGridMessage()
             {
-                From = new EmailAddress("richa@appletechconsultants.com", "Richa Singh"),
+                From = new EmailAddress(from),
                 Subject = subject,
                 PlainTextContent = message,
                 HtmlContent = message
@@ -43,7 +44,7 @@ namespace TribalSvcPortal.Services
             msg.TrackingSettings = new TrackingSettings
             {
                 ClickTracking = new ClickTracking { Enable = false }
-            };
+            };   
 
             return client.SendEmailAsync(msg);
           

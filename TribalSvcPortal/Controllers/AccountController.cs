@@ -77,7 +77,7 @@ namespace TribalSvcPortal.Controllers
                 }
                 // This doesn't count login failures towards account lockout
                 // To enable password failures to trigger account lockout, set lockoutOnFailure: true
-                var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, lockoutOnFailure: false);
+                 var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, lockoutOnFailure: false);
 
                 if (result.Succeeded)
                 {
@@ -245,13 +245,9 @@ namespace TribalSvcPortal.Controllers
                     _logger.LogInformation("User created a new account with password.");
 
                     var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-                    var callbackUrl = Url.EmailConfirmationLink(user.Id, code, Request.Scheme);
-                    // await _emailSender.SendEmailConfirmationAsync(model.Email, callbackUrl);
-                    //   await Utils.SendEmail(null, model.Email, null, null, "Confirm your email",
-                    //$"Please confirm your account by clicking this link: <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>link</a>", null, null, callbackUrl, null);
-
-
-                    //code
+                    var callbackUrl = Url.EmailConfirmationLink(user.Id, code, Request.Scheme);                   
+                  
+                  
                     string mailServer = _DbPortal.GetT_PRT_APP_SETTING("EMAIL_SERVER");
                     string Port = _DbPortal.GetT_PRT_APP_SETTING("EMAIL_PORT");
                     string smtpUser = _DbPortal.GetT_PRT_APP_SETTING("EMAIL_SECURE_USER");
@@ -270,11 +266,8 @@ namespace TribalSvcPortal.Controllers
 
                     //************** REROUTE TO SENDGRID HELPER IF SENDGRID ENABLED ******
                     if (mailServer == "smtp.sendgrid.net")
-                    {
-                        //bool SendStatus = SendGridHelper.SendGridEmail(from, to, cc, bcc, subj, body, smtpUserPwd, bodyHTML).GetAwaiter().GetResult();
-                        //return SendStatus;   
-                        await _emailSender.SendEmailConfirmationAsync(model.Email, callbackUrl);
-                        // return;
+                    {                         
+                        await _emailSender.SendEmailConfirmationAsync(model.Email, callbackUrl, from);                      
                     }
                     else
                     {
@@ -325,10 +318,6 @@ namespace TribalSvcPortal.Controllers
                             smtp.Send(message);
                         }
                     }
-
-
-
-                    //code end
 
                     //Prevent newly registered users from being automatically logged
                     //await _signInManager.SignInAsync(user, isPersistent: false);
@@ -474,7 +463,7 @@ namespace TribalSvcPortal.Controllers
                 var code = await _userManager.GeneratePasswordResetTokenAsync(user);
                 var callbackUrl = Url.ResetPasswordCallbackLink(user.Id, code, Request.Scheme);
                 await _emailSender.SendEmailAsync(model.Email, "Reset Password",
-                   $"Please reset your password by clicking here: <a href='{callbackUrl}'>link</a>");
+                   $"Please reset your password by clicking here: <a href='{callbackUrl}'>link</a>", null);
                 return RedirectToAction(nameof(ForgotPasswordConfirmation));
             }
 
