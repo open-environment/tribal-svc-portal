@@ -46,6 +46,7 @@ namespace TribalSvcPortal
             .AddDefaultTokenProviders();
 
             services.AddMvc();
+            services.AddMemoryCache();
 
             // Add application services.
             services.AddTransient<IEmailSender, EmailSender>();

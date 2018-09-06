@@ -49,7 +49,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
         IEnumerable<T_PRT_CLIENTS> GetT_PRT_ORG_USERS_CLIENT_DistinctClientByUserID(string UserID);
         int InsertUpdateT_PRT_ORG_USERS_CLIENT(int? oRG_USER_CLIENT_IDX, int? oRG_USER_IDX, string cLIENT_ID, bool? aDMIN_IND, string sTATUS_IND, string cREATE_USER);
         int DeleteT_PRT_ORG_USER_CLIENT(int id);
-        int InsertT_PRT_SYS_LOG(string logType, string logMsg);
+       // int InsertT_PRT_SYS_LOG(string logType, string logMsg);
         IEnumerable<IdentityRole> GetT_PRT_ROLES_BelongingToUser(string UserID);
         T_PRT_SYS_LOG GetT_PRT_SYS_LOG();
        // void LogEFException(Exception ex);
@@ -75,7 +75,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             }
             catch (Exception ex)
             {
-                LogEFException(ex);
+                log.LogEFException(ex);
                 return "";
             }
         }
@@ -90,7 +90,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
                 }
                 catch (Exception ex)
                 {
-                    LogEFException(ex);
+                log.LogEFException(ex);
                     return null;
                 }
         }
@@ -125,7 +125,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             }
             catch (Exception ex)
             {
-                LogEFException(ex);
+                log.LogEFException(ex);
                 return 0;
             }
         }
@@ -144,7 +144,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             }
             catch (Exception ex)
             {
-                LogEFException(ex);
+                log.LogEFException(ex);
                 return null;
             }
         }
@@ -159,7 +159,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             }
             catch (Exception ex)
             {
-                LogEFException(ex);
+                log.LogEFException(ex);
                 return null;
             }
         }
@@ -197,7 +197,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             }
             catch (Exception ex)
             {
-                LogEFException(ex);
+                log.LogEFException(ex);
                 return null;
             }
         }
@@ -213,7 +213,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             }
             catch (Exception ex)
             {
-                LogEFException(ex);
+                log.LogEFException(ex);
                 return null;
             }
         }
@@ -231,7 +231,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             }
             catch (Exception ex)
             {
-                LogEFException(ex);
+                log.LogEFException(ex);
                 return null;
             }
         }
@@ -257,7 +257,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             }
             catch (Exception ex)
             {
-                LogEFException(ex);
+                log.LogEFException(ex);
                 return null;
             }
         }
@@ -312,7 +312,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             }
             catch (Exception ex)
             {
-                LogEFException(ex);
+                log.LogEFException(ex);
                 return 0;
             }
 
@@ -330,7 +330,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             }
             catch (Exception ex)
             {
-                LogEFException(ex);
+                log.LogEFException(ex);
                 return 0;
             }
         }
@@ -362,7 +362,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             }
             catch (Exception ex)
             {
-                LogEFException(ex);
+                log.LogEFException(ex);
                 return null;
             }
 
@@ -393,7 +393,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             }
             catch (Exception ex)
             {
-                LogEFException(ex);
+                log.LogEFException(ex);
                 return null;
             }
         }
@@ -413,7 +413,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             }
             catch (Exception ex)
             {
-                LogEFException(ex);
+                log.LogEFException(ex);
                 return null;
             }
         }
@@ -467,7 +467,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             }
             catch (Exception ex)
             {
-                LogEFException(ex);
+                log.LogEFException(ex); 
                 return 0;
             }
 
@@ -485,7 +485,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             }
             catch (Exception ex)
             {
-                LogEFException(ex);
+                log.LogEFException(ex);
                 return 0;
             }
 
@@ -504,7 +504,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             }
             catch (Exception ex)
             {
-                LogEFException(ex);
+                log.LogEFException(ex);
                 return null;
             }
         }
@@ -512,25 +512,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
 
 
         //*****************SYS_LOG**********************************
-        public int InsertT_PRT_SYS_LOG(string logType, string logMsg)
-        {
-            try
-            {
-                T_PRT_SYS_LOG e = new T_PRT_SYS_LOG
-                {
-                    LogType = logType,
-                    LogMsg = logMsg,
-                    LogDt = System.DateTime.Now
-                };
-                ctx.T_PRT_SYS_LOG.Add(e);
-                ctx.SaveChanges();
-                return e.SysLogId;
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
+       
 
         public T_PRT_SYS_LOG GetT_PRT_SYS_LOG()
         {
@@ -538,40 +520,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
         }
 
 
-        /// <summary>
-        /// General purpose logging of any Entity Framework methods to database
-        /// </summary>
-        /// <param name="ex">Exception to log</param>
-        public void LogEFException(Exception ex)
-        {
-           
-            string err = "";
-            if (ex is DbEntityValidationException)
-            {
-                DbEntityValidationException dbex = (DbEntityValidationException)ex;
-                foreach (var eve in dbex.EntityValidationErrors)
-                {
-                    err += "Entity error type" + eve.Entry.Entity.GetType().Name;  //maybe add eve.Entry.State too
-                    foreach (var ve in eve.ValidationErrors)
-                        err += " property: " + ve.PropertyName + " error: " + ve.ErrorMessage;
-                }
-            }
-            else
-            {
-                if (ex.InnerException != null)
-                {
-                    if (ex.InnerException.Message == "An error occurred while updating the entries. See the inner exception for details.")
-                    {
-                        err = ex.InnerException.InnerException.ToString();
-                    }
-                }
-                else
-                    err = (ex.InnerException != null ? ex.InnerException.Message : "");
-            }
-
-            //string err = (ex.InnerException != null ? ex.InnerException.Message : "");
-            InsertT_PRT_SYS_LOG("ERROR", err.SubStringPlus(0, 2000));
-        }
+      
 
     }
 }

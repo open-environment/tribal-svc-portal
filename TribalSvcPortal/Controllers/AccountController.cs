@@ -18,6 +18,8 @@ using TribalSvcPortal.AppLogic.BusinessLogicLayer;
 using System.Text.Encodings.Web;
 using Microsoft.EntityFrameworkCore;
 using System.IO;
+using Microsoft.Extensions.Caching.Memory;
+
 
 namespace TribalSvcPortal.Controllers
 {
@@ -30,11 +32,14 @@ namespace TribalSvcPortal.Controllers
         private readonly IEmailSender _emailSender;
         private readonly ILogger _logger;       
         private readonly IDbPortal _DbPortal;
+        private readonly IMemoryCache _memoryCache;
+
         public AccountController(
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
             IEmailSender emailSender,
             IDbPortal DbPortal,
+            IMemoryCache memoryCache,
         ILogger<AccountController> logger)
         {
             _userManager = userManager;
@@ -42,6 +47,7 @@ namespace TribalSvcPortal.Controllers
             _emailSender = emailSender;
             _logger = logger;
             _DbPortal = DbPortal;
+            _memoryCache = memoryCache;
         }
 
         [TempData]
@@ -60,7 +66,7 @@ namespace TribalSvcPortal.Controllers
 
         [HttpPost]
         [AllowAnonymous]
-        [ValidateAntiForgeryToken]
+        [ValidateAntiForgeryToken]       
         public async Task<IActionResult> Login(LoginViewModel model, string returnUrl = null)
         {
             ViewData["ReturnUrl"] = returnUrl;
@@ -81,6 +87,19 @@ namespace TribalSvcPortal.Controllers
 
                 if (result.Succeeded)
                 {
+                    string _UserIDX;
+                    bool isExist = _memoryCache.TryGetValue("CacheTime", out _UserIDX);
+                    if (!isExist)
+                    {
+                        _UserIDX = model.Email;
+                        var cacheEntryOptions = new MemoryCacheEntryOptions()
+                            .SetSlidingExpiration(TimeSpan.FromMinutes(30));
+
+                        _memoryCache.Set("CacheTime", _UserIDX, cacheEntryOptions);
+                        List<OrgUserClientDisplayType> UserClientDisplayType = _DbPortal.GetT_PRT_ORG_USERS_CLIENT_ByUserID(model.Email);
+                        _memoryCache.Set("GrantedRight","true", cacheEntryOptions);
+                    }
+
                     _logger.LogInformation("User logged in.");
                     return RedirectToLocal(returnUrl);
                 }
