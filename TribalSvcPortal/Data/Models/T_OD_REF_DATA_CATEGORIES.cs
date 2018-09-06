@@ -10,10 +10,8 @@ namespace TribalSvcPortal.Data.Models
             T_OD_REF_DATA = new HashSet<T_OD_REF_DATA>();
         }
 
-        public string DataCatName { get; set; }
-        public string DataCatDescription { get; set; }
-        public string CreateUserId { get; set; }
-        public DateTime? CreateDt { get; set; }
+        public string RefDataCatName { get; set; }
+        public string RefDataCatDesc { get; set; }
 
         public ICollection<T_OD_REF_DATA> T_OD_REF_DATA { get; set; }
     }

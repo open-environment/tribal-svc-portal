@@ -1,9 +1,45 @@
-﻿
+﻿@model TribalSvcPortal.ViewModels.AdminViewModels.OrgEditViewModel
 @{
-    ViewData["Title"] = "Organization Edit";
+    ViewData["Title"] = "Edit Organization Details";
 }
 
-<h2>Organization Edit Screen</h2>
+<!-- START: MAIN CONTENT -->
+<section class="panel panel-default">
+    <header class="panel-heading">Organization Details</header>
+    <div class="panel-body">
 
-(Tenant Client Alias with be edited here.)
+        @using (Html.BeginForm())
+        {
+            @Html.AntiForgeryToken()
+            @Html.ValidationSummary(true)
 
+            @Html.HiddenFor(model => model.Organization.OrgId)
+
+            if (Model != null)
+            {
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Organization ID</label>
+                            @Html.TextBoxFor(model => model.Organization.OrgId, new { @class = "form-control", @placeholder = "Org ID" })
+                            @Html.ValidationMessageFor(model => model.Organization.OrgId)
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Organization Name</label>
+                            @Html.TextBoxFor(model => model.Organization.OrgName, new { @readonly = "readonly", @class = "form-control" })
+                            @Html.ValidationMessageFor(model => model.Organization.OrgName)
+                        </div>
+                    </div>
+                </div>
+            }
+            <p>
+                <button type="submit" class="btn btn-sm btn-primary">Save</button>
+                <a class=" btn btn-sm btn-warning" href="@Url.Action("OrgList" )">Back to List</a>
+            </p>
+
+        }
+
+    </div>
+</section>

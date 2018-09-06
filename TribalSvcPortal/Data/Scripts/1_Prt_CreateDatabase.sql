@@ -21,13 +21,20 @@
 	drop table [T_PRT_SYS_LOG];
 	drop table [T_PRT_SYS_EMAIL_LOG];
 
+	drop table [T_PRT_DOCUMENTS];
+	drop table [T_PRT_REF_SHARE_TYPE];
+	drop table [T_PRT_REF_DOC_TYPE];
+	drop table [T_PRT_REF_DOC_STATUS_TYPE];
+
+
+	drop table [T_PRT_SITE_INTERESTS];
 	drop table [T_PRT_SITES];
 	drop table [T_PRT_ORGANIZATIONS];  
 	drop table [T_PRT_USERS];
 
 
 --BUILD SCAFFOLDING script (Open Packages Manager (under tools) and run this command:)
-Scaffold-DbContext -UseDatabaseNames "Server=.\SQLEXPRESS;Database=TRIBAL_SVC_PORTAL;Trusted_Connection=True;" Microsoft.EntityFrameworkCore.SqlServer -OutputDir Data/Models -t T_PRT_APP_SETTINGS, T_PRT_APP_SETTINGS_CUSTOM, T_PRT_CLIENT_ROLES, T_PRT_CLIENTS, T_PRT_ORG_CLIENT_ALIAS, T_PRT_ORG_USER_CLIENT, T_PRT_ORG_USERS, T_PRT_ORGANIZATIONS, T_PRT_SITES, T_PRT_SYS_EMAIL_LOG, T_PRT_SYS_LOG -f -Context "ApplicationDbContextTemp"
+Scaffold-DbContext -UseDatabaseNames "Server=.\SQLEXPRESS;Database=TRIBAL_SVC_PORTAL;Trusted_Connection=True;" Microsoft.EntityFrameworkCore.SqlServer -OutputDir Data/Models -t T_PRT_APP_SETTINGS, T_PRT_APP_SETTINGS_CUSTOM, T_PRT_CLIENT_ROLES, T_PRT_CLIENTS, T_PRT_DOCUMENTS, T_PRT_ORG_CLIENT_ALIAS, T_PRT_ORG_USER_CLIENT, T_PRT_ORG_USERS, T_PRT_ORGANIZATIONS, T_PRT_REF_DOC_STATUS_TYPE, T_PRT_REF_DOC_TYPE, T_PRT_REF_SHARE_TYPE, T_PRT_SITES, T_PRT_SITE_INTERESTS, T_PRT_SYS_EMAIL_LOG, T_PRT_SYS_LOG -f -Context "ApplicationDbContextTemp"
 */
 
 /***************************************************************** */
@@ -254,9 +261,42 @@ CREATE TABLE [T_PRT_ORG_USER_CLIENT] (
 );
 GO
 
+/******************************************************************************************/
+/*******************  START REF DATA TABLES ***********************************************/
+/******************************************************************************************/
+CREATE TABLE [T_PRT_REF_SHARE_TYPE](
+	[SHARE_TYPE] [varchar](20) NOT NULL,
+	[SHARE_DESC] [varchar](50) NOT NULL,
+	[ACT_IND] [bit] NOT NULL DEFAULT 1,
+ CONSTRAINT [PK_T_PRT_REF_SHARE_TYPE] PRIMARY KEY CLUSTERED (SHARE_TYPE)
+);
+GO
+
+CREATE TABLE [dbo].[T_PRT_REF_DOC_TYPE](
+	[DOC_TYPE] [varchar](50) NOT NULL,
+	[DOC_TYPE_DESC] [varchar](200) NULL,
+	[ACT_IND] [bit] NOT NULL,
+	[CREATE_USER_ID] nvarchar(450) NULL,
+	[CREATE_DT] datetime2(0) NULL,
+	[MODIFY_USER_ID] nvarchar(450) NULL,
+	[MODIFY_DT] datetime2(0) NULL,
+ CONSTRAINT [PK_T_PRT_REF_DOC_TYPE] PRIMARY KEY CLUSTERED (DOC_TYPE ASC)
+);
 
 
+CREATE TABLE [dbo].[T_PRT_REF_DOC_STATUS_TYPE](
+	[DOC_STATUS_TYPE] [varchar](10) NOT NULL,
+	[ACT_IND] [bit] NOT NULL,
+	[CREATE_USER_ID] nvarchar(450) NULL,
+	[CREATE_DT] datetime2(0) NULL,
+	[MODIFY_USER_ID] nvarchar(450) NULL,
+	[MODIFY_DT] datetime2(0) NULL,
+ CONSTRAINT [PK_T_PRT_REF_DOC_STATUS_TYPE] PRIMARY KEY CLUSTERED (DOC_STATUS_TYPE ASC)
+);
+
+/******************************************************************************************/
 /*******************  START SITE MANAGEMENT TABLES ***********************************************/
+/******************************************************************************************/
 CREATE TABLE [T_PRT_SITES] (
 	[SITE_IDX] UNIQUEIDENTIFIER NOT NULL,
 	[ORG_ID] varchar(30) NOT NULL,
@@ -273,6 +313,50 @@ CREATE TABLE [T_PRT_SITES] (
     CONSTRAINT [FK_T_PRT_SITES_O] FOREIGN KEY ([ORG_ID]) REFERENCES [T_PRT_ORGANIZATIONS] ([ORG_ID])
 );
 GO
+
+CREATE TABLE [T_PRT_SITE_INTERESTS] (
+	[SITE_INTEREST_IDX] UNIQUEIDENTIFIER NOT NULL,
+	[SITE_IDX] UNIQUEIDENTIFIER NOT NULL,
+	[INTEREST_NAME] varchar(50) NOT NULL,
+	[CREATE_USER_ID] nvarchar(450) NULL,
+	[CREATE_DT] datetime2(0) NULL,
+	[MODIFY_USER_ID] nvarchar(450) NULL,
+	[MODIFY_DT] datetime2(0) NULL,
+    CONSTRAINT [PK_T_PRT_SITE_INTERESTS] PRIMARY KEY ([SITE_INTEREST_IDX]),
+    CONSTRAINT [FK_T_PRT_SITES_INTERESTS_S] FOREIGN KEY ([SITE_IDX]) REFERENCES [T_PRT_SITES] ([SITE_IDX])
+);
+GO
+
+
+/******************************************************************************************/
+/*******************  START DOCUMENT MANAGEMENT TABLES ***********************************************/
+/******************************************************************************************/
+CREATE TABLE [dbo].[T_PRT_DOCUMENTS](
+	[DOC_IDX] [uniqueidentifier] NOT NULL DEFAULT newid(),
+	[ORG_ID] varchar(30) NOT NULL,
+	[DOC_CONTENT] [varbinary](max) NULL,
+	[DOC_NAME] [varchar](100) NULL,
+	[DOC_TYPE] [varchar](50) NULL,
+	[DOC_FILE_TYPE] [varchar](75) NULL,
+	[DOC_SIZE] [int] NULL,
+	[DOC_COMMENT] [varchar](200) NULL,
+	[DOC_AUTHOR] [varchar](100) NULL,
+	[SHARE_TYPE] [varchar](20) NULL,
+	[DOC_STATUS_TYPE] [varchar](10) NULL,
+	[ACT_IND] [bit] NOT NULL,
+	[CREATE_USERIDX] [int] NULL,
+	[CREATE_DT] [datetime2](0) NULL,
+	[MODIFY_USERIDX] [int] NULL,
+	[MODIFY_DT] [datetime2](0) NULL,
+ CONSTRAINT [PK_T_PRT_DOCUMENTS] PRIMARY KEY CLUSTERED (DOC_IDX ASC),
+ FOREIGN KEY ([ORG_ID]) references T_PRT_ORGANIZATIONS ([ORG_ID]) ON UPDATE CASCADE ,
+ FOREIGN KEY (DOC_TYPE) references T_PRT_REF_DOC_TYPE (DOC_TYPE) ON UPDATE CASCADE ,
+ FOREIGN KEY (SHARE_TYPE) references [T_PRT_REF_SHARE_TYPE] (SHARE_TYPE) ON UPDATE CASCADE, 
+ FOREIGN KEY (DOC_STATUS_TYPE) references [T_PRT_REF_DOC_STATUS_TYPE] (DOC_STATUS_TYPE) ON UPDATE CASCADE
+) ON [PRIMARY];
+
+
+
 
 
 /*******************  START ADMINISTRATION TABLES ***********************************************/

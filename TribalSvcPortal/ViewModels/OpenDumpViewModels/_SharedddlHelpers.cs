@@ -4,20 +4,26 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using TribalSvcPortal.AppLogic;
+using TribalSvcPortal.AppLogic.DataAccessLayer;
 
 namespace TribalSvcPortal.ViewModels.OpenDumpViewModels
 {
-    public static class _SharedddlHelpers
+    public class _SharedddlHelpers
     {
-        public static IEnumerable<SelectListItem> get_ddl_refdata_by_category(string cat_name)
+        private readonly IDbOpenDump _DbOpenDump;
+        public _SharedddlHelpers(IDbOpenDump DbOpenDump)
         {
-            return null;
-            //return db_Ref.GetT_OE_REF_TAGS_ByCategory(cat_name).Select(x => new SelectListItem
-            //{
-            //    Value = x.TAG_IDX.ToString(),
-            //    Text = x.TAG_NAME
-            //});
+            _DbOpenDump = DbOpenDump;
         }
+
+        //public static IEnumerable<SelectListItem> get_ddl_refdata_by_category(string cat_name)
+        //{
+        //    return DbOpenDump.get_ddl_refdata_by_category(cat_name).Select(x => new SelectListItem
+        //    {
+        //        Value = x.TAG_IDX.ToString(),
+        //        Text = x.TAG_NAME
+        //    });
+        //}
 
     }
 }

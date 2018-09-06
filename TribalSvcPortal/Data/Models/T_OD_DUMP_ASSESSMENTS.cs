@@ -5,6 +5,11 @@ namespace TribalSvcPortal.Data.Models
 {
     public partial class T_OD_DUMP_ASSESSMENTS
     {
+        public T_OD_DUMP_ASSESSMENTS()
+        {
+            T_OD_DUMP_ASSESSMENT_DOCS = new HashSet<T_OD_DUMP_ASSESSMENT_DOCS>();
+        }
+
         public Guid DumpAssessmentsIdx { get; set; }
         public Guid SiteIdx { get; set; }
         public DateTime AssessmentDt { get; set; }
@@ -26,5 +31,6 @@ namespace TribalSvcPortal.Data.Models
 
         public T_OD_REF_DATA InspectionTypeIdxNavigation { get; set; }
         public T_OD_SITES SiteIdxNavigation { get; set; }
+        public ICollection<T_OD_DUMP_ASSESSMENT_DOCS> T_OD_DUMP_ASSESSMENT_DOCS { get; set; }
     }
 }

@@ -57,6 +57,9 @@ namespace TribalSvcPortal.Controllers
 
         public IActionResult Initialize()
         {
+            if (_userManager.Users.Count() > 0)
+                TempData["Error"] = "System has already been initialized";
+
             return View();
         }
 

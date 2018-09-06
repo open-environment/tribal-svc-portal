@@ -5,6 +5,11 @@ namespace TribalSvcPortal.Data.Models
 {
     public partial class T_PRT_SITES
     {
+        public T_PRT_SITES()
+        {
+            T_PRT_SITE_INTERESTS = new HashSet<T_PRT_SITE_INTERESTS>();
+        }
+
         public Guid SiteIdx { get; set; }
         public string OrgId { get; set; }
         public string SiteName { get; set; }
@@ -18,5 +23,6 @@ namespace TribalSvcPortal.Data.Models
         public DateTime? ModifyDt { get; set; }
 
         public T_PRT_ORGANIZATIONS Org { get; set; }
+        public ICollection<T_PRT_SITE_INTERESTS> T_PRT_SITE_INTERESTS { get; set; }
     }
 }
