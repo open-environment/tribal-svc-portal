@@ -13,6 +13,13 @@ using Microsoft.Extensions.Options;
 using TribalSvcPortal.Data.Models;
 using TribalSvcPortal.ViewModels.AccountViewModels;
 using TribalSvcPortal.Services;
+using TribalSvcPortal.AppLogic.DataAccessLayer;
+using TribalSvcPortal.AppLogic.BusinessLogicLayer;
+using System.Text.Encodings.Web;
+using Microsoft.EntityFrameworkCore;
+using System.IO;
+using Microsoft.Extensions.Caching.Memory;
+
 
 namespace TribalSvcPortal.Controllers
 {
@@ -23,18 +30,24 @@ namespace TribalSvcPortal.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly IEmailSender _emailSender;
-        private readonly ILogger _logger;
+        private readonly ILogger _logger;       
+        private readonly IDbPortal _DbPortal;
+        private readonly IMemoryCache _memoryCache;
 
         public AccountController(
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
             IEmailSender emailSender,
-            ILogger<AccountController> logger)
+            IDbPortal DbPortal,
+            IMemoryCache memoryCache,
+        ILogger<AccountController> logger)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _emailSender = emailSender;
             _logger = logger;
+            _DbPortal = DbPortal;
+            _memoryCache = memoryCache;
         }
 
         [TempData]
@@ -53,17 +66,40 @@ namespace TribalSvcPortal.Controllers
 
         [HttpPost]
         [AllowAnonymous]
-        [ValidateAntiForgeryToken]
+        [ValidateAntiForgeryToken]       
         public async Task<IActionResult> Login(LoginViewModel model, string returnUrl = null)
         {
             ViewData["ReturnUrl"] = returnUrl;
             if (ModelState.IsValid)
             {
+                var user = _userManager.FindByNameAsync(model.Email).Result;
+                if (user != null)
+                {
+                    if (!_userManager.IsEmailConfirmedAsync(user).Result)
+                    {
+                        ModelState.AddModelError("","Email not confirmed!");
+                        return View(model);
+                    }
+                }
                 // This doesn't count login failures towards account lockout
                 // To enable password failures to trigger account lockout, set lockoutOnFailure: true
-                var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, lockoutOnFailure: false);
+                 var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, lockoutOnFailure: false);
+
                 if (result.Succeeded)
                 {
+                    string _UserIDX;
+                    bool isExist = _memoryCache.TryGetValue("CacheTime", out _UserIDX);
+                    if (!isExist)
+                    {
+                        _UserIDX = model.Email;
+                        var cacheEntryOptions = new MemoryCacheEntryOptions()
+                            .SetSlidingExpiration(TimeSpan.FromMinutes(30));
+
+                        _memoryCache.Set("CacheTime", _UserIDX, cacheEntryOptions);
+                        List<OrgUserClientDisplayType> UserClientDisplayType = _DbPortal.GetT_PRT_ORG_USERS_CLIENT_ByUserID(model.Email);
+                        _memoryCache.Set("GrantedRight","true", cacheEntryOptions);
+                    }
+
                     _logger.LogInformation("User logged in.");
                     return RedirectToLocal(returnUrl);
                 }
@@ -217,6 +253,7 @@ namespace TribalSvcPortal.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Register(RegisterViewModel model, string returnUrl = null)
         {
+           
             ViewData["ReturnUrl"] = returnUrl;
             if (ModelState.IsValid)
             {
@@ -227,10 +264,83 @@ namespace TribalSvcPortal.Controllers
                     _logger.LogInformation("User created a new account with password.");
 
                     var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-                    var callbackUrl = Url.EmailConfirmationLink(user.Id, code, Request.Scheme);
-                    await _emailSender.SendEmailConfirmationAsync(model.Email, callbackUrl);
+                    var callbackUrl = Url.EmailConfirmationLink(user.Id, code, Request.Scheme);                   
+                  
+                  
+                    string mailServer = _DbPortal.GetT_PRT_APP_SETTING("EMAIL_SERVER");
+                    string Port = _DbPortal.GetT_PRT_APP_SETTING("EMAIL_PORT");
+                    string smtpUser = _DbPortal.GetT_PRT_APP_SETTING("EMAIL_SECURE_USER");
+                    string smtpUserPwd = _DbPortal.GetT_PRT_APP_SETTING("EMAIL_SECURE_PWD");
 
-                    await _signInManager.SignInAsync(user, isPersistent: false);
+                    string from = null;
+                    string[] cc = null;
+                    string[] bcc = null;
+                    byte[] attach = null;
+                    string attachFileName = null;
+                    //*************SET MESSAGE SENDER *********************                   
+                    if (from == null)
+                    {
+                        from = _DbPortal.GetT_PRT_APP_SETTING("EMAIL_FROM");
+                    }
+
+                    //************** REROUTE TO SENDGRID HELPER IF SENDGRID ENABLED ******
+                    if (mailServer == "smtp.sendgrid.net")
+                    {                         
+                        await _emailSender.SendEmailConfirmationAsync(model.Email, callbackUrl, from);                      
+                    }
+                    else
+                    {
+
+                        System.Net.Mail.MailMessage message = new System.Net.Mail.MailMessage();
+                        message.From = new System.Net.Mail.MailAddress(from);
+                        message.To.Add(model.Email);
+                        if (cc != null)
+                        {
+                            foreach (string cc1 in cc)
+                            {
+                                message.CC.Add(cc1);
+                            }
+                        }
+                        if (bcc != null)
+                        {
+                            foreach (string bcc1 in bcc)
+                            {
+                                message.Bcc.Add(bcc1);
+                            }
+                        }
+
+                        message.Subject = "Confirm your email";
+                        message.Body = "Please confirm your account by clicking this link: <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>link</a>";
+                        //*************ATTACHMENT START**************************
+                        if (attach != null)
+                        {
+                            System.Net.Mail.Attachment att = new System.Net.Mail.Attachment(new MemoryStream(attach), attachFileName);
+                            message.Attachments.Add(att);
+                        }
+                        //*************ATTACHMENT END****************************
+
+
+                        //***************SET SMTP SERVER *************************
+                        if (smtpUser.Length > 0)  //smtp server requires authentication
+                        {
+                            var smtp = new System.Net.Mail.SmtpClient(mailServer, Convert.ToInt32(Port))
+                            {
+                                Credentials = new System.Net.NetworkCredential(smtpUser, smtpUserPwd),
+                                EnableSsl = true
+                            };
+                            smtp.Send(message);
+
+                        }
+                        else
+                        {
+                            System.Net.Mail.SmtpClient smtp = new System.Net.Mail.SmtpClient(mailServer);
+                            smtp.Send(message);
+                        }
+                    }
+
+                    //Prevent newly registered users from being automatically logged
+                    //await _signInManager.SignInAsync(user, isPersistent: false);
+
                     _logger.LogInformation("User created a new account with password.");
                     return RedirectToLocal(returnUrl);
                 }
@@ -372,7 +482,7 @@ namespace TribalSvcPortal.Controllers
                 var code = await _userManager.GeneratePasswordResetTokenAsync(user);
                 var callbackUrl = Url.ResetPasswordCallbackLink(user.Id, code, Request.Scheme);
                 await _emailSender.SendEmailAsync(model.Email, "Reset Password",
-                   $"Please reset your password by clicking here: <a href='{callbackUrl}'>link</a>");
+                   $"Please reset your password by clicking here: <a href='{callbackUrl}'>link</a>", null);
                 return RedirectToAction(nameof(ForgotPasswordConfirmation));
             }
 

@@ -51,7 +51,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             }
             catch (Exception ex)
             {
-                //LogEFException(ex);
+                log.LogEFException(ex);
                 return null;
             }
         }

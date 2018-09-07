@@ -40,11 +40,13 @@ namespace TribalSvcPortal
                 x.Password.RequireUppercase = false;
                 x.Password.RequireLowercase = false;
                 x.Password.RequireNonAlphanumeric = false;
+                x.SignIn.RequireConfirmedEmail = true;
             })
             .AddEntityFrameworkStores<ApplicationDbContext>()
             .AddDefaultTokenProviders();
 
             services.AddMvc();
+            services.AddMemoryCache();
 
             // Add application services.
             services.AddTransient<IEmailSender, EmailSender>();
@@ -55,11 +57,17 @@ namespace TribalSvcPortal
             services.AddIdentityServer()
                 .AddDeveloperSigningCredential(true)  //adds a demo signing certificate
                 .AddInMemoryIdentityResources(Config.GetIdentityResources())
-                .AddInMemoryClients(Config.GetClientsHardCode())
-//                .AddInMemoryClients(Config.GetClients2())
+                //.AddInMemoryClients(Config.GetClientsHardCode())
+                .AddInMemoryClients(Config.GetClients2())
                 .AddAspNetIdentity<ApplicationUser>()
                 .AddProfileService<CustomProfileService>()
                 ;
+
+            // requires
+            // using Microsoft.AspNetCore.Identity.UI.Services;
+            // using WebPWrecover.Services;
+            services.AddSingleton<IEmailSender, EmailSender>();
+            services.Configure<AuthMessageSenderOptions>(Configuration);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
