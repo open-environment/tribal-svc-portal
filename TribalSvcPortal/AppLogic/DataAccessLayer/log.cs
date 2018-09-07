@@ -53,19 +53,16 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             }
             else
             {
-                if (ex.InnerException != null)
-                {
-                    if (ex.InnerException.Message == "An error occurred while updating the entries. See the inner exception for details.")
-                    {
-                        err = ex.InnerException.InnerException.ToString();
-                    }
-                }
-                else
-                    err = (ex.InnerException != null ? ex.InnerException.Message : "");
+                Exception realerror = ex;
+                while (realerror.InnerException != null)
+                    realerror = realerror.InnerException;
+
+                err = realerror.Message ?? "";
             }
 
-            //string err = (ex.InnerException != null ? ex.InnerException.Message : "");
             InsertT_PRT_SYS_LOG("ERROR", err.SubStringPlus(0, 2000));
         }
+
+
     }
 }
