@@ -45,14 +45,16 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
         int InsertUpdateT_PRT_ORG_USERS(int? oRG_USER_IDX, string oRG_ID, string _Id, bool? oRG_ADMIN_IND, string sTATUS_IND, string cREATE_USER);
         int DeleteT_PRT_ORG_USERS(int id);
         List<OrgUserClientDisplayType> GetT_PRT_ORG_USERS_CLIENT_ByOrgUserID(int _OrgUserIDX);
-        List<OrgUserClientDisplayType> GetT_PRT_ORG_USERS_CLIENT_ByUserID(string _UserIDX);
+        List<OrgUserClientDisplayType> GetT_PRT_ORG_USERS_CLIENT_ByUserID(string _UserIDX);        
         IEnumerable<T_PRT_CLIENTS> GetT_PRT_ORG_USERS_CLIENT_DistinctClientByUserID(string UserID);
         int InsertUpdateT_PRT_ORG_USERS_CLIENT(int? oRG_USER_CLIENT_IDX, int? oRG_USER_IDX, string cLIENT_ID, bool? aDMIN_IND, string sTATUS_IND, string cREATE_USER);
         int DeleteT_PRT_ORG_USER_CLIENT(int id);
        // int InsertT_PRT_SYS_LOG(string logType, string logMsg);
         IEnumerable<IdentityRole> GetT_PRT_ROLES_BelongingToUser(string UserID);
         T_PRT_SYS_LOG GetT_PRT_SYS_LOG();
-       // void LogEFException(Exception ex);
+       // string GetT_PRT_USER(string Email);
+        IEnumerable<T_PRT_CLIENTS> GetDistinct_USERS_CLIENT_ByUserID(string _UserIDX);
+        // void LogEFException(Exception ex);
     }
 
     public class DbPortal : IDbPortal
@@ -417,7 +419,25 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
                 return null;
             }
         }
+        public IEnumerable<T_PRT_CLIENTS> GetDistinct_USERS_CLIENT_ByUserID(string _UserIDX)
+        {
+            try
+            {
+                var xxx = (from a in ctx.T_PRT_ORG_USER_CLIENT
+                           join b in ctx.T_PRT_ORG_USERS on a.OrgUserIdx equals b.OrgUserIdx
+                           join c in ctx.T_PRT_ORG_CLIENT_ALIAS on new { a.ClientId, b.OrgId } equals new { c.ClientId, c.OrgId }
+                           join d in ctx.T_PRT_CLIENTS on a.ClientId equals d.ClientId
+                           where b.Id == _UserIDX
+                           select d).ToList().Distinct();
 
+                return xxx;
+            }
+            catch (Exception ex)
+            {
+                log.LogEFException(ex);
+                return null;
+            }
+        }
         public int InsertUpdateT_PRT_ORG_USERS_CLIENT(int? oRG_USER_CLIENT_IDX, int? oRG_USER_IDX, string cLIENT_ID, bool? aDMIN_IND, string sTATUS_IND, string cREATE_USER)
         {
             try
@@ -490,7 +510,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             }
 
         }
-
+              
 
         //*****************ROLES**********************************
         public IEnumerable<IdentityRole> GetT_PRT_ROLES_BelongingToUser(string UserID)
@@ -519,8 +539,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             return null;
         }
 
-
-      
+             
 
     }
 }

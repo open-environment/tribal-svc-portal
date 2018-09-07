@@ -31,8 +31,7 @@ namespace TribalSvcPortal.Data.Models
         public virtual DbSet<T_PRT_SITE_INTERESTS> T_PRT_SITE_INTERESTS { get; set; }
         public virtual DbSet<T_PRT_SITES> T_PRT_SITES { get; set; }
         public virtual DbSet<T_PRT_SYS_EMAIL_LOG> T_PRT_SYS_EMAIL_LOG { get; set; }
-        public virtual DbSet<T_PRT_SYS_LOG> T_PRT_SYS_LOG { get; set; }
-
+        public virtual DbSet<T_PRT_SYS_LOG> T_PRT_SYS_LOG { get; set; }  
 
         public virtual DbSet<T_OD_DUMP_ASSESSMENT_DOCS> T_OD_DUMP_ASSESSMENT_DOCS { get; set; }
         public virtual DbSet<T_OD_DUMP_ASSESSMENTS> T_OD_DUMP_ASSESSMENTS { get; set; }
@@ -855,6 +854,7 @@ namespace TribalSvcPortal.Data.Models
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_T_OD_SITE_DTL_SS");
             });
+        
             /*************** TABLE COLUMNS END   *******************/
 
         }

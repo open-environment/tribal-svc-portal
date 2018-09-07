@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 using TribalSvcPortal.AppLogic.DataAccessLayer;
 using TribalSvcPortal.Data.Models;
 using TribalSvcPortal.ViewModels;
@@ -17,19 +18,35 @@ namespace TribalSvcPortal.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IDbPortal _DbPortal;
-
+        private readonly IMemoryCache _memoryCache;
         public HomeController(
             UserManager<ApplicationUser> userManager,
             RoleManager<IdentityRole> roleManager,
+              IMemoryCache memoryCache,
             IDbPortal DbPortal)
         {
             _userManager = userManager;
             _roleManager = roleManager;
             _DbPortal = DbPortal;
+            _memoryCache = memoryCache;
         }
 
         public IActionResult Index()
         {
+           
+            IEnumerable<T_PRT_CLIENTS> UserClientDisplayType;
+            string _UserIDX;
+            bool isUserExist = _memoryCache.TryGetValue("UserID", out _UserIDX);
+            if (isUserExist)
+            {
+                string CacheKey = "UserMenuData" + _UserIDX;
+
+                bool isExist = _memoryCache.TryGetValue(CacheKey, out UserClientDisplayType);
+                if (isExist && UserClientDisplayType!=null)
+                {
+                    ViewBag.UserMenuAccess = UserClientDisplayType;
+                }
+            }
             _DbPortal.GetT_PRT_SYS_LOG();
 
             return View();

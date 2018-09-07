@@ -11,6 +11,7 @@ using TribalSvcPortal.Data.Models;
 using TribalSvcPortal.ViewModels;
 using TribalSvcPortal.ViewModels.AdminViewModels;
 using TribalSvcPortal.AppLogic.DataAccessLayer;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace TribalSvcPortal.Controllers
 {
@@ -20,15 +21,17 @@ namespace TribalSvcPortal.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IDbPortal _DbPortal;
-
+        private readonly IMemoryCache _memoryCache;
         public AdminController(
             UserManager<ApplicationUser> userManager,
-            RoleManager<IdentityRole> roleManager, 
+            RoleManager<IdentityRole> roleManager,
+               IMemoryCache memoryCache,
             IDbPortal DbPortal)
         {
             _userManager = userManager;
             _roleManager = roleManager;
             _DbPortal = DbPortal;
+            _memoryCache = memoryCache;
         }
 
         public IActionResult Index()
@@ -288,64 +291,76 @@ namespace TribalSvcPortal.Controllers
         public ActionResult Settings()
         {
             //T_OE_APP_SETTINGS_CUSTOM custSettings = _DbPortal.g db_Ref.GetT_OE_APP_SETTING_CUSTOM();
-
-            var model = new SettingsViewModel
+            IEnumerable<T_PRT_CLIENTS> UserClientDisplayType;
+            string _UserIDX;
+            bool isUserExist = _memoryCache.TryGetValue("UserID", out _UserIDX);
+            if (isUserExist)
             {
-                app_settings = _DbPortal.GetT_PRT_APP_SETTING_List(),
+                string CacheKey = "UserMenuData" + _UserIDX;
+
+                bool isExist = _memoryCache.TryGetValue(CacheKey, out UserClientDisplayType);
+                if (isExist && UserClientDisplayType != null)
+                {
+                    ViewBag.UserMenuAccess = UserClientDisplayType;
+                }
+            }
+            var model = new SettingsViewModel
+            {                
+            app_settings = _DbPortal.GetT_PRT_APP_SETTING_List(),
                 //TermsAndConditions = custSettings.TERMS_AND_CONDITIONS,
                 //Announcements = custSettings.ANNOUNCEMENTS
             };
             return View(model);
-        }
-
-        [HttpPost, ValidateAntiForgeryToken]
-        public ActionResult Settings(SettingsViewModel model)
-        {
-            if (ModelState.IsValid)
-            {
-                string UserID = _userManager.GetUserId(User);
-
-                int SuccID = _DbPortal.InsertUpdateT_PRT_APP_SETTING(model.edit_app_setting.SettingIdx, model.edit_app_setting.SettingName, model.edit_app_setting.SettingValue, false, null, UserID);
-                if (SuccID > 0)
-                    TempData["Success"] = "Data Saved.";
-                else
-                    TempData["Error"] = "Data Not Saved.";
-            }
-
-            return RedirectToAction("Settings");
-        }
-
-        //[HttpPost, ValidateAntiForgeryToken]
-        //public ActionResult CustomSettings(SettingsViewModel model)
-        //{
-        //    if (ModelState.IsValid)
-        //    {
-        //        int SuccID = _DbPortal.InsertUpdateT_PRT_APP_SETTING_CUSTOM(model.TermsAndConditions, null);
-        //        if (SuccID > 0)
-        //            TempData["Success"] = "Data Saved.";
-        //        else
-        //            TempData["Error"] = "Data Not Saved.";
-        //    }
-
-        //    return RedirectToAction("Settings");
-        //}
-
-        //[HttpPost, ValidateAntiForgeryToken]
-        //public ActionResult CustomSettingsAnnounce(SettingsViewModel model)
-        //{
-        //    if (ModelState.IsValid)
-        //    {
-        //        int SuccID = _DbPortal.InsertUpdateT_PRT_APP_SETTING_CUSTOM(null, model.Announcements ?? "");
-        //        if (SuccID > 0)
-        //            TempData["Success"] = "Data Saved.";
-        //        else
-        //            TempData["Error"] = "Data Not Saved.";
-        //    }
-
-        //    return RedirectToAction("Settings");
-        //}
-
     }
+
+    [HttpPost, ValidateAntiForgeryToken]
+    public ActionResult Settings(SettingsViewModel model)
+    {
+        if (ModelState.IsValid)
+        {
+            string UserID = _userManager.GetUserId(User);
+
+            int SuccID = _DbPortal.InsertUpdateT_PRT_APP_SETTING(model.edit_app_setting.SettingIdx, model.edit_app_setting.SettingName, model.edit_app_setting.SettingValue, false, null, UserID);
+            if (SuccID > 0)
+                TempData["Success"] = "Data Saved.";
+            else
+                TempData["Error"] = "Data Not Saved.";
+        }
+
+        return RedirectToAction("Settings");
+    }
+
+    //[HttpPost, ValidateAntiForgeryToken]
+    //public ActionResult CustomSettings(SettingsViewModel model)
+    //{
+    //    if (ModelState.IsValid)
+    //    {
+    //        int SuccID = _DbPortal.InsertUpdateT_PRT_APP_SETTING_CUSTOM(model.TermsAndConditions, null);
+    //        if (SuccID > 0)
+    //            TempData["Success"] = "Data Saved.";
+    //        else
+    //            TempData["Error"] = "Data Not Saved.";
+    //    }
+
+    //    return RedirectToAction("Settings");
+    //}
+
+    //[HttpPost, ValidateAntiForgeryToken]
+    //public ActionResult CustomSettingsAnnounce(SettingsViewModel model)
+    //{
+    //    if (ModelState.IsValid)
+    //    {
+    //        int SuccID = _DbPortal.InsertUpdateT_PRT_APP_SETTING_CUSTOM(null, model.Announcements ?? "");
+    //        if (SuccID > 0)
+    //            TempData["Success"] = "Data Saved.";
+    //        else
+    //            TempData["Error"] = "Data Not Saved.";
+    //    }
+
+    //    return RedirectToAction("Settings");
+    //}
+
+}
 
 
 

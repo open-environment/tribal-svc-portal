@@ -8,6 +8,10 @@
     <Product>Tribal Services Portal</Product>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Compile Remove="Data\Models\T_PRT_USERS.cs" />
+  </ItemGroup>
+
 
   <ItemGroup>
     <PackageReference Include="BuildBundlerMinifier" Version="2.8.391" />
