@@ -42,5 +42,12 @@ namespace TribalSvcPortal.Controllers
         {
             return View();
         }
+
+
+        public IActionResult DumpParcels()
+        {
+            return View();
+        }
+
     }
 }

@@ -74,20 +74,22 @@
 
             <div class="table-responsive">
                 <table class="table table-striped m-b-none" data-ride="datatables">
-                    <tr>
-                        <th style="min-width:70px"></th>
-                        <th>Site Name</th>
-                        <th>Site Address</th>
-                        <th>Reported By</th>
-                        <th>Reported On</th>
-                    </tr>
+                    <thead>
+                        <tr class="thead-inverse">
+                            <th style="min-width:70px"></th>
+                            <th>Site Name</th>
+                            <th>Site Address</th>
+                            <th>Reported By</th>
+                            <th>Reported On</th>
+                        </tr>
+                    </thead>
 
                     @*@foreach (var item in Model)*@
                     @for (int i = 0; i < 10; i++)
                     {
                         <tr>
                             <td style="min-width:65px">
-                                <a href="@Url.Action(" DumpEdit","OpenDump", new { id=1})" class="btn btn-rounded btn-xs btn-info"><i class="glyphicon glyphicon-pencil"></i></a>
+                                <a href="@Url.Action("DumpEdit","OpenDump", new { id=1})" class="btn btn-rounded btn-xs btn-info"><i class="glyphicon glyphicon-pencil"></i></a>
                                 <div class="delete-section" style="display:inline">
                                     <a class=" btn btn-rounded btn-xs btn-danger delete-link"><i class="glyphicon glyphicon-remove"></i></a>
                                     @*<div class="btn btn-rounded btn-xs btn-warning delete-confirm" style="display:none" data-delete-id="@item.SiteId" data-delete-p="/OpenDump/SiteDelete"><b>Confirm Delete</b></div>*@
