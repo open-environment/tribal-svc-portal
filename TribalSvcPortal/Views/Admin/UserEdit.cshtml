@@ -54,7 +54,7 @@
 
             <p>
                 <button type="submit" class="btn btn-sm btn-primary">Save</button>
-                <a class=" btn btn-sm btn-warning" href="@Url.Action("UserList" )">Back to List</a>
+                <a class=" btn btn-sm btn-warning" href="@Url.Action("UserList")">Back to List</a>
             </p>
 
         }
@@ -114,18 +114,20 @@
     <div class="panel-body">
         <div class="table-responsive">
             <table class="table table-striped m-b-none" data-ride="datatables">
-                <tr>
-                    <th></th>
-                    <th>Organization</th>
-                    <th>Is Admin?</th>
-                    <th>Status</th>
-                </tr>
+                <thead class="thead-inverse">
+                    <tr>
+                        <th></th>
+                        <th>Organization</th>
+                        <th>Is Admin?</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
 
                 @foreach (var item in Model.UserOrgs)
                 {
                     <tr>
                         <td>
-                            <a href="@Url.Action("OrgUserClients","Admin", new { id=item.ORG_USER_IDX })" class="btn btn-rounded btn-xs btn-info"><i class="glyphicon glyphicon-pencil"></i> Clients</a>
+                            <a href="@Url.Action("OrgUserClients", "Admin", new { id = item.ORG_USER_IDX })" class="btn btn-rounded btn-xs btn-info"><i class="glyphicon glyphicon-pencil"></i> Clients</a>
                             <div class="delete-section" style="display:inline">
                                 <a class=" btn btn-rounded btn-xs btn-danger delete-link"><i class="glyphicon glyphicon-remove"></i></a>
                                 <div class="btn btn-rounded btn-xs btn-warning delete-confirm" style="display:none" data-delete-id="@item.ORG_USER_IDX" data-delete-id2="@Model.appUser.Id" data-delete-p="/Admin/OrgUserDelete"><b>Confirm Delete</b></div>

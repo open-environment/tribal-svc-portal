@@ -18,10 +18,6 @@ namespace TribalSvcPortal
         private static readonly DbContextOptions<ApplicationDbContext> _contextOptions = new DbContextOptions<ApplicationDbContext>();
         static ApplicationDbContext _context = new ApplicationDbContext(_contextOptions);
         static IDbPortal _DbPortal = new DbPortal(_context);
-        //public Config(IDbPortal DbPortal)
-        //{
-        //    _DbPortal = DbPortal;
-        //}
 
 
         //Returns list of Clients
@@ -67,7 +63,6 @@ namespace TribalSvcPortal
             List<Client> _clients = new List<Client>();
 
             List<T_PRT_CLIENTS> dbclients = _DbPortal.GetT_PRT_CLIENTS();
-            //var dbclients = db_PortalStatic.GetT_PRT_CLIENTS();
             foreach (T_PRT_CLIENTS dbclient in dbclients)
             {
                 Client _client = new Client();

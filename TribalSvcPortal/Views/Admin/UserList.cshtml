@@ -8,16 +8,18 @@
     <div class="table-responsive">
 
         <table class="table table-striped m-b-none" data-ride="datatables">
-            <tr>
-                <th></th>
-                <th>User ID</th>
-                <th>First Name</th>
-                <th>Last Name</th>
-                <th>Last Login Date</th>
-                <th>Phone</th>
-                <th>Active</th>
-                <th>Created Date</th>
-            </tr>
+            <thead class="thead-inverse">
+                <tr>
+                    <th></th>
+                    <th>User ID</th>
+                    <th>First Name</th>
+                    <th>Last Name</th>
+                    <th>Last Login Date</th>
+                    <th>Phone</th>
+                    <th>Active</th>
+                    <th>Created Date</th>
+                </tr>
+            </thead>
 
             @foreach (var item in Model)
             {

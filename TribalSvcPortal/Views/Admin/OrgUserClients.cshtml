@@ -8,14 +8,16 @@
     <div class="table-responsive">
 
         <table class="table table-striped m-b-none" data-ride="datatables">
-            <tr>
-                <th></th>
-                <th>Organization</th>
-                <th>User</th>
-                <th>Client</th>
-                <th>Admin?</th>
-                <th>Status</th>
-            </tr>
+            <thead class="thead-inverse">
+                <tr>
+                    <th></th>
+                    <th>Organization</th>
+                    <th>User</th>
+                    <th>Client</th>
+                    <th>Admin?</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
 
             @foreach (var item in Model.OrgUserClients)
             {
@@ -75,8 +77,8 @@
                                 <div class="row">
                                     <div class="col-md-12">
                                         <div class="form-group">
-                                            Organization:
-                                            @Html.DropDownList("client_id", Model.ddl_Clients, "", new { @class = " " })
+                                            Client:
+                                            @Html.DropDownList("client_id", Model.ddl_Clients, "", new { @class = "form-control" })
                                         </div>
                                     </div>
                                 </div>
