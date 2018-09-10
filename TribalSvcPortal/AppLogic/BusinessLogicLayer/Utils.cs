@@ -13,9 +13,7 @@ namespace TribalSvcPortal.AppLogic.BusinessLogicLayer
 {
     public static class Utils
     {
-        private static readonly DbContextOptions<ApplicationDbContext> _contextOptions = new DbContextOptions<ApplicationDbContext>();
-        private static IOptions<AuthMessageSenderOptions> _optionsAccessor;
-        private static IEmailSender _emailSender = new EmailSender(_optionsAccessor);
+        private static readonly DbContextOptions<ApplicationDbContext> _contextOptions = new DbContextOptions<ApplicationDbContext>();       
         private static ApplicationDbContext _context = new ApplicationDbContext(_contextOptions);
 
         /// <summary>
@@ -31,13 +29,13 @@ namespace TribalSvcPortal.AppLogic.BusinessLogicLayer
 
             return str.Substring(index, length);
         }
-        public static async Task<bool> SendEmail(string from, string to, List<string> cc, List<string> bcc, string subj, string body, byte[] attach, string attachFileName,string callbackUrl, string bodyHTML = null)
+        public static bool SendEmail(string from, string to, List<string> cc, List<string> bcc, string subj, string body, byte[] attach, string attachFileName, string bodyHTML = null)
         {
             try
             {
                
                 IDbPortal _DbPortal = new DbPortal(_context);
-
+                //************* GET SMTP SERVER SETTINGS ****************************
                 string mailServer = _DbPortal.GetT_PRT_APP_SETTING("EMAIL_SERVER");
                 string Port = _DbPortal.GetT_PRT_APP_SETTING("EMAIL_PORT");
                 string smtpUser = _DbPortal.GetT_PRT_APP_SETTING("EMAIL_SECURE_USER");
@@ -51,8 +49,9 @@ namespace TribalSvcPortal.AppLogic.BusinessLogicLayer
 
                 //************** REROUTE TO SENDGRID HELPER IF SENDGRID ENABLED ******
                 if (mailServer == "smtp.sendgrid.net")
-                {
-                    await _emailSender.SendEmailConfirmationAsync(to, callbackUrl, from);
+                {                  
+                    bool SendStatus = SendGridHelper.SendGridEmail(from, to, cc, bcc, subj, body, smtpUserPwd, bodyHTML).GetAwaiter().GetResult();
+                    return SendStatus;
                 }
                 else
                 {
@@ -75,8 +74,8 @@ namespace TribalSvcPortal.AppLogic.BusinessLogicLayer
                         }
                     }
 
-                    message.Subject = "Confirm your email";
-                    message.Body = "Please confirm your account by clicking this link: <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>link</a>";
+                    message.Subject = subj;
+                    message.Body = body;
                     //*************ATTACHMENT START**************************
                     if (attach != null)
                     {

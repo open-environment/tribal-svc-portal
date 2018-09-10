@@ -44,8 +44,7 @@ namespace TribalSvcPortal.Services
             msg.TrackingSettings = new TrackingSettings
             {
                 ClickTracking = new ClickTracking { Enable = false }
-            };   
-
+            };           
             return client.SendEmailAsync(msg);
           
         }

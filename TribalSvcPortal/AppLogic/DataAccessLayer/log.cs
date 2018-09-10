@@ -6,12 +6,15 @@ using System.Data.Entity.Validation;
 using TribalSvcPortal.AppLogic.DataAccessLayer;
 using TribalSvcPortal.AppLogic.BusinessLogicLayer;
 using TribalSvcPortal.Data.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace TribalSvcPortal.AppLogic.DataAccessLayer
 {
     public static class log
     {
-        private static readonly ApplicationDbContext ctx;
+        private static readonly DbContextOptions<ApplicationDbContext> _contextOptions = new DbContextOptions<ApplicationDbContext>();
+        private static ApplicationDbContext _context = new ApplicationDbContext(_contextOptions);
+       
 
         public static int InsertT_PRT_SYS_LOG(string logType, string logMsg)
         {
@@ -23,8 +26,8 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
                     LogMsg = logMsg,
                     LogDt = System.DateTime.Now
                 };
-                ctx.T_PRT_SYS_LOG.Add(e);
-                ctx.SaveChanges();
+                _context.T_PRT_SYS_LOG.Add(e);
+                _context.SaveChanges();
                 return e.SysLogId;
             }
             catch (Exception ex)

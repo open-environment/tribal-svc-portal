@@ -44,6 +44,19 @@ namespace TribalSvcPortal.Controllers
         //******************************* ROLES **********************************************************
         public IActionResult RoleList()
         {
+            IEnumerable<T_PRT_CLIENTS> UserClientDisplayType;
+            string _UserIDX;
+            bool isUserExist = _memoryCache.TryGetValue("UserID", out _UserIDX);
+            if (isUserExist)
+            {
+                string CacheKey = "UserMenuData" + _UserIDX;
+
+                bool isExist = _memoryCache.TryGetValue(CacheKey, out UserClientDisplayType);
+                if (isExist && UserClientDisplayType != null)
+                {
+                    ViewBag.UserMenuAccess = UserClientDisplayType;
+                }
+            }
             var roles = _roleManager.Roles.ToList();
             return View(roles);
         }
@@ -59,6 +72,19 @@ namespace TribalSvcPortal.Controllers
         //******************************* USERS **********************************************************
         public IActionResult UserList()
         {
+            IEnumerable<T_PRT_CLIENTS> UserClientDisplayType;
+            string _UserIDX;
+            bool isUserExist = _memoryCache.TryGetValue("UserID", out _UserIDX);
+            if (isUserExist)
+            {
+                string CacheKey = "UserMenuData" + _UserIDX;
+
+                bool isExist = _memoryCache.TryGetValue(CacheKey, out UserClientDisplayType);
+                if (isExist && UserClientDisplayType != null)
+                {
+                    ViewBag.UserMenuAccess = UserClientDisplayType;
+                }
+            }
             var users = _userManager.Users.ToList();
             return View(users);
         }
@@ -67,6 +93,20 @@ namespace TribalSvcPortal.Controllers
         [Authorize(Roles = "PortalAdmin")]
         public async Task<IActionResult> UserEdit(string id)
         {
+            IEnumerable<T_PRT_CLIENTS> UserClientDisplayType;
+            string _UserIDX;
+            bool isUserExist = _memoryCache.TryGetValue("UserID", out _UserIDX);
+            if (isUserExist)
+            {
+                string CacheKey = "UserMenuData" + _UserIDX;
+
+                bool isExist = _memoryCache.TryGetValue(CacheKey, out UserClientDisplayType);
+                if (isExist && UserClientDisplayType != null)
+                {
+                    ViewBag.UserMenuAccess = UserClientDisplayType;
+                }
+            }
+
             //roles the user is assigned 
             var RolesInUser = _DbPortal.GetT_PRT_ROLES_BelongingToUser(id);
 
@@ -102,6 +142,20 @@ namespace TribalSvcPortal.Controllers
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<ActionResult> UserEdit(UserEditViewModel model, string submitButton)
         {
+            IEnumerable<T_PRT_CLIENTS> UserClientDisplayType;
+            string _UserIDX;
+            bool isUserExist = _memoryCache.TryGetValue("UserID", out _UserIDX);
+            if (isUserExist)
+            {
+                string CacheKey = "UserMenuData" + _UserIDX;
+
+                bool isExist = _memoryCache.TryGetValue(CacheKey, out UserClientDisplayType);
+                if (isExist && UserClientDisplayType != null)
+                {
+                    ViewBag.UserMenuAccess = UserClientDisplayType;
+                }
+            }
+
             ApplicationUser _user = await _userManager.FindByIdAsync(model.appUser.Id);
             if (_user != null)
             {
@@ -140,6 +194,20 @@ namespace TribalSvcPortal.Controllers
         [HttpPost]
         public async Task<IActionResult> UserDelete(string id)
         {
+            IEnumerable<T_PRT_CLIENTS> UserClientDisplayType;
+            string _UserIDX;
+            bool isUserExist = _memoryCache.TryGetValue("UserID", out _UserIDX);
+            if (isUserExist)
+            {
+                string CacheKey = "UserMenuData" + _UserIDX;
+
+                bool isExist = _memoryCache.TryGetValue(CacheKey, out UserClientDisplayType);
+                if (isExist && UserClientDisplayType != null)
+                {
+                    ViewBag.UserMenuAccess = UserClientDisplayType;
+                }
+            }
+
             var user = await _userManager.FindByIdAsync(id);
 
             if (user != null)
@@ -158,6 +226,20 @@ namespace TribalSvcPortal.Controllers
         {
             if (ModelState.IsValid)
             {
+                IEnumerable<T_PRT_CLIENTS> UserClientDisplayType;
+                string _UserIDX;
+                bool isUserExist = _memoryCache.TryGetValue("UserID", out _UserIDX);
+                if (isUserExist)
+                {
+                    string CacheKey = "UserMenuData" + _UserIDX;
+
+                    bool isExist = _memoryCache.TryGetValue(CacheKey, out UserClientDisplayType);
+                    if (isExist && UserClientDisplayType != null)
+                    {
+                        ViewBag.UserMenuAccess = UserClientDisplayType;
+                    }
+                }
+
                 int newID = _DbPortal.InsertUpdateT_PRT_ORG_USERS(null, org_id, uidx, (AdminInd == "A" ? true : false), StatusInd, User.Identity.Name);
 
                 if (newID == 0)
@@ -174,6 +256,20 @@ namespace TribalSvcPortal.Controllers
         [HttpPost]
         public IActionResult OrgUserDelete(int id, string id2)
         {
+            IEnumerable<T_PRT_CLIENTS> UserClientDisplayType;
+            string _UserIDX;
+            bool isUserExist = _memoryCache.TryGetValue("UserID", out _UserIDX);
+            if (isUserExist)
+            {
+                string CacheKey = "UserMenuData" + _UserIDX;
+
+                bool isExist = _memoryCache.TryGetValue(CacheKey, out UserClientDisplayType);
+                if (isExist && UserClientDisplayType != null)
+                {
+                    ViewBag.UserMenuAccess = UserClientDisplayType;
+                }
+            }
+
             int SuccID = _DbPortal.DeleteT_PRT_ORG_USERS(id);
             if (SuccID > 0)
                 TempData["Success"] = "Record has been deleted.";
@@ -188,6 +284,19 @@ namespace TribalSvcPortal.Controllers
         [Authorize(Roles = "PortalAdmin")]
         public IActionResult ClientList()
         {
+            IEnumerable<T_PRT_CLIENTS> UserClientDisplayType;
+            string _UserIDX;
+            bool isUserExist = _memoryCache.TryGetValue("UserID", out _UserIDX);
+            if (isUserExist)
+            {
+                string CacheKey = "UserMenuData" + _UserIDX;
+
+                bool isExist = _memoryCache.TryGetValue(CacheKey, out UserClientDisplayType);
+                if (isExist && UserClientDisplayType != null)
+                {
+                    ViewBag.UserMenuAccess = UserClientDisplayType;
+                }
+            }
             var model = _DbPortal.GetT_PRT_CLIENTS();
             return View(model);
         }
@@ -195,6 +304,19 @@ namespace TribalSvcPortal.Controllers
         [Authorize(Roles = "PortalAdmin")]
         public IActionResult ClientEdit(string id)
         {
+            IEnumerable<T_PRT_CLIENTS> UserClientDisplayType;
+            string _UserIDX;
+            bool isUserExist = _memoryCache.TryGetValue("UserID", out _UserIDX);
+            if (isUserExist)
+            {
+                string CacheKey = "UserMenuData" + _UserIDX;
+
+                bool isExist = _memoryCache.TryGetValue(CacheKey, out UserClientDisplayType);
+                if (isExist && UserClientDisplayType != null)
+                {
+                    ViewBag.UserMenuAccess = UserClientDisplayType;
+                }
+            }
             var model = _DbPortal.GetT_PRT_CLIENTS_ByClientID(id);
             return View(model);
         }
@@ -206,6 +328,19 @@ namespace TribalSvcPortal.Controllers
 
             if (model != null)
             {
+                IEnumerable<T_PRT_CLIENTS> UserClientDisplayType;
+                string _UserIDX;
+                bool isUserExist = _memoryCache.TryGetValue("UserID", out _UserIDX);
+                if (isUserExist)
+                {
+                    string CacheKey = "UserMenuData" + _UserIDX;
+
+                    bool isExist = _memoryCache.TryGetValue(CacheKey, out UserClientDisplayType);
+                    if (isExist && UserClientDisplayType != null)
+                    {
+                        ViewBag.UserMenuAccess = UserClientDisplayType;
+                    }
+                }
 
                 string ClientID = _DbPortal.InsertUpdateT_PRT_CLIENTS(model.ClientId, model.ClientName, model.ClientGrantType, model.ClientRedirectUri, model.ClientPostLogoutUri, model.ClientUrl);
 
@@ -224,6 +359,19 @@ namespace TribalSvcPortal.Controllers
         //******************************* ORGANIZATIONS **********************************************************
         public IActionResult OrgList()
         {
+            IEnumerable<T_PRT_CLIENTS> UserClientDisplayType;
+            string _UserIDX;
+            bool isUserExist = _memoryCache.TryGetValue("UserID", out _UserIDX);
+            if (isUserExist)
+            {
+                string CacheKey = "UserMenuData" + _UserIDX;
+
+                bool isExist = _memoryCache.TryGetValue(CacheKey, out UserClientDisplayType);
+                if (isExist && UserClientDisplayType != null)
+                {
+                    ViewBag.UserMenuAccess = UserClientDisplayType;
+                }
+            }
             var model = _DbPortal.GetT_PRT_ORGANIZATIONS();
             return View(model);
         }
@@ -240,6 +388,19 @@ namespace TribalSvcPortal.Controllers
         //************************************ ORGANIZATION USER CLIENT  ***************************************
         public IActionResult OrgUserClients(int id)
         {
+            IEnumerable<T_PRT_CLIENTS> UserClientDisplayType;
+            string _UserIDX;
+            bool isUserExist = _memoryCache.TryGetValue("UserID", out _UserIDX);
+            if (isUserExist)
+            {
+                string CacheKey = "UserMenuData" + _UserIDX;
+
+                bool isExist = _memoryCache.TryGetValue(CacheKey, out UserClientDisplayType);
+                if (isExist && UserClientDisplayType != null)
+                {
+                    ViewBag.UserMenuAccess = UserClientDisplayType;
+                }
+            }
             var model = new OrgUserEditViewModel
             {
                 UserIDX = _DbPortal.GetT_PRT_ORG_USERS_ByOrgUserID(id).Id,
@@ -260,6 +421,19 @@ namespace TribalSvcPortal.Controllers
         {
             if (ModelState.IsValid)
             {
+                IEnumerable<T_PRT_CLIENTS> UserClientDisplayType;
+                string _UserIDX;
+                bool isUserExist = _memoryCache.TryGetValue("UserID", out _UserIDX);
+                if (isUserExist)
+                {
+                    string CacheKey = "UserMenuData" + _UserIDX;
+
+                    bool isExist = _memoryCache.TryGetValue(CacheKey, out UserClientDisplayType);
+                    if (isExist && UserClientDisplayType != null)
+                    {
+                        ViewBag.UserMenuAccess = UserClientDisplayType;
+                    }
+                }
                 int newID = _DbPortal.InsertUpdateT_PRT_ORG_USERS_CLIENT(null, org_user_idx, client_id, (AdminInd == "1" ? true : false), StatusInd, User.Identity.Name);
 
                 if (newID == 0)
@@ -276,6 +450,20 @@ namespace TribalSvcPortal.Controllers
         [HttpPost]
         public IActionResult OrgUserClientDelete(int id, string id2)
         {
+            IEnumerable<T_PRT_CLIENTS> UserClientDisplayType;
+            string _UserIDX;
+            bool isUserExist = _memoryCache.TryGetValue("UserID", out _UserIDX);
+            if (isUserExist)
+            {
+                string CacheKey = "UserMenuData" + _UserIDX;
+
+                bool isExist = _memoryCache.TryGetValue(CacheKey, out UserClientDisplayType);
+                if (isExist && UserClientDisplayType != null)
+                {
+                    ViewBag.UserMenuAccess = UserClientDisplayType;
+                }
+            }
+
             int SuccID = _DbPortal.DeleteT_PRT_ORG_USER_CLIENT(id);
             if (SuccID > 0)
                 TempData["Success"] = "Record has been deleted.";
@@ -318,7 +506,21 @@ namespace TribalSvcPortal.Controllers
     {
         if (ModelState.IsValid)
         {
-            string UserID = _userManager.GetUserId(User);
+                IEnumerable<T_PRT_CLIENTS> UserClientDisplayType;
+                string _UserIDX;
+                bool isUserExist = _memoryCache.TryGetValue("UserID", out _UserIDX);
+                if (isUserExist)
+                {
+                    string CacheKey = "UserMenuData" + _UserIDX;
+
+                    bool isExist = _memoryCache.TryGetValue(CacheKey, out UserClientDisplayType);
+                    if (isExist && UserClientDisplayType != null)
+                    {
+                        ViewBag.UserMenuAccess = UserClientDisplayType;
+                    }
+                }
+
+                string UserID = _userManager.GetUserId(User);
 
             int SuccID = _DbPortal.InsertUpdateT_PRT_APP_SETTING(model.edit_app_setting.SettingIdx, model.edit_app_setting.SettingName, model.edit_app_setting.SettingValue, false, null, UserID);
             if (SuccID > 0)
