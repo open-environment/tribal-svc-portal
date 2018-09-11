@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using TribalSvcPortal.AppLogic.DataAccessLayer;
 using TribalSvcPortal.Data.Models;
 
 namespace TribalSvcPortal.ViewModels.OpenDumpViewModels
@@ -15,11 +16,8 @@ namespace TribalSvcPortal.ViewModels.OpenDumpViewModels
         public string selOrg { get; set; }
         public IEnumerable<SelectListItem> ddl_Status { get; set; }
         public IEnumerable<SelectListItem> ddl_Org { get; set; }
+        public List<OpenDumpSiteListDisplay> searchResults { get; set; }
 
-        public SearchViewModel()
-        {
-            ddl_Status = new List<SelectListItem>();
-            ddl_Org = new List<SelectListItem>();
-        }
+     
     }
 }

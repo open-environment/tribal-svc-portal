@@ -13,15 +13,15 @@ namespace TribalSvcPortal.Controllers
 {
     public class OpenDumpController : Controller
     {
-        private readonly IDbPortal _DbPortal;
+       
         private readonly IDbOpenDump _DbOpenDump;
         private readonly IMemoryCache _memoryCache;
         public OpenDumpController(
-            IDbPortal DbPortal,
+           
              IMemoryCache memoryCache,
             IDbOpenDump DbOpenDump)
         {
-            _DbPortal = DbPortal;
+           
             _DbOpenDump = DbOpenDump;
             _memoryCache = memoryCache;
         }
@@ -45,16 +45,53 @@ namespace TribalSvcPortal.Controllers
                 {
                     ViewBag.UserMenuAccess = UserClientDisplayType;
                 }
+            }          
+                var model = new SearchViewModel
+                {
+                    ddl_Org = _DbOpenDump.get_ddl_organizations(_UserIDX)
+                };
+                return View(model);          
+           
+            
+        }
+        [HttpGet]
+        public IActionResult Search(string selStr, string selOrg)
+        {
+            IEnumerable<T_PRT_CLIENTS> UserClientDisplayType;
+            string _UserIDX;
+            bool isUserExist = _memoryCache.TryGetValue("UserID", out _UserIDX);
+            if (isUserExist)
+            {
+                string CacheKey = "UserMenuData" + _UserIDX;
+
+                bool isExist = _memoryCache.TryGetValue(CacheKey, out UserClientDisplayType);
+                if (isExist && UserClientDisplayType != null)
+                {
+                    ViewBag.UserMenuAccess = UserClientDisplayType;
+                }
+            }
+            if (selStr == null && selOrg == null)
+            {
+                SearchViewModel model = new SearchViewModel();
+                model.ddl_Org = _DbOpenDump.get_ddl_organizations(_UserIDX);
+                //if (model.ddl_Org.Count() == 1)
+                //{
+                //    model.selOrg = model.ddl_Org.Te
+                //}               
+                return View(model);
+            }
+            else
+            {
+                var model = new SearchViewModel
+                {
+                    ddl_Org = _DbOpenDump.get_ddl_organizations(_UserIDX),
+                    searchResults = _DbOpenDump.get_OpenDump_Sites_By_Organization_SiteName(selStr, selOrg)
+            };
+              //  var model = _DbOpenDump.get_OpenDump_Sites_By_Organization_SiteName(selStr, selOrg);
+                return View(model);
             }
 
-            var model = new SearchViewModel
-            {
-            };
-
-            return View(model);
         }
-
-
         public IActionResult RefData()
         {
             IEnumerable<T_PRT_CLIENTS> UserClientDisplayType;
