@@ -34,8 +34,7 @@ namespace TribalSvcPortal.Controllers
         private readonly IDbPortal _DbPortal;
         private readonly IMemoryCache _memoryCache;
 
-        public AccountController(
-            UserManager<ApplicationUser> userManager,
+        public AccountController(UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
             IEmailSender emailSender,
             IDbPortal DbPortal,
@@ -90,7 +89,8 @@ namespace TribalSvcPortal.Controllers
                 {
                     IEnumerable<T_PRT_CLIENTS> UserClientDisplayType ;
                   
-                    string _UserIDX = user.Id;
+                    string _UserIDX = user.Id;                  
+
                     string CacheKey = "UserMenuData" + _UserIDX;
 
                     bool isExist = _memoryCache.TryGetValue(CacheKey, out UserClientDisplayType);

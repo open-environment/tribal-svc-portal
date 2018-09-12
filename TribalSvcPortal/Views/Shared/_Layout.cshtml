@@ -65,7 +65,8 @@
         {
         <div class="navbar-content">
             <!-- start: LEFT MENU -->
-            @Html.Partial("_LeftMenu")
+            @*@Html.Partial("_LeftMenu")*@
+            @await Component.InvokeAsync("MenuItems")
             <!-- end: LEFT MENU -->
         </div>
         }

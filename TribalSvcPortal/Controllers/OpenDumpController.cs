@@ -31,45 +31,14 @@ namespace TribalSvcPortal.Controllers
             return View();
         }
 
-        public IActionResult Search()
-        {
-            IEnumerable<T_PRT_CLIENTS> UserClientDisplayType;
-            string _UserIDX;
-            bool isUserExist = _memoryCache.TryGetValue("UserID", out _UserIDX);
-            if (isUserExist)
-            {
-                string CacheKey = "UserMenuData" + _UserIDX;
-
-                bool isExist = _memoryCache.TryGetValue(CacheKey, out UserClientDisplayType);
-                if (isExist && UserClientDisplayType != null)
-                {
-                    ViewBag.UserMenuAccess = UserClientDisplayType;
-                }
-            }          
-                var model = new SearchViewModel
-                {
-                    ddl_Org = _DbOpenDump.get_ddl_organizations(_UserIDX)
-                };
-                return View(model);          
-           
-            
-        }
+        
         [HttpGet]
         public IActionResult Search(string selStr, string selOrg)
         {
-            IEnumerable<T_PRT_CLIENTS> UserClientDisplayType;
+           
             string _UserIDX;
             bool isUserExist = _memoryCache.TryGetValue("UserID", out _UserIDX);
-            if (isUserExist)
-            {
-                string CacheKey = "UserMenuData" + _UserIDX;
-
-                bool isExist = _memoryCache.TryGetValue(CacheKey, out UserClientDisplayType);
-                if (isExist && UserClientDisplayType != null)
-                {
-                    ViewBag.UserMenuAccess = UserClientDisplayType;
-                }
-            }
+           
             if (selStr == null && selOrg == null)
             {
                 SearchViewModel model = new SearchViewModel();
@@ -93,20 +62,7 @@ namespace TribalSvcPortal.Controllers
 
         }
         public IActionResult RefData()
-        {
-            IEnumerable<T_PRT_CLIENTS> UserClientDisplayType;
-            string _UserIDX;
-            bool isUserExist = _memoryCache.TryGetValue("UserID", out _UserIDX);
-            if (isUserExist)
-            {
-                string CacheKey = "UserMenuData" + _UserIDX;
-
-                bool isExist = _memoryCache.TryGetValue(CacheKey, out UserClientDisplayType);
-                if (isExist && UserClientDisplayType != null)
-                {
-                    ViewBag.UserMenuAccess = UserClientDisplayType;
-                }
-            }
+        {           
             return View();
         }
 
