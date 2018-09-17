@@ -6,136 +6,138 @@
 
 <!-- *********************** START FILTER ****************************************** -->
 @using (Html.BeginForm("Search", "OpenDump", FormMethod.Get, new { @class = "" }))
-{
-    <div class="row aligned-row">
-        <section class="col-md-12 col-sm-12 col-xs-12 ">
-            <section class="panel panel-default">
-                <div class="panel-heading">
-                    Filters
-                    <div class="panel-tools">
-                        <a class="btn btn-xs panel-collapse collapses" href="#">
-                        </a>
-                    </div>
+    {
+<div class="row aligned-row">
+    <section class="col-md-12 col-sm-12 col-xs-12 ">
+        <section class="panel panel-default">
+            <div class="panel-heading">
+                Filters
+                <div class="panel-tools">
+                    <a class="btn btn-xs panel-collapse collapses" href="#">
+                    </a>
                 </div>
-                <div class="panel-body">
+            </div>
+            <div class="panel-body">
 
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label>Search:</label>
-                                @Html.TextBoxFor(model => model.selStr, new { @class = "form-control", @placeholder = "Search site name or address" })
-                            </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Search:</label>
+                            @Html.TextBoxFor(model => model.selStr, new { @class = "form-control", @placeholder = "Search site name or address" })
                         </div>
-                        @*<div class="col-md-6">
-                                <div class="form-group">
-                                    <label>Status:</label>
-                                    @Html.DropDownListFor(model => model.selStatus, Model.ddl_Status, "", new { @class = "form-control" })
-                                </div>
-                            </div>*@
-                        <div class="col-md-6">
+                    </div>
+                    @*<div class="col-md-6">
                             <div class="form-group">
-                                <label>Organization:</label>
-                                @if (Model.ddl_Org.Count()>1)
-                                {
-                                    @Html.DropDownListFor(model => model.selOrg, Model.ddl_Org, "", new { @class = "form-control" })
-                                }
+                                <label>Status:</label>
+                                @Html.DropDownListFor(model => model.selStatus, Model.ddl_Status, "", new { @class = "form-control" })
+                            </div>
+                        </div>*@
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Organization:</label>
+                            @*@if (Model.ddl_Org.Count()>1)
+                                {*@
+                            @Html.DropDownListFor(model => model.selOrg, Model.ddl_Org, "", new { @class = "form-control" })
+                            @*}
                                 else
                                 {
                                     @Html.TextBoxFor(model => model.selOrg, new { @class = "form-control"})
 
-                                }
-                            </div>
+                                }*@
                         </div>
                     </div>
-                    <div class="row">
-                        <div class="col-md-12">
-                            <button class="btn btn-success" type="submit">
-                                <i class="clip-search-2"> </i>Search
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <button class="btn btn-success" type="submit">
+                               <i class="clip-search-2"> </i>Search
                             </button>
-                          @*  <a id="add-it" href="#modal-form" data-toggle="modal" class="add-it btn btn-rounded btn-primary "><i class="clip-search-2"></i> Search</a>*@
-                        </div>
+                       @* <a href="@Url.Action("Search", "OpenDump", new { selStr=Model.selStr,selOrg=Model.selOrg })" class="btn btn-success"><i class="clip-search-2"></i> Search</a>*@
+                        @*<button href="@Url.Action("Search", "OpenDump", new { selStr=Model.selStr,selOrg=Model.selOrg})" class="btn btn-success"><i class="clip-search-2"></i>Search</button>*@
+                        @*<button href="@Url.Action("Search", "OpenDump")" type="submit" class="btn btn-success"><i class="clip-search-2"></i> Search</button>*@
                     </div>
                 </div>
-            </section>
+            </div>
         </section>
-    </div>
+    </section>
+</div>
+}
 
+<!-- *********************** START TABS ****************************************** -->
+<div id="tabs" class="tabbable">
+    <ul id="myTab" class="nav nav-tabs tab-blue">
+        <li class="active tooltips" style="line-height: 22px; font-size: 22px;" data-rel="tooltip" data-original-title="List View">
+            <a href="#tabList" data-toggle="tab">
+                <i id="entHelp" class="clip-list help-icon color-eecip"></i>
+            </a>
+        </li>
+        <li class="tooltips" style="line-height: 22px; font-size: 22px;" data-rel="tooltip" data-original-title="Map View">
+            <a href="#tabMap" data-toggle="tab">
+                <i id="entHelp" class="clip-earth help-icon color-eecip"></i>
+            </a>
+        </li>
+        <li class="pull-right">
+            @*<a href="#" style="background-color: #FFF; border: 0px; font-weight: bold; font-size: 11px;">Record Count: @( 0)</a>*@
+            @*<button href="@Url.Action("PreField", "OpenDump", new {selOrg=Model.selOrg })" class="btn btn-rounded btn-success"><i class="glyphicon glyphicon-plus"></i> Add New</button>*@
+            <a href="@Url.Action("PreField", "OpenDump", new { selOrg=Model.selOrg})" class="btn btn-rounded btn-success"><i class="glyphicon glyphicon-plus"></i> Add New</a>
+</li>
+    </ul>
 
-    <!-- *********************** START TABS ****************************************** -->
-    <div id="tabs" class="tabbable">
-        <ul id="myTab" class="nav nav-tabs tab-blue">
-            <li class="active tooltips" style="line-height: 22px; font-size: 22px;" data-rel="tooltip" data-original-title="List View">
-                <a href="#tabList" data-toggle="tab">
-                    <i id="entHelp" class="clip-list help-icon color-eecip"></i>
-                </a>
-            </li>
-            <li class="tooltips" style="line-height: 22px; font-size: 22px;" data-rel="tooltip" data-original-title="Map View">
-                <a href="#tabMap" data-toggle="tab">
-                    <i id="entHelp" class="clip-earth help-icon color-eecip"></i>
-                </a>
-            </li>
-            <li class="pull-right">
-                @*<a href="#" style="background-color: #FFF; border: 0px; font-weight: bold; font-size: 11px;">Record Count: @( 0)</a>*@
-                <button href="@Url.Action("PreField", "OpenDump")" class="btn btn-rounded btn-success"><i class="glyphicon glyphicon-plus"></i> Add New</button>
+    <!--  ************************************** TAB CONTENT *********************************************************-->
+    <div class="tab-content">
+        <div class="tab-pane in active" id="tabList">
 
-            </li>
-        </ul>
-
-        <!--  ************************************** TAB CONTENT *********************************************************-->
-        <div class="tab-content">
-            <div class="tab-pane in active" id="tabList">
-
-                <div class="table-responsive">
-                    <table class="table table-striped m-b-none" data-ride="datatables">
-                        <thead>
-                            <tr class="thead-inverse">
-                                <th style="min-width:70px"></th>
-                                <th>Site Name</th>
-                                <th>Site Address</th>
-                                <th>Reported By</th>
-                                <th>Reported On</th>
-                            </tr>
-                        </thead>
-                        @if (Model.searchResults != null)
+            <div class="table-responsive">
+                <table class="table table-striped m-b-none" data-ride="datatables">
+                    <thead>
+                        <tr class="thead-inverse">
+                            <th style="min-width:70px"></th>
+                            <th>Site Name</th>
+                            <th>Site Address</th>
+                            <th>Reported By</th>
+                            <th>Reported On</th>
+                        </tr>
+                    </thead>
+                    @if (Model.searchResults != null)
+                    {
+                        @foreach (var item in Model.searchResults)
                         {
-                            @foreach (var item in Model.searchResults)
-                            {
-                                <tr>
-                                    <td style="min-width:65px">
-                                        <a href="@Url.Action("DumpEdit", "OpenDump", new { id = 1 })" class="btn btn-rounded btn-xs btn-info"><i class="glyphicon glyphicon-pencil"></i></a>
-                                        <div class="delete-section" style="display:inline">
-                                            <a class=" btn btn-rounded btn-xs btn-danger delete-link"><i class="glyphicon glyphicon-remove"></i></a>
-                                            @*<div class="btn btn-rounded btn-xs btn-warning delete-confirm" style="display:none" data-delete-id="@item.SiteId" data-delete-p="/OpenDump/SiteDelete"><b>Confirm Delete</b></div>*@
-                                        </div>
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.SiteName)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.SiteAddress)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.ReportedBy)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.ReportedOn)
-                                    </td>
+                            <tr>
+                                <td style="min-width:65px">
+                                    <a href="@Url.Action("DumpEdit", "OpenDump", new { id = 1 })" class="btn btn-rounded btn-xs btn-info"><i class="glyphicon glyphicon-pencil"></i></a>
+                                    <div class="delete-section" style="display:inline">
+                                        <a class=" btn btn-rounded btn-xs btn-danger delete-link"><i class="glyphicon glyphicon-remove"></i></a>
+                                        @*<div class="btn btn-rounded btn-xs btn-warning delete-confirm" style="display:none" data-delete-id="@item.SiteId" data-delete-p="/OpenDump/SiteDelete"><b>Confirm Delete</b></div>*@
+                                    </div>
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.SiteName)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.SiteAddress)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.ReportedBy)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.ReportedOn)
+                                </td>
 
-                                </tr>
-                            }
+                            </tr>
                         }
+                    }
 
-                    </table>
-                </div>
-
+                </table>
             </div>
-            <div class="tab-pane" id="tabMap">
 
-            </div>
+        </div>
+        <div class="tab-pane" id="tabMap">
+
         </div>
     </div>
-    <!-- *********************** END TABS ****************************************** -->
-}
+</div>
+<!-- *********************** END TABS ****************************************** -->
+
 @section scripts {
     <script src="~/js/confirm_delete.js">
     </script>

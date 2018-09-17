@@ -33,8 +33,9 @@ namespace TribalSvcPortal.AppLogic.BusinessLogicLayer
         {
             try
             {
-               
-                IDbPortal _DbPortal = new DbPortal(_context);
+
+                // IDbPortal _DbPortal = new DbPortal(_context);
+                IDbPortal _DbPortal = new DbPortal();
                 //************* GET SMTP SERVER SETTINGS ****************************
                 string mailServer = _DbPortal.GetT_PRT_APP_SETTING("EMAIL_SERVER");
                 string Port = _DbPortal.GetT_PRT_APP_SETTING("EMAIL_PORT");

@@ -13,12 +13,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace TribalSvcPortal
 {
-    internal class Config
+   internal class Config
     {
-        private static readonly DbContextOptions<ApplicationDbContext> _contextOptions = new DbContextOptions<ApplicationDbContext>();
-        static ApplicationDbContext _context = new ApplicationDbContext(_contextOptions);
-        static IDbPortal _DbPortal = new DbPortal(_context);
-
+        public static IDbPortal _DbPortal = new DbPortal();      
 
         //Returns list of Clients
         public static IEnumerable<Client> GetClientsHardCode()
@@ -96,8 +93,6 @@ namespace TribalSvcPortal
             };
         }
     }
-
-
     public class CustomProfileService : IProfileService
     {
         private readonly IUserClaimsPrincipalFactory<ApplicationUser> _claimsFactory;
@@ -134,9 +129,7 @@ namespace TribalSvcPortal
 
             context.IssuedClaims = cs;
         }
-
-
-        public async Task IsActiveAsync(IsActiveContext context)
+       public async Task IsActiveAsync(IsActiveContext context)
         {
             var sub = context.Subject.GetSubjectId();
             var user = await _userManager.FindByIdAsync(sub);

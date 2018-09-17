@@ -26,7 +26,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             _DbPortal = DbPortal;
             _memoryCache = memoryCache;
         }
-        //public async Task<IViewComponentResult> InvokeAsync()
+      
         public IViewComponentResult Invoke()
         {
             IEnumerable<T_PRT_CLIENTS> UserClientDisplayType;

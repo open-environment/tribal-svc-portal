@@ -27,6 +27,9 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
         List<UserOrgDisplayType> GetT_OD_SITES_bySearch(string orgID, string searchStr);
         IEnumerable<SelectListItem> get_ddl_organizations(string id);
         List<OpenDumpSiteListDisplay> get_OpenDump_Sites_By_Organization_SiteName(string selStr, string selOrg);
+        IEnumerable<SelectListItem> get_ddl_refdata_by_category(string cat_name);
+        T_PRT_SITES GetT_PRT_SITES_BySITEIDX(Guid Siteidx);
+        T_OD_SITES GetT_OD_SITES_BySITEIDX(Guid Siteidx);
     }
 
     public class DbOpenDump : IDbOpenDump
@@ -67,16 +70,55 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
         }
 
 
-        public static IEnumerable<SelectListItem> get_ddl_refdata_by_category(string cat_name)
+        public IEnumerable<SelectListItem> get_ddl_refdata_by_category(string cat_name)
         {
-            return null;
-            //return db_Ref.GetT_OE_REF_TAGS_ByCategory(cat_name).Select(x => new SelectListItem
-            //{
-            //    Value = x.TAG_IDX.ToString(),
-            //    Text = x.TAG_NAME
-            //});
-        }
+            try
+            {
+                var xxx = (from a in ctx.T_OD_REF_DATA
+                           where a.RefDataCatName == cat_name
+                           orderby a.RefDataName                       
+                           select new SelectListItem
+                           {
+                               Value = a.RefDataIdx.ToString(),
+                               Text = a.RefDataName
+                           }).ToList();
 
+                return xxx;
+            }
+            catch (Exception ex)
+            {
+                log.LogEFException(ex);
+                return null;
+            }
+        }
+        public T_PRT_SITES GetT_PRT_SITES_BySITEIDX(Guid Siteidx)
+        {
+            try
+            {
+                return (from a in ctx.T_PRT_SITES
+                        where a.SiteIdx == Siteidx
+                        select a).FirstOrDefault();
+            }
+            catch (Exception ex)
+            {
+                log.LogEFException(ex);
+                return null;
+            }
+        }
+        public T_OD_SITES GetT_OD_SITES_BySITEIDX(Guid Siteidx)
+        {
+            try
+            {
+                return (from a in ctx.T_OD_SITES
+                        where a.SiteIdx == Siteidx
+                        select a).FirstOrDefault();
+            }
+            catch (Exception ex)
+            {
+                log.LogEFException(ex);
+                return null;
+            }
+        }
         public IEnumerable<SelectListItem> get_ddl_organizations(string id)
         {
             try

@@ -749,7 +749,7 @@ namespace TribalSvcPortal.Data.Models
                 entity.HasKey(e => e.RefDataIdx);
 
                 entity.Property(e => e.RefDataIdx)
-                    .HasColumnName("REF_DATA_IDX")
+                    .HasColumnName("DATA_IDX")
                     .HasDefaultValueSql("(newid())");
 
                 entity.Property(e => e.CreateDt)
@@ -775,7 +775,7 @@ namespace TribalSvcPortal.Data.Models
 
                 entity.Property(e => e.RefDataCatName)
                     .IsRequired()
-                    .HasColumnName("REF_DATA_CAT_NAME")
+                    .HasColumnName("DATA_CAT_NAME")
                     .HasMaxLength(50)
                     .IsUnicode(false);
 
@@ -786,7 +786,7 @@ namespace TribalSvcPortal.Data.Models
 
                 entity.Property(e => e.RefDataName)
                     .IsRequired()
-                    .HasColumnName("REF_DATA_NAME")
+                    .HasColumnName("DATA_NAME")
                     .HasMaxLength(100)
                     .IsUnicode(false);
 

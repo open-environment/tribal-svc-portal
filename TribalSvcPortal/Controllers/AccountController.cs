@@ -290,6 +290,19 @@ namespace TribalSvcPortal.Controllers
         public async Task<IActionResult> Logout()
         {
             await _signInManager.SignOutAsync();
+            string _UserIDX;
+            string CacheKey="";
+            IEnumerable<T_PRT_CLIENTS> UserClientDisplayType;
+            bool isUserExist = _memoryCache.TryGetValue("UserID", out _UserIDX);
+            if (isUserExist)
+            {
+                CacheKey = "UserMenuData" + _UserIDX;
+
+                bool isExist = _memoryCache.TryGetValue(CacheKey, out UserClientDisplayType);
+            }
+            _memoryCache.Remove("UserID");
+            _memoryCache.Remove(CacheKey);
+
             _logger.LogInformation("User logged out.");
             return RedirectToAction(nameof(HomeController.Index), "Home");
         }

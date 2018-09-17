@@ -6,6 +6,7 @@ using TribalSvcPortal.Data.Models;
 using TribalSvcPortal.AppLogic.BusinessLogicLayer;
 using Microsoft.AspNetCore.Identity;
 using System.Data.Entity.Validation;
+using Microsoft.EntityFrameworkCore;
 
 namespace TribalSvcPortal.AppLogic.DataAccessLayer
 {
@@ -48,24 +49,22 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
         List<OrgUserClientDisplayType> GetT_PRT_ORG_USERS_CLIENT_ByUserID(string _UserIDX);        
         IEnumerable<T_PRT_CLIENTS> GetT_PRT_ORG_USERS_CLIENT_DistinctClientByUserID(string UserID);
         int InsertUpdateT_PRT_ORG_USERS_CLIENT(int? oRG_USER_CLIENT_IDX, int? oRG_USER_IDX, string cLIENT_ID, bool? aDMIN_IND, string sTATUS_IND, string cREATE_USER);
-        int DeleteT_PRT_ORG_USER_CLIENT(int id);
-       // int InsertT_PRT_SYS_LOG(string logType, string logMsg);
+        int DeleteT_PRT_ORG_USER_CLIENT(int id);      
         IEnumerable<IdentityRole> GetT_PRT_ROLES_BelongingToUser(string UserID);
-        T_PRT_SYS_LOG GetT_PRT_SYS_LOG();
-       // string GetT_PRT_USER(string Email);
-        IEnumerable<T_PRT_CLIENTS> GetDistinct_USERS_CLIENT_ByUserID(string _UserIDX);
-        // void LogEFException(Exception ex);
+        T_PRT_SYS_LOG GetT_PRT_SYS_LOG();      
+        IEnumerable<T_PRT_CLIENTS> GetDistinct_USERS_CLIENT_ByUserID(string _UserIDX);      
     }
 
     public class DbPortal : IDbPortal
     {
-        private readonly ApplicationDbContext ctx;
-        public DbPortal(ApplicationDbContext _context)
-        {
-            ctx = _context;
-        }
-
-
+        private static readonly DbContextOptions<ApplicationDbContext> _contextOptions = new DbContextOptions<ApplicationDbContext>();
+      //ApplicationDbContext _context = new ApplicationDbContext(_contextOptions);
+        private readonly ApplicationDbContext ctx = new ApplicationDbContext(_contextOptions);
+        //public DbPortal(ApplicationDbContext _context)
+        //{
+        //    ctx = _context;
+        //}
+        
         //*****************APP SETTINGS**********************************
         public string GetT_PRT_APP_SETTING(string settingName)
         {

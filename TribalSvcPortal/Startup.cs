@@ -53,11 +53,11 @@ namespace TribalSvcPortal
             services.AddScoped<IDbPortal, DbPortal>();
             services.AddScoped<IDbOpenDump, DbOpenDump>();
 
+            
             //configure identity server with in-memory stores, keys, clients and scopes
             services.AddIdentityServer()
                 .AddDeveloperSigningCredential(true)  //adds a demo signing certificate
-                .AddInMemoryIdentityResources(Config.GetIdentityResources())
-                //.AddInMemoryClients(Config.GetClientsHardCode())
+                .AddInMemoryIdentityResources(Config.GetIdentityResources())                
                 .AddInMemoryClients(Config.GetClients2())
                 .AddAspNetIdentity<ApplicationUser>()
                 .AddProfileService<CustomProfileService>()

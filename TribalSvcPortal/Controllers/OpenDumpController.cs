@@ -31,22 +31,15 @@ namespace TribalSvcPortal.Controllers
             return View();
         }
 
-        
-        [HttpGet]
-        public IActionResult Search(string selStr, string selOrg)
-        {
-           
+        public ActionResult Search(string selStr, string selOrg)
+        {           
             string _UserIDX;
             bool isUserExist = _memoryCache.TryGetValue("UserID", out _UserIDX);
            
             if (selStr == null && selOrg == null)
             {
                 SearchViewModel model = new SearchViewModel();
-                model.ddl_Org = _DbOpenDump.get_ddl_organizations(_UserIDX);
-                //if (model.ddl_Org.Count() == 1)
-                //{
-                //    model.selOrg = model.ddl_Org.Te
-                //}               
+                model.ddl_Org = _DbOpenDump.get_ddl_organizations(_UserIDX);              
                 return View(model);
             }
             else
@@ -55,11 +48,35 @@ namespace TribalSvcPortal.Controllers
                 {
                     ddl_Org = _DbOpenDump.get_ddl_organizations(_UserIDX),
                     searchResults = _DbOpenDump.get_OpenDump_Sites_By_Organization_SiteName(selStr, selOrg)
-            };
-              //  var model = _DbOpenDump.get_OpenDump_Sites_By_Organization_SiteName(selStr, selOrg);
+            };             
                 return View(model);
             }
 
+        }
+        // GET: /OpenDump/PreField
+        public ActionResult PreField(Guid? SiteIdx, string selOrg)
+        {
+            var model = new PreFieldViewModel();
+            model.SiteSettingsList = _DbOpenDump.get_ddl_refdata_by_category("Site Setting");
+
+
+            if (SiteIdx != null)
+            {
+                model.TPrtSites = _DbOpenDump.GetT_PRT_SITES_BySITEIDX((Guid)SiteIdx);
+                model.TOdSites = _DbOpenDump.GetT_OD_SITES_BySITEIDX((Guid)SiteIdx);
+            }
+            //else //add new case
+            //{
+            //    model.agency = new T_OE_ORGANIZATION();
+            //    model.agency.ORG_IDX = Guid.NewGuid();
+            //    if (typ != null)
+            //        model.agency.ORG_TYPE = typ;
+            //    model.agency.ACT_IND = true;
+            //    model.agency_emails = new List<T_OE_ORGANIZATION_EMAIL_RULE>();
+            //}
+
+            //model.GovInd = typ;
+            return View(model);
         }
         public IActionResult RefData()
         {           

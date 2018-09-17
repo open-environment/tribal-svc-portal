@@ -23,32 +23,31 @@
         {
             @foreach (var MenuItem in Model)
             {
-                @if (@MenuItem.ClientId == "open_waters")
+                @if (@MenuItem.ClientLocalInd == false)
                 {
                     <li class="lvl1 @Html.ActivePage("Dashboard", "Index2")">
                         @*<a href="@Url.Action("Index2", "Dashboard")">*@
                         <a href="@MenuItem.ClientUrl">
-                            <i class="clip-droplet"></i>
-                            <span class="title">Open Waters <i class="clip-new-tab"></i></span>
+                            <i class="@MenuItem.ClientImage"></i>
+                            <span class="title">@MenuItem.ClientName<i class="clip-new-tab"></i></span>
                         </a>
                     </li>
                 }
-                @if (@MenuItem.ClientId == "emergency_hound")
+                @*@if (@MenuItem.ClientId == "emergency_hound")
                 {
-                    <li class="lvl1 @Html.ActivePage("Dashboard", "Index3")">
-                        @*<a href="@Url.Action("Index3", "Dashboard")">*@
+                    <li class="lvl1 @Html.ActivePage("Dashboard", "Index3")">                       
                         <a href="@MenuItem.ClientUrl">
                             <i class="glyphicon glyphicon-plus "></i>
                             <span class="title">Emergency Hound <i class="clip-new-tab"></i></span>
                         </a>
                     </li>
-                }
-                @if (@MenuItem.ClientId == "open_dump")
+                }*@
+                @if (@MenuItem.ClientLocalInd == true)
                 {
                     <li class="open">
                         <a href="javascript:void(0)">
                             <i class="clip-leaf"></i>
-                            <span class="title">Open Dump </span>
+                            <span class="title">@MenuItem.ClientName</span>
                             <i class="icon-arrow"></i>
                         </a>
                         <ul class="sub-menu" style="display:block;">
