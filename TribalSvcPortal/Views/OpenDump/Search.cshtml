@@ -6,61 +6,58 @@
 
 <!-- *********************** START FILTER ****************************************** -->
 @using (Html.BeginForm("Search", "OpenDump", FormMethod.Get, new { @class = "" }))
-    {
-<div class="row aligned-row">
-    <section class="col-md-12 col-sm-12 col-xs-12 ">
-        <section class="panel panel-default">
-            <div class="panel-heading">
-                Filters
-                <div class="panel-tools">
-                    <a class="btn btn-xs panel-collapse collapses" href="#">
-                    </a>
-                </div>
-            </div>
-            <div class="panel-body">
-
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label>Search:</label>
-                            @Html.TextBoxFor(model => model.selStr, new { @class = "form-control", @placeholder = "Search site name or address" })
-                        </div>
+{
+    <div class="row aligned-row">
+        <section class="col-md-12 col-sm-12 col-xs-12 ">
+            <section class="panel panel-default">
+                <div class="panel-heading">
+                    Filters
+                    <div class="panel-tools">
+                        <a class="btn btn-xs panel-collapse collapses" href="#">
+                        </a>
                     </div>
-                    @*<div class="col-md-6">
+                </div>
+                <div class="panel-body">
+
+                    <div class="row">
+                        <div class="col-md-6">
                             <div class="form-group">
-                                <label>Status:</label>
-                                @Html.DropDownListFor(model => model.selStatus, Model.ddl_Status, "", new { @class = "form-control" })
+                                <label>Search:</label>
+                                @Html.TextBoxFor(model => model.selStr, new { @class = "form-control", @placeholder = "Search site name or address" })
                             </div>
-                        </div>*@
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label>Organization:</label>
-                            @*@if (Model.ddl_Org.Count()>1)
-                                {*@
-                            @Html.DropDownListFor(model => model.selOrg, Model.ddl_Org, "", new { @class = "form-control" })
-                            @*}
-                                else
-                                {
-                                    @Html.TextBoxFor(model => model.selOrg, new { @class = "form-control"})
+                        </div>
+                        @*<div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Status:</label>
+                                    @Html.DropDownListFor(model => model.selStatus, Model.ddl_Status, "", new { @class = "form-control" })
+                                </div>
+                            </div>*@
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Organization:</label>
+                                @*@if (Model.ddl_Org.Count()>1)
+                                    {*@
+                                @Html.DropDownListFor(model => model.selOrg, Model.ddl_Org, "", new { @class = "form-control" })
+                                @*}
+                                    else
+                                    {
+                                        @Html.TextBoxFor(model => model.selOrg, new { @class = "form-control"})
 
-                                }*@
+                                    }*@
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <button class="btn btn-success" type="submit">
+                                <i class="clip-search-2"> </i>Search
+                            </button>
                         </div>
                     </div>
                 </div>
-                <div class="row">
-                    <div class="col-md-12">
-                        <button class="btn btn-success" type="submit">
-                               <i class="clip-search-2"> </i>Search
-                            </button>
-                       @* <a href="@Url.Action("Search", "OpenDump", new { selStr=Model.selStr,selOrg=Model.selOrg })" class="btn btn-success"><i class="clip-search-2"></i> Search</a>*@
-                        @*<button href="@Url.Action("Search", "OpenDump", new { selStr=Model.selStr,selOrg=Model.selOrg})" class="btn btn-success"><i class="clip-search-2"></i>Search</button>*@
-                        @*<button href="@Url.Action("Search", "OpenDump")" type="submit" class="btn btn-success"><i class="clip-search-2"></i> Search</button>*@
-                    </div>
-                </div>
-            </div>
+            </section>
         </section>
-    </section>
-</div>
+    </div>
 }
 
 <!-- *********************** START TABS ****************************************** -->
@@ -79,8 +76,9 @@
         <li class="pull-right">
             @*<a href="#" style="background-color: #FFF; border: 0px; font-weight: bold; font-size: 11px;">Record Count: @( 0)</a>*@
             @*<button href="@Url.Action("PreField", "OpenDump", new {selOrg=Model.selOrg })" class="btn btn-rounded btn-success"><i class="glyphicon glyphicon-plus"></i> Add New</button>*@
-            <a href="@Url.Action("PreField", "OpenDump", new { selOrg=Model.selOrg})" class="btn btn-rounded btn-success"><i class="glyphicon glyphicon-plus"></i> Add New</a>
-</li>
+            <a href="@Url.Action("PreField", "OpenDump", new { selOrg=Model.selOrg, returnURL="Search"})" class="btn btn-rounded btn-success"
+               style="color: #fff;background-color: #5cb85c;border-color: #4cae4c;border-radius: 4px !important;"><i class="glyphicon glyphicon-plus"></i>Add New</a>
+        </li>
     </ul>
 
     <!--  ************************************** TAB CONTENT *********************************************************-->
@@ -104,10 +102,10 @@
                         {
                             <tr>
                                 <td style="min-width:65px">
-                                    <a href="@Url.Action("DumpEdit", "OpenDump", new { id = 1 })" class="btn btn-rounded btn-xs btn-info"><i class="glyphicon glyphicon-pencil"></i></a>
+                                    <a href="@Url.Action("PreField", "OpenDump", new { SiteIdx= item.Site_Idx, selOrg=Model.selOrg, returnURL="Search"})" class="btn btn-rounded btn-xs btn-info"><i class="glyphicon glyphicon-pencil"></i></a>
                                     <div class="delete-section" style="display:inline">
                                         <a class=" btn btn-rounded btn-xs btn-danger delete-link"><i class="glyphicon glyphicon-remove"></i></a>
-                                        @*<div class="btn btn-rounded btn-xs btn-warning delete-confirm" style="display:none" data-delete-id="@item.SiteId" data-delete-p="/OpenDump/SiteDelete"><b>Confirm Delete</b></div>*@
+                                        <div class="btn btn-rounded btn-xs btn-warning delete-confirm" style="display:none" data-delete-id="@item.Site_Idx" data-delete-p="/OpenDump/PreFieldDelete"><b>Confirm Delete</b></div>
                                     </div>
                                 </td>
                                 <td>
@@ -141,6 +139,7 @@
 @section scripts {
     <script src="~/js/confirm_delete.js">
     </script>
+       
     <script type="text/javascript">
         var map;
 

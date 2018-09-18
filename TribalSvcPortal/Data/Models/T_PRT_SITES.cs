@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace TribalSvcPortal.Data.Models
 {
@@ -12,6 +13,7 @@ namespace TribalSvcPortal.Data.Models
 
         public Guid SiteIdx { get; set; }
         public string OrgId { get; set; }
+        [Required(ErrorMessage = "please Enter SiteName")]
         public string SiteName { get; set; }
         public string EpaId { get; set; }
         public decimal? Latitude { get; set; }

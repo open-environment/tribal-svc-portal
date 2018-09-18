@@ -39,7 +39,14 @@ namespace TribalSvcPortal.Controllers
             if (selStr == null && selOrg == null)
             {
                 SearchViewModel model = new SearchViewModel();
-                model.ddl_Org = _DbOpenDump.get_ddl_organizations(_UserIDX);              
+                model.ddl_Org = _DbOpenDump.get_ddl_organizations(_UserIDX);   
+                if(model.ddl_Org.Count()==1)
+                {
+                    foreach (var orgid in model.ddl_Org)
+                    {
+                        model.selOrg = orgid.Value;
+                    }
+                }
                 return View(model);
             }
             else
@@ -48,36 +55,90 @@ namespace TribalSvcPortal.Controllers
                 {
                     ddl_Org = _DbOpenDump.get_ddl_organizations(_UserIDX),
                     searchResults = _DbOpenDump.get_OpenDump_Sites_By_Organization_SiteName(selStr, selOrg)
-            };             
+            };
+                if (model.ddl_Org.Count() == 1)
+                {
+                    foreach (var orgid in model.ddl_Org)
+                    {
+                        model.selOrg = orgid.Value;
+                    }
+                }
                 return View(model);
             }
 
         }
         // GET: /OpenDump/PreField
-        public ActionResult PreField(Guid? SiteIdx, string selOrg)
+        public ActionResult PreField(Guid? SiteIdx, string selOrg, string returnURL)
         {
             var model = new PreFieldViewModel();
             model.SiteSettingsList = _DbOpenDump.get_ddl_refdata_by_category("Site Setting");
-
-
+            model.CommunityList = _DbOpenDump.get_ddl_refdata_by_category("Community");
+            model.returnURL = returnURL ?? "Search";
+            model.selOrg = selOrg;
             if (SiteIdx != null)
             {
                 model.TPrtSites = _DbOpenDump.GetT_PRT_SITES_BySITEIDX((Guid)SiteIdx);
                 model.TOdSites = _DbOpenDump.GetT_OD_SITES_BySITEIDX((Guid)SiteIdx);
             }
-            //else //add new case
-            //{
-            //    model.agency = new T_OE_ORGANIZATION();
-            //    model.agency.ORG_IDX = Guid.NewGuid();
-            //    if (typ != null)
-            //        model.agency.ORG_TYPE = typ;
-            //    model.agency.ACT_IND = true;
-            //    model.agency_emails = new List<T_OE_ORGANIZATION_EMAIL_RULE>();
-            //}
+            else
+            {               
+                model.TPrtSites = new T_PRT_SITES
+                {
+                    OrgId = "DELAWARENATION",
+                    SiteIdx = Guid.NewGuid(),
+                };
 
-            //model.GovInd = typ;
+            }           
             return View(model);
         }
+        [HttpPost, ValidateAntiForgeryToken]
+        public ActionResult OpenDumpEdit(PreFieldViewModel model)
+        {
+            //if (model.TPrtSites.SiteName == null)
+            //    ModelState.AddModelError("SiteName", "SiteName is required");
+
+            string _UserIDX;
+            bool isUserExist = _memoryCache.TryGetValue("UserID", out _UserIDX);
+            Guid? newSiteID = _DbOpenDump.InsertUpdateT_PRT_SITES(model.TPrtSites.SiteIdx, model.selOrg, model.TPrtSites.SiteName ?? "",
+                    model.TPrtSites.EpaId ?? "", model.TPrtSites.Latitude, model.TPrtSites.Longitude, model.TPrtSites.SiteAddress ?? "", _UserIDX);
+
+            if (newSiteID != null)
+            {
+                Guid? SiteID = _DbOpenDump.InsertUpdateT_OD_SITES((Guid)newSiteID, model.TOdSites.CommunityIdx, model.TOdSites.SiteSettingIdx,
+                    model.TOdSites.ReportedBy ?? "", model.TOdSites.ReportedOn, model.TOdSites.ResponseAction ?? "");
+
+                TempData["Success"] = "Update successful.";
+                return RedirectToAction("PreField", "OpenDump", new { SiteIdx = newSiteID, returnURL = model.returnURL });
+            }
+            else
+                TempData["Error"] = "Error updating data.";
+            return RedirectToAction(model.returnURL ?? "Search", new { selStr = "", selOrg="" });
+        }
+        //[HttpPost]
+        //public JsonResult PreFieldDelete(Guid SiteIdx)
+        //{
+        //    string response = "";
+
+        //    if (SiteIdx != null)
+        //    {
+        //        int SuccID = 0;
+        //        //int SuccID = db_Ref.DeleteT_OE_ORGANIZATION(org);
+
+        //        if (SuccID == -1)
+        //            response = "Cannot delete agency because agency users exist.";
+        //        else if (SuccID == -2)
+        //            response = "Cannot delete agency because agency projects exist.";
+        //        else if (SuccID == -3)
+        //            response = "Cannot delete agency because agency enterprise services exist.";
+        //        else
+        //            response = "Success";
+        //    }
+        //    else
+        //        response = "Unable to delete agency";
+
+        //    return Json(response);
+        //}
+
         public IActionResult RefData()
         {           
             return View();
