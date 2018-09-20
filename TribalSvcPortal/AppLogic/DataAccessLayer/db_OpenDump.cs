@@ -20,6 +20,8 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
         public string SiteAddress { get; set; }
         public string ReportedBy { get; set; }
         public DateTime? ReportedOn { get; set; }
+        public decimal? Latitude { get; set; }
+        public decimal? Longitude { get; set; }
     }
 
     public interface IDbOpenDump
@@ -33,6 +35,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
         Guid? InsertUpdateT_PRT_SITES(Guid? sITE_IDX, string oRG_ID, string sITE_NAME, string ePA_ID, decimal? lATITUDE, decimal? lONGITUDE, string sITE_ADDRESS,
            string UserIDX);
         Guid? InsertUpdateT_OD_SITES(Guid sITE_IDX, Guid cOMMUNITY_IDX, Guid sITE_SETTING_IDX, string rEPORTED_BY, DateTime? rEPORTED_ON, string rESPONSE_ACTION);
+        int DeleteT_PRT_SITES(Guid sITE_IDX);
     }
 
     public class DbOpenDump : IDbOpenDump
@@ -165,7 +168,9 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
                                SiteName = a.SiteName,
                                SiteAddress = a.SiteAddress,
                                ReportedBy = b.ReportedBy,
-                               ReportedOn = b.ReportedOn
+                               ReportedOn = b.ReportedOn,
+                               Latitude = a.Latitude,
+                               Longitude = a.Longitude
 
                            }).ToList();
                 }
@@ -181,7 +186,9 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
                                SiteName = a.SiteName,
                                SiteAddress = a.SiteAddress,
                                ReportedBy = b.ReportedBy,
-                               ReportedOn = b.ReportedOn
+                               ReportedOn = b.ReportedOn,
+                               Latitude = a.Latitude,
+                               Longitude = a.Longitude
 
                            }).ToList();
                 }
@@ -199,7 +206,9 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
                                SiteName = a.SiteName,
                                SiteAddress = a.SiteAddress,
                                ReportedBy = b.ReportedBy,
-                               ReportedOn = b.ReportedOn
+                               ReportedOn = b.ReportedOn,
+                               Latitude = a.Latitude,
+                               Longitude = a.Longitude
 
                            }).ToList();
                 }
@@ -217,7 +226,6 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
         public Guid? InsertUpdateT_PRT_SITES(Guid? sITE_IDX, string oRG_ID, string sITE_NAME, string ePA_ID, decimal? lATITUDE, decimal? lONGITUDE, string sITE_ADDRESS,
             string UserIDX)
         {
-
             try
             {
                 Boolean insInd = false;
@@ -296,6 +304,26 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
                 return null;
             }
 
+        }
+        public int DeleteT_PRT_SITES(Guid sITE_IDX)
+        {
+            try
+            {
+                T_OD_SITES tos = new T_OD_SITES { SiteIdx = sITE_IDX };
+                ctx.Entry(tos).State = Microsoft.EntityFrameworkCore.EntityState.Deleted;
+                ctx.SaveChanges();
+
+                T_PRT_SITES tps = new T_PRT_SITES { SiteIdx = sITE_IDX };
+                ctx.Entry(tps).State = Microsoft.EntityFrameworkCore.EntityState.Deleted;
+                ctx.SaveChanges();
+
+                return 1;
+            }
+            catch (Exception ex)
+            {
+                log.LogEFException(ex);
+                return 0;
+            }
         }
     }
 }

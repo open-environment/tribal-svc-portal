@@ -70,24 +70,33 @@ namespace TribalSvcPortal.Controllers
         // GET: /OpenDump/PreField
         public ActionResult PreField(Guid? SiteIdx, string selOrg, string returnURL)
         {
+            string _UserIDX;
+            bool isUserExist = _memoryCache.TryGetValue("UserID", out _UserIDX);
+
             var model = new PreFieldViewModel();
             model.SiteSettingsList = _DbOpenDump.get_ddl_refdata_by_category("Site Setting");
             model.CommunityList = _DbOpenDump.get_ddl_refdata_by_category("Community");
+            model.OrgList = _DbOpenDump.get_ddl_organizations(_UserIDX);
             model.returnURL = returnURL ?? "Search";
-            model.selOrg = selOrg;
+            // model.selOrg = selOrg;
+           
             if (SiteIdx != null)
             {
                 model.TPrtSites = _DbOpenDump.GetT_PRT_SITES_BySITEIDX((Guid)SiteIdx);
                 model.TOdSites = _DbOpenDump.GetT_OD_SITES_BySITEIDX((Guid)SiteIdx);
             }
             else
-            {               
-                model.TPrtSites = new T_PRT_SITES
+            {                
+                model.TPrtSites = new T_PRT_SITES();
+                if (model.OrgList.Count() == 1)
                 {
-                    OrgId = "DELAWARENATION",
-                    SiteIdx = Guid.NewGuid(),
-                };
-
+                    foreach (var orgid in model.OrgList)
+                    {
+                        model.TPrtSites.OrgId = orgid.Value;
+                    }
+                }
+                model.TPrtSites.SiteIdx = Guid.NewGuid();
+               
             }           
             return View(model);
         }
@@ -114,30 +123,29 @@ namespace TribalSvcPortal.Controllers
                 TempData["Error"] = "Error updating data.";
             return RedirectToAction(model.returnURL ?? "Search", new { selStr = "", selOrg="" });
         }
-        //[HttpPost]
-        //public JsonResult PreFieldDelete(Guid SiteIdx)
-        //{
-        //    string response = "";
+        [HttpPost]
+        public JsonResult PreFieldDelete(Guid id)
+        {
+            string response = "";
 
-        //    if (SiteIdx != null)
-        //    {
-        //        int SuccID = 0;
-        //        //int SuccID = db_Ref.DeleteT_OE_ORGANIZATION(org);
+            if (id != null)
+            {               
+                int SuccID = _DbOpenDump.DeleteT_PRT_SITES(id);
 
-        //        if (SuccID == -1)
-        //            response = "Cannot delete agency because agency users exist.";
-        //        else if (SuccID == -2)
-        //            response = "Cannot delete agency because agency projects exist.";
-        //        else if (SuccID == -3)
-        //            response = "Cannot delete agency because agency enterprise services exist.";
-        //        else
-        //            response = "Success";
-        //    }
-        //    else
-        //        response = "Unable to delete agency";
+                if (SuccID == 1)
+                {
+                    response = "Success";
+                }
+                else
+                {
+                    response = "Unable to delete";
+                }
+            }
+            else
+                response = "Unable to delete";
 
-        //    return Json(response);
-        //}
+            return Json(response);
+        }
 
         public IActionResult RefData()
         {           

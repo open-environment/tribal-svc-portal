@@ -16,15 +16,24 @@
             @Html.HiddenFor(model => model.TPrtSites.SiteIdx)
             @Html.HiddenFor(model => model.selOrg)
             @Html.HiddenFor(model => model.returnURL)
-            @Html.ValidationSummary(true,"",new {@class="text-danger"})
+            @Html.ValidationSummary(true, "", new { @class = "text-danger" })
             <div class="row">
                 <div class="col-sm-12">
                     <div>
                         <label class="col-sm-1 control-label" style="margin-top:8px;">
                             Site Name
                         </label>
-                        <div class="col-sm-5">
+                        <div class="col-sm-3">
                             @Html.TextBoxFor(model => model.TPrtSites.SiteName, new { @class = "form-control", @placeholder = "", @maxlength = "100" })
+                            @Html.ValidationMessageFor(model => model.TPrtSites.SiteName, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                    <div>
+                        <label class="col-sm-1 control-label" style="margin-top:8px;">
+                            Organization
+                        </label>
+                        <div class="col-sm-3">
+                            @Html.DropDownListFor(model => model.TPrtSites.OrgId, Model.OrgList, "", new { @class = "form-control" })
                             @Html.ValidationMessageFor(model => model.TPrtSites.SiteName, "", new { @class = "text-danger" })
                         </div>
                     </div>
@@ -32,7 +41,7 @@
                         <label class="col-sm-1 control-label" style="margin-top:8px;">
                             EPA ID
                         </label>
-                        <div class="col-sm-5">
+                        <div class="col-sm-3">
                             @Html.TextBoxFor(model => model.TPrtSites.EpaId, new { @class = "form-control", @placeholder = "", @maxlength = "50" })
                         </div>
                     </div>
@@ -64,7 +73,8 @@
                                 </div>
                                 <div class="col-md-2" style="margin-top:22px;">
                                     <div class="form-group">
-                                        <button type="submit" name="submitButton" value="Save" class="btn btn-primary">Select on Map</button>
+                                        @*<button type="submit" name="submitButton" value="Save" class="btn btn-primary">Select on Map</button>*@
+                                        <a id="btnmap" href="#modal-form" data-toggle="modal" class="add-it btn btn-rounded  btn-rounded btn-success">Select on Map</a>
                                     </div>
                                 </div>
                             </div>
@@ -91,13 +101,6 @@
                                         <label>Site Seting</label>
                                         @Html.DropDownListFor(model => model.TOdSites.SiteSettingIdx, Model.SiteSettingsList, "", new { @class = "form-control" })
                                         @Html.ValidationMessageFor(model => model.TOdSites.SiteSettingIdx)
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-8">
-                                    <div class="form-group">
-                                        <button type="submit" name="submitButton" value="Save" class="btn btn-primary">View on Map</button>
                                     </div>
                                 </div>
                             </div>
@@ -213,9 +216,95 @@
         }
     </div>
 </div>
+<div class="modal fade" id="modal-form" style="display: none;"  aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+            </div>
+            @*<div class="tab-pane" id="tabMap" style="width:100%;height:100%;">
 
-@section scripts {
-    <script src="~/js/confirm_delete.js">
-    </script>
+            </div>*@
+        </div>
+    </div>
+</div>
 
-}
+    @*<div id="canvasMap" style="height: 100%; width: 100%;">
+    </div>*@
+
+    @section scripts {
+        <script src="~/js/confirm_delete.js">
+        </script>
+        <script type="text/javascript">
+
+
+        var map, tb;
+
+        require([
+            "esri/map",
+            "esri/InfoTemplate",
+            "esri/geometry/Point",
+            "esri/toolbars/draw",
+            "esri/symbols/SimpleMarkerSymbol",
+            "esri/symbols/SimpleLineSymbol",
+            "esri/symbols/PictureFillSymbol",
+            "esri/symbols/CartographicLineSymbol",
+            "esri/graphic",
+            "esri/layers/GraphicsLayer",
+            "esri/graphicsUtils",
+            "esri/Color",
+            "dojo/dom",
+            "dojo/on",
+            "dojo/domReady!"
+        ], function (
+            Map, InfoTemplate,
+            Point,
+            Draw,
+            SimpleMarkerSymbol, SimpleLineSymbol,
+            PictureFillSymbol, CartographicLineSymbol,
+            Graphic, GraphicsLayer, graphicsUtils,
+            Color, dom, on
+        ) {
+            map = new Map("modal-form", {
+                    basemap: "gray",
+                    center: [-42.1737, 69.6354],
+                    zoom: 2
+                });
+
+                map.on('load', function () {
+
+                    var s = new SimpleMarkerSymbol().setStyle(SimpleMarkerSymbol.STYLE_SQUARE).setColor(new Color([255, 0, 0, 2]));
+
+                var gl = new GraphicsLayer();
+                //var p = new Point(72.87770, 19.07600);
+                //var i = { x: 72.87770, y: 19.07600 };
+                    if (@Model.TPrtSites.Longitude.GetValueOrDefault()!= 0 && @Model.TPrtSites.Latitude.GetValueOrDefault()!= 0) {
+                        var p = new Point(@Model.TPrtSites.Longitude, @Model.TPrtSites.Latitude);
+                        var i = { x: @Model.TPrtSites.Longitude, y: @Model.TPrtSites.Latitude };
+
+                        var it = new InfoTemplate("Coordinates");
+                        var g = new Graphic(p, s, i).setInfoTemplate(it);
+
+                        gl.add(g);
+
+                        map.addLayer(gl);
+                    }
+
+
+                });
+                //when the map is clicked create a buffer around the click point of the specified distance.
+                map.on("click", function (evt) {
+                    var s = new SimpleMarkerSymbol().setStyle(SimpleMarkerSymbol.STYLE_SQUARE).setColor(new Color([255, 0, 0, 2]));
+                    map.graphics.clear();
+                    map.graphics.add(new Graphic(evt.mapPoint, s));
+                    map.infoWindow.setContent("X: " + evt.mapPoint.x.toString() + ", <br>Y: " + evt.mapPoint.y.toString());
+                    map.infoWindow.show(evt.mapPoint);                   
+                    @*@Model.TPrtSites.Longitude = evt.mapPoint.x.toString();
+                    @Model.TPrtSites.Latitude = evt.mapPoint.y.toString() ;*@
+                       
+                    });
+          
+            });
+
+        </script>
+    }
