@@ -7,49 +7,49 @@
 <!-- *********************** START FILTER ****************************************** -->
 @using (Html.BeginForm("Search", "OpenDump", FormMethod.Get, new { @class = "" }))
 {
-<div class="row aligned-row">
-    <section class="col-md-12 col-sm-12 col-xs-12 ">
-        <section class="panel panel-default">
-            <div class="panel-heading">
-                Filters
-                <div class="panel-tools">
-                    <a class="btn btn-xs panel-collapse collapses" href="#">
-                    </a>
+    <div class="row aligned-row">
+        <section class="col-md-12 col-sm-12 col-xs-12 ">
+            <section class="panel panel-default">
+                <div class="panel-heading">
+                    Filters
+                    <div class="panel-tools">
+                        <a class="btn btn-xs panel-collapse collapses" href="#">
+                        </a>
+                    </div>
                 </div>
-            </div>
-            <div class="panel-body">
+                <div class="panel-body">
 
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label>Search:</label>
-                            @Html.TextBoxFor(model => model.selStr, new { @class = "form-control", @placeholder = "Search site name or address" })
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Search:</label>
+                                @Html.TextBoxFor(model => model.selStr, new { @class = "form-control", @placeholder = "Search site name or address" })
+                            </div>
+                        </div>
+                        @*<div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Status:</label>
+                                    @Html.DropDownListFor(model => model.selStatus, Model.ddl_Status, "", new { @class = "form-control" })
+                                </div>
+                            </div>*@
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Organization:</label>
+                                @Html.DropDownListFor(model => model.selOrg, Model.ddl_Org, "", new { @class = "form-control" })
+                            </div>
                         </div>
                     </div>
-                    @*<div class="col-md-6">
-                        <div class="form-group">
-                            <label>Status:</label>
-                            @Html.DropDownListFor(model => model.selStatus, Model.ddl_Status, "", new { @class = "form-control" })
-                        </div>
-                    </div>*@
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label>Organization:</label>
-                            @Html.DropDownListFor(model => model.selOrg, Model.ddl_Org, "", new { @class = "form-control" })
+                    <div class="row">
+                        <div class="col-md-12">
+                            <button class="btn btn-success" type="submit">
+                                <i class="clip-search-2"> </i>Search
+                            </button>
                         </div>
                     </div>
                 </div>
-                <div class="row">
-                    <div class="col-md-12">
-                        <button class="btn btn-success" type="submit">
-                            <i class="clip-search-2"> </i>Search
-                        </button>
-                    </div>
-                </div>
-            </div>
+            </section>
         </section>
-    </section>
-</div>
+    </div>
 }
 
 <!-- *********************** START TABS ****************************************** -->
@@ -66,7 +66,7 @@
             </a>
         </li>
         <li class="pull-right">
-            <a href="@Url.Action("PreField", "OpenDump" , new { selOrg=Model.selOrg, returnURL="Search" })" class="btn btn-rounded btn-success"
+            <a href="@Url.Action("PreField", "OpenDump", new { selOrg = Model.selOrg, returnURL = "Search" })" class="btn btn-rounded btn-success"
                style="color: #fff;background-color: #5cb85c;border-color: #4cae4c;border-radius: 4px !important;"><i class="glyphicon glyphicon-plus"></i>Add New</a>
         </li>
     </ul>
@@ -87,31 +87,31 @@
                     </thead>
                     @if (Model.searchResults != null)
                     {
-                    @foreach (var item in Model.searchResults)
-                    {
-                    <tr>
-                        <td style="min-width:65px">
-                            <a href="@Url.Action("PreField", "OpenDump" , new { SiteIdx=item.Site_Idx, selOrg=Model.selOrg, returnURL="Search" })" class="btn btn-rounded btn-xs btn-info"><i class="glyphicon glyphicon-pencil"></i></a>
-                            <div class="delete-section" style="display:inline">
-                                <a class=" btn btn-rounded btn-xs btn-danger delete-link"><i class="glyphicon glyphicon-remove"></i></a>
-                                <div class="btn btn-rounded btn-xs btn-warning delete-confirm" style="display:none" data-delete-id="@item.Site_Idx" data-delete-p="/OpenDump/PreFieldDelete"><b>Confirm Delete</b></div>
-                            </div>
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.SiteName)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.SiteAddress)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.ReportedBy)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.ReportedOn)
-                        </td>
+                        @foreach (var item in Model.searchResults)
+                        {
+                            <tr>
+                                <td style="min-width:65px">
+                                    <a href="@Url.Action("PreField", "OpenDump", new { SiteIdx = item.Site_Idx, selOrg = Model.selOrg, returnURL = "Search" })" class="btn btn-rounded btn-xs btn-info"><i class="glyphicon glyphicon-pencil"></i></a>
+                                    <div class="delete-section" style="display:inline">
+                                        <a class=" btn btn-rounded btn-xs btn-danger delete-link"><i class="glyphicon glyphicon-remove"></i></a>
+                                        <div class="btn btn-rounded btn-xs btn-warning delete-confirm" style="display:none" data-delete-id="@item.Site_Idx" data-delete-p="/OpenDump/PreFieldDelete"><b>Confirm Delete</b></div>
+                                    </div>
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.SiteName)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.SiteAddress)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.ReportedBy)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.ReportedOn)
+                                </td>
 
-                    </tr>
-                    }
+                            </tr>
+                        }
                     }
 
                 </table>
@@ -125,77 +125,79 @@
 </div>
 <!-- *********************** END TABS ****************************************** -->
 @section scripts {
-<script src="~/js/confirm_delete.js">
-</script>
+    <script src="~/js/confirm_delete.js">
+    </script>
+    <style>       
+        div.esriPopupWrapper .zoomTo {
+            display: none;
+        }
+    </style>
+    @if (Model.searchResults != null)
+    {
+        <script type="text/javascript">
 
-<script type="text/javascript">
+            LoadMap(JSON.parse('@Html.Raw(Json.Serialize(@Model.searchResults))'));
 
-    var map, tb;
+            function LoadMap(searchList)
+            {
+                var map, tb;
 
-    require([
-        "esri/map",
-        "esri/InfoTemplate",
-        "esri/geometry/Point",
-        "esri/toolbars/draw",
-        "esri/symbols/SimpleMarkerSymbol",
-        "esri/symbols/SimpleLineSymbol",
-        "esri/symbols/PictureFillSymbol",
-        "esri/symbols/CartographicLineSymbol",
-        "esri/graphic",
-        "esri/layers/GraphicsLayer",
-        "esri/graphicsUtils",
-        "esri/Color", "dojo/dom", "dojo/on", "dojo/domReady!"
-    ], function (
-        Map, InfoTemplate,
-        Point,
-        Draw,
-        SimpleMarkerSymbol, SimpleLineSymbol,
-        PictureFillSymbol, CartographicLineSymbol,
-        Graphic, GraphicsLayer, graphicsUtils,
-        Color, dom, on
-    ) {
-            map = new Map("tabMap", {
-                basemap: "gray",
-                center: [-42.1737, 69.6354],
-                zoom: 2
-            });
+                require(["esri/map",
+                    "esri/InfoTemplate",
+                    "esri/geometry/Point",
+                    "esri/toolbars/draw",
+                    "esri/symbols/SimpleMarkerSymbol",
+                    "esri/symbols/SimpleLineSymbol",
+                    "esri/symbols/PictureFillSymbol",
+                    "esri/symbols/CartographicLineSymbol",
+                    "esri/graphic",
+                    "esri/layers/GraphicsLayer",
+                    "esri/graphicsUtils",
+                    "esri/Color", "dojo/dom", "dojo/on", "dojo/domReady!"
+                ],
 
-            map.on('load', function () {
+                    function (
+                        Map, InfoTemplate,
+                        Point,
+                        Draw,
+                        SimpleMarkerSymbol, SimpleLineSymbol,
+                        PictureFillSymbol, CartographicLineSymbol,
+                        Graphic, GraphicsLayer, graphicsUtils,
+                        Color, dom, on
+                    ) {
+                        map = new Map("tabMap", {
+                            basemap: "gray",
+                            center: [-42.1737, 69.6354],
+                            zoom: 2
+                        });
 
-                @*var LatLong = @Model.searchResults;
-                if (LatLong.length > 0)
-                {
-                    for (var item = 0; item = LatLong.length;item++)
-                     {*@
+                map.on("load", initOperationalLayer);
 
+                function initOperationalLayer() {
 
-                var s = new SimpleMarkerSymbol().setStyle(SimpleMarkerSymbol.STYLE_SQUARE).setColor(new Color([255, 0, 0, 2]));
+                    var s = new SimpleMarkerSymbol().setStyle(SimpleMarkerSymbol.STYLE_SQUARE).setColor(new Color([255, 0, 0, 2]));
 
-                var gl = new GraphicsLayer();
-                var p = new Point(72.87770, 19.07600);
-                var i = { x: 72.87770, y: 19.07600 };
-                var it = new InfoTemplate("Coordinates");
-                var g = new Graphic(p, s, i).setInfoTemplate(it);
+                    var gl = new GraphicsLayer();
+                    map.addLayer(gl);
 
-                gl.add(g);
+                    for (var count = 0; count < searchList.length; count++)
+                    {
+                        var p = new Point(searchList[count].longitude, searchList[count].latitude);
+                        var i = {
+                            x: searchList[count].longitude, y: searchList[count].latitude, SiteName: searchList[count].siteName,
+                            SiteAddress: searchList[count].siteAddress, ReportedBy: searchList[count].reportedBy, ReportedOn: searchList[count].reportedOn                          
+                         
+                        };
+                        var it = new InfoTemplate("Coordinates");
+                        var g = new Graphic(p, s, i).setInfoTemplate(it);
+                        gl.add(g);
+                    }
+                }
+             });
 
-                var p2 = new Point(77.10250, 28.70410);
-                var i2 = { x: 77.10250, y: 28.70410 };
-                var it2 = new InfoTemplate("Coordinates");
-                var g2 = new Graphic(p2, s, i2).setInfoTemplate(it2);
+          }
+        </script>
+    }
 
-                gl.add(g2);
-
-                map.addLayer(gl);
-                //    }
-
-                //}
-
-
-            });
-
-        });
-
-</script>
 }
 
