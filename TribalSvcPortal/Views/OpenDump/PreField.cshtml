@@ -8,14 +8,15 @@
 <!-- render the main content -->
 <div class="row">
     <div class="col-sm-12">
-
-        @*@using (Html.BeginForm("PreField", "OpenDump", FormMethod.Post, new { @class = "" }))*@
+               
         @using (Html.BeginForm("OpenDumpEdit", "OpenDump", FormMethod.Post, new { @id = "norepostform", enctype = "multipart/form-data" }))
         {
+           
             @Html.AntiForgeryToken()
             @Html.HiddenFor(model => model.TPrtSites.SiteIdx)
             @Html.HiddenFor(model => model.selOrg)
             @Html.HiddenFor(model => model.returnURL)
+            @Html.HiddenFor(model => model.activeTab)
             @Html.ValidationSummary(true, "", new { @class = "text-danger" })
             <div class="row">
                 <div class="col-sm-12">
@@ -47,205 +48,277 @@
                     </div>
                 </div>
             </div>
-            <section class="panel panel-default" style="margin-top:5px;">
-                <div class="panel-heading">
-                    Location
-                    <div class="panel-tools">
-                        <a class="btn btn-xs panel-collapse collapses" href="#">
-                        </a>
-                    </div>
-                </div>
-                <div class="panel-body">
-                    <div class="col-lg-12 col-md-12 col-sm-12 no-padding">
-                        <div class="col-lg-6 col-md-6 col-sm-6 no-padding">
-                            <div class="row">
-                                <div class="col-md-4">
-                                    <div class="form-group">
-                                        <label>Latitude</label>
-                                        @Html.TextBoxFor(model => model.TPrtSites.Latitude, new { @class = "form-control", @placeholder = "", @maxlength = "200" })
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="form-group">
-                                        <label>Longitude</label>
-                                        @Html.TextBoxFor(model => model.TPrtSites.Longitude, new { @class = "form-control", @placeholder = "", @maxlength = "100" })
-                                    </div>
-                                </div>
-                                <div class="col-md-2" style="margin-top:22px;">
-                                    <div class="form-group">
-                                        @*<button type="submit" name="submitButton" value="Save" id="btnShow" class="btn btn-primary">Select on Map</button>*@
-                                        <a href="" data-toggle="modal" id="btnShow" class="add-it btn btn-rounded  btn-rounded btn-success">Select on Map</a>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-11">
-                                    <div class="form-group">
-                                        <label>Street Address or Road/Intersection</label>
-                                        @Html.TextAreaFor(model => model.TPrtSites.SiteAddress, new { @class = "form-control", @placeholder = "", @maxlength = "400" })
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-11">
-                                    <div class="form-group">
-                                        <label>Community</label>
-                                        @Html.DropDownListFor(model => model.TOdSites.CommunityIdx, Model.CommunityList, "", new { @class = "form-control" })
-                                        @Html.ValidationMessageFor(model => model.TOdSites.CommunityIdx)
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-11">
-                                    <div class="form-group">
-                                        <label>Site Seting</label>
-                                        @Html.DropDownListFor(model => model.TOdSites.SiteSettingIdx, Model.SiteSettingsList, "", new { @class = "form-control" })
-                                        @Html.ValidationMessageFor(model => model.TOdSites.SiteSettingIdx)
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div style="border-left: 2px solid black;height: 350px;position: absolute;left: 50%;margin-left: -3px;top: 0;"></div>
-                        <div class="col-lg-6 col-md-6 col-sm-6">
-                            <div class="row" style="background-color:#393939">
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label style="color:white;">Auto-populated</label>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <label class="col-sm-4 control-label" style="text-align: right;">
-                                    State:
-                                </label>
-                                <div class="col-sm-8">
-                                    Test data
-                                </div>
-                            </div>
-                            <div class="row">
-                                <label class="col-sm-4 control-label" style="text-align: right;">
-                                    Country:
-                                </label>
-                                <div class="col-sm-8">
-                                    Test data
-                                </div>
-                            </div>
-                            <div class="row">
-                                <label class="col-sm-4 control-label" style="text-align: right;">
-                                    ZIP:
-                                </label>
-                                <div class="col-sm-8">
-                                    Test data
-                                </div>
-                            </div>
-                            <div class="row">
-                                <label class="col-sm-4 control-label" style="text-align: right;">
-                                    Section/Twp/Range:
-                                </label>
-                                <div class="col-sm-8">
-                                    Test data
-                                </div>
-                            </div>
-                            <div class="row">
-                                <label class="col-sm-4 control-label" style="text-align: right;">
-                                    Topographic Quadrangle:
-                                </label>
-                                <div class="col-sm-8">
-                                    Test data
-                                </div>
-                            </div>
-                            <div class="row" style="background-color:#393939">
-                                <label class="col-sm-1 control-label" style="color:white;">
-                                    Parcels
-                                </label>
-                                <div class="col-sm-11" style="text-align:right;">
-                                    <button type="submit" name="submitButton" value="Save" class="btn btn-primary">Add More</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
+            <div id="job_details_div" class="@Html.Raw("col-sm-12"))" style="margin-top:10px;margin-top:10px;">
 
-            <section class="panel panel-default" style="margin-top:5px;">
-                <div class="panel-heading">
-                    Initial Report
-                    <div class="panel-tools">
-                        <a class="btn btn-xs panel-collapse collapses" href="#">
-                        </a>
-                    </div>
-                </div>
-                <div class="panel-body">
-                    <div class="col-lg-12 col-md-12 col-sm-12 no-padding">
-                        <div class="col-lg-6 col-md-6 col-sm-6 no-padding">
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label>Reported By</label>
-                                        @Html.TextBoxFor(model => model.TOdSites.ReportedBy, new { @class = "form-control", @placeholder = "", @maxlength = "50" })
+                <!-- *********************** START TABS ****************************************** -->
+                <div id="tabs" class="tabbable">
+                    <ul id="myTab" class="nav nav-tabs tab-blue">
+                        <li class="active"><a href="#tab1" data-toggle="tab">
+                            Pre-Field
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#tab2" data-toggle="tab">
+                                Field Assessments                               
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#tab3" data-toggle="tab">
+                               Health Threat                           
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#tab4" data-toggle="tab">
+                                Waste Profile                               
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#tab5" data-toggle="tab">
+                                Site Cleanup                               
+                            </a>
+                        </li>                      
+                        
+                    </ul>
+                    <div class="tab-content" style="height:0px; padding: 0px;">
+                        <div class="tab-pane in active" id="tab1">
+                            <section class="panel panel-default" style="margin-top:5px;">
+                                <div class="panel-heading">
+                                    Location
+                                    <div class="panel-tools">
+                                        <a class="btn btn-xs panel-collapse collapses" href="#">
+                                        </a>
                                     </div>
                                 </div>
-                                <div class="col-md-5">
-                                    <div class="form-group">
-                                        <label>Reported On</label>
-                                        @Html.TextBoxFor(model => model.TOdSites.ReportedOn, new { @class = "form-control", @placeholder = "", @maxlength = "100" })
+                                <div class="panel-body">
+                                    <div class="col-lg-12 col-md-12 col-sm-12 no-padding">
+                                        <div class="col-lg-6 col-md-6 col-sm-6 no-padding">
+                                            <div class="row">
+                                                <div class="col-md-4">
+                                                    <div class="form-group">
+                                                        <label>Latitude</label>
+                                                        @Html.TextBoxFor(model => model.TPrtSites.Latitude, new { @id = "latitude", @class = "form-control", @placeholder = "", @maxlength = "200" })
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <div class="form-group">
+                                                        <label>Longitude</label>
+                                                        @Html.TextBoxFor(model => model.TPrtSites.Longitude, new { @id = "longitude", @class = "form-control", @placeholder = "", @maxlength = "100" })
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-2" style="margin-top:22px;">
+                                                    <div class="form-group">
+                                                        @*<button type="submit" name="submitButton" value="Save" id="btnShow" class="btn btn-primary">Select on Map</button>*@
+                                                        <a href="#modal-form" data-toggle="modal" id="btnShow" class="btn btn-primary">Select on Map</a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-md-11">
+                                                    <div class="form-group">
+                                                        <label>Street Address or Road/Intersection</label>
+                                                        @Html.TextAreaFor(model => model.TPrtSites.SiteAddress, new { @class = "form-control", @placeholder = "", @maxlength = "400" })
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-md-11">
+                                                    <div class="form-group">
+                                                        <label>Community</label>
+                                                        @Html.DropDownListFor(model => model.TOdSites.CommunityIdx, Model.CommunityList, "", new { @class = "form-control" })
+                                                        @Html.ValidationMessageFor(model => model.TOdSites.CommunityIdx)
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-md-11">
+                                                    <div class="form-group">
+                                                        <label>Site Seting</label>
+                                                        @Html.DropDownListFor(model => model.TOdSites.SiteSettingIdx, Model.SiteSettingsList, "", new { @class = "form-control" })
+                                                        @Html.ValidationMessageFor(model => model.TOdSites.SiteSettingIdx)
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div style="border-left: 2px solid black;height: 350px;position: absolute;left: 50%;margin-left: -3px;top: 0;"></div>
+                                        <div class="col-lg-6 col-md-6 col-sm-6">
+                                            <div class="row" style="background-color:#393939">
+                                                <div class="col-md-6">
+                                                    <div class="form-group">
+                                                        <label style="color:white;">Auto-populated</label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <label class="col-sm-4 control-label" style="text-align: right;">
+                                                    State:
+                                                </label>
+                                                <div class="col-sm-8">
+                                                    Test data
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <label class="col-sm-4 control-label" style="text-align: right;">
+                                                    Country:
+                                                </label>
+                                                <div class="col-sm-8">
+                                                    Test data
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <label class="col-sm-4 control-label" style="text-align: right;">
+                                                    ZIP:
+                                                </label>
+                                                <div class="col-sm-8">
+                                                    Test data
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <label class="col-sm-4 control-label" style="text-align: right;">
+                                                    Section/Twp/Range:
+                                                </label>
+                                                <div class="col-sm-8">
+                                                    Test data
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <label class="col-sm-4 control-label" style="text-align: right;">
+                                                    Topographic Quadrangle:
+                                                </label>
+                                                <div class="col-sm-8">
+                                                    Test data
+                                                </div>
+                                            </div>
+                                            <div class="row" style="background-color:#393939">
+                                                <label class="col-sm-1 control-label" style="color:white;">
+                                                    Parcels
+                                                </label>
+                                                <div class="col-sm-11" style="text-align:right;">
+                                                    <button type="submit" name="submitButton" value="Save" class="btn btn-primary">Add More</button>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-11">
-                                    <div class="form-group">
-                                        <label>Response Action </label>
-                                        @Html.TextBoxFor(model => model.TOdSites.ResponseAction, new { @class = "form-control", @placeholder = "", @maxlength = "100" })
-                                        @Html.ValidationMessageFor(model => model.TOdSites.ResponseAction)
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
+                            </section>
 
-            <div class="row">
-                <div class="col-md-12">
-                    <button type="submit" name="submitButton" value="Save" class="btn btn-primary">Save</button>
-                    <a href="@Url.Action(Model.returnURL, "OpenDump")" class="btn btn-default">Close</a>
+                            <section class="panel panel-default" style="margin-top:5px;">
+                                <div class="panel-heading">
+                                    Initial Report
+                                    <div class="panel-tools">
+                                        <a class="btn btn-xs panel-collapse collapses" href="#">
+                                        </a>
+                                    </div>
+                                </div>
+                                <div class="panel-body">
+                                    <div class="col-lg-12 col-md-12 col-sm-12 no-padding">
+                                        <div class="col-lg-6 col-md-6 col-sm-6 no-padding">
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <div class="form-group">
+                                                        <label>Reported By</label>
+                                                        @Html.TextBoxFor(model => model.TOdSites.ReportedBy, new { @class = "form-control", @placeholder = "", @maxlength = "50" })
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-5">
+                                                    <div class="form-group">
+                                                        <label>Reported On</label>
+                                                        @Html.TextBoxFor(model => model.TOdSites.ReportedOn, new { @class = "form-control", @placeholder = "", @maxlength = "100" })
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-md-11">
+                                                    <div class="form-group">
+                                                        <label>Response Action </label>
+                                                        @Html.TextBoxFor(model => model.TOdSites.ResponseAction, new { @class = "form-control", @placeholder = "", @maxlength = "100" })
+                                                        @Html.ValidationMessageFor(model => model.TOdSites.ResponseAction)
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </section>
+
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <button type="submit" name="submitButton" value="Save" class="btn btn-primary">Save</button>
+                                    <a href="@Url.Action(Model.returnURL, "OpenDump")" class="btn btn-default">Close</a>
+                                </div>
+                            </div>
+                            <p></p>
+                        </div>
+                        <div class="tab-pane" id="tab2">
+                        </div>
+                        <div class="tab-pane" id="tab3">
+                        </div>
+                        <div class="tab-pane" id="tab4">
+                        </div>
+                        <div class="tab-pane" id="tab5">
+                        </div>
+                       
+                    </div>
                 </div>
+                <!-- *********************** END TABS ****************************************** -->
             </div>
-            <p></p>
+          
         }
     </div>
 </div>
-<div class="modal fade" id="modal-form" style="display: none;" aria-hidden="true">
+<div class="modal fade" id="modal-form" style="display: none;width:100%;height:100%; " aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true" id="Close">x</button>
             </div>
-            @*<div class="tab-pane" id="tabMap" style="width:100%;height:100%;">
-
-                </div>*@
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12 no-padding modal_body_map">
+                        <div class="location-map" id="location-map">
+                            <div style="width: 597px; height: 400px;" id="map_canvas"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
 
-@*<div id="canvasMap" style="height: 100%; width: 100%;">
-    </div>*@
 
 @section scripts {
     <script src="~/js/confirm_delete.js">
     </script>
-    <script type="text/javascript">
-        $(function () {
-            $("#btnShow").click(function () {
-                $('#modal-form').modal('show');
-                
-            });
-            $("#Close").click(function () {
-                $('#modal-form').modal('hide');
-            });
+ <script type="text/javascript">
+     $(document).ready(function () {
+         $('.nav-tabs a[href="#tab' + $('#activeTab').val() + '"]').tab('show');             //do proper tab display from postback
 
-        });
+         $('a[href="#tab1"]').on('shown.bs.tab', function (e) {
+             @*@ViewBag.Title = "Pre-Field";*@
+             $('#activeTab').val('1');
+             $('#norepostform').submit();
+         });
+
+         $('a[href="#tab2"]').on('shown.bs.tab', function (e) {
+             @*@ViewBag.Title = "Field Assessments";*@
+             $('#activeTab').val('2');
+             $('#norepostform').submit();
+         });
+
+         $('a[href="#tab3"]').on('shown.bs.tab', function (e) {
+             $('#activeTab').val('3');
+             $('#norepostform').submit();
+         });
+
+         $('a[href="#tab4"]').on('shown.bs.tab', function (e) {
+             $('#activeTab').val('4');
+             $('#norepostform').submit();
+         });
+
+         $('a[href="#tab5"]').on('shown.bs.tab', function (e) {
+             $('#activeTab').val('5');
+             $('#norepostform').submit();
+         });
+     });
     </script>
     @if (Model.TPrtSites != null)
     {
@@ -280,37 +353,66 @@
                         Graphic, GraphicsLayer, graphicsUtils,
                         Color, dom, on
                     ) {
-                        map = new Map("modal-form", {
+                        map = new Map(document.getElementById("map_canvas"), {
                             basemap: "gray",
                             center: [-42.1737, 69.6354],
                             zoom: 2
                         });
-                      
 
-                map.on("load", initOperationalLayer);             
+
+                map.on("load", initOperationalLayer);
                         function initOperationalLayer() {
 
                             var s = new SimpleMarkerSymbol().setStyle(SimpleMarkerSymbol.STYLE_SQUARE).setColor(new Color([255, 0, 0, 2]));
-
-                            var gl = new GraphicsLayer();
-                            map.addLayer(gl);
-
+                            var latitude = searchList.latitude;
+                            var longitude = searchList.longitude;
                             var p = new Point(searchList.longitude, searchList.latitude);
                             var i = { x: searchList.longitude, y: searchList.latitude };
-                            var it = new InfoTemplate("Coordinates");
-                            var g = new Graphic(p, s, i).setInfoTemplate(it);
-                            gl.add(g);
+                            map.graphics.clear();
+                            map.graphics.add(new Graphic(p, s));
+                            if (latitude != null && longitude != null) {
+                            map.infoWindow.setTitle("Coordinates");
+                                map.infoWindow.setContent(
+                                    "Latitude: " + latitude +
+                                    "<br>Longitude:" + longitude
+                                );
+                                map.infoWindow.show(p, i);
+                            }
+
+                            //var gl = new GraphicsLayer();
+
+                            //var p = new Point(searchList.longitude, searchList.latitude);
+                            //var i = { x: searchList.longitude, y: searchList.latitude };
+                            //var it = new InfoTemplate("Coordinates");
+                            //var g = new Graphic(p, s, i).setInfoTemplate(it);
+                            //gl.add(g);
+                            //map.addLayer(gl);
                         }
+                        map.on("click", addPoint);
+                        function addPoint(evt) {
+                            var s = new SimpleMarkerSymbol().setStyle(SimpleMarkerSymbol.STYLE_SQUARE).setColor(new Color([255, 0, 0, 2]));
+                            var latitude = evt.mapPoint.getLatitude();
+                            var longitude = evt.mapPoint.getLongitude();
+                            map.graphics.clear();
+                            map.graphics.add(new Graphic(evt.mapPoint, s));
+                            map.infoWindow.setTitle("Coordinates");
+                            map.infoWindow.setContent(
+                                "Latitude: " + latitude.toFixed(5) +
+                                "<br>Longitude:" + longitude.toFixed(5)
+                            );
+                            map.infoWindow.show(evt.mapPoint, map.getInfoWindowAnchor(evt.screenPoint));
 
+                            document.getElementById("latitude").value = latitude.toFixed(5);
+                            document.getElementById("longitude").value = longitude.toFixed(5);
 
+                        }
+                        $('#myModal').on('show.bs.modal', function (event) {                           
+                            $("#map_canvas").css("width", "100%");
+                        });
 
              });
 
-            }
-            //function GetLatLong(lat, long) {
-            //     Model.TPrtSites.Longitude = long;
-            //     Model.TPrtSites.Latitude = lat;
-            //}
+            }           
         </script>
     }
 

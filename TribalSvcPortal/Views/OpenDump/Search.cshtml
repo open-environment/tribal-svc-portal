@@ -127,7 +127,7 @@
 @section scripts {
     <script src="~/js/confirm_delete.js">
     </script>
-    <style>       
+    <style>
         div.esriPopupWrapper .zoomTo {
             display: none;
         }
@@ -185,14 +185,22 @@
                         var p = new Point(searchList[count].longitude, searchList[count].latitude);
                         var i = {
                             x: searchList[count].longitude, y: searchList[count].latitude, SiteName: searchList[count].siteName,
-                            SiteAddress: searchList[count].siteAddress, ReportedBy: searchList[count].reportedBy, ReportedOn: searchList[count].reportedOn                          
-                         
+                            SiteAddress: searchList[count].siteAddress, ReportedBy: searchList[count].reportedBy, ReportedOn: searchList[count].reportedOn,
+                            Goto:"<a href='PreField?SiteIdx=" + searchList[count].site_Idx + "&returnURL=Search'" + "> Edit</a>"
                         };
+                        var siteid = searchList[count].siteAddress;
                         var it = new InfoTemplate("Coordinates");
+                      //  it.setContent(getTextContent(searchList[count].site_Idx));
                         var g = new Graphic(p, s, i).setInfoTemplate(it);
                         gl.add(g);
                     }
-                }
+                        }
+                        //function getTextContent(siteid)
+                        //{
+                        //    return "<br /><a href='PreField?SiteIdx=" + siteid + "&returnURL=Search'" + ">Edit</a>";
+
+
+                        // }
              });
 
           }
