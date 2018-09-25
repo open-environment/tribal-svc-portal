@@ -90,8 +90,8 @@
                                 <div class="col-md-11">
                                     <div class="form-group">
                                         <label>Community</label>
-                                        @Html.DropDownListFor(model => model.TOdSites.CommunityIdx, Model.CommunityList, "", new { @class = "form-control" })
-                                        @Html.ValidationMessageFor(model => model.TOdSites.CommunityIdx)
+                                        @Html.DropDownListFor(model => model.TOdSites.COMMUNITY_IDX, Model.CommunityList, "", new { @class = "form-control" })
+                                        @Html.ValidationMessageFor(model => model.TOdSites.COMMUNITY_IDX)
                                     </div>
                                 </div>
                             </div>
@@ -99,8 +99,8 @@
                                 <div class="col-md-11">
                                     <div class="form-group">
                                         <label>Site Seting</label>
-                                        @Html.DropDownListFor(model => model.TOdSites.SiteSettingIdx, Model.SiteSettingsList, "", new { @class = "form-control" })
-                                        @Html.ValidationMessageFor(model => model.TOdSites.SiteSettingIdx)
+                                        @Html.DropDownListFor(model => model.TOdSites.SITE_SETTING_IDX, Model.SiteSettingsList, "", new { @class = "form-control" })
+                                        @Html.ValidationMessageFor(model => model.TOdSites.SITE_SETTING_IDX)
                                     </div>
                                 </div>
                             </div>
@@ -182,25 +182,17 @@
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label>Reported By</label>
-                                        @Html.TextBoxFor(model => model.TOdSites.ReportedBy, new { @class = "form-control", @placeholder = "", @maxlength = "50" })
+                                        @Html.TextBoxFor(model => model.TOdSites.REPORTED_BY, new { @class = "form-control", @placeholder = "", @maxlength = "50" })
                                     </div>
                                 </div>
                                 <div class="col-md-5">
                                     <div class="form-group">
                                         <label>Reported On</label>
-                                        @Html.TextBoxFor(model => model.TOdSites.ReportedOn, new { @class = "form-control", @placeholder = "", @maxlength = "100" })
+                                        @Html.TextBoxFor(model => model.TOdSites.REPORTED_ON, new { @class = "form-control", @placeholder = "", @maxlength = "100" })
                                     </div>
                                 </div>
                             </div>
-                            <div class="row">
-                                <div class="col-md-11">
-                                    <div class="form-group">
-                                        <label>Response Action </label>
-                                        @Html.TextBoxFor(model => model.TOdSites.ResponseAction, new { @class = "form-control", @placeholder = "", @maxlength = "100" })
-                                        @Html.ValidationMessageFor(model => model.TOdSites.ResponseAction)
-                                    </div>
-                                </div>
-                            </div>
+
                         </div>
                     </div>
                 </div>

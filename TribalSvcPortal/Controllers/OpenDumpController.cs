@@ -31,6 +31,7 @@ namespace TribalSvcPortal.Controllers
             return View();
         }
 
+
         public ActionResult Search(string selStr, string selOrg)
         {           
             string _UserIDX;
@@ -67,6 +68,8 @@ namespace TribalSvcPortal.Controllers
             }
 
         }
+
+
         // GET: /OpenDump/PreField
         public ActionResult PreField(Guid? SiteIdx, string selOrg, string returnURL)
         {
@@ -100,6 +103,8 @@ namespace TribalSvcPortal.Controllers
             }           
             return View(model);
         }
+
+
         [HttpPost, ValidateAntiForgeryToken]
         public ActionResult OpenDumpEdit(PreFieldViewModel model)
         {
@@ -113,8 +118,8 @@ namespace TribalSvcPortal.Controllers
 
             if (newSiteID != null)
             {
-                Guid? SiteID = _DbOpenDump.InsertUpdateT_OD_SITES((Guid)newSiteID, model.TOdSites.CommunityIdx, model.TOdSites.SiteSettingIdx,
-                    model.TOdSites.ReportedBy ?? "", model.TOdSites.ReportedOn, model.TOdSites.ResponseAction ?? "");
+                Guid? SiteID = _DbOpenDump.InsertUpdateT_OD_SITES((Guid)newSiteID, model.TOdSites.REPORTED_BY, model.TOdSites.REPORTED_ON, model.TOdSites.COMMUNITY_IDX, 
+                    model.TOdSites.SITE_SETTING_IDX, null, null, null);
 
                 TempData["Success"] = "Update successful.";
                 return RedirectToAction("PreField", "OpenDump", new { SiteIdx = newSiteID, returnURL = model.returnURL });
@@ -123,6 +128,8 @@ namespace TribalSvcPortal.Controllers
                 TempData["Error"] = "Error updating data.";
             return RedirectToAction(model.returnURL ?? "Search", new { selStr = "", selOrg="" });
         }
+
+
         [HttpPost]
         public JsonResult PreFieldDelete(Guid id)
         {
@@ -146,6 +153,7 @@ namespace TribalSvcPortal.Controllers
 
             return Json(response);
         }
+
 
         public IActionResult RefData()
         {           
