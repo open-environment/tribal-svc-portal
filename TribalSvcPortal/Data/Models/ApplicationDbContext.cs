@@ -38,6 +38,7 @@ namespace TribalSvcPortal.Data.Models
         public virtual DbSet<T_OD_REF_DATA> T_OD_REF_DATA { get; set; }
         public virtual DbSet<T_OD_REF_DATA_CATEGORIES> T_OD_REF_DATA_CATEGORIES { get; set; }
         public virtual DbSet<T_OD_SITES> T_OD_SITES { get; set; }
+        public virtual DbSet<T_OD_REF_THREAT_FACTORS> T_OD_REF_THREAT_FACTORS { get; set; }
         //**************** END TABLES *******************************************************
 
 

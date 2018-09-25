@@ -173,34 +173,26 @@
 
                 map.on("load", initOperationalLayer);
 
-                function initOperationalLayer() {
+                        function initOperationalLayer() {
 
-                    var s = new SimpleMarkerSymbol().setStyle(SimpleMarkerSymbol.STYLE_SQUARE).setColor(new Color([255, 0, 0, 2]));
+                            var s = new SimpleMarkerSymbol().setStyle(SimpleMarkerSymbol.STYLE_SQUARE).setColor(new Color([255, 0, 0, 2]));
 
-                    var gl = new GraphicsLayer();
-                    map.addLayer(gl);
+                            var gl = new GraphicsLayer();
+                            map.addLayer(gl);
 
-                    for (var count = 0; count < searchList.length; count++)
-                    {
-                        var p = new Point(searchList[count].longitude, searchList[count].latitude);
-                        var i = {
-                            x: searchList[count].longitude, y: searchList[count].latitude, SiteName: searchList[count].siteName,
-                            SiteAddress: searchList[count].siteAddress, ReportedBy: searchList[count].reportedBy, ReportedOn: searchList[count].reportedOn,
-                            Goto:"<a href='PreField?SiteIdx=" + searchList[count].site_Idx + "&returnURL=Search'" + "> Edit</a>"
-                        };
-                        var siteid = searchList[count].siteAddress;
-                        var it = new InfoTemplate("Coordinates");
-                      //  it.setContent(getTextContent(searchList[count].site_Idx));
-                        var g = new Graphic(p, s, i).setInfoTemplate(it);
-                        gl.add(g);
-                    }
-                        }
-                        //function getTextContent(siteid)
-                        //{
-                        //    return "<br /><a href='PreField?SiteIdx=" + siteid + "&returnURL=Search'" + ">Edit</a>";
-
-
-                        // }
+                            for (var count = 0; count < searchList.length; count++) {
+                                var p = new Point(searchList[count].longitude, searchList[count].latitude);
+                                var i = {
+                                    x: searchList[count].longitude, y: searchList[count].latitude, SiteName: searchList[count].siteName,
+                                    SiteAddress: searchList[count].siteAddress, ReportedBy: searchList[count].reportedBy, ReportedOn: searchList[count].reportedOn,
+                                    Goto: "<a href='PreField?SiteIdx=" + searchList[count].site_Idx + "&returnURL=Search'" + "> Edit</a>"
+                                };
+                                var siteid = searchList[count].siteAddress;
+                                var it = new InfoTemplate("Coordinates");
+                                var g = new Graphic(p, s, i).setInfoTemplate(it);
+                                gl.add(g);
+                            }
+                        }                     
              });
 
           }

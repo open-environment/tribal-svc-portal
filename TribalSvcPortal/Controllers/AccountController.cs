@@ -97,7 +97,7 @@ namespace TribalSvcPortal.Controllers
                     if (!isExist)
                     {
                         var cacheEntryOptions = new MemoryCacheEntryOptions()
-                           .SetSlidingExpiration(TimeSpan.FromMinutes(20));
+                           .SetSlidingExpiration(TimeSpan.FromMinutes(30));
 
                         UserClientDisplayType = _DbPortal.GetT_PRT_ORG_USERS_CLIENT_DistinctClientByUserID(_UserIDX);
                         _memoryCache.Set(CacheKey, UserClientDisplayType, cacheEntryOptions);

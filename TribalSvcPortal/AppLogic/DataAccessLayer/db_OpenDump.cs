@@ -27,13 +27,14 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
     public interface IDbOpenDump
     {
         List<UserOrgDisplayType> GetT_OD_SITES_bySearch(string orgID, string searchStr);
-        IEnumerable<SelectListItem> get_ddl_organizations(string id);
+        IEnumerable<SelectListItem> get_ddl_od_organizations(string id);
         List<OpenDumpSiteListDisplay> get_OpenDump_Sites_By_Organization_SiteName(string selStr, string selOrg);
         IEnumerable<SelectListItem> get_ddl_refdata_by_category(string cat_name);
 
         T_OD_SITES GetT_OD_SITES_BySITEIDX(Guid Siteidx);
         Guid? InsertUpdateT_OD_SITES(Guid sITE_IDX, string rEPORTED_BY, DateTime? rEPORTED_ON, Guid? cOMMUNITY_IDX, Guid? sITE_SETTING_IDX, Guid? pF_AQUIFER_VERT_DIST,
-            Guid? pF_SURF_WATER_HORIZ_DIST, Guid? pF_HOMES_DIST);
+        Guid? pF_SURF_WATER_HORIZ_DIST, Guid? pF_HOMES_DIST);
+        IEnumerable<SelectListItem> get_ddl_refthreatfactor_by_factortype(string factor_type);
 
     }
 
@@ -95,7 +96,27 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
                 return null;
             }
         }
+        public IEnumerable<SelectListItem> get_ddl_refthreatfactor_by_factortype(string factor_type)
+        {
+            try
+            {
+                var xxx = (from a in ctx.T_OD_REF_THREAT_FACTORS
+                           where a.THREAT_FACTOR_TYPE == factor_type
+                           orderby a.THREAT_FACTOR_SCORE
+                           select new SelectListItem
+                           {
+                               Value = a.THREAT_FACTOR_IDX.ToString(),
+                               Text = a.THREAT_FACTOR_NAME
+                           }).ToList();
 
+                return xxx;
+            }
+            catch (Exception ex)
+            {
+                log.LogEFException(ex);
+                return null;
+            }
+        }
         public T_OD_SITES GetT_OD_SITES_BySITEIDX(Guid Siteidx)
         {
             try
@@ -111,13 +132,14 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             }
         }
 
-        public IEnumerable<SelectListItem> get_ddl_organizations(string id)
+        public IEnumerable<SelectListItem> get_ddl_od_organizations(string id)
         {
             try
             {
                 var xxx = (from a in ctx.T_PRT_ORG_USERS
                            join b in ctx.T_PRT_ORGANIZATIONS on a.OrgId equals b.OrgId
-                           where a.Id == id
+                           join c in ctx.T_PRT_ORG_USER_CLIENT on a.OrgUserIdx equals c.OrgUserIdx
+                           where a.Id == id && c.ClientId == "open_dump"
                            orderby b.OrgName
                            select new SelectListItem
                            {
@@ -209,7 +231,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             }
 
         }
-        
+
         public Guid? InsertUpdateT_OD_SITES(Guid sITE_IDX, string rEPORTED_BY, DateTime? rEPORTED_ON, Guid? cOMMUNITY_IDX, Guid? sITE_SETTING_IDX, Guid? pF_AQUIFER_VERT_DIST,
             Guid? pF_SURF_WATER_HORIZ_DIST, Guid? pF_HOMES_DIST)
         {
@@ -219,14 +241,14 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
 
                 T_OD_SITES e = (from c in ctx.T_OD_SITES
                                 where c.SITE_IDX == sITE_IDX
-                                 select c).FirstOrDefault();
+                                select c).FirstOrDefault();
 
                 //insert case
                 if (e == null)
                 {
                     insInd = true;
                     e = new T_OD_SITES();
-                    e.SITE_IDX = sITE_IDX;                  
+                    e.SITE_IDX = sITE_IDX;
                 }
 
                 if (rEPORTED_BY != null) e.REPORTED_BY = rEPORTED_BY;
@@ -236,7 +258,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
                 if (pF_AQUIFER_VERT_DIST != null) e.PF_AQUIFER_VERT_DIST = pF_AQUIFER_VERT_DIST;
                 if (pF_SURF_WATER_HORIZ_DIST != null) e.PF_SURF_WATER_HORIZ_DIST = pF_SURF_WATER_HORIZ_DIST;
                 if (pF_HOMES_DIST != null) e.PF_HOMES_DIST = pF_HOMES_DIST;
-               
+
                 if (insInd)
                     ctx.T_OD_SITES.Add(e);
                 ctx.SaveChanges();
@@ -249,7 +271,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             }
 
         }
-        
+
 
     }
 }

@@ -38,7 +38,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
 
                 bool isExist = _memoryCache.TryGetValue(CacheKey, out UserClientDisplayType);
                 if (isExist && UserClientDisplayType != null)
-                {                  
+                {
                     return View(UserClientDisplayType);
                 }
                 else
@@ -47,11 +47,18 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
                    .SetSlidingExpiration(TimeSpan.FromMinutes(20));
 
                     UserClientDisplayType = _DbPortal.GetT_PRT_ORG_USERS_CLIENT_DistinctClientByUserID(_UserIDX);
-                    _memoryCache.Set(CacheKey, UserClientDisplayType, cacheEntryOptions);                  
+                    _memoryCache.Set(CacheKey, UserClientDisplayType, cacheEntryOptions);
                     return View(UserClientDisplayType);
                 }
             }
-            return View();           
+            else
+            {
+                _DbPortal.GetT_PRT_SYS_LOG();
+                return View();
+                //_logger.LogInformation("User logged out.");
+                //return RedirectToActionResult(nameof(HomeController.Index), "Home");
+            }
+           // return View();           
         }
     }
 }

@@ -42,7 +42,7 @@ namespace TribalSvcPortal.Controllers
             if (selStr == null && selOrg == null)
             {
                 SearchViewModel model = new SearchViewModel();
-                model.ddl_Org = _DbOpenDump.get_ddl_organizations(_UserIDX);   
+                model.ddl_Org = _DbOpenDump.get_ddl_od_organizations(_UserIDX);   
                 if(model.ddl_Org.Count()==1)
                 {
                     foreach (var orgid in model.ddl_Org)
@@ -56,7 +56,7 @@ namespace TribalSvcPortal.Controllers
             {
                 var model = new SearchViewModel
                 {
-                    ddl_Org = _DbOpenDump.get_ddl_organizations(_UserIDX),
+                    ddl_Org = _DbOpenDump.get_ddl_od_organizations(_UserIDX),
                     searchResults = _DbOpenDump.get_OpenDump_Sites_By_Organization_SiteName(selStr, selOrg)
             };
                 if (model.ddl_Org.Count() == 1)
@@ -81,7 +81,10 @@ namespace TribalSvcPortal.Controllers
             var model = new PreFieldViewModel();
             model.SiteSettingsList = _DbOpenDump.get_ddl_refdata_by_category("Site Setting");
             model.CommunityList = _DbOpenDump.get_ddl_refdata_by_category("Community");
-            model.OrgList = _DbOpenDump.get_ddl_organizations(_UserIDX);
+            model.AquiferList = _DbOpenDump.get_ddl_refthreatfactor_by_factortype("Aquifer");
+            model.SurfaceWaterList = _DbOpenDump.get_ddl_refthreatfactor_by_factortype("Surface Water");
+            model.HomesList = _DbOpenDump.get_ddl_refthreatfactor_by_factortype("Homes");
+            model.OrgList = _DbOpenDump.get_ddl_od_organizations(_UserIDX);
             model.returnURL = returnURL ?? "Search";
            
             if (SiteIdx != null)
@@ -115,13 +118,13 @@ namespace TribalSvcPortal.Controllers
             string _UserIDX;
             bool isUserExist = _memoryCache.TryGetValue("UserID", out _UserIDX);
 
-            Guid? newSiteID = _DbPortal.InsertUpdateT_PRT_SITES(model.TPrtSites.SiteIdx, model.selOrg, model.TPrtSites.SiteName ?? "",
+            Guid? newSiteID = _DbPortal.InsertUpdateT_PRT_SITES(model.TPrtSites.SiteIdx, model.TPrtSites.OrgId, model.TPrtSites.SiteName ?? "",
                     model.TPrtSites.EpaId ?? "", model.TPrtSites.Latitude, model.TPrtSites.Longitude, model.TPrtSites.SiteAddress ?? "", _UserIDX);
 
             if (newSiteID != null)
             {
                 Guid? SiteID = _DbOpenDump.InsertUpdateT_OD_SITES((Guid)newSiteID, model.TOdSites.REPORTED_BY, model.TOdSites.REPORTED_ON, model.TOdSites.COMMUNITY_IDX, 
-                    model.TOdSites.SITE_SETTING_IDX, null, null, null);
+                    model.TOdSites.SITE_SETTING_IDX, model.TOdSites.PF_AQUIFER_VERT_DIST, model.TOdSites.PF_SURF_WATER_HORIZ_DIST, model.TOdSites.PF_HOMES_DIST);
 
                 TempData["Success"] = "Update successful.";
                 return RedirectToAction("PreField", "OpenDump", new { SiteIdx = newSiteID, returnURL = model.returnURL });
