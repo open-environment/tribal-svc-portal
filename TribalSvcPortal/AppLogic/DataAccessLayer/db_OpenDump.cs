@@ -30,12 +30,11 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
         IEnumerable<SelectListItem> get_ddl_organizations(string id);
         List<OpenDumpSiteListDisplay> get_OpenDump_Sites_By_Organization_SiteName(string selStr, string selOrg);
         IEnumerable<SelectListItem> get_ddl_refdata_by_category(string cat_name);
-        T_PRT_SITES GetT_PRT_SITES_BySITEIDX(Guid Siteidx);
+
         T_OD_SITES GetT_OD_SITES_BySITEIDX(Guid Siteidx);
-        Guid? InsertUpdateT_PRT_SITES(Guid? sITE_IDX, string oRG_ID, string sITE_NAME, string ePA_ID, decimal? lATITUDE, decimal? lONGITUDE, string sITE_ADDRESS,
-           string UserIDX);
-        Guid? InsertUpdateT_OD_SITES(Guid sITE_IDX, Guid cOMMUNITY_IDX, Guid sITE_SETTING_IDX, string rEPORTED_BY, DateTime? rEPORTED_ON, string rESPONSE_ACTION);
-        int DeleteT_PRT_SITES(Guid sITE_IDX);
+        Guid? InsertUpdateT_OD_SITES(Guid sITE_IDX, string rEPORTED_BY, DateTime? rEPORTED_ON, Guid? cOMMUNITY_IDX, Guid? sITE_SETTING_IDX, Guid? pF_AQUIFER_VERT_DIST,
+            Guid? pF_SURF_WATER_HORIZ_DIST, Guid? pF_HOMES_DIST);
+
     }
 
     public class DbOpenDump : IDbOpenDump
@@ -75,18 +74,17 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             }
         }
 
-
         public IEnumerable<SelectListItem> get_ddl_refdata_by_category(string cat_name)
         {
             try
             {
                 var xxx = (from a in ctx.T_OD_REF_DATA
-                           where a.RefDataCatName == cat_name
-                           orderby a.RefDataName
+                           where a.REF_DATA_CAT_NAME == cat_name
+                           orderby a.REF_DATA_VAL
                            select new SelectListItem
                            {
-                               Value = a.RefDataIdx.ToString(),
-                               Text = a.RefDataName
+                               Value = a.REF_DATA_IDX.ToString(),
+                               Text = a.REF_DATA_VAL
                            }).ToList();
 
                 return xxx;
@@ -97,26 +95,13 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
                 return null;
             }
         }
-        public T_PRT_SITES GetT_PRT_SITES_BySITEIDX(Guid Siteidx)
-        {
-            try
-            {
-                return (from a in ctx.T_PRT_SITES
-                        where a.SiteIdx == Siteidx
-                        select a).FirstOrDefault();
-            }
-            catch (Exception ex)
-            {
-                log.LogEFException(ex);
-                return null;
-            }
-        }
+
         public T_OD_SITES GetT_OD_SITES_BySITEIDX(Guid Siteidx)
         {
             try
             {
                 return (from a in ctx.T_OD_SITES
-                        where a.SiteIdx == Siteidx
+                        where a.SITE_IDX == Siteidx
                         select a).FirstOrDefault();
             }
             catch (Exception ex)
@@ -125,6 +110,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
                 return null;
             }
         }
+
         public IEnumerable<SelectListItem> get_ddl_organizations(string id)
         {
             try
@@ -148,6 +134,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             }
 
         }
+
         public List<OpenDumpSiteListDisplay> get_OpenDump_Sites_By_Organization_SiteName(string selStr, string selOrg)
         {
             try
@@ -156,7 +143,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
                 if (selStr != null && selOrg != null)
                 {
                     xxx = (from a in ctx.T_PRT_SITES
-                           join b in ctx.T_OD_SITES on a.SiteIdx equals b.SiteIdx
+                           join b in ctx.T_OD_SITES on a.SiteIdx equals b.SITE_IDX
                            where (selOrg != null && a.OrgId == selOrg)
                            && (selStr != null && (a.SiteName.ToUpper().Contains(selStr.ToUpper())
                            || (a.SiteAddress != null && a.SiteAddress.ToUpper().Contains(selStr.ToUpper()))))
@@ -167,8 +154,8 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
                                Site_Idx = a.SiteIdx,
                                SiteName = a.SiteName,
                                SiteAddress = a.SiteAddress,
-                               ReportedBy = b.ReportedBy,
-                               ReportedOn = b.ReportedOn,
+                               ReportedBy = b.REPORTED_BY,
+                               ReportedOn = b.REPORTED_ON,
                                Latitude = a.Latitude,
                                Longitude = a.Longitude
 
@@ -177,7 +164,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
                 else if (selStr == null && selOrg != null)
                 {
                     xxx = (from a in ctx.T_PRT_SITES
-                           join b in ctx.T_OD_SITES on a.SiteIdx equals b.SiteIdx
+                           join b in ctx.T_OD_SITES on a.SiteIdx equals b.SITE_IDX
                            where (selOrg != null && a.OrgId == selOrg)
                            orderby a.SiteName
                            select new OpenDumpSiteListDisplay
@@ -185,8 +172,8 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
                                Site_Idx = a.SiteIdx,
                                SiteName = a.SiteName,
                                SiteAddress = a.SiteAddress,
-                               ReportedBy = b.ReportedBy,
-                               ReportedOn = b.ReportedOn,
+                               ReportedBy = b.REPORTED_BY,
+                               ReportedOn = b.REPORTED_ON,
                                Latitude = a.Latitude,
                                Longitude = a.Longitude
 
@@ -195,7 +182,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
                 else if (selStr != null && selOrg == null)
                 {
                     xxx = (from a in ctx.T_PRT_SITES
-                           join b in ctx.T_OD_SITES on a.SiteIdx equals b.SiteIdx
+                           join b in ctx.T_OD_SITES on a.SiteIdx equals b.SITE_IDX
                            where (selStr != null && (a.SiteName.ToUpper().Contains(selStr.ToUpper())
                            || (a.SiteAddress != null && a.SiteAddress.ToUpper().Contains(selStr.ToUpper()))))
 
@@ -205,8 +192,8 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
                                Site_Idx = a.SiteIdx,
                                SiteName = a.SiteName,
                                SiteAddress = a.SiteAddress,
-                               ReportedBy = b.ReportedBy,
-                               ReportedOn = b.ReportedOn,
+                               ReportedBy = b.REPORTED_BY,
+                               ReportedOn = b.REPORTED_ON,
                                Latitude = a.Latitude,
                                Longitude = a.Longitude
 
@@ -222,61 +209,16 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             }
 
         }
-
-        public Guid? InsertUpdateT_PRT_SITES(Guid? sITE_IDX, string oRG_ID, string sITE_NAME, string ePA_ID, decimal? lATITUDE, decimal? lONGITUDE, string sITE_ADDRESS,
-            string UserIDX)
-        {
-            try
-            {
-                Boolean insInd = false;
-
-                T_PRT_SITES e = (from c in ctx.T_PRT_SITES
-                                 where c.SiteIdx == sITE_IDX
-                                 select c).FirstOrDefault();
-
-                //insert case
-                if (e == null)
-                {
-                    insInd = true;
-                    e = new T_PRT_SITES();
-                    e.SiteIdx = Guid.NewGuid();
-                    e.CreateDt = System.DateTime.UtcNow;
-                    e.CreateUserId = UserIDX;
-                }
-                else
-                {
-                    e.ModifyDt = System.DateTime.UtcNow;
-                    e.ModifyUserId = UserIDX;
-                }
-
-                if (oRG_ID != null) e.OrgId = oRG_ID;
-                if (sITE_NAME != null) e.SiteName = sITE_NAME;
-                if (ePA_ID != null) e.EpaId = ePA_ID;
-                if (lATITUDE != null) e.Latitude = lATITUDE;
-                if (lONGITUDE != null) e.Longitude = lONGITUDE;
-                if (sITE_ADDRESS != null) e.SiteAddress = sITE_ADDRESS;
-
-
-                if (insInd)
-                    ctx.T_PRT_SITES.Add(e);
-
-                ctx.SaveChanges();
-                return e.SiteIdx;
-            }
-            catch (Exception ex)
-            {
-                log.LogEFException(ex);
-                return null;
-            }
-        }
-        public Guid? InsertUpdateT_OD_SITES(Guid sITE_IDX, Guid cOMMUNITY_IDX, Guid sITE_SETTING_IDX, string rEPORTED_BY, DateTime? rEPORTED_ON,string rESPONSE_ACTION)
+        
+        public Guid? InsertUpdateT_OD_SITES(Guid sITE_IDX, string rEPORTED_BY, DateTime? rEPORTED_ON, Guid? cOMMUNITY_IDX, Guid? sITE_SETTING_IDX, Guid? pF_AQUIFER_VERT_DIST,
+            Guid? pF_SURF_WATER_HORIZ_DIST, Guid? pF_HOMES_DIST)
         {
             try
             {
                 Boolean insInd = false;
 
                 T_OD_SITES e = (from c in ctx.T_OD_SITES
-                                where c.SiteIdx == sITE_IDX
+                                where c.SITE_IDX == sITE_IDX
                                  select c).FirstOrDefault();
 
                 //insert case
@@ -284,19 +226,21 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
                 {
                     insInd = true;
                     e = new T_OD_SITES();
-                    e.SiteIdx = sITE_IDX;                  
-                }              
+                    e.SITE_IDX = sITE_IDX;                  
+                }
 
-                if (cOMMUNITY_IDX != null) e.CommunityIdx = cOMMUNITY_IDX;
-                if (sITE_SETTING_IDX != null) e.SiteSettingIdx = sITE_SETTING_IDX;
-                if (rEPORTED_BY != null) e.ReportedBy = rEPORTED_BY;
-                if (rEPORTED_ON != null) e.ReportedOn = rEPORTED_ON;
-                if (rESPONSE_ACTION != null) e.ResponseAction = rESPONSE_ACTION;
+                if (rEPORTED_BY != null) e.REPORTED_BY = rEPORTED_BY;
+                if (rEPORTED_ON != null) e.REPORTED_ON = rEPORTED_ON;
+                if (cOMMUNITY_IDX != null) e.COMMUNITY_IDX = cOMMUNITY_IDX;
+                if (sITE_SETTING_IDX != null) e.SITE_SETTING_IDX = sITE_SETTING_IDX;
+                if (pF_AQUIFER_VERT_DIST != null) e.PF_AQUIFER_VERT_DIST = pF_AQUIFER_VERT_DIST;
+                if (pF_SURF_WATER_HORIZ_DIST != null) e.PF_SURF_WATER_HORIZ_DIST = pF_SURF_WATER_HORIZ_DIST;
+                if (pF_HOMES_DIST != null) e.PF_HOMES_DIST = pF_HOMES_DIST;
                
                 if (insInd)
                     ctx.T_OD_SITES.Add(e);
                 ctx.SaveChanges();
-                return e.SiteIdx;
+                return e.SITE_IDX;
             }
             catch (Exception ex)
             {
@@ -305,25 +249,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             }
 
         }
-        public int DeleteT_PRT_SITES(Guid sITE_IDX)
-        {
-            try
-            {
-                T_OD_SITES tos = new T_OD_SITES { SiteIdx = sITE_IDX };
-                ctx.Entry(tos).State = Microsoft.EntityFrameworkCore.EntityState.Deleted;
-                ctx.SaveChanges();
+        
 
-                T_PRT_SITES tps = new T_PRT_SITES { SiteIdx = sITE_IDX };
-                ctx.Entry(tps).State = Microsoft.EntityFrameworkCore.EntityState.Deleted;
-                ctx.SaveChanges();
-
-                return 1;
-            }
-            catch (Exception ex)
-            {
-                log.LogEFException(ex);
-                return 0;
-            }
-        }
     }
 }

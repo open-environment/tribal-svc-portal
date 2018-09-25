@@ -17,49 +17,49 @@ namespace TribalSvcPortal
     {
         public static IDbPortal _DbPortal = new DbPortal();      
 
-        //Returns list of Clients
-        public static IEnumerable<Client> GetClientsHardCode()
-        {
-            return new List<Client> {
+        ////Returns list of Clients
+        //public static IEnumerable<Client> GetClientsHardCode()
+        //{
+        //    return new List<Client> {
 
-                //Emergency Hound Client
-                new Client {
-                    ClientId = "emergency_hound",
-                    ClientName = "Emergency Hound Web",
-                    AllowedGrantTypes = GrantTypes.Implicit,
-                    RequireConsent = false,
-                    AllowedScopes = new List<string>
-                    {
-                        IdentityServerConstants.StandardScopes.OpenId,
-                        IdentityServerConstants.StandardScopes.Profile,
-                        IdentityServerConstants.StandardScopes.Email,
-                    },
-                    RedirectUris = new List<string> {"http://localhost:1244/signinoidc"},
-                    PostLogoutRedirectUris = new List<string> { "http://localhost:1244/signoutcallbackoidc" }
-                },
-                //Open Waters Client
-                new Client {
-                    ClientId = "open_waters",
-                    ClientName = "Open Waters",
-                    AllowedGrantTypes = GrantTypes.Implicit,
-                    RequireConsent = false,
-                    AllowedScopes = new List<string>
-                    {
-                        IdentityServerConstants.StandardScopes.OpenId,
-                        IdentityServerConstants.StandardScopes.Profile,
-                        IdentityServerConstants.StandardScopes.Email,
-                    },
-                    RedirectUris = new List<string> {"http://localhost:59412/signinoidc"},
-                    PostLogoutRedirectUris = new List<string> { "http://localhost:59412/signoutcallbackoidc" }
-                }
-            };
-        }
+        //        //Emergency Hound Client
+        //        new Client {
+        //            ClientId = "emergency_hound",
+        //            ClientName = "Emergency Hound Web",
+        //            AllowedGrantTypes = GrantTypes.Implicit,
+        //            RequireConsent = false,
+        //            AllowedScopes = new List<string>
+        //            {
+        //                IdentityServerConstants.StandardScopes.OpenId,
+        //                IdentityServerConstants.StandardScopes.Profile,
+        //                IdentityServerConstants.StandardScopes.Email,
+        //            },
+        //            RedirectUris = new List<string> {"http://localhost:1244/signinoidc"},
+        //            PostLogoutRedirectUris = new List<string> { "http://localhost:1244/signoutcallbackoidc" }
+        //        },
+        //        //Open Waters Client
+        //        new Client {
+        //            ClientId = "open_waters",
+        //            ClientName = "Open Waters",
+        //            AllowedGrantTypes = GrantTypes.Implicit,
+        //            RequireConsent = false,
+        //            AllowedScopes = new List<string>
+        //            {
+        //                IdentityServerConstants.StandardScopes.OpenId,
+        //                IdentityServerConstants.StandardScopes.Profile,
+        //                IdentityServerConstants.StandardScopes.Email,
+        //            },
+        //            RedirectUris = new List<string> {"http://localhost:59412/signinoidc"},
+        //            PostLogoutRedirectUris = new List<string> { "http://localhost:59412/signoutcallbackoidc" }
+        //        }
+        //    };
+        //}
 
         public static IEnumerable<Client> GetClients2()
         {
-            List<Client> _clients = new List<Client>();
-
             List<T_PRT_CLIENTS> dbclients = _DbPortal.GetT_PRT_CLIENTS();
+
+            List<Client> _clients = new List<Client>();
             foreach (T_PRT_CLIENTS dbclient in dbclients)
             {
                 Client _client = new Client();

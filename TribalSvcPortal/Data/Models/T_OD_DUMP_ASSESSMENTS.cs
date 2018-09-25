@@ -7,30 +7,43 @@ namespace TribalSvcPortal.Data.Models
     {
         public T_OD_DUMP_ASSESSMENTS()
         {
+            T_OD_DUMP_ASSESSMENT_CONTENT = new HashSet<T_OD_DUMP_ASSESSMENT_CONTENT>();
             T_OD_DUMP_ASSESSMENT_DOCS = new HashSet<T_OD_DUMP_ASSESSMENT_DOCS>();
         }
 
-        public Guid DumpAssessmentsIdx { get; set; }
-        public Guid SiteIdx { get; set; }
-        public DateTime AssessmentDt { get; set; }
-        public string InspectedBy { get; set; }
-        public Guid? InspectionTypeIdx { get; set; }
-        public string SiteDescription { get; set; }
-        public string SiteGeography { get; set; }
-        public string NoOfStructures { get; set; }
-        public string SiteAccess { get; set; }
-        public string Signage { get; set; }
-        public bool ActiveSiteInd { get; set; }
-        public bool MaintainedInd { get; set; }
-        public bool BurningTakenPlaceInd { get; set; }
-        public string Notes { get; set; }
-        public string CreateUserId { get; set; }
-        public DateTime? CreateDt { get; set; }
-        public string ModifyUserId { get; set; }
-        public DateTime? ModifyDt { get; set; }
+        public Guid DUMP_ASSESSMENTS_IDX { get; set; }
+        public Guid SITE_IDX { get; set; }
+        public DateTime ASSESSMENT_DT { get; set; }
+        public string ASSESSED_BY { get; set; }
+        public Guid? ASSESSMENT_TYPE_IDX { get; set; }
+        public bool ACTIVE_SITE_IND { get; set; }
+        public decimal? AREA_ACRES { get; set; }
+        public decimal? VOLUME_CU_YD { get; set; }
+        public Guid? HF_RAINFALL { get; set; }
+        public Guid? HF_DRAINAGE { get; set; }
+        public Guid? HF_FLOODING { get; set; }
+        public Guid? HF_BURNING { get; set; }
+        public Guid? HF_FENCING { get; set; }
+        public Guid? HF_ACCESS_CONTROL { get; set; }
+        public Guid? HF_PUBLIC_CONCERN { get; set; }
+        public int? HEALTH_THREAT_SCORE { get; set; }
+        public string SITE_DESCRIPTION { get; set; }
+        public string ASSESSMENT_NOTES { get; set; }
+        public string CREATE_USER_ID { get; set; }
+        public DateTime? CREATE_DT { get; set; }
+        public string MODIFY_USER_ID { get; set; }
+        public DateTime? MODIFY_DT { get; set; }
 
-        public T_OD_REF_DATA InspectionTypeIdxNavigation { get; set; }
-        public T_OD_SITES SiteIdxNavigation { get; set; }
+        public T_OD_REF_DATA ASSESSMENT_TYPE_IDXNavigation { get; set; }
+        public T_OD_REF_THREAT_FACTORS HF_ACCESS_CONTROLNavigation { get; set; }
+        public T_OD_REF_THREAT_FACTORS HF_BURNINGNavigation { get; set; }
+        public T_OD_REF_THREAT_FACTORS HF_DRAINAGENavigation { get; set; }
+        public T_OD_REF_THREAT_FACTORS HF_FENCINGNavigation { get; set; }
+        public T_OD_REF_THREAT_FACTORS HF_FLOODINGNavigation { get; set; }
+        public T_OD_REF_THREAT_FACTORS HF_PUBLIC_CONCERNNavigation { get; set; }
+        public T_OD_REF_THREAT_FACTORS HF_RAINFALLNavigation { get; set; }
+        public T_OD_SITES SITE_IDXNavigation { get; set; }
+        public ICollection<T_OD_DUMP_ASSESSMENT_CONTENT> T_OD_DUMP_ASSESSMENT_CONTENT { get; set; }
         public ICollection<T_OD_DUMP_ASSESSMENT_DOCS> T_OD_DUMP_ASSESSMENT_DOCS { get; set; }
     }
 }

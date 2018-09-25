@@ -13,15 +13,17 @@ namespace TribalSvcPortal.Controllers
 {
     public class OpenDumpController : Controller
     {
-       
+
+        private readonly IDbPortal _DbPortal;
         private readonly IDbOpenDump _DbOpenDump;
         private readonly IMemoryCache _memoryCache;
+
         public OpenDumpController(
-           
-             IMemoryCache memoryCache,
+            IMemoryCache memoryCache,
+            IDbPortal DbPortal,
             IDbOpenDump DbOpenDump)
         {
-           
+            _DbPortal = DbPortal;
             _DbOpenDump = DbOpenDump;
             _memoryCache = memoryCache;
         }
@@ -30,6 +32,7 @@ namespace TribalSvcPortal.Controllers
         {
             return View();
         }
+
 
         public ActionResult Search(string selStr, string selOrg)
         {           
@@ -67,8 +70,10 @@ namespace TribalSvcPortal.Controllers
             }
 
         }
+
+
         // GET: /OpenDump/PreField
-        public ActionResult PreField(Guid? SiteIdx, string selOrg, string returnURL)
+        public ActionResult PreField(Guid? SiteIdx, string returnURL)
         {
             string _UserIDX;
             bool isUserExist = _memoryCache.TryGetValue("UserID", out _UserIDX);
@@ -78,11 +83,10 @@ namespace TribalSvcPortal.Controllers
             model.CommunityList = _DbOpenDump.get_ddl_refdata_by_category("Community");
             model.OrgList = _DbOpenDump.get_ddl_organizations(_UserIDX);
             model.returnURL = returnURL ?? "Search";
-            // model.selOrg = selOrg;
            
             if (SiteIdx != null)
             {
-                model.TPrtSites = _DbOpenDump.GetT_PRT_SITES_BySITEIDX((Guid)SiteIdx);
+                model.TPrtSites = _DbPortal.GetT_PRT_SITES_BySITEIDX((Guid)SiteIdx);
                 model.TOdSites = _DbOpenDump.GetT_OD_SITES_BySITEIDX((Guid)SiteIdx);
             }
             else
@@ -100,6 +104,8 @@ namespace TribalSvcPortal.Controllers
             }           
             return View(model);
         }
+
+
         [HttpPost, ValidateAntiForgeryToken]
         public ActionResult OpenDumpEdit(PreFieldViewModel model)
         {
@@ -108,13 +114,14 @@ namespace TribalSvcPortal.Controllers
 
             string _UserIDX;
             bool isUserExist = _memoryCache.TryGetValue("UserID", out _UserIDX);
-            Guid? newSiteID = _DbOpenDump.InsertUpdateT_PRT_SITES(model.TPrtSites.SiteIdx, model.selOrg, model.TPrtSites.SiteName ?? "",
+
+            Guid? newSiteID = _DbPortal.InsertUpdateT_PRT_SITES(model.TPrtSites.SiteIdx, model.selOrg, model.TPrtSites.SiteName ?? "",
                     model.TPrtSites.EpaId ?? "", model.TPrtSites.Latitude, model.TPrtSites.Longitude, model.TPrtSites.SiteAddress ?? "", _UserIDX);
 
             if (newSiteID != null)
             {
-                Guid? SiteID = _DbOpenDump.InsertUpdateT_OD_SITES((Guid)newSiteID, model.TOdSites.CommunityIdx, model.TOdSites.SiteSettingIdx,
-                    model.TOdSites.ReportedBy ?? "", model.TOdSites.ReportedOn, model.TOdSites.ResponseAction ?? "");
+                Guid? SiteID = _DbOpenDump.InsertUpdateT_OD_SITES((Guid)newSiteID, model.TOdSites.REPORTED_BY, model.TOdSites.REPORTED_ON, model.TOdSites.COMMUNITY_IDX, 
+                    model.TOdSites.SITE_SETTING_IDX, null, null, null);
 
                 TempData["Success"] = "Update successful.";
                 return RedirectToAction("PreField", "OpenDump", new { SiteIdx = newSiteID, returnURL = model.returnURL });
@@ -123,29 +130,22 @@ namespace TribalSvcPortal.Controllers
                 TempData["Error"] = "Error updating data.";
             return RedirectToAction(model.returnURL ?? "Search", new { selStr = "", selOrg="" });
         }
+
+
         [HttpPost]
         public JsonResult PreFieldDelete(Guid id)
         {
-            string response = "";
-
             if (id != null)
             {               
-                int SuccID = _DbOpenDump.DeleteT_PRT_SITES(id);
+                int SuccID = _DbPortal.DeleteT_PRT_SITES(id);
 
                 if (SuccID == 1)
-                {
-                    response = "Success";
-                }
-                else
-                {
-                    response = "Unable to delete";
-                }
+                    return Json("Success");
             }
-            else
-                response = "Unable to delete";
 
-            return Json(response);
+            return Json("Unable to delete");
         }
+
 
         public IActionResult RefData()
         {           

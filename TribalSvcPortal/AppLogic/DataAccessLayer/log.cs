@@ -1,9 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Data.Entity.Validation;
-using TribalSvcPortal.AppLogic.DataAccessLayer;
 using TribalSvcPortal.AppLogic.BusinessLogicLayer;
 using TribalSvcPortal.Data.Models;
 using Microsoft.EntityFrameworkCore;
@@ -44,17 +39,17 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
         {
 
             string err = "";
-            if (ex is DbEntityValidationException)
-            {
-                DbEntityValidationException dbex = (DbEntityValidationException)ex;
-                foreach (var eve in dbex.EntityValidationErrors)
-                {
-                    err += "Entity error type" + eve.Entry.Entity.GetType().Name;  //maybe add eve.Entry.State too
-                    foreach (var ve in eve.ValidationErrors)
-                        err += " property: " + ve.PropertyName + " error: " + ve.ErrorMessage;
-                }
-            }
-            else
+            //if (ex is DbEntityValidationException)
+            //{
+            //    DbEntityValidationException dbex = (DbEntityValidationException)ex;
+            //    foreach (var eve in dbex.EntityValidationErrors)
+            //    {
+            //        err += "Entity error type" + eve.Entry.Entity.GetType().Name;  //maybe add eve.Entry.State too
+            //        foreach (var ve in eve.ValidationErrors)
+            //            err += " property: " + ve.PropertyName + " error: " + ve.ErrorMessage;
+            //    }
+            //}
+            //else
             {
                 Exception realerror = ex;
                 while (realerror.InnerException != null)
