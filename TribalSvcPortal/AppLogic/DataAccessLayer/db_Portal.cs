@@ -1,11 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using TribalSvcPortal.Data.Models;
-using TribalSvcPortal.AppLogic.BusinessLogicLayer;
 using Microsoft.AspNetCore.Identity;
-using System.Data.Entity.Validation;
 using Microsoft.EntityFrameworkCore;
 
 namespace TribalSvcPortal.AppLogic.DataAccessLayer
