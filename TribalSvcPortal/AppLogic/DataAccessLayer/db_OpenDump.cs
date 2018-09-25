@@ -34,7 +34,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
         T_OD_SITES GetT_OD_SITES_BySITEIDX(Guid Siteidx);
         Guid? InsertUpdateT_OD_SITES(Guid sITE_IDX, string rEPORTED_BY, DateTime? rEPORTED_ON, Guid? cOMMUNITY_IDX, Guid? sITE_SETTING_IDX, Guid? pF_AQUIFER_VERT_DIST,
             Guid? pF_SURF_WATER_HORIZ_DIST, Guid? pF_HOMES_DIST);
-        int DeleteT_PRT_SITES(Guid sITE_IDX);
+
     }
 
     public class DbOpenDump : IDbOpenDump
@@ -250,25 +250,6 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
 
         }
         
-        public int DeleteT_PRT_SITES(Guid sITE_IDX)
-        {
-            try
-            {
-                T_OD_SITES tos = new T_OD_SITES { SITE_IDX = sITE_IDX };
-                ctx.Entry(tos).State = Microsoft.EntityFrameworkCore.EntityState.Deleted;
-                ctx.SaveChanges();
 
-                T_PRT_SITES tps = new T_PRT_SITES { SiteIdx = sITE_IDX };
-                ctx.Entry(tps).State = Microsoft.EntityFrameworkCore.EntityState.Deleted;
-                ctx.SaveChanges();
-
-                return 1;
-            }
-            catch (Exception ex)
-            {
-                log.LogEFException(ex);
-                return 0;
-            }
-        }
     }
 }

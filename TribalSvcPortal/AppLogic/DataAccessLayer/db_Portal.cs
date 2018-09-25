@@ -52,7 +52,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
         IEnumerable<T_PRT_CLIENTS> GetDistinct_USERS_CLIENT_ByUserID(string _UserIDX);
         Guid? InsertUpdateT_PRT_SITES(Guid? sITE_IDX, string oRG_ID, string sITE_NAME, string ePA_ID, decimal? lATITUDE, decimal? lONGITUDE, string sITE_ADDRESS, string UserIDX);
         T_PRT_SITES GetT_PRT_SITES_BySITEIDX(Guid Siteidx);
-
+        int DeleteT_PRT_SITES(Guid sITE_IDX);
     }
 
     public class DbPortal : IDbPortal
@@ -597,6 +597,23 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             {
                 log.LogEFException(ex);
                 return null;
+            }
+        }
+
+        public int DeleteT_PRT_SITES(Guid sITE_IDX)
+        {
+            try
+            {
+                T_PRT_SITES tps = new T_PRT_SITES { SiteIdx = sITE_IDX };
+                ctx.Entry(tps).State = Microsoft.EntityFrameworkCore.EntityState.Deleted;
+                ctx.SaveChanges();
+
+                return 1;
+            }
+            catch (Exception ex)
+            {
+                log.LogEFException(ex);
+                return 0;
             }
         }
 

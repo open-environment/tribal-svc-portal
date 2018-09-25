@@ -135,25 +135,15 @@ namespace TribalSvcPortal.Controllers
         [HttpPost]
         public JsonResult PreFieldDelete(Guid id)
         {
-            string response = "";
-
             if (id != null)
             {               
-                int SuccID = _DbOpenDump.DeleteT_PRT_SITES(id);
+                int SuccID = _DbPortal.DeleteT_PRT_SITES(id);
 
                 if (SuccID == 1)
-                {
-                    response = "Success";
-                }
-                else
-                {
-                    response = "Unable to delete";
-                }
+                    return Json("Success");
             }
-            else
-                response = "Unable to delete";
 
-            return Json(response);
+            return Json("Unable to delete");
         }
 
 
