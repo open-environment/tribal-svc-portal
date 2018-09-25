@@ -49,7 +49,10 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
         int DeleteT_PRT_ORG_USER_CLIENT(int id);      
         IEnumerable<IdentityRole> GetT_PRT_ROLES_BelongingToUser(string UserID);
         T_PRT_SYS_LOG GetT_PRT_SYS_LOG();      
-        IEnumerable<T_PRT_CLIENTS> GetDistinct_USERS_CLIENT_ByUserID(string _UserIDX);      
+        IEnumerable<T_PRT_CLIENTS> GetDistinct_USERS_CLIENT_ByUserID(string _UserIDX);
+        Guid? InsertUpdateT_PRT_SITES(Guid? sITE_IDX, string oRG_ID, string sITE_NAME, string ePA_ID, decimal? lATITUDE, decimal? lONGITUDE, string sITE_ADDRESS, string UserIDX);
+        T_PRT_SITES GetT_PRT_SITES_BySITEIDX(Guid Siteidx);
+
     }
 
     public class DbPortal : IDbPortal
@@ -415,6 +418,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
                 return null;
             }
         }
+
         public IEnumerable<T_PRT_CLIENTS> GetDistinct_USERS_CLIENT_ByUserID(string _UserIDX)
         {
             try
@@ -434,6 +438,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
                 return null;
             }
         }
+
         public int InsertUpdateT_PRT_ORG_USERS_CLIENT(int? oRG_USER_CLIENT_IDX, int? oRG_USER_IDX, string cLIENT_ID, bool? aDMIN_IND, string sTATUS_IND, string cREATE_USER)
         {
             try
@@ -526,16 +531,74 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
         }
 
 
-
         //*****************SYS_LOG**********************************
-       
-
         public T_PRT_SYS_LOG GetT_PRT_SYS_LOG()
         {
             return null;
         }
 
-             
+
+        //*****************SITES *************************************
+        public Guid? InsertUpdateT_PRT_SITES(Guid? sITE_IDX, string oRG_ID, string sITE_NAME, string ePA_ID, decimal? lATITUDE, decimal? lONGITUDE, string sITE_ADDRESS, string UserIDX)
+        {
+            try
+            {
+                Boolean insInd = false;
+
+                T_PRT_SITES e = (from c in ctx.T_PRT_SITES
+                                 where c.SiteIdx == sITE_IDX
+                                 select c).FirstOrDefault();
+
+                //insert case
+                if (e == null)
+                {
+                    insInd = true;
+                    e = new T_PRT_SITES();
+                    e.SiteIdx = Guid.NewGuid();
+                    e.CreateDt = System.DateTime.UtcNow;
+                    e.CreateUserId = UserIDX;
+                }
+                else
+                {
+                    e.ModifyDt = System.DateTime.UtcNow;
+                    e.ModifyUserId = UserIDX;
+                }
+
+                if (oRG_ID != null) e.OrgId = oRG_ID;
+                if (sITE_NAME != null) e.SiteName = sITE_NAME;
+                if (ePA_ID != null) e.EpaId = ePA_ID;
+                if (lATITUDE != null) e.Latitude = lATITUDE;
+                if (lONGITUDE != null) e.Longitude = lONGITUDE;
+                if (sITE_ADDRESS != null) e.SiteAddress = sITE_ADDRESS;
+
+
+                if (insInd)
+                    ctx.T_PRT_SITES.Add(e);
+
+                ctx.SaveChanges();
+                return e.SiteIdx;
+            }
+            catch (Exception ex)
+            {
+                log.LogEFException(ex);
+                return null;
+            }
+        }
+
+        public T_PRT_SITES GetT_PRT_SITES_BySITEIDX(Guid Siteidx)
+        {
+            try
+            {
+                return (from a in ctx.T_PRT_SITES
+                        where a.SiteIdx == Siteidx
+                        select a).FirstOrDefault();
+            }
+            catch (Exception ex)
+            {
+                log.LogEFException(ex);
+                return null;
+            }
+        }
 
     }
 }

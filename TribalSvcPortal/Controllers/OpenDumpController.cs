@@ -13,15 +13,17 @@ namespace TribalSvcPortal.Controllers
 {
     public class OpenDumpController : Controller
     {
-       
+
+        private readonly IDbPortal _DbPortal;
         private readonly IDbOpenDump _DbOpenDump;
         private readonly IMemoryCache _memoryCache;
+
         public OpenDumpController(
-           
-             IMemoryCache memoryCache,
+            IMemoryCache memoryCache,
+            IDbPortal DbPortal,
             IDbOpenDump DbOpenDump)
         {
-           
+            _DbPortal = DbPortal;
             _DbOpenDump = DbOpenDump;
             _memoryCache = memoryCache;
         }
@@ -71,7 +73,7 @@ namespace TribalSvcPortal.Controllers
 
 
         // GET: /OpenDump/PreField
-        public ActionResult PreField(Guid? SiteIdx, string selOrg, string returnURL)
+        public ActionResult PreField(Guid? SiteIdx, string returnURL)
         {
             string _UserIDX;
             bool isUserExist = _memoryCache.TryGetValue("UserID", out _UserIDX);
@@ -81,11 +83,10 @@ namespace TribalSvcPortal.Controllers
             model.CommunityList = _DbOpenDump.get_ddl_refdata_by_category("Community");
             model.OrgList = _DbOpenDump.get_ddl_organizations(_UserIDX);
             model.returnURL = returnURL ?? "Search";
-            // model.selOrg = selOrg;
            
             if (SiteIdx != null)
             {
-                model.TPrtSites = _DbOpenDump.GetT_PRT_SITES_BySITEIDX((Guid)SiteIdx);
+                model.TPrtSites = _DbPortal.GetT_PRT_SITES_BySITEIDX((Guid)SiteIdx);
                 model.TOdSites = _DbOpenDump.GetT_OD_SITES_BySITEIDX((Guid)SiteIdx);
             }
             else
@@ -113,7 +114,8 @@ namespace TribalSvcPortal.Controllers
 
             string _UserIDX;
             bool isUserExist = _memoryCache.TryGetValue("UserID", out _UserIDX);
-            Guid? newSiteID = _DbOpenDump.InsertUpdateT_PRT_SITES(model.TPrtSites.SiteIdx, model.selOrg, model.TPrtSites.SiteName ?? "",
+
+            Guid? newSiteID = _DbPortal.InsertUpdateT_PRT_SITES(model.TPrtSites.SiteIdx, model.selOrg, model.TPrtSites.SiteName ?? "",
                     model.TPrtSites.EpaId ?? "", model.TPrtSites.Latitude, model.TPrtSites.Longitude, model.TPrtSites.SiteAddress ?? "", _UserIDX);
 
             if (newSiteID != null)

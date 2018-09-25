@@ -30,9 +30,8 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
         IEnumerable<SelectListItem> get_ddl_organizations(string id);
         List<OpenDumpSiteListDisplay> get_OpenDump_Sites_By_Organization_SiteName(string selStr, string selOrg);
         IEnumerable<SelectListItem> get_ddl_refdata_by_category(string cat_name);
-        T_PRT_SITES GetT_PRT_SITES_BySITEIDX(Guid Siteidx);
+
         T_OD_SITES GetT_OD_SITES_BySITEIDX(Guid Siteidx);
-        Guid? InsertUpdateT_PRT_SITES(Guid? sITE_IDX, string oRG_ID, string sITE_NAME, string ePA_ID, decimal? lATITUDE, decimal? lONGITUDE, string sITE_ADDRESS, string UserIDX);
         Guid? InsertUpdateT_OD_SITES(Guid sITE_IDX, string rEPORTED_BY, DateTime? rEPORTED_ON, Guid? cOMMUNITY_IDX, Guid? sITE_SETTING_IDX, Guid? pF_AQUIFER_VERT_DIST,
             Guid? pF_SURF_WATER_HORIZ_DIST, Guid? pF_HOMES_DIST);
         int DeleteT_PRT_SITES(Guid sITE_IDX);
@@ -89,21 +88,6 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
                            }).ToList();
 
                 return xxx;
-            }
-            catch (Exception ex)
-            {
-                log.LogEFException(ex);
-                return null;
-            }
-        }
-
-        public T_PRT_SITES GetT_PRT_SITES_BySITEIDX(Guid Siteidx)
-        {
-            try
-            {
-                return (from a in ctx.T_PRT_SITES
-                        where a.SiteIdx == Siteidx
-                        select a).FirstOrDefault();
             }
             catch (Exception ex)
             {
@@ -226,53 +210,6 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
 
         }
         
-        public Guid? InsertUpdateT_PRT_SITES(Guid? sITE_IDX, string oRG_ID, string sITE_NAME, string ePA_ID, decimal? lATITUDE, decimal? lONGITUDE, string sITE_ADDRESS,
-            string UserIDX)
-        {
-            try
-            {
-                Boolean insInd = false;
-
-                T_PRT_SITES e = (from c in ctx.T_PRT_SITES
-                                 where c.SiteIdx == sITE_IDX
-                                 select c).FirstOrDefault();
-
-                //insert case
-                if (e == null)
-                {
-                    insInd = true;
-                    e = new T_PRT_SITES();
-                    e.SiteIdx = Guid.NewGuid();
-                    e.CreateDt = System.DateTime.UtcNow;
-                    e.CreateUserId = UserIDX;
-                }
-                else
-                {
-                    e.ModifyDt = System.DateTime.UtcNow;
-                    e.ModifyUserId = UserIDX;
-                }
-
-                if (oRG_ID != null) e.OrgId = oRG_ID;
-                if (sITE_NAME != null) e.SiteName = sITE_NAME;
-                if (ePA_ID != null) e.EpaId = ePA_ID;
-                if (lATITUDE != null) e.Latitude = lATITUDE;
-                if (lONGITUDE != null) e.Longitude = lONGITUDE;
-                if (sITE_ADDRESS != null) e.SiteAddress = sITE_ADDRESS;
-
-
-                if (insInd)
-                    ctx.T_PRT_SITES.Add(e);
-
-                ctx.SaveChanges();
-                return e.SiteIdx;
-            }
-            catch (Exception ex)
-            {
-                log.LogEFException(ex);
-                return null;
-            }
-        }
-
         public Guid? InsertUpdateT_OD_SITES(Guid sITE_IDX, string rEPORTED_BY, DateTime? rEPORTED_ON, Guid? cOMMUNITY_IDX, Guid? sITE_SETTING_IDX, Guid? pF_AQUIFER_VERT_DIST,
             Guid? pF_SURF_WATER_HORIZ_DIST, Guid? pF_HOMES_DIST)
         {
