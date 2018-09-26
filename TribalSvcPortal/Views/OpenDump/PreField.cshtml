@@ -62,16 +62,11 @@
                         </li>
                         <li>
                             <a href="#tab3" data-toggle="tab">
-                               Health Threat                           
+                               Waste Profile / Health Threat                           
                             </a>
                         </li>
                         <li>
                             <a href="#tab4" data-toggle="tab">
-                                Waste Profile                               
-                            </a>
-                        </li>
-                        <li>
-                            <a href="#tab5" data-toggle="tab">
                                 Site Cleanup                               
                             </a>
                         </li>                      
@@ -264,10 +259,7 @@
                         <div class="tab-pane" id="tab3">
                         </div>
                         <div class="tab-pane" id="tab4">
-                        </div>
-                        <div class="tab-pane" id="tab5">
-                        </div>
-                       
+                        </div>                       
                     </div>
                 </div>
                 <!-- *********************** END TABS ****************************************** -->
@@ -297,8 +289,7 @@
 
 
 @section scripts {
-    <script src="~/js/confirm_delete.js">
-    </script>
+    <script src="~/js/confirm_delete.js"></script>
  <script type="text/javascript">
      $(document).ready(function () {
          $('.nav-tabs a[href="#tab' + $('#activeTab').val() + '"]').tab('show');             //do proper tab display from postback
