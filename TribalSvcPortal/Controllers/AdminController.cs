@@ -320,37 +320,37 @@ namespace TribalSvcPortal.Controllers
         return RedirectToAction("Settings");
     }
 
-    //[HttpPost, ValidateAntiForgeryToken]
-    //public ActionResult CustomSettings(SettingsViewModel model)
-    //{
-    //    if (ModelState.IsValid)
-    //    {
-    //        int SuccID = _DbPortal.InsertUpdateT_PRT_APP_SETTING_CUSTOM(model.TermsAndConditions, null);
-    //        if (SuccID > 0)
-    //            TempData["Success"] = "Data Saved.";
-    //        else
-    //            TempData["Error"] = "Data Not Saved.";
-    //    }
+        //[HttpPost, ValidateAntiForgeryToken]
+        //public ActionResult CustomSettings(SettingsViewModel model)
+        //{
+        //    if (ModelState.IsValid)
+        //    {
+        //        int SuccID = _DbPortal.InsertUpdateT_PRT_APP_SETTING_CUSTOM(model.TermsAndConditions, null);
+        //        if (SuccID > 0)
+        //            TempData["Success"] = "Data Saved.";
+        //        else
+        //            TempData["Error"] = "Data Not Saved.";
+        //    }
 
-    //    return RedirectToAction("Settings");
-    //}
+        //    return RedirectToAction("Settings");
+        //}
 
-    //[HttpPost, ValidateAntiForgeryToken]
-    //public ActionResult CustomSettingsAnnounce(SettingsViewModel model)
-    //{
-    //    if (ModelState.IsValid)
-    //    {
-    //        int SuccID = _DbPortal.InsertUpdateT_PRT_APP_SETTING_CUSTOM(null, model.Announcements ?? "");
-    //        if (SuccID > 0)
-    //            TempData["Success"] = "Data Saved.";
-    //        else
-    //            TempData["Error"] = "Data Not Saved.";
-    //    }
+        //[HttpPost, ValidateAntiForgeryToken]
+        //public ActionResult CustomSettingsAnnounce(SettingsViewModel model)
+        //{
+        //    if (ModelState.IsValid)
+        //    {
+        //        int SuccID = _DbPortal.InsertUpdateT_PRT_APP_SETTING_CUSTOM(null, model.Announcements ?? "");
+        //        if (SuccID > 0)
+        //            TempData["Success"] = "Data Saved.";
+        //        else
+        //            TempData["Error"] = "Data Not Saved.";
+        //    }
 
-    //    return RedirectToAction("Settings");
-    //}
+        //    return RedirectToAction("Settings");
+        //}
 
-}
+    }
 
 
 

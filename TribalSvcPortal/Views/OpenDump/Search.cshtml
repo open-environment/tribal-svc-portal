@@ -107,7 +107,8 @@
                                     @Html.DisplayFor(modelItem => item.ReportedBy)
                                 </td>
                                 <td>
-                                    @Html.DisplayFor(modelItem => item.ReportedOn)
+                                    @*@Html.DisplayFor(modelItem => item.ReportedOn, "{0:dd/MM/yyyy}")*@
+                                    @Convert.ToDateTime(item.ReportedOn).ToString("dd-MM-yyyy")
                                 </td>
 
                             </tr>

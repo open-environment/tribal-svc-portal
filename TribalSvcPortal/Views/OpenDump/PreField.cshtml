@@ -62,11 +62,16 @@
                         </li>
                         <li>
                             <a href="#tab3" data-toggle="tab">
-                               Waste Profile / Health Threat                           
+                               Health Threat                           
                             </a>
                         </li>
                         <li>
                             <a href="#tab4" data-toggle="tab">
+                                Waste Profile                               
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#tab5" data-toggle="tab">
                                 Site Cleanup                               
                             </a>
                         </li>                      
@@ -128,7 +133,7 @@
                                             <div class="row">
                                                 <div class="col-md-6">
                                                     <div class="form-group">
-                                                        <label>Site Seting</label>
+                                                        <label>Site Setting</label>
                                                         @Html.DropDownListFor(model => model.TOdSites.SITE_SETTING_IDX, Model.SiteSettingsList, "", new { @class = "form-control" })
                                                     </div>
                                                 </div>
@@ -236,8 +241,8 @@
                                                 </div>
                                                 <div class="col-md-5">
                                                     <div class="form-group">
-                                                        <label>Reported On</label>
-                                                        @Html.TextBoxFor(model => model.TOdSites.REPORTED_ON, new { @class = "form-control", @placeholder = "", @maxlength = "100" })
+                                                        <label>Reported On</label>                                                       
+                                                        @Html.TextBoxFor(model => model.TOdSites.REPORTED_ON, "{0:dd/MM/yyyy}", new { @id="date", @class = "form-control datepicker" })
                                                     </div>
                                                 </div>
                                             </div>                                          
@@ -259,7 +264,10 @@
                         <div class="tab-pane" id="tab3">
                         </div>
                         <div class="tab-pane" id="tab4">
-                        </div>                       
+                        </div>
+                        <div class="tab-pane" id="tab5">
+                        </div>
+                       
                     </div>
                 </div>
                 <!-- *********************** END TABS ****************************************** -->
@@ -289,7 +297,8 @@
 
 
 @section scripts {
-    <script src="~/js/confirm_delete.js"></script>
+    <script src="~/js/confirm_delete.js">
+    </script>
  <script type="text/javascript">
      $(document).ready(function () {
          $('.nav-tabs a[href="#tab' + $('#activeTab').val() + '"]').tab('show');             //do proper tab display from postback
@@ -319,6 +328,22 @@
          $('a[href="#tab5"]').on('shown.bs.tab', function (e) {
              $('#activeTab').val('5');
              $('#norepostform').submit();
+         });
+         // get date from MyDate input field
+         var date = $("#date").val();
+
+         // use current date as default, if input is empty
+         if (!date) {
+             date = new Date();
+         }
+
+         $('#date').datepicker({
+             changeMonth: true,
+             changeYear: true,
+             format: "dd-mm-yyyy",
+             language: "tr",
+             autoclose: true,
+             todayBtn: 'linked'
          });
      });
     </script>

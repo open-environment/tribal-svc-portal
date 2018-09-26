@@ -19,7 +19,8 @@ using System.Text.Encodings.Web;
 using Microsoft.EntityFrameworkCore;
 using System.IO;
 using Microsoft.Extensions.Caching.Memory;
-
+using Microsoft.Extensions.Primitives;
+using System.Threading;
 
 namespace TribalSvcPortal.Controllers
 {
@@ -96,9 +97,14 @@ namespace TribalSvcPortal.Controllers
                     bool isExist = _memoryCache.TryGetValue(CacheKey, out UserClientDisplayType);
                     if (!isExist)
                     {
-                        var cacheEntryOptions = new MemoryCacheEntryOptions()
-                           .SetSlidingExpiration(TimeSpan.FromMinutes(30));
+                        var cts = new CancellationTokenSource();
 
+                        var cacheEntryOptions = new MemoryCacheEntryOptions()                       
+                        .SetPriority(CacheItemPriority.High)
+                        .SetSlidingExpiration(TimeSpan.FromHours(1))
+                        .SetAbsoluteExpiration(TimeSpan.FromHours(1))
+                        .AddExpirationToken(new CancellationChangeToken(cts.Token));
+                     
                         UserClientDisplayType = _DbPortal.GetT_PRT_ORG_USERS_CLIENT_DistinctClientByUserID(_UserIDX);
                         _memoryCache.Set(CacheKey, UserClientDisplayType, cacheEntryOptions);
                         _memoryCache.Set("UserID", _UserIDX, cacheEntryOptions);

@@ -35,7 +35,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
         Guid? InsertUpdateT_OD_SITES(Guid sITE_IDX, string rEPORTED_BY, DateTime? rEPORTED_ON, Guid? cOMMUNITY_IDX, Guid? sITE_SETTING_IDX, Guid? pF_AQUIFER_VERT_DIST,
         Guid? pF_SURF_WATER_HORIZ_DIST, Guid? pF_HOMES_DIST);
         IEnumerable<SelectListItem> get_ddl_refthreatfactor_by_factortype(string factor_type);
-
+        List<OpenDumpSiteListDisplay> get_AllOpenDump_Sites(string id);
     }
 
     public class DbOpenDump : IDbOpenDump
@@ -221,6 +221,56 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
 
                            }).ToList();
                 }
+
+                return xxx;
+            }
+            catch (Exception ex)
+            {
+                log.LogEFException(ex);
+                return null;
+            }
+
+        }
+
+        public List<OpenDumpSiteListDisplay> get_AllOpenDump_Sites(string id)
+        {
+            try
+            {
+                List<OpenDumpSiteListDisplay> xxx = new List<OpenDumpSiteListDisplay>();
+                OpenDumpSiteListDisplay OpenDumpSite = new OpenDumpSiteListDisplay();
+                var odsld = (from a in ctx.T_PRT_ORG_USERS
+                           join b in ctx.T_PRT_ORGANIZATIONS on a.OrgId equals b.OrgId
+                           join c in ctx.T_PRT_ORG_USER_CLIENT on a.OrgUserIdx equals c.OrgUserIdx
+                           where a.Id == id && c.ClientId == "open_dump"
+                           orderby b.OrgName
+                           select new SelectListItem
+                           {
+                               Value = a.OrgId.ToString(),
+                               Text = b.OrgName
+                           }).ToList();
+
+                for (int i=0;i< odsld.Count();i++)
+                {
+                    OpenDumpSite = (from a in ctx.T_PRT_SITES
+                           join b in ctx.T_OD_SITES on a.SiteIdx equals b.SITE_IDX
+                           where (odsld[i].Value != null && a.OrgId == odsld[i].Value)
+                           orderby a.SiteName
+                           select new OpenDumpSiteListDisplay
+                           {
+                               Site_Idx = a.SiteIdx,
+                               SiteName = a.SiteName,
+                               SiteAddress = a.SiteAddress,
+                               ReportedBy = b.REPORTED_BY,
+                               ReportedOn = b.REPORTED_ON,
+                               Latitude = a.Latitude,
+                               Longitude = a.Longitude
+
+                           }).FirstOrDefault();
+                    if (OpenDumpSite != null)
+                    {
+                        xxx.Add(OpenDumpSite);
+                    }
+                }                          
 
                 return xxx;
             }

@@ -42,8 +42,10 @@ namespace TribalSvcPortal.Controllers
             if (selStr == null && selOrg == null)
             {
                 SearchViewModel model = new SearchViewModel();
-                model.ddl_Org = _DbOpenDump.get_ddl_od_organizations(_UserIDX);   
-                if(model.ddl_Org.Count()==1)
+                model.ddl_Org = _DbOpenDump.get_ddl_od_organizations(_UserIDX);
+                model.searchResults = _DbOpenDump.get_AllOpenDump_Sites(_UserIDX);
+                
+                if (model.ddl_Org.Count()==1)
                 {
                     foreach (var orgid in model.ddl_Org)
                     {
