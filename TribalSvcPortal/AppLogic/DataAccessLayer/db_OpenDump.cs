@@ -36,6 +36,9 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
         Guid? pF_SURF_WATER_HORIZ_DIST, Guid? pF_HOMES_DIST);
         IEnumerable<SelectListItem> get_ddl_refthreatfactor_by_factortype(string factor_type);
         List<OpenDumpSiteListDisplay> get_AllOpenDump_Sites(string id);
+        List<T_OD_DUMP_ASSESSMENTS> GetT_OD_DumpAssessmentList_BySITEIDX(Guid Siteidx);
+        IEnumerable<SelectListItem> get_ddl_od_dumpassessment_by_BySITEIDX(Guid Siteidx);
+        T_OD_DUMP_ASSESSMENTS GetT_OD_DumpAssessment_ByDumpAssessmentIDX(Guid DumpAssessmentIDX);
     }
 
     public class DbOpenDump : IDbOpenDump
@@ -322,6 +325,57 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
 
         }
 
+        public List<T_OD_DUMP_ASSESSMENTS> GetT_OD_DumpAssessmentList_BySITEIDX(Guid Siteidx)
+        {
+            try
+            {
+                return (from a in ctx.T_OD_DUMP_ASSESSMENTS
+                        where a.SITE_IDX == Siteidx
+                        select a).ToList();
+            }
+            catch (Exception ex)
+            {
+                log.LogEFException(ex);
+                return null;
+            }
+        }
 
+        public IEnumerable<SelectListItem> get_ddl_od_dumpassessment_by_BySITEIDX(Guid Siteidx)
+        {
+            try
+            {
+                var xxx = (from a in ctx.T_OD_DUMP_ASSESSMENTS
+                           where a.SITE_IDX == Siteidx
+                           orderby a.ASSESSMENT_DT
+                           select new SelectListItem
+                           {
+                               Value = a.DUMP_ASSESSMENTS_IDX.ToString(),
+                               Text = a.ASSESSMENT_DT.ToString("DD-MM-YYYY") + " - " + a.ASSESSED_BY
+                           }).ToList();
+                xxx.Add(new SelectListItem() { Value = "-1", Text = "View All" });
+                return xxx;
+            }
+            catch (Exception ex)
+            {
+                log.LogEFException(ex);
+                return null;
+            }
+        }
+
+        public T_OD_DUMP_ASSESSMENTS GetT_OD_DumpAssessment_ByDumpAssessmentIDX(Guid DumpAssessmentIDX)
+        {
+            try
+            {
+                return (from a in ctx.T_OD_DUMP_ASSESSMENTS
+                        where a.DUMP_ASSESSMENTS_IDX == DumpAssessmentIDX
+                        select a).FirstOrDefault();
+            }
+            catch (Exception ex)
+            {
+                log.LogEFException(ex);
+                return null;
+            }
+        }
+       
     }
 }

@@ -109,7 +109,24 @@ namespace TribalSvcPortal.Controllers
                         _memoryCache.Set(CacheKey, UserClientDisplayType, cacheEntryOptions);
                         _memoryCache.Set("UserID", _UserIDX, cacheEntryOptions);
                     }
+                   else
+                    {    
+                        _memoryCache.Remove("UserID");
+                        _memoryCache.Remove(CacheKey);
 
+                        var cts = new CancellationTokenSource();
+
+                        var cacheEntryOptions = new MemoryCacheEntryOptions()
+                        .SetPriority(CacheItemPriority.High)
+                        .SetSlidingExpiration(TimeSpan.FromHours(1))
+                        .SetAbsoluteExpiration(TimeSpan.FromHours(1))
+                        .AddExpirationToken(new CancellationChangeToken(cts.Token));
+
+                        UserClientDisplayType = _DbPortal.GetT_PRT_ORG_USERS_CLIENT_DistinctClientByUserID(_UserIDX);
+                        _memoryCache.Set(CacheKey, UserClientDisplayType, cacheEntryOptions);
+                        _memoryCache.Set("UserID", _UserIDX, cacheEntryOptions);
+                    }
+                  
                     _logger.LogInformation("User logged in.");
                     return RedirectToLocal(returnUrl);
                 }

@@ -4,14 +4,15 @@
     ViewBag.Title = "";
 
 }
+<link rel="stylesheet" href="https://js.arcgis.com/3.25/esri/css/esri.css">
 
 <!-- render the main content -->
 <div class="row">
     <div class="col-sm-12">
-               
+
         @using (Html.BeginForm("OpenDumpEdit", "OpenDump", FormMethod.Post, new { @id = "norepostform", enctype = "multipart/form-data" }))
         {
-           
+
             @Html.AntiForgeryToken()
             @Html.HiddenFor(model => model.TPrtSites.SiteIdx)
             @Html.HiddenFor(model => model.selOrg)
@@ -25,7 +26,7 @@
                             Site Name
                         </label>
                         <div class="col-sm-3">
-                            @Html.TextBoxFor(model => model.TPrtSites.SiteName, new { @class = "form-control", @placeholder = "", @maxlength = "100" })                           
+                            @Html.TextBoxFor(model => model.TPrtSites.SiteName, new { @class = "form-control", @placeholder = "", @maxlength = "100" })
                         </div>
                     </div>
                     <div>
@@ -33,7 +34,7 @@
                             Organization
                         </label>
                         <div class="col-sm-3">
-                            @Html.DropDownListFor(model => model.TPrtSites.OrgId, Model.OrgList, "", new { @class = "form-control" })                        
+                            @Html.DropDownListFor(model => model.TPrtSites.OrgId, Model.OrgList, "", new { @class = "form-control" })
                         </div>
                     </div>
                     <div>
@@ -51,31 +52,32 @@
                 <!-- *********************** START TABS ****************************************** -->
                 <div id="tabs" class="tabbable">
                     <ul id="myTab" class="nav nav-tabs tab-blue">
-                        <li class="active"><a href="#tab1" data-toggle="tab">
-                            Pre-Field
+                        <li class="active">
+                            <a href="#tab1" data-toggle="tab">
+                                Pre-Field
                             </a>
                         </li>
                         <li>
                             <a href="#tab2" data-toggle="tab">
-                                Field Assessments                               
+                                Field Assessments
                             </a>
                         </li>
                         <li>
                             <a href="#tab3" data-toggle="tab">
-                               Health Threat                           
+                                Health Threat
                             </a>
                         </li>
                         <li>
                             <a href="#tab4" data-toggle="tab">
-                                Waste Profile                               
+                                Waste Profile
                             </a>
                         </li>
                         <li>
                             <a href="#tab5" data-toggle="tab">
-                                Site Cleanup                               
+                                Site Cleanup
                             </a>
-                        </li>                      
-                        
+                        </li>
+
                     </ul>
                     <div class="tab-content" style="height:0px; padding: 0px;">
                         <div class="tab-pane in active" id="tab1">
@@ -241,11 +243,11 @@
                                                 </div>
                                                 <div class="col-md-5">
                                                     <div class="form-group">
-                                                        <label>Reported On</label>                                                       
-                                                        @Html.TextBoxFor(model => model.TOdSites.REPORTED_ON, "{0:dd/MM/yyyy}", new { @id="date", @class = "form-control datepicker" })
+                                                        <label>Reported On</label>
+                                                        @Html.TextBoxFor(model => model.TOdSites.REPORTED_ON, "{0:dd/MM/yyyy}", new { @id = "date", @class = "form-control datepicker" })
                                                     </div>
                                                 </div>
-                                            </div>                                          
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -260,6 +262,7 @@
                             <p></p>
                         </div>
                         <div class="tab-pane" id="tab2">
+                            @Html.Partial("_FieldAssessment", Model)
                         </div>
                         <div class="tab-pane" id="tab3">
                         </div>
@@ -267,12 +270,12 @@
                         </div>
                         <div class="tab-pane" id="tab5">
                         </div>
-                       
+
                     </div>
                 </div>
                 <!-- *********************** END TABS ****************************************** -->
             </div>
-          
+
         }
     </div>
 </div>
@@ -299,36 +302,10 @@
 @section scripts {
     <script src="~/js/confirm_delete.js">
     </script>
- <script type="text/javascript">
+    <script src="https://js.arcgis.com/3.25/"></script>
+    <script type="text/javascript">
      $(document).ready(function () {
-         $('.nav-tabs a[href="#tab' + $('#activeTab').val() + '"]').tab('show');             //do proper tab display from postback
-
-         $('a[href="#tab1"]').on('shown.bs.tab', function (e) {
-             @*@ViewBag.Title = "Pre-Field";*@
-             $('#activeTab').val('1');
-             $('#norepostform').submit();
-         });
-
-         $('a[href="#tab2"]').on('shown.bs.tab', function (e) {
-             @*@ViewBag.Title = "Field Assessments";*@
-             $('#activeTab').val('2');
-             $('#norepostform').submit();
-         });
-
-         $('a[href="#tab3"]').on('shown.bs.tab', function (e) {
-             $('#activeTab').val('3');
-             $('#norepostform').submit();
-         });
-
-         $('a[href="#tab4"]').on('shown.bs.tab', function (e) {
-             $('#activeTab').val('4');
-             $('#norepostform').submit();
-         });
-
-         $('a[href="#tab5"]').on('shown.bs.tab', function (e) {
-             $('#activeTab').val('5');
-             $('#norepostform').submit();
-         });
+         
          // get date from MyDate input field
          var date = $("#date").val();
 
@@ -424,13 +401,13 @@
                             document.getElementById("longitude").value = longitude.toFixed(5);
 
                         }
-                        $('#myModal').on('show.bs.modal', function (event) {                           
+                        $('#myModal').on('show.bs.modal', function (event) {
                             $("#map_canvas").css("width", "100%");
                         });
 
              });
 
-            }           
+            }
         </script>
     }
 

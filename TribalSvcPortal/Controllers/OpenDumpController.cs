@@ -81,6 +81,8 @@ namespace TribalSvcPortal.Controllers
             bool isUserExist = _memoryCache.TryGetValue("UserID", out _UserIDX);
 
             var model = new PreFieldViewModel();
+            model.AssessmentTypeList = _DbOpenDump.get_ddl_refdata_by_category("Assessment Type");
+
             model.SiteSettingsList = _DbOpenDump.get_ddl_refdata_by_category("Site Setting");
             model.CommunityList = _DbOpenDump.get_ddl_refdata_by_category("Community");
             model.AquiferList = _DbOpenDump.get_ddl_refthreatfactor_by_factortype("Aquifer");
@@ -93,6 +95,8 @@ namespace TribalSvcPortal.Controllers
             {
                 model.TPrtSites = _DbPortal.GetT_PRT_SITES_BySITEIDX((Guid)SiteIdx);
                 model.TOdSites = _DbOpenDump.GetT_OD_SITES_BySITEIDX((Guid)SiteIdx);
+                model.AssessmentDropDownList = _DbOpenDump.get_ddl_od_dumpassessment_by_BySITEIDX((Guid)SiteIdx);
+                model.TOdDumpAssessmentsGridList = _DbOpenDump.GetT_OD_DumpAssessmentList_BySITEIDX((Guid)SiteIdx);
             }
             else
             {                
@@ -105,11 +109,11 @@ namespace TribalSvcPortal.Controllers
                     }
                 }
                 model.TPrtSites.SiteIdx = Guid.NewGuid();
-               
+                model.TOdDumpAssessments = new T_OD_DUMP_ASSESSMENTS();
+                model.TOdDumpAssessments.DUMP_ASSESSMENTS_IDX = Guid.NewGuid();
             }           
             return View(model);
         }
-
 
         [HttpPost, ValidateAntiForgeryToken]
         public ActionResult OpenDumpEdit(PreFieldViewModel model)
@@ -135,8 +139,6 @@ namespace TribalSvcPortal.Controllers
                 TempData["Error"] = "Error updating data.";
             return RedirectToAction(model.returnURL ?? "Search", new { selStr = "", selOrg="" });
         }
-
-
         [HttpPost]
         public JsonResult PreFieldDelete(Guid id)
         {
@@ -150,6 +152,26 @@ namespace TribalSvcPortal.Controllers
 
             return Json("Unable to delete");
         }
+
+        // GET: /OpenDump/FieldAssessment
+        public ActionResult FieldAssessment(PreFieldViewModel model)
+        {
+            model.AssessmentTypeList = _DbOpenDump.get_ddl_refdata_by_category("Assessment Type");
+
+            if (model.TPrtSites.SiteIdx != null)
+            {
+                model.AssessmentDropDownList = _DbOpenDump.get_ddl_od_dumpassessment_by_BySITEIDX(model.TPrtSites.SiteIdx);
+                model.TOdDumpAssessmentsGridList = _DbOpenDump.GetT_OD_DumpAssessmentList_BySITEIDX(model.TPrtSites.SiteIdx);
+               
+            }
+            else
+            {
+                model.TOdDumpAssessments = new T_OD_DUMP_ASSESSMENTS();               
+                model.TOdDumpAssessments.DUMP_ASSESSMENTS_IDX = Guid.NewGuid();
+            }
+            return View(model);
+        }
+
 
 
         public IActionResult RefData()

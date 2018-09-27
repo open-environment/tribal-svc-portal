@@ -3,7 +3,7 @@
     ViewBag.Title = "Search Open Dumps";
     ViewBag.SubTitle = "Search and view open dump records.";
 }
-
+<link rel="stylesheet" href="https://js.arcgis.com/3.25/esri/css/esri.css">
 <!-- *********************** START FILTER ****************************************** -->
 @using (Html.BeginForm("Search", "OpenDump", FormMethod.Get, new { @class = "" }))
 {
@@ -126,8 +126,8 @@
 </div>
 <!-- *********************** END TABS ****************************************** -->
 @section scripts {
-    <script src="~/js/confirm_delete.js">
-    </script>
+    <script src="~/js/confirm_delete.js"></script>
+    <script src="https://js.arcgis.com/3.25/"></script>
     <style>
         div.esriPopupWrapper .zoomTo {
             display: none;
@@ -193,7 +193,7 @@
                                 var g = new Graphic(p, s, i).setInfoTemplate(it);
                                 gl.add(g);
                             }
-                        }                     
+                        }
              });
 
           }

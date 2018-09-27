@@ -4,6 +4,7 @@ using System.Linq;
 using TribalSvcPortal.Data.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using TribalSvcPortal.AppLogic.BusinessLogicLayer;
 
 namespace TribalSvcPortal.AppLogic.DataAccessLayer
 {
@@ -53,6 +54,8 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
         Guid? InsertUpdateT_PRT_SITES(Guid? sITE_IDX, string oRG_ID, string sITE_NAME, string ePA_ID, decimal? lATITUDE, decimal? lONGITUDE, string sITE_ADDRESS, string UserIDX);
         T_PRT_SITES GetT_PRT_SITES_BySITEIDX(Guid Siteidx);
         int DeleteT_PRT_SITES(Guid sITE_IDX);
+        int InsertUpdateT_PRT_APP_SETTING_CUSTOM(string tERMS_AND_CONDITIONS, string aNNOUNCEMENTS);
+        T_PRT_APP_SETTINGS_CUSTOM GetT_PRT_APP_SETTINGS_CUSTOM();
     }
 
     public class DbPortal : IDbPortal
@@ -133,8 +136,51 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
 
 
         //*****************APP SETTINGS CUSTOM**********************************
+        public T_PRT_APP_SETTINGS_CUSTOM GetT_PRT_APP_SETTINGS_CUSTOM()
+        {
+            try
+            {
+                return (from a in ctx.T_PRT_APP_SETTINGS_CUSTOM
+                        select a).FirstOrDefault();
+            }
+            catch (Exception ex)
+            {
+                log.LogEFException(ex);
+                return null;
+            }
 
+        }
 
+        public int InsertUpdateT_PRT_APP_SETTING_CUSTOM(string tERMS_AND_CONDITIONS, string aNNOUNCEMENTS)
+        {
+                try
+                {
+                    Boolean insInd = false;
+
+                    T_PRT_APP_SETTINGS_CUSTOM e = (from c in ctx.T_PRT_APP_SETTINGS_CUSTOM
+                                                  select c).FirstOrDefault();
+
+                    if (e == null)
+                    {
+                        insInd = true;
+                        e = new T_PRT_APP_SETTINGS_CUSTOM();
+                    }
+
+                    if (tERMS_AND_CONDITIONS != null) e.TermsAndConditions = Utils.GetSafeHtml(tERMS_AND_CONDITIONS);
+                    if (aNNOUNCEMENTS != null) e.Announcements = Utils.GetSafeHtml(aNNOUNCEMENTS);
+
+                    if (insInd)
+                        ctx.T_PRT_APP_SETTINGS_CUSTOM.Add(e);
+
+                    ctx.SaveChanges();
+                    return e.SettingCustomIdx;
+                }
+                catch (Exception ex)
+                {
+                    log.LogEFException(ex);
+                    return 0;
+                }            
+        }
 
         //**************************** T_PRT_CLIENTS ***********************************************
         public List<T_PRT_CLIENTS> GetT_PRT_CLIENTS()
