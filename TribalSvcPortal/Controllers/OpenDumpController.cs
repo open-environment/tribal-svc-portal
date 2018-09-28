@@ -79,44 +79,51 @@ namespace TribalSvcPortal.Controllers
         {
             string _UserIDX;
             bool isUserExist = _memoryCache.TryGetValue("UserID", out _UserIDX);
+            OpenDumpViewModel openDumpViewModel = new OpenDumpViewModel();
+            var PreFieldmodel = new PreFieldViewModel();
+            var FieldAssessmentmodel = new FieldAssessmentViewModel();
+            FieldAssessmentmodel.AssessmentTypeList = _DbOpenDump.get_ddl_refdata_by_category("Assessment Type");
 
-            var model = new PreFieldViewModel();
-            model.AssessmentTypeList = _DbOpenDump.get_ddl_refdata_by_category("Assessment Type");
-
-            model.SiteSettingsList = _DbOpenDump.get_ddl_refdata_by_category("Site Setting");
-            model.CommunityList = _DbOpenDump.get_ddl_refdata_by_category("Community");
-            model.AquiferList = _DbOpenDump.get_ddl_refthreatfactor_by_factortype("Aquifer");
-            model.SurfaceWaterList = _DbOpenDump.get_ddl_refthreatfactor_by_factortype("Surface Water");
-            model.HomesList = _DbOpenDump.get_ddl_refthreatfactor_by_factortype("Homes");
-            model.OrgList = _DbOpenDump.get_ddl_od_organizations(_UserIDX);
-            model.returnURL = returnURL ?? "Search";
-           
+            PreFieldmodel.SiteSettingsList = _DbOpenDump.get_ddl_refdata_by_category("Site Setting");
+            PreFieldmodel.CommunityList = _DbOpenDump.get_ddl_refdata_by_category("Community");
+            PreFieldmodel.AquiferList = _DbOpenDump.get_ddl_refthreatfactor_by_factortype("Aquifer");
+            PreFieldmodel.SurfaceWaterList = _DbOpenDump.get_ddl_refthreatfactor_by_factortype("Surface Water");
+            PreFieldmodel.HomesList = _DbOpenDump.get_ddl_refthreatfactor_by_factortype("Homes");
+            PreFieldmodel.OrgList = _DbOpenDump.get_ddl_od_organizations(_UserIDX);
+            PreFieldmodel.returnURL = returnURL ?? "Search";
+            string IDx = "98567684-a5d5-4742-ac6d-1dd5080f76a7";
+            FieldAssessmentmodel.selDumpAssessmentIdx = Guid.Parse(IDx);
             if (SiteIdx != null)
             {
-                model.TPrtSites = _DbPortal.GetT_PRT_SITES_BySITEIDX((Guid)SiteIdx);
-                model.TOdSites = _DbOpenDump.GetT_OD_SITES_BySITEIDX((Guid)SiteIdx);
-                model.AssessmentDropDownList = _DbOpenDump.get_ddl_od_dumpassessment_by_BySITEIDX((Guid)SiteIdx);
-                model.TOdDumpAssessmentsGridList = _DbOpenDump.GetT_OD_DumpAssessmentList_BySITEIDX((Guid)SiteIdx);
+                PreFieldmodel.TPrtSites = _DbPortal.GetT_PRT_SITES_BySITEIDX((Guid)SiteIdx);
+                PreFieldmodel.TOdSites = _DbOpenDump.GetT_OD_SITES_BySITEIDX((Guid)SiteIdx);
+                FieldAssessmentmodel.TPrtSites = _DbPortal.GetT_PRT_SITES_BySITEIDX((Guid)SiteIdx);
+                FieldAssessmentmodel.AssessmentDropDownList = _DbOpenDump.get_ddl_od_dumpassessment_by_BySITEIDX((Guid)SiteIdx);
+                FieldAssessmentmodel.TOdDumpAssessmentsGridList = _DbOpenDump.GetT_OD_DumpAssessmentList_BySITEIDX((Guid)SiteIdx);
+               
             }
             else
-            {                
-                model.TPrtSites = new T_PRT_SITES();
-                if (model.OrgList.Count() == 1)
+            {
+                FieldAssessmentmodel.AssessmentDropDownList = _DbOpenDump.get_ddl_od_dumpassessment_by_BySITEIDX(Guid.NewGuid());
+                PreFieldmodel.TPrtSites = new T_PRT_SITES();
+                if (PreFieldmodel.OrgList.Count() == 1)
                 {
-                    foreach (var orgid in model.OrgList)
+                    foreach (var orgid in PreFieldmodel.OrgList)
                     {
-                        model.TPrtSites.OrgId = orgid.Value;
+                        PreFieldmodel.TPrtSites.OrgId = orgid.Value;
                     }
                 }
-                model.TPrtSites.SiteIdx = Guid.NewGuid();
-                model.TOdDumpAssessments = new T_OD_DUMP_ASSESSMENTS();
-                model.TOdDumpAssessments.DUMP_ASSESSMENTS_IDX = Guid.NewGuid();
-            }           
-            return View(model);
+                PreFieldmodel.TPrtSites.SiteIdx = Guid.NewGuid();
+                FieldAssessmentmodel.TOdDumpAssessments = new T_OD_DUMP_ASSESSMENTS();
+                FieldAssessmentmodel.TOdDumpAssessments.DUMP_ASSESSMENTS_IDX = Guid.NewGuid();
+            }
+            openDumpViewModel.oPreFieldViewModel = PreFieldmodel;
+            openDumpViewModel.oFieldAssessmentViewModel = FieldAssessmentmodel;
+            return View(openDumpViewModel);
         }
 
         [HttpPost, ValidateAntiForgeryToken]
-        public ActionResult OpenDumpEdit(PreFieldViewModel model)
+        public ActionResult OpenDumpEdit(OpenDumpViewModel model)
         {
             //if (model.TPrtSites.SiteName == null)
             //    ModelState.AddModelError("SiteName", "SiteName is required");
@@ -124,20 +131,20 @@ namespace TribalSvcPortal.Controllers
             string _UserIDX;
             bool isUserExist = _memoryCache.TryGetValue("UserID", out _UserIDX);
 
-            Guid? newSiteID = _DbPortal.InsertUpdateT_PRT_SITES(model.TPrtSites.SiteIdx, model.TPrtSites.OrgId, model.TPrtSites.SiteName ?? "",
-                    model.TPrtSites.EpaId ?? "", model.TPrtSites.Latitude, model.TPrtSites.Longitude, model.TPrtSites.SiteAddress ?? "", _UserIDX);
+            Guid? newSiteID = _DbPortal.InsertUpdateT_PRT_SITES(model.oPreFieldViewModel.TPrtSites.SiteIdx, model.oPreFieldViewModel.TPrtSites.OrgId, model.oPreFieldViewModel.TPrtSites.SiteName ?? "",
+                    model.oPreFieldViewModel.TPrtSites.EpaId ?? "", model.oPreFieldViewModel.TPrtSites.Latitude, model.oPreFieldViewModel.TPrtSites.Longitude, model.oPreFieldViewModel.TPrtSites.SiteAddress ?? "", _UserIDX);
 
             if (newSiteID != null)
             {
-                Guid? SiteID = _DbOpenDump.InsertUpdateT_OD_SITES((Guid)newSiteID, model.TOdSites.REPORTED_BY, model.TOdSites.REPORTED_ON, model.TOdSites.COMMUNITY_IDX, 
-                    model.TOdSites.SITE_SETTING_IDX, model.TOdSites.PF_AQUIFER_VERT_DIST, model.TOdSites.PF_SURF_WATER_HORIZ_DIST, model.TOdSites.PF_HOMES_DIST);
+                Guid? SiteID = _DbOpenDump.InsertUpdateT_OD_SITES((Guid)newSiteID, model.oPreFieldViewModel.TOdSites.REPORTED_BY, model.oPreFieldViewModel.TOdSites.REPORTED_ON, model.oPreFieldViewModel.TOdSites.COMMUNITY_IDX, 
+                    model.oPreFieldViewModel.TOdSites.SITE_SETTING_IDX, model.oPreFieldViewModel.TOdSites.PF_AQUIFER_VERT_DIST, model.oPreFieldViewModel.TOdSites.PF_SURF_WATER_HORIZ_DIST, model.oPreFieldViewModel.TOdSites.PF_HOMES_DIST);
 
                 TempData["Success"] = "Update successful.";
-                return RedirectToAction("PreField", "OpenDump", new { SiteIdx = newSiteID, returnURL = model.returnURL });
+                return RedirectToAction("PreField", "OpenDump", new { SiteIdx = newSiteID, returnURL = model.oPreFieldViewModel.returnURL });
             }
             else
                 TempData["Error"] = "Error updating data.";
-            return RedirectToAction(model.returnURL ?? "Search", new { selStr = "", selOrg="" });
+            return RedirectToAction(model.oPreFieldViewModel.returnURL ?? "Search", new { selStr = "", selOrg="" });
         }
         [HttpPost]
         public JsonResult PreFieldDelete(Guid id)
@@ -154,26 +161,96 @@ namespace TribalSvcPortal.Controllers
         }
 
         // GET: /OpenDump/FieldAssessment
-        public ActionResult FieldAssessment(PreFieldViewModel model)
+        public ActionResult FieldAssessments(Guid? AssessmentIdx, Guid? SiteIdx)
         {
-            model.AssessmentTypeList = _DbOpenDump.get_ddl_refdata_by_category("Assessment Type");
-
-            if (model.TPrtSites.SiteIdx != null)
+            string _UserIDX;
+            bool isUserExist = _memoryCache.TryGetValue("UserID", out _UserIDX);
+            T_OD_DUMP_ASSESSMENTS oT_OD_DUMP_ASSESSMENTS = new T_OD_DUMP_ASSESSMENTS();
+            if (AssessmentIdx!=null)
             {
-                model.AssessmentDropDownList = _DbOpenDump.get_ddl_od_dumpassessment_by_BySITEIDX(model.TPrtSites.SiteIdx);
-                model.TOdDumpAssessmentsGridList = _DbOpenDump.GetT_OD_DumpAssessmentList_BySITEIDX(model.TPrtSites.SiteIdx);
-               
+                oT_OD_DUMP_ASSESSMENTS = _DbOpenDump.GetT_OD_DumpAssessment_ByDumpAssessmentIDX((Guid)AssessmentIdx);
+            }
+            //OpenDumpViewModel openDumpViewModel = new OpenDumpViewModel();
+            //var PreFieldmodel = new PreFieldViewModel();
+            var FieldAssessmentmodel = new FieldAssessmentViewModel();
+
+            FieldAssessmentmodel.AssessmentTypeList = _DbOpenDump.get_ddl_refdata_by_category("Assessment Type");
+
+            //model.SiteSettingsList = _DbOpenDump.get_ddl_refdata_by_category("Site Setting");
+            //model.CommunityList = _DbOpenDump.get_ddl_refdata_by_category("Community");
+            //model.AquiferList = _DbOpenDump.get_ddl_refthreatfactor_by_factortype("Aquifer");
+            //model.SurfaceWaterList = _DbOpenDump.get_ddl_refthreatfactor_by_factortype("Surface Water");
+            //model.HomesList = _DbOpenDump.get_ddl_refthreatfactor_by_factortype("Homes");
+            //model.OrgList = _DbOpenDump.get_ddl_od_organizations(_UserIDX);
+            //model.returnURL = "Search";
+            if (AssessmentIdx != null)
+            {
+                FieldAssessmentmodel.selDumpAssessmentIdx = (Guid)AssessmentIdx;
             }
             else
             {
-                model.TOdDumpAssessments = new T_OD_DUMP_ASSESSMENTS();               
-                model.TOdDumpAssessments.DUMP_ASSESSMENTS_IDX = Guid.NewGuid();
+                FieldAssessmentmodel.selDumpAssessmentIdx = Guid.NewGuid();
             }
-            return View(model);
+            if (AssessmentIdx != null && SiteIdx == null)
+            {
+                FieldAssessmentmodel.TPrtSites = _DbPortal.GetT_PRT_SITES_BySITEIDX(oT_OD_DUMP_ASSESSMENTS.SITE_IDX);
+                FieldAssessmentmodel.AssessmentDropDownList = _DbOpenDump.get_ddl_od_dumpassessment_by_BySITEIDX(oT_OD_DUMP_ASSESSMENTS.SITE_IDX);
+                FieldAssessmentmodel.TOdDumpAssessmentsGridList = _DbOpenDump.GetT_OD_DumpAssessmentList_BySITEIDX(oT_OD_DUMP_ASSESSMENTS.SITE_IDX);
+                FieldAssessmentmodel.TOdDumpAssessments = oT_OD_DUMP_ASSESSMENTS;
+            }
+            else if (SiteIdx != null && AssessmentIdx == null)
+            {
+                FieldAssessmentmodel.TPrtSites = _DbPortal.GetT_PRT_SITES_BySITEIDX((Guid)SiteIdx);
+                FieldAssessmentmodel.AssessmentDropDownList = _DbOpenDump.get_ddl_od_dumpassessment_by_BySITEIDX((Guid)SiteIdx);
+                FieldAssessmentmodel.TOdDumpAssessmentsGridList = _DbOpenDump.GetT_OD_DumpAssessmentList_BySITEIDX((Guid)SiteIdx);
+                FieldAssessmentmodel.TOdDumpAssessments = oT_OD_DUMP_ASSESSMENTS;
+                FieldAssessmentmodel.TOdDumpAssessments.DUMP_ASSESSMENTS_IDX = Guid.NewGuid();
+            }
+            else if (SiteIdx != null && AssessmentIdx != null)
+            {
+                FieldAssessmentmodel.TPrtSites = _DbPortal.GetT_PRT_SITES_BySITEIDX((Guid)SiteIdx);
+                FieldAssessmentmodel.AssessmentDropDownList = _DbOpenDump.get_ddl_od_dumpassessment_by_BySITEIDX((Guid)SiteIdx);
+                FieldAssessmentmodel.TOdDumpAssessmentsGridList = _DbOpenDump.GetT_OD_DumpAssessmentList_BySITEIDX((Guid)SiteIdx);
+                FieldAssessmentmodel.TOdDumpAssessments = oT_OD_DUMP_ASSESSMENTS;               
+            }
+            else
+            {
+                FieldAssessmentmodel.AssessmentDropDownList = _DbOpenDump.get_ddl_od_dumpassessment_by_BySITEIDX(Guid.NewGuid());
+                FieldAssessmentmodel.TPrtSites = _DbPortal.GetT_PRT_SITES_BySITEIDX((Guid)SiteIdx);
+                FieldAssessmentmodel.TOdDumpAssessments = new T_OD_DUMP_ASSESSMENTS();
+                FieldAssessmentmodel.TOdDumpAssessments.DUMP_ASSESSMENTS_IDX = Guid.NewGuid();
+            }
+            return PartialView("_FieldAssessments",FieldAssessmentmodel);
         }
 
+        [HttpPost, ValidateAntiForgeryToken]
+        public ActionResult FieldAssessmentEdit(FieldAssessmentViewModel model)
+        {
+            if (model != null)
+            {
+                Guid? SiteID = _DbOpenDump.InsertUpdateT_OD_DumpAssessment(model.selDumpAssessmentIdx, model.TPrtSites.SiteIdx, model.TOdDumpAssessments.ASSESSMENT_DT, model.TOdDumpAssessments.ASSESSED_BY,
+                    model.TOdDumpAssessments.ASSESSMENT_TYPE_IDX, model.TOdDumpAssessments.ACTIVE_SITE_IND, model.TOdDumpAssessments.SITE_DESCRIPTION, model.TOdDumpAssessments.ASSESSMENT_NOTES);
 
+                TempData["Success"] = "Update successful.";
+                return RedirectToAction("PreField", "OpenDump", new { SiteIdx = model.TPrtSites.SiteIdx, returnURL = "Search" });
+            }
+            else
+                TempData["Error"] = "Error updating data.";
+            return RedirectToAction("Search", new { selStr = "", selOrg = "" });
+        }
+        [HttpPost]
+        public JsonResult FieldAssessmentDelete(Guid id)
+        {
+            if (id != null)
+            {
+                int SuccID = _DbOpenDump.DeleteT_OD_DumpAssessment(id);
 
+                if (SuccID == 1)
+                    return Json("Success");
+            }
+
+            return Json("Unable to delete");
+        }
         public IActionResult RefData()
         {           
             return View();

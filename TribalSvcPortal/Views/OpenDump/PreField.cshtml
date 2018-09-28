@@ -1,4 +1,4 @@
-﻿@model TribalSvcPortal.ViewModels.OpenDumpViewModels.PreFieldViewModel
+﻿@model TribalSvcPortal.ViewModels.OpenDumpViewModels.OpenDumpViewModel
 @{
     ViewBag.SubTitle = "";
     ViewBag.Title = "";
@@ -14,10 +14,10 @@
         {
 
             @Html.AntiForgeryToken()
-            @Html.HiddenFor(model => model.TPrtSites.SiteIdx)
-            @Html.HiddenFor(model => model.selOrg)
-            @Html.HiddenFor(model => model.returnURL)
-            @Html.HiddenFor(model => model.activeTab)
+            @Html.HiddenFor(model => model.oPreFieldViewModel.TPrtSites.SiteIdx)
+            @Html.HiddenFor(model => model.oPreFieldViewModel.selOrg)
+            @Html.HiddenFor(model => model.oPreFieldViewModel.returnURL)
+            @Html.HiddenFor(model => model.oPreFieldViewModel.activeTab)
             @Html.ValidationSummary(true, "", new { @class = "text-danger" })
             <div class="row">
                 <div class="col-sm-12">
@@ -26,7 +26,7 @@
                             Site Name
                         </label>
                         <div class="col-sm-3">
-                            @Html.TextBoxFor(model => model.TPrtSites.SiteName, new { @class = "form-control", @placeholder = "", @maxlength = "100" })
+                            @Html.TextBoxFor(model => model.oPreFieldViewModel.TPrtSites.SiteName, new { @class = "form-control", @placeholder = "", @maxlength = "100" })
                         </div>
                     </div>
                     <div>
@@ -34,7 +34,7 @@
                             Organization
                         </label>
                         <div class="col-sm-3">
-                            @Html.DropDownListFor(model => model.TPrtSites.OrgId, Model.OrgList, "", new { @class = "form-control" })
+                            @Html.DropDownListFor(model => model.oPreFieldViewModel.TPrtSites.OrgId, Model.oPreFieldViewModel.OrgList, "", new { @class = "form-control" })
                         </div>
                     </div>
                     <div>
@@ -42,7 +42,7 @@
                             EPA ID
                         </label>
                         <div class="col-sm-3">
-                            @Html.TextBoxFor(model => model.TPrtSites.EpaId, new { @class = "form-control", @placeholder = "", @maxlength = "50" })
+                            @Html.TextBoxFor(model => model.oPreFieldViewModel.TPrtSites.EpaId, new { @class = "form-control", @placeholder = "", @maxlength = "50" })
                         </div>
                     </div>
                 </div>
@@ -96,13 +96,13 @@
                                                 <div class="col-md-4">
                                                     <div class="form-group">
                                                         <label>Latitude</label>
-                                                        @Html.TextBoxFor(model => model.TPrtSites.Latitude, new { @id = "latitude", @class = "form-control", @placeholder = "", @maxlength = "18" })
+                                                        @Html.TextBoxFor(model => model.oPreFieldViewModel.TPrtSites.Latitude, new { @id = "latitude", @class = "form-control", @placeholder = "", @maxlength = "18" })
                                                     </div>
                                                 </div>
                                                 <div class="col-md-4">
                                                     <div class="form-group">
                                                         <label>Longitude</label>
-                                                        @Html.TextBoxFor(model => model.TPrtSites.Longitude, new { @id = "longitude", @class = "form-control", @placeholder = "", @maxlength = "18" })
+                                                        @Html.TextBoxFor(model => model.oPreFieldViewModel.TPrtSites.Longitude, new { @id = "longitude", @class = "form-control", @placeholder = "", @maxlength = "18" })
                                                     </div>
                                                 </div>
                                                 <div class="col-md-2" style="margin-top:22px;">
@@ -115,7 +115,7 @@
                                                 <div class="col-md-11">
                                                     <div class="form-group">
                                                         <label>Street Address or Road/Intersection</label>
-                                                        @Html.TextAreaFor(model => model.TPrtSites.SiteAddress, new { @class = "form-control", @placeholder = "", @maxlength = "400" })
+                                                        @Html.TextAreaFor(model => model.oPreFieldViewModel.TPrtSites.SiteAddress, new { @class = "form-control", @placeholder = "", @maxlength = "400" })
                                                     </div>
                                                 </div>
                                             </div>
@@ -123,7 +123,7 @@
                                                 <div class="col-md-11">
                                                     <div class="form-group">
                                                         <label>Community</label>
-                                                        @Html.DropDownListFor(model => model.TOdSites.COMMUNITY_IDX, Model.CommunityList, "", new { @class = "form-control" })
+                                                        @Html.DropDownListFor(model => model.oPreFieldViewModel.TOdSites.COMMUNITY_IDX, Model.oPreFieldViewModel.CommunityList, "", new { @class = "form-control" })
                                                     </div>
                                                 </div>
                                             </div>
@@ -136,13 +136,13 @@
                                                 <div class="col-md-6">
                                                     <div class="form-group">
                                                         <label>Site Setting</label>
-                                                        @Html.DropDownListFor(model => model.TOdSites.SITE_SETTING_IDX, Model.SiteSettingsList, "", new { @class = "form-control" })
+                                                        @Html.DropDownListFor(model => model.oPreFieldViewModel.TOdSites.SITE_SETTING_IDX, Model.oPreFieldViewModel.SiteSettingsList, "", new { @class = "form-control" })
                                                     </div>
                                                 </div>
                                                 <div class="col-md-5">
                                                     <div class="form-group">
                                                         <label>Distance to Homes</label>
-                                                        @Html.DropDownListFor(model => model.TOdSites.PF_HOMES_DIST, Model.HomesList, "", new { @class = "form-control" })
+                                                        @Html.DropDownListFor(model => model.oPreFieldViewModel.TOdSites.PF_HOMES_DIST, Model.oPreFieldViewModel.HomesList, "", new { @class = "form-control" })
                                                     </div>
                                                 </div>
                                             </div>
@@ -150,13 +150,13 @@
                                                 <div class="col-md-6">
                                                     <div class="form-group">
                                                         <label>Vertical Dist. to DW Aquifer</label>
-                                                        @Html.DropDownListFor(model => model.TOdSites.PF_AQUIFER_VERT_DIST, Model.AquiferList, "", new { @class = "form-control" })
+                                                        @Html.DropDownListFor(model => model.oPreFieldViewModel.TOdSites.PF_AQUIFER_VERT_DIST, Model.oPreFieldViewModel.AquiferList, "", new { @class = "form-control" })
                                                     </div>
                                                 </div>
                                                 <div class="col-md-5">
                                                     <div class="form-group">
                                                         <label>Horiz Dist. to SW Bodies</label>
-                                                        @Html.DropDownListFor(model => model.TOdSites.PF_SURF_WATER_HORIZ_DIST, Model.SurfaceWaterList, "", new { @class = "form-control" })
+                                                        @Html.DropDownListFor(model => model.oPreFieldViewModel.TOdSites.PF_SURF_WATER_HORIZ_DIST, Model.oPreFieldViewModel.SurfaceWaterList, "", new { @class = "form-control" })
                                                     </div>
                                                 </div>
                                             </div>
@@ -238,13 +238,13 @@
                                                 <div class="col-md-6">
                                                     <div class="form-group">
                                                         <label>Reported By</label>
-                                                        @Html.TextBoxFor(model => model.TOdSites.REPORTED_BY, new { @class = "form-control", @placeholder = "", @maxlength = "50" })
+                                                        @Html.TextBoxFor(model => model.oPreFieldViewModel.TOdSites.REPORTED_BY, new { @class = "form-control", @placeholder = "", @maxlength = "50" })
                                                     </div>
                                                 </div>
                                                 <div class="col-md-5">
                                                     <div class="form-group">
                                                         <label>Reported On</label>
-                                                        @Html.TextBoxFor(model => model.TOdSites.REPORTED_ON, "{0:dd/MM/yyyy}", new { @id = "date", @class = "form-control datepicker" })
+                                                        @Html.TextBoxFor(model => model.oPreFieldViewModel.TOdSites.REPORTED_ON, "{0:dd/MM/yyyy}", new { @id = "date", @class = "form-control datepicker" })
                                                     </div>
                                                 </div>
                                             </div>
@@ -256,13 +256,13 @@
                             <div class="row">
                                 <div class="col-md-12">
                                     <button type="submit" name="submitButton" value="Save" class="btn btn-primary">Save</button>
-                                    <a href="@Url.Action(Model.returnURL, "OpenDump")" class="btn btn-default">Close</a>
+                                    <a href="@Url.Action(Model.oPreFieldViewModel.returnURL, "OpenDump")" class="btn btn-default">Close</a>
                                 </div>
                             </div>
                             <p></p>
                         </div>
                         <div class="tab-pane" id="tab2">
-                            @Html.Partial("_FieldAssessment", Model)
+                            @Html.Partial("_FieldAssessments", Model.oFieldAssessmentViewModel)
                         </div>
                         <div class="tab-pane" id="tab3">
                         </div>
@@ -324,11 +324,11 @@
          });
      });
     </script>
-    @if (Model.TPrtSites != null)
+    @if (Model.oPreFieldViewModel.TPrtSites != null)
     {
         <script type="text/javascript">
 
-            LoadMap(JSON.parse('@Html.Raw(Json.Serialize(@Model.TPrtSites))'));
+            LoadMap(JSON.parse('@Html.Raw(Json.Serialize(@Model.oPreFieldViewModel.TPrtSites))'));
 
             function LoadMap(searchList)
             {
