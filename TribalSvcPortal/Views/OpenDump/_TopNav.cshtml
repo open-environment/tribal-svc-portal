@@ -1,0 +1,28 @@
+﻿<div id="tabs" class="tabbable">
+    <ul id="myTab" class="nav nav-tabs tab-blue">
+        <li class="active">
+            @*<a href="#tab1" data-toggle="tab">
+            Pre-Field
+        </a>*@
+            <a href="@Url.Action("PreField","OpenDump")" role="button" class="btn btn-success">Pre-Field</a>
+        </li>
+        <li>
+            @*<a href="#tab2" data-toggle="tab">
+                Field Assessments
+            </a>*@
+            <a href="@Url.Action("FieldAssessments","OpenDump")" role="button" class="btn btn-success"> Field Assessments</a>
+        </li>
+        <li>
+            <a href="#tab3" data-toggle="tab">
+                Waste Profile/Health Threat
+            </a>
+        </li>
+       
+        <li>
+            <a href="#tab5" data-toggle="tab">
+                Site Cleanup
+            </a>
+        </li>
+
+    </ul>
+</div>

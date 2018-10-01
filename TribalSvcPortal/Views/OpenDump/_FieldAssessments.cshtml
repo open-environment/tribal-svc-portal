@@ -2,9 +2,9 @@
 @using TribalSvcPortal.ViewModels
 @model TribalSvcPortal.ViewModels.OpenDumpViewModels.FieldAssessmentViewModel
 
+
 @if (Model != null)
 {
-
 
 @Html.AntiForgeryToken()
 @Html.HiddenFor(model => model.TOdDumpAssessments.DUMP_ASSESSMENTS_IDX)
@@ -16,26 +16,29 @@
                 Assessment
             </label>
             <div class="col-sm-8">
-                @Html.DropDownListFor(model => model.selDumpAssessmentIdx, Model.AssessmentDropDownList, "", new { @class = "form-control", @onchange = "document.location.href = '/OpenDump/FieldAssessment?AssessmentIdx=' + this.options[this.selectedIndex].value;" })
+                @Html.DropDownListFor(model => model.selDumpAssessmentIdx, Model.AssessmentDropDownList, "", new { @class = "form-control", @onchange = "document.location.href = '/OpenDump/FieldAssessments?AssessmentIdx=' + this.options[this.selectedIndex].value;" })
             </div>
         </div>
 
         <div class="col-md-6">
+
             @if (Model.TPrtSites != null)
-                {          
+                {
+
             <div class="form-group">
-                @*<button type="submit" name="submitButton" class="btn btn-primary">Add New Assessment</button>*@
+                @*<button id="loadPartialView" class="btn btn-primary">Add New Assessment</button>*@
                 <a href="@Url.Action("FieldAssessments", "OpenDump", new { SiteIdx = Model.TPrtSites.SiteIdx })" class="btn btn-primary"
-                   style="color: #fff;background-color: #5cb85c;border-color: #4cae4c;border-radius: 4px !important;">Add New Assessment</a>
-            </div>          
-           }
+                    style="color: #fff;background-color: #5cb85c;border-color: #4cae4c;border-radius: 4px !important;">Add New Assessment</a>
+            </div>
+                }
+
         </div>
 
     </div>
 </div>
 
-@if (Model.TOdDumpAssessments != null && Model.selDumpAssessmentIdx.ToString() != "98567684-a5d5-4742-ac6d-1dd5080f76a7")
-            {
+@if(Model.TOdDumpAssessments != null && Model.selDumpAssessmentIdx.ToString() != "98567684-a5d5-4742-ac6d-1dd5080f76a7")
+    {
 <section class="panel panel-default" style="margin-top:5px;">
     <div class="panel-heading">
         Assessment Details
@@ -94,7 +97,7 @@
     </div>
 </section>
 @using (Html.BeginForm("FieldAssessmentEdit", "OpenDump", FormMethod.Post, new { @id = "norepostform", enctype = "multipart/form-data" }))
-                {
+        {
 <div class="row">
     <div class="col-md-12">
 
@@ -102,11 +105,11 @@
 
     </div>
 </div>
-                }
+        }
 <p></p>
-            }
-            else
-            {
+    }
+    else
+    {
 <div class="tab-content">
     <div class="tab-pane in active" id="tabList">
         <div class="table-responsive">
@@ -121,12 +124,12 @@
                     </tr>
                 </thead>
                 @if (Model.TOdDumpAssessmentsGridList != null)
-                                {
+                        {
                 @foreach (var item in Model.TOdDumpAssessmentsGridList)
-                                    {
+                            {
                 <tr>
                     <td style="min-width:65px">
-                        <a href="@Url.Action("FieldAssessment", "OpenDump", new { AssessmentIdx = item.DUMP_ASSESSMENTS_IDX, SiteIdx= item.SITE_IDX})" class="btn btn-rounded btn-xs btn-info"><i class="glyphicon glyphicon-pencil"></i></a>
+                        <a href="@Url.Action("FieldAssessments", "OpenDump", new { AssessmentIdx = item.DUMP_ASSESSMENTS_IDX, SiteIdx= item.SITE_IDX})" class="btn btn-rounded btn-xs btn-info"><i class="glyphicon glyphicon-pencil"></i></a>
                         <div class="delete-section" style="display:inline">
                             <a class=" btn btn-rounded btn-xs btn-danger delete-link"><i class="glyphicon glyphicon-remove"></i></a>
                             <div class="btn btn-rounded btn-xs btn-warning delete-confirm" style="display:none" data-delete-id="@item.DUMP_ASSESSMENTS_IDX" data-delete-p="/OpenDump/FieldAssessmentDelete"><b>Confirm Delete</b></div>
@@ -142,17 +145,23 @@
                         @Html.DisplayFor(modelItem => item.ASSESSMENT_NOTES)
                     </td>
                 </tr>
-                                    }
-                                }
+                            }
+                        }
 
             </table>
         </div>
     </div>
 </div>
 
-            }
-        }
+    }
+}
+
 @section scripts {
     <script src="~/js/confirm_delete.js">
+    </script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+          
+        });
     </script>
 }

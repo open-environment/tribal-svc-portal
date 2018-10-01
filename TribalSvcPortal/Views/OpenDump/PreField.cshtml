@@ -58,7 +58,7 @@
                             </a>
                         </li>
                         <li>
-                            <a href="#tab2" data-toggle="tab">
+                            <a href="#tab2" data-toggle="tab">                              
                                 Field Assessments
                             </a>
                         </li>
@@ -262,7 +262,7 @@
                             <p></p>
                         </div>
                         <div class="tab-pane" id="tab2">
-                            @Html.Partial("_FieldAssessments", Model.oFieldAssessmentViewModel)
+                            @{ Html.RenderPartial("_FieldAssessments", Model.oFieldAssessmentViewModel); }
                         </div>
                         <div class="tab-pane" id="tab3">
                         </div>
@@ -322,6 +322,11 @@
              autoclose: true,
              todayBtn: 'linked'
          });
+         //$('#tab2').click(function (evt) {
+           
+         //    $("#tab12").load("/OpenDump/FieldAssessments",
+         //        { SiteIdx: Model.TPrtSites.SiteIdx , viewName: "_FieldAssessments" });
+         //});
      });
     </script>
     @if (Model.oPreFieldViewModel.TPrtSites != null)

@@ -164,6 +164,7 @@ namespace TribalSvcPortal.Controllers
         public ActionResult FieldAssessments(Guid? AssessmentIdx, Guid? SiteIdx)
         {
             string _UserIDX;
+            OpenDumpViewModel openDumpViewModel = new OpenDumpViewModel();
             bool isUserExist = _memoryCache.TryGetValue("UserID", out _UserIDX);
             T_OD_DUMP_ASSESSMENTS oT_OD_DUMP_ASSESSMENTS = new T_OD_DUMP_ASSESSMENTS();
             if (AssessmentIdx!=null)
@@ -216,11 +217,13 @@ namespace TribalSvcPortal.Controllers
             else
             {
                 FieldAssessmentmodel.AssessmentDropDownList = _DbOpenDump.get_ddl_od_dumpassessment_by_BySITEIDX(Guid.NewGuid());
-                FieldAssessmentmodel.TPrtSites = _DbPortal.GetT_PRT_SITES_BySITEIDX((Guid)SiteIdx);
+                //FieldAssessmentmodel.TPrtSites = _DbPortal.GetT_PRT_SITES_BySITEIDX((Guid)SiteIdx);
                 FieldAssessmentmodel.TOdDumpAssessments = new T_OD_DUMP_ASSESSMENTS();
                 FieldAssessmentmodel.TOdDumpAssessments.DUMP_ASSESSMENTS_IDX = Guid.NewGuid();
             }
-            return PartialView("_FieldAssessments",FieldAssessmentmodel);
+            //openDumpViewModel.oFieldAssessmentViewModel = FieldAssessmentmodel;
+            //return View(openDumpViewModel);
+            return PartialView(FieldAssessmentmodel);
         }
 
         [HttpPost, ValidateAntiForgeryToken]
