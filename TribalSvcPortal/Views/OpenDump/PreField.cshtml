@@ -1,86 +1,90 @@
 ﻿@model TribalSvcPortal.ViewModels.OpenDumpViewModels.OpenDumpViewModel
+@using TribalSvcPortal.ViewModels.OpenDumpViewModels;
 @{
     ViewBag.SubTitle = "";
     ViewBag.Title = "";
 
 }
 <link rel="stylesheet" href="https://js.arcgis.com/3.25/esri/css/esri.css">
-
 <!-- render the main content -->
 <div class="row">
     <div class="col-sm-12">
+        @*@using (Html.BeginForm("OpenDumpEdit", "OpenDump", FormMethod.Post, new { @id = "norepostform", enctype = "multipart/form-data" }))
+        {*@
 
-        @using (Html.BeginForm("OpenDumpEdit", "OpenDump", FormMethod.Post, new { @id = "norepostform", enctype = "multipart/form-data" }))
-        {
-
-            @Html.AntiForgeryToken()
-            @Html.HiddenFor(model => model.oPreFieldViewModel.TPrtSites.SiteIdx)
-            @Html.HiddenFor(model => model.oPreFieldViewModel.selOrg)
-            @Html.HiddenFor(model => model.oPreFieldViewModel.returnURL)
-            @Html.HiddenFor(model => model.oPreFieldViewModel.activeTab)
-            @Html.ValidationSummary(true, "", new { @class = "text-danger" })
-            <div class="row">
-                <div class="col-sm-12">
-                    <div>
-                        <label class="col-sm-1 control-label" style="margin-top:8px;">
-                            Site Name
-                        </label>
-                        <div class="col-sm-3">
-                            @Html.TextBoxFor(model => model.oPreFieldViewModel.TPrtSites.SiteName, new { @class = "form-control", @placeholder = "", @maxlength = "100" })
-                        </div>
+        @Html.AntiForgeryToken()
+        @Html.HiddenFor(model => model.oPreFieldViewModel.TPrtSites.SiteIdx)
+        @Html.HiddenFor(model => model.oPreFieldViewModel.selOrg)
+        @Html.HiddenFor(model => model.oPreFieldViewModel.returnURL)
+        @Html.HiddenFor(model => model.oPreFieldViewModel.activeTab)
+        @Html.HiddenFor(model => model.oPreFieldViewModel.TPrtSites.SiteName)
+        @Html.HiddenFor(model => model.oPreFieldViewModel.TPrtSites.OrgId)
+        @Html.HiddenFor(model => model.oPreFieldViewModel.TPrtSites.EpaId)
+        @Html.HiddenFor(model => model.oPreFieldViewModel.TPrtSites.SiteIdx)
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        <div class="row">
+            <div class="col-sm-12">
+                <div>
+                    <label class="col-sm-1 control-label" style="margin-top:8px;">
+                        Site Name
+                    </label>
+                    <div class="col-sm-3">
+                        @Html.TextBoxFor(model => model.oPreFieldViewModel.TPrtSites.SiteName, new { @class = "form-control", @placeholder = "", @maxlength = "100" })
                     </div>
-                    <div>
-                        <label class="col-sm-1 control-label" style="margin-top:8px;">
-                            Organization
-                        </label>
-                        <div class="col-sm-3">
-                            @Html.DropDownListFor(model => model.oPreFieldViewModel.TPrtSites.OrgId, Model.oPreFieldViewModel.OrgList, "", new { @class = "form-control" })
-                        </div>
+                </div>
+                <div>
+                    <label class="col-sm-1 control-label" style="margin-top:8px;">
+                        Organization
+                    </label>
+                    <div class="col-sm-3">
+                        @Html.DropDownListFor(model => model.oPreFieldViewModel.TPrtSites.OrgId, Model.oPreFieldViewModel.OrgList, "", new { @class = "form-control" })
                     </div>
-                    <div>
-                        <label class="col-sm-1 control-label" style="margin-top:8px;">
-                            EPA ID
-                        </label>
-                        <div class="col-sm-3">
-                            @Html.TextBoxFor(model => model.oPreFieldViewModel.TPrtSites.EpaId, new { @class = "form-control", @placeholder = "", @maxlength = "50" })
-                        </div>
+                </div>
+                <div>
+                    <label class="col-sm-1 control-label" style="margin-top:8px;">
+                        EPA ID
+                    </label>
+                    <div class="col-sm-3">
+                        @Html.TextBoxFor(model => model.oPreFieldViewModel.TPrtSites.EpaId, new { @class = "form-control", @placeholder = "", @maxlength = "50" })
                     </div>
                 </div>
             </div>
-            <div id="job_details_div" class="@Html.Raw("col-sm-12"))" style="margin-top:10px;margin-top:10px;">
-
-                <!-- *********************** START TABS ****************************************** -->
-                <div id="tabs" class="tabbable">
-                    <ul id="myTab" class="nav nav-tabs tab-blue">
-                        <li class="active">
-                            <a href="#tab1" data-toggle="tab">
-                                Pre-Field
-                            </a>
-                        </li>
-                        <li>
-                            <a href="#tab2" data-toggle="tab">                              
-                                Field Assessments
-                            </a>
-                        </li>
-                        <li>
-                            <a href="#tab3" data-toggle="tab">
-                                Health Threat
-                            </a>
-                        </li>
-                        <li>
-                            <a href="#tab4" data-toggle="tab">
-                                Waste Profile
-                            </a>
-                        </li>
-                        <li>
-                            <a href="#tab5" data-toggle="tab">
-                                Site Cleanup
-                            </a>
-                        </li>
-
-                    </ul>
-                    <div class="tab-content" style="height:0px; padding: 0px;">
-                        <div class="tab-pane in active" id="tab1">
+        </div>
+        <div id="job_details_div" class="@Html.Raw("col-sm-12"))" style="margin-top:10px;margin-top:10px;">
+            <!-- *********************** START TABS ****************************************** -->
+            <div id="tabs" class="tabbable">
+                <ul id="myTab" class="nav nav-tabs tab-blue">
+                    <li class="@(Model.ActiveTab == OpenDumpTab.Prefield  ? "active" : "")">
+                        <a href="#tab1" data-toggle="tab">
+                            Pre-Field
+                        </a>
+                    </li>
+                    <li class="@(Model.ActiveTab == OpenDumpTab.FieldAssessment  ? "active" : "")">
+                        <a href="#tab2" data-toggle="tab">
+                            Field Assessments
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#tab3" data-toggle="tab">
+                            Health Threat
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#tab4" data-toggle="tab">
+                            Waste Profile
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#tab5" data-toggle="tab">
+                            Site Cleanup
+                        </a>
+                    </li>
+                </ul>
+                <div class="tab-content" style="height:0px; padding: 0px;">
+                    @*<div class="tab-pane in active" id="tab1">*@
+                    <div class="@(Model.ActiveTab == OpenDumpTab.Prefield  ? "tab-pane in active" : "tab-pane")" id="tab1">
+                        @using (Html.BeginForm("OpenDumpEdit", "OpenDump", FormMethod.Post, new { @id = "norepostform", enctype = "multipart/form-data" }))
+                        {
                             <section class="panel panel-default" style="margin-top:5px;">
                                 <div class="panel-heading">
                                     Location
@@ -222,7 +226,6 @@
                                     </div>
                                 </div>
                             </section>
-
                             <section class="panel panel-default" style="margin-top:5px;">
                                 <div class="panel-heading">
                                     Initial Report
@@ -252,31 +255,32 @@
                                     </div>
                                 </div>
                             </section>
-
                             <div class="row">
                                 <div class="col-md-12">
                                     <button type="submit" name="submitButton" value="Save" class="btn btn-primary">Save</button>
                                     <a href="@Url.Action(Model.oPreFieldViewModel.returnURL, "OpenDump")" class="btn btn-default">Close</a>
                                 </div>
                             </div>
-                            <p></p>
-                        </div>
-                        <div class="tab-pane" id="tab2">
-                            @{ Html.RenderPartial("_FieldAssessments", Model.oFieldAssessmentViewModel); }
-                        </div>
-                        <div class="tab-pane" id="tab3">
-                        </div>
-                        <div class="tab-pane" id="tab4">
-                        </div>
-                        <div class="tab-pane" id="tab5">
-                        </div>
+
+                        }
+                        <p></p>
+                    </div>
+                    <div class="@(Model.ActiveTab == OpenDumpTab.FieldAssessment  ? "tab-pane in active" : "tab-pane")" id="tab2">
+                        @{ Html.RenderPartial("_FieldAssessments", Model.oFieldAssessmentViewModel); }
 
                     </div>
+                    <div class="tab-pane" id="tab3">
+                    </div>
+                    <div class="tab-pane" id="tab4">
+                    </div>
+                    <div class="tab-pane" id="tab5">
+                    </div>
                 </div>
-                <!-- *********************** END TABS ****************************************** -->
             </div>
+            <!-- *********************** END TABS ****************************************** -->
+        </div>
 
-        }
+        @*}*@
     </div>
 </div>
 <div class="modal fade" id="modal-form" style="display: none;width:100%;height:100%; " aria-hidden="true">
@@ -298,43 +302,63 @@
     </div>
 </div>
 
-
 @section scripts {
     <script src="~/js/confirm_delete.js">
     </script>
     <script src="https://js.arcgis.com/3.25/"></script>
     <script type="text/javascript">
-     $(document).ready(function () {
-         
-         // get date from MyDate input field
-         var date = $("#date").val();
+        $(document).ready(function () {
 
-         // use current date as default, if input is empty
-         if (!date) {
-             date = new Date();
-         }
+            // get date from MyDate input field
+            var date = $("#date").val();
 
-         $('#date').datepicker({
-             changeMonth: true,
-             changeYear: true,
-             format: "dd-mm-yyyy",
-             language: "tr",
-             autoclose: true,
-             todayBtn: 'linked'
-         });
-         //$('#tab2').click(function (evt) {
-           
-         //    $("#tab12").load("/OpenDump/FieldAssessments",
-         //        { SiteIdx: Model.TPrtSites.SiteIdx , viewName: "_FieldAssessments" });
-         //});
-     });
+            // use current date as default, if input is empty
+            if (!date) {
+                date = new Date();
+              //  $("#date").val() = new Date();
+            }
+
+            $('#date').datepicker({
+                changeMonth: true,
+                changeYear: true,
+                format: "dd-mm-yyyy",
+                language: "tr",
+                autoclose: true,
+                todayBtn: 'linked'
+            });
+            // get date from MyDate input field
+            var dateAssessments = $("#dateAssessment").val();
+
+            // use current date as default, if input is empty
+            if (!dateAssessments) {
+                dateAssessments = new Date();
+                $("#dateAssessment").val(dateAssessments);
+
+            }
+            $('#dateAssessment').datepicker({
+                changeMonth: true,
+                changeYear: true,
+                format: "dd-mm-yyyy",
+                language: "tr",
+                autoclose: true,
+                todayBtn: 'linked'
+            });
+
+        });
+
+        @*function GetAssessment(value) {
+            if (@Model.oFieldAssessmentViewModel.TPrtSites != null) {
+                var siteIndx = "@Model.oFieldAssessmentViewModel.TPrtSites.SiteIdx";
+                window.location.href = "/OpenDump/FieldAssessments?AssessmentIdx=" + value + "&SiteIdx=" + siteIndx;
+
+            }
+        }*@
     </script>
     @if (Model.oPreFieldViewModel.TPrtSites != null)
     {
         <script type="text/javascript">
 
             LoadMap(JSON.parse('@Html.Raw(Json.Serialize(@Model.oPreFieldViewModel.TPrtSites))'));
-
             function LoadMap(searchList)
             {
                 var map, tb;
@@ -415,5 +439,4 @@
             }
         </script>
     }
-
 }
