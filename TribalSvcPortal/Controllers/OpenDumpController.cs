@@ -236,15 +236,15 @@ namespace TribalSvcPortal.Controllers
         }
 
         [HttpPost, ValidateAntiForgeryToken]
-        public ActionResult FieldAssessmentEdit(FieldAssessmentViewModel model)
+        public ActionResult FieldAssessmentEdit(OpenDumpViewModel model)
         {
             if (model != null)
             {
-                Guid? SiteID = _DbOpenDump.InsertUpdateT_OD_DumpAssessment(model.selDumpAssessmentIdx, model.TPrtSites.SiteIdx, model.TOdDumpAssessments.ASSESSMENT_DT, model.TOdDumpAssessments.ASSESSED_BY,
-                    model.TOdDumpAssessments.ASSESSMENT_TYPE_IDX, model.TOdDumpAssessments.ACTIVE_SITE_IND, model.TOdDumpAssessments.SITE_DESCRIPTION, model.TOdDumpAssessments.ASSESSMENT_NOTES);
+                Guid? SiteID = _DbOpenDump.InsertUpdateT_OD_DumpAssessment(model.oFieldAssessmentViewModel.selDumpAssessmentIdx, model.oPreFieldViewModel.TPrtSites.SiteIdx, model.oFieldAssessmentViewModel.TOdDumpAssessments.ASSESSMENT_DT, model.oFieldAssessmentViewModel.TOdDumpAssessments.ASSESSED_BY,
+                    model.oFieldAssessmentViewModel.TOdDumpAssessments.ASSESSMENT_TYPE_IDX, model.oFieldAssessmentViewModel.TOdDumpAssessments.ACTIVE_SITE_IND, model.oFieldAssessmentViewModel.TOdDumpAssessments.SITE_DESCRIPTION, model.oFieldAssessmentViewModel.TOdDumpAssessments.ASSESSMENT_NOTES);
 
                 TempData["Success"] = "Update successful.";
-                return RedirectToAction("PreField", "OpenDump", new { SiteIdx = model.TPrtSites.SiteIdx, returnURL = "Search" });
+                return RedirectToAction("PreField", "OpenDump", new { SiteIdx = model.oPreFieldViewModel.TPrtSites.SiteIdx, returnURL = "Search" });
             }
             else
                 TempData["Error"] = "Error updating data.";
@@ -267,15 +267,10 @@ namespace TribalSvcPortal.Controllers
         {
             return View();
         }
-
-
         public IActionResult DumpParcels()
         {
             return View();
         }
-
-
-
         //[NonAction]
         public FieldAssessmentViewModel GetFieldAssessment(Guid? AssessmentIdx, Guid? SiteIdx)
         {

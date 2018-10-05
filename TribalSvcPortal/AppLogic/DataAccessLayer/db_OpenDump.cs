@@ -357,16 +357,8 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
                                    Value = a.DUMP_ASSESSMENTS_IDX.ToString(),
                                    Text = a.ASSESSMENT_DT.ToString("DD-MM-YYYY") + " - " + a.ASSESSED_BY
                                }).ToList();
-                    xxx.Add(new SelectListItem() { Value = "98567684-a5d5-4742-ac6d-1dd5080f76a7", Text = "View All" });
-                    return xxx;
-                //}
-                //else
-                //{
-                //    var xxx;
-                //    xxx.Add(new SelectListItem() { Value = "98567684-a5d5-4742-ac6d-1dd5080f76a7", Text = "View All" });
-                //    return xxx;
-
-                //}
+                xxx.Insert(0, new SelectListItem() { Value = "98567684-a5d5-4742-ac6d-1dd5080f76a7", Text = "View All" });              
+                    return xxx;               
                
             }
             catch (Exception ex)

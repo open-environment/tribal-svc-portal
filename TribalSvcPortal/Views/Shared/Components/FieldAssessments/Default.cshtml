@@ -1,0 +1,240 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using TribalSvcPortal.ViewModels
+@model TribalSvcPortal.ViewModels.OpenDumpViewModels.OpenDumpViewModel
+
+@if (Model != null)
+{
+    @using (Html.BeginForm("FieldAssessmentEdit", "OpenDump", FormMethod.Post, new { @id = "norepostform", enctype = "multipart/form-data" }))
+    {
+        @Html.AntiForgeryToken()
+        @Html.HiddenFor(model => model.oFieldAssessmentViewModel.TOdDumpAssessments.DUMP_ASSESSMENTS_IDX)
+        @Html.HiddenFor(model => model.oPreFieldViewModel.TPrtSites.SiteIdx)
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        <div class="row">
+            <div class="col-sm-12">
+                <div>
+                    <label class="col-sm-1 control-label" style="margin-top:8px;">
+                        Site Name
+                    </label>
+                    <div class="col-sm-3">
+                        @Html.TextBoxFor(model => model.oPreFieldViewModel.TPrtSites.SiteName, new { @class = "form-control", @placeholder = "", @maxlength = "100" })
+                    </div>
+                </div>
+                <div>
+                    <label class="col-sm-1 control-label" style="margin-top:8px;">
+                        Organization
+                    </label>
+                    <div class="col-sm-3">
+                        @Html.DropDownListFor(model => model.oPreFieldViewModel.TPrtSites.OrgId, Model.oPreFieldViewModel.OrgList, "", new { @class = "form-control" })
+                    </div>
+                </div>
+                <div>
+                    <label class="col-sm-1 control-label" style="margin-top:8px;">
+                        EPA ID
+                    </label>
+                    <div class="col-sm-3">
+                        @Html.TextBoxFor(model => model.oPreFieldViewModel.TPrtSites.EpaId, new { @class = "form-control", @placeholder = "", @maxlength = "50" })
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row" style="margin-top:10px;margin-bottom:10px">
+            <div class="col-sm-12">
+                <div class="col-md-4">
+                    <label class="col-sm-4 control-label" style="margin-top:8px;">
+                        Assessment
+                    </label>
+                    <div class="col-sm-8">
+                        @Html.DropDownListFor(model => model.oFieldAssessmentViewModel.selDumpAssessmentIdx, Model.oFieldAssessmentViewModel.AssessmentDropDownList, "", new { @class = "form-control", @onchange = $"document.location.href= '/OpenDump/FieldAssessments?AssessmentIdx=' + this.options[this.selectedIndex].value" })
+                        @*@Html.DropDownListFor(model => model.oFieldAssessmentViewModel.selDumpAssessmentIdx, Model.oFieldAssessmentViewModel.AssessmentDropDownList, null, new { @class = "form-control", @onchange = "GetAssessment(this.value)" })*@
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    @if (Model.oPreFieldViewModel.TPrtSites != null)
+                    {
+
+                        <div class="form-group">
+                            @*<button id="loadPartialView" class="btn btn-primary">Add New Assessment</button>*@
+                            <a href="@Url.Action("FieldAssessments", "OpenDump", new { SiteIdx = Model.oPreFieldViewModel.TPrtSites.SiteIdx })" class="btn btn-primary"
+                               style="color: #fff;background-color: #5cb85c;border-color: #4cae4c;border-radius: 4px !important;">Add New Assessment</a>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        @if (Model.oFieldAssessmentViewModel.selDumpAssessmentIdx.ToString() != "98567684-a5d5-4742-ac6d-1dd5080f76a7")
+        {
+
+            <section class="panel panel-default" style="margin-top:5px;">
+                <div class="panel-heading">
+                    Assessment Details
+                    <div class="panel-tools">
+                        <a class="btn btn-xs panel-collapse collapses" href="#">
+                        </a>
+                    </div>
+                </div>
+                <div class="panel-body">
+                    <div class="col-lg-12 col-md-12 col-sm-12 no-padding">
+                        <div class="col-lg-6 col-md-6 col-sm-6 no-padding">
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <label>Date of Assessment</label>
+                                        @Html.TextBoxFor(model => model.oFieldAssessmentViewModel.TOdDumpAssessments.ASSESSMENT_DT, "{0:dd/MM/yyyy}", new { @id = "dateAssessment", @class = "form-control datepicker" })
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>Assessed By</label>
+                                        @Html.TextBoxFor(model => model.oFieldAssessmentViewModel.TOdDumpAssessments.ASSESSED_BY, new { @class = "form-control", @placeholder = "", @maxlength = "450" })
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label>Assessment Type</label>
+                                            @Html.DropDownListFor(model => model.oFieldAssessmentViewModel.TOdDumpAssessments.ASSESSMENT_TYPE_IDX, Model.oFieldAssessmentViewModel.AssessmentTypeList, "", new { @class = "form-control" })
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-2" style="margin-top:22px;">
+                                    <div class="form-group">
+                                        @Html.CheckBoxFor(model => model.oFieldAssessmentViewModel.TOdDumpAssessments.ACTIVE_SITE_IND, new { @checked = "checked" })<label>Active Site</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Site Description</label>
+                                        @Html.TextAreaFor(model => model.oFieldAssessmentViewModel.TOdDumpAssessments.SITE_DESCRIPTION, new { @class = "form-control", @placeholder = "" })
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Observations / Notes</label>
+                                        @Html.TextAreaFor(model => model.oFieldAssessmentViewModel.TOdDumpAssessments.ASSESSMENT_NOTES, new { @class = "form-control", @placeholder = "" })
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <div class="row">
+                <div class="col-md-12">
+                    @*<a href="@Url.Action("FieldAssessmentEdit", "OpenDump", Model)" class="btn btn-primary">Save</a>*@
+                    <button type="submit" name="submitButton" value="Save" class="btn btn-primary">Save</button>
+                    @*<button type="submit" class="btn btn-primary">Save</button>*@
+                </div>
+            </div>
+
+            <p></p>
+        }
+        else
+        {
+            <div class="tab-content">
+                <div class="tab-pane in active" id="tabList">
+                    <div class="table-responsive">
+                        <table class="table table-striped m-b-none" data-ride="datatables">
+                            <thead>
+                                <tr class="thead-inverse">
+                                    <th style="min-width:70px">
+                                    </th>
+                                    <th>
+                                        Date of Assessment
+                                    </th>
+                                    <th>Assessed by</th>
+                                    <th>Observation/Notes</th>
+                                </tr>
+                            </thead>
+
+                            @if (Model.oFieldAssessmentViewModel.TOdDumpAssessmentsGridList != null)
+                            {
+                                @foreach (var item in Model.oFieldAssessmentViewModel.TOdDumpAssessmentsGridList)
+                                {
+                                    <tr>
+                                        <td style="min-width:65px">
+
+                                            <a href="@Url.Action("FieldAssessments", "OpenDump", new { AssessmentIdx = item.DUMP_ASSESSMENTS_IDX, SiteIdx = item.SITE_IDX })" class="btn btn-rounded btn-xs btn-info">
+                                                <i class="glyphicon glyphicon-pencil"></i>
+                                            </a>
+                                            <div class="delete-section" style="display:inline">
+                                                <a class=" btn btn-rounded btn-xs btn-danger delete-link"><i class="glyphicon glyphicon-remove"></i></a>
+                                                <div class="btn btn-rounded btn-xs btn-warning delete-confirm" style="display:none" data-delete-id="@item.DUMP_ASSESSMENTS_IDX" data-delete-p="/OpenDump/FieldAssessmentDelete"><b>Confirm Delete</b></div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            @Convert.ToDateTime(item.ASSESSMENT_DT).ToString("dd-MM-yyyy")
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.ASSESSED_BY)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.ASSESSMENT_NOTES)
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        }
+    }
+}
+@section scripts {
+    <script src="~/js/confirm_delete.js">
+    </script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+
+            // get date from MyDate input field
+            var date = $("#date").val();
+
+            // use current date as default, if input is empty
+            if (!date) {
+                date = new Date();
+              //  $("#date").val() = new Date();
+            }
+
+            $('#date').datepicker({
+                changeMonth: true,
+                changeYear: true,
+                format: "dd-mm-yyyy",
+                language: "tr",
+                autoclose: true,
+                todayBtn: 'linked'
+            });
+            // get date from MyDate input field
+            var dateAssessments = $("#dateAssessment").val();
+
+            // use current date as default, if input is empty
+            if (!dateAssessments) {
+                dateAssessments = new Date();
+                $("#dateAssessment").val(dateAssessments);
+
+            }
+            $('#dateAssessment').datepicker({
+                changeMonth: true,
+                changeYear: true,
+                format: "dd-mm-yyyy",
+                language: "tr",
+                autoclose: true,
+                todayBtn: 'linked'
+            });
+
+        });
+
+        function GetAssessment(value) {
+            if (@Model.oFieldAssessmentViewModel.TPrtSites != null) {
+                var siteIndx = "@Model.oFieldAssessmentViewModel.TPrtSites?.SiteIdx";
+                window.location.href = "/OpenDump/FieldAssessments?AssessmentIdx=" + value + "&SiteIdx=" + siteIndx;
+
+            }
+        }
+    </script>
+}
