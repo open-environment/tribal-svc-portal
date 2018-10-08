@@ -44,18 +44,24 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
         int InsertUpdateT_PRT_ORG_USERS(int? oRG_USER_IDX, string oRG_ID, string _Id, bool? oRG_ADMIN_IND, string sTATUS_IND, string cREATE_USER);
         int DeleteT_PRT_ORG_USERS(int id);
         List<OrgUserClientDisplayType> GetT_PRT_ORG_USERS_CLIENT_ByOrgUserID(int _OrgUserIDX);
-        List<OrgUserClientDisplayType> GetT_PRT_ORG_USERS_CLIENT_ByUserID(string _UserIDX);        
+        List<OrgUserClientDisplayType> GetT_PRT_ORG_USERS_CLIENT_ByUserID(string _UserIDX);
         IEnumerable<T_PRT_CLIENTS> GetT_PRT_ORG_USERS_CLIENT_DistinctClientByUserID(string UserID);
         int InsertUpdateT_PRT_ORG_USERS_CLIENT(int? oRG_USER_CLIENT_IDX, int? oRG_USER_IDX, string cLIENT_ID, bool? aDMIN_IND, string sTATUS_IND, string cREATE_USER);
-        int DeleteT_PRT_ORG_USER_CLIENT(int id);      
+        int DeleteT_PRT_ORG_USER_CLIENT(int id);
         IEnumerable<IdentityRole> GetT_PRT_ROLES_BelongingToUser(string UserID);
-        T_PRT_SYS_LOG GetT_PRT_SYS_LOG();      
+        T_PRT_SYS_LOG GetT_PRT_SYS_LOG();
         IEnumerable<T_PRT_CLIENTS> GetDistinct_USERS_CLIENT_ByUserID(string _UserIDX);
         Guid? InsertUpdateT_PRT_SITES(Guid? sITE_IDX, string oRG_ID, string sITE_NAME, string ePA_ID, decimal? lATITUDE, decimal? lONGITUDE, string sITE_ADDRESS, string UserIDX);
         T_PRT_SITES GetT_PRT_SITES_BySITEIDX(Guid Siteidx);
         int DeleteT_PRT_SITES(Guid sITE_IDX);
         int InsertUpdateT_PRT_APP_SETTING_CUSTOM(string tERMS_AND_CONDITIONS, string aNNOUNCEMENTS);
         T_PRT_APP_SETTINGS_CUSTOM GetT_PRT_APP_SETTINGS_CUSTOM();
+        Guid? InsertUpdateT_PRT_DOCUMENTS(Guid? dOC_IDX, string oRG_ID, byte[] dOC_CONTENT, string dOC_NAME, string dOC_TYPE, string dOC_FILE_TYPE, int? dOC_SIZE, string dOC_COMMENT,
+        string dOC_AUTHOR, string sHARE_TYPE, string dOC_STATUS_TYPE, int? UserIDX);
+        List<T_PRT_DOCUMENTS> GetT_PRT_DOCUMENTS_ByDumpAssessmentsIDx(Guid dUMPASSESSMENTS_IDX);
+        List<T_PRT_DOCUMENTS> GetT_PRT_DOCUMENTS_Photos_ByDumpAssessmentsIDx(Guid dUMPASSESSMENTS_IDX);
+        T_PRT_DOCUMENTS GetT_PRT_DOCUMENTS_ByID(Guid DocIDX);
+        int DeleteT_PRT_DOCUMENTS(Guid DocIDX);
     }
 
     public class DbPortal : IDbPortal
@@ -662,6 +668,152 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
                 return 0;
             }
         }
+        //*******************************DOCUMENTS *********************************************
+        public Guid? InsertUpdateT_PRT_DOCUMENTS(Guid? dOC_IDX, string oRG_ID, byte[] dOC_CONTENT, string dOC_NAME, string dOC_TYPE, string dOC_FILE_TYPE, int? dOC_SIZE, string dOC_COMMENT,
+            string dOC_AUTHOR, string sHARE_TYPE, string dOC_STATUS_TYPE, int? UserIDX)
+        {
+
+            try
+            {
+                Boolean insInd = false;
+
+                T_PRT_DOCUMENTS e = (from c in ctx.T_PRT_DOCUMENTS
+                                    where c.DocIdx == dOC_IDX
+                                    select c).FirstOrDefault();
+
+                //insert case
+                if (e == null)
+                {
+                    insInd = true;
+                    e = new T_PRT_DOCUMENTS();
+                    e.DocIdx = Guid.NewGuid();
+                    e.CreateDt = System.DateTime.UtcNow;
+                    e.CreateUseridx = UserIDX ?? 0;
+                }
+                else
+                {
+                    e.ModifyDt = System.DateTime.UtcNow;
+                    e.ModifyUseridx = UserIDX ?? 0;
+                }
+
+                if (dOC_CONTENT != null) e.DocContent = dOC_CONTENT;
+                if (dOC_NAME != null) e.DocName = dOC_NAME;
+                if (dOC_TYPE != null) e.DocType = dOC_TYPE;
+                if (dOC_FILE_TYPE != null) e.DocFileType = dOC_FILE_TYPE;
+                if (dOC_SIZE != null) e.DocSize = dOC_SIZE;
+                if (dOC_COMMENT != null) e.DocComment = dOC_COMMENT;
+                if (dOC_AUTHOR != null) e.DocAuthor = dOC_AUTHOR;
+                if (oRG_ID != null) e.OrgId = oRG_ID;
+                if (dOC_STATUS_TYPE != null) e.DocStatusType = dOC_STATUS_TYPE;
+                if (sHARE_TYPE != null) e.ShareType = sHARE_TYPE;
+                
+                if (insInd)
+                    ctx.T_PRT_DOCUMENTS.Add(e);
+
+                ctx.SaveChanges();
+                return e.DocIdx;
+            }
+            catch (Exception ex)
+            {
+                log.LogEFException(ex);
+                return null;
+            }
+
+        }
+
+        public List<T_PRT_DOCUMENTS> GetT_PRT_DOCUMENTS_ByDumpAssessmentsIDx(Guid dUMPASSESSMENTS_IDX)
+        {
+            try
+            {
+                List<T_PRT_DOCUMENTS> oTPRTDOCUMENTSLIST = new List<T_PRT_DOCUMENTS>();
+                List<T_OD_DUMP_ASSESSMENT_DOCS> oDumpAssessmentDocsList = (from a in ctx.T_OD_DUMP_ASSESSMENT_DOCS
+                                                                           where a.DUMP_ASSESSMENTS_IDX == dUMPASSESSMENTS_IDX
+                                                                           select a).ToList();
+                foreach (T_OD_DUMP_ASSESSMENT_DOCS oOneNew in oDumpAssessmentDocsList)
+                {
+                    T_PRT_DOCUMENTS oTPRTDOCUMENTS = (from a in ctx.T_PRT_DOCUMENTS
+                                                      where a.DocIdx == oOneNew.DOC_IDX && !(a.DocFileType.Contains("image"))
+                                                      select a).FirstOrDefault();
+                    if (oTPRTDOCUMENTS != null)
+                    {
+                        oTPRTDOCUMENTSLIST.Add(oTPRTDOCUMENTS);
+                    }
+                }
+                return oTPRTDOCUMENTSLIST;
+            }
+            catch (Exception ex)
+            {
+                log.LogEFException(ex);
+                return null;
+            }
+            
+        }
+        public List<T_PRT_DOCUMENTS> GetT_PRT_DOCUMENTS_Photos_ByDumpAssessmentsIDx(Guid dUMPASSESSMENTS_IDX)
+        {
+            try
+            {
+                List<T_PRT_DOCUMENTS> oTPRTDOCUMENTSLIST = new List<T_PRT_DOCUMENTS>();
+                List<T_OD_DUMP_ASSESSMENT_DOCS> oDumpAssessmentDocsList = (from a in ctx.T_OD_DUMP_ASSESSMENT_DOCS
+                                                                           where a.DUMP_ASSESSMENTS_IDX == dUMPASSESSMENTS_IDX
+                                                                           select a).ToList();
+                foreach (T_OD_DUMP_ASSESSMENT_DOCS oOneNew in oDumpAssessmentDocsList)
+                {
+                    T_PRT_DOCUMENTS oTPRTDOCUMENTS = (from a in ctx.T_PRT_DOCUMENTS
+                                                      where a.DocIdx == oOneNew.DOC_IDX && a.DocFileType.Contains("image")
+                                                      select a).FirstOrDefault();
+                    if (oTPRTDOCUMENTS != null)
+                    {
+                        oTPRTDOCUMENTSLIST.Add(oTPRTDOCUMENTS);
+                    }
+                }
+                return oTPRTDOCUMENTSLIST;
+            }
+            catch (Exception ex)
+            {
+                log.LogEFException(ex);
+                return null;
+            }
+
+        }
+        public T_PRT_DOCUMENTS GetT_PRT_DOCUMENTS_ByID(Guid DocIDX)
+        {           
+                try
+                {
+                    return (from a in ctx.T_PRT_DOCUMENTS
+                            where a.DocIdx == DocIDX
+                            select a).FirstOrDefault();
+                }
+                catch (Exception ex)
+                {
+                    log.LogEFException(ex);
+                    return null;
+                }
+            
+        }
+        public int DeleteT_PRT_DOCUMENTS(Guid DocIDX)
+        {
+            try
+            {               
+
+                T_PRT_DOCUMENTS tpd = new T_PRT_DOCUMENTS { DocIdx = DocIDX };
+                ctx.Entry(tpd).State = Microsoft.EntityFrameworkCore.EntityState.Deleted;
+                ctx.SaveChanges();
+
+               T_OD_DUMP_ASSESSMENT_DOCS todad = new T_OD_DUMP_ASSESSMENT_DOCS { DOC_IDX = DocIDX };
+                ctx.Entry(todad).State = Microsoft.EntityFrameworkCore.EntityState.Deleted;
+                ctx.SaveChanges();
+
+
+                return 1;
+            }
+            catch (Exception ex)
+            {
+                log.LogEFException(ex);
+                return 0;
+            }
+
+        }
+        //********************************************************************
 
     }
 }

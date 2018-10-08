@@ -319,5 +319,19 @@ namespace TribalSvcPortal.AppLogic.BusinessLogicLayer
             // return transformed doc
             return htmlDoc.DocumentNode.WriteContentTo().Trim();
         }
+
+        /// <summary>
+        /// Returns true if the file is an image based on the file extension
+        /// </summary>
+        /// <param name="file"></param>
+        /// <returns></returns>
+        public static bool FileIsImage(string file)
+        {
+            var imageFileTypes = new List<string>
+            {
+                ".jpg", ".jpeg",".gif",".bmp",".png"
+            };
+            return imageFileTypes.Any(file.Contains);
+        }
     }
 }

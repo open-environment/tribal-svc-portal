@@ -50,7 +50,7 @@
                     </div>
                     <div class="@(Model.ActiveTab == OpenDumpTab.FieldAssessment  ? "tab-pane in active" : "tab-pane")" id="tab2">
                         @*@{ Html.RenderPartial("_FieldAssessments", Model.oFieldAssessmentViewModel); }*@
-                        @await Component.InvokeAsync("FieldAssessments", new { SiteIdx = Model.oPreFieldViewModel.TPrtSites.SiteIdx, AssessmentIdx = Model.oFieldAssessmentViewModel.TOdDumpAssessments?.DUMP_ASSESSMENTS_IDX })
+                        @await Component.InvokeAsync("FieldAssessments", new { SiteIdx = Model.oPreFieldViewModel.TPrtSites.SiteIdx, AssessmentIdx = Model.oFieldAssessmentViewModel.selDumpAssessmentIdx })
                     </div>
                     <div class="tab-pane" id="tab3">
                     </div>
@@ -64,6 +64,9 @@
         </div>
     </div>
 </div>
+
+
+
 @section scripts {
     <script src="~/js/confirm_delete.js">
     </script>
@@ -71,6 +74,18 @@
     <script type="text/javascript">
         $(document).ready(function () {
 
+            $('a.descinfo').click(function () {
+                var dad = $(this).parent().parent();
+                dad.find("#divHideOnEdit").hide();
+                dad.find("#divShowOnEdit").show().focus();
+                return false;
+            });
+            $('a.descinfo activity').click(function () {
+                var dad = $(this).parent().parent();
+                dad.find("#divPhotoHideOnEdit").hide();
+                dad.find("#divPhotoShowOnEdit").show().focus();
+                return false;
+            });
             // get date from MyDate input field
             var date = $("#date").val();
 
@@ -94,7 +109,7 @@
             // use current date as default, if input is empty
             if (!dateAssessments) {
                 dateAssessments = new Date();
-                $("#dateAssessment").val(dateAssessments);
+               // $("#dateAssessment").val(dateAssessments);
 
             }
             $('#dateAssessment').datepicker({
@@ -107,13 +122,36 @@
             });
 
         });
-
+        //file upload display filename
+        $("input[id='files']").change(function (e) {
+            var $this = $(this);
+            var FileSize = this.files[0].size / 1024 / 1024;
+            if (FileSize > 20) {
+                $('#files').val('');
+                alert('Files cannot exceed 20 MB');
+            }
+            else {
+                $("#filename1").val($this.val().split('\\').pop());
+            }
+        });
+        //file upload display filename
+        $("input[id='filesPhoto']").change(function (e) {
+            var $this = $(this);
+            var FileSize = this.files[0].size / 1024 / 1024;
+            if (FileSize > 20) {
+                $('#filesPhoto').val('');
+                alert('Files cannot exceed 20 MB');
+            }
+            else {
+                $("#filename1").val($this.val().split('\\').pop());
+            }
+        });
         function GetAssessment(value) {
-            if (@Model.oFieldAssessmentViewModel.TPrtSites != null) {
+            @*if (@Model.oFieldAssessmentViewModel.TPrtSites != null) {*@
                 var siteIndx = "@Model.oFieldAssessmentViewModel.TPrtSites?.SiteIdx";
                 window.location.href = "/OpenDump/FieldAssessments?AssessmentIdx=" + value + "&SiteIdx=" + siteIndx;
 
-            }
+            //}
         }
     </script>
     @if (Model.oPreFieldViewModel.TPrtSites != null)

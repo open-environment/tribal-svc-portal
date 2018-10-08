@@ -42,6 +42,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
         T_OD_DUMP_ASSESSMENTS GetT_OD_DumpAssessment_ByDumpAssessmentIDX(Guid DumpAssessmentIDX);
         int DeleteT_OD_DumpAssessment(Guid DumpAssessmentIDX);
         Guid? InsertUpdateT_OD_DumpAssessment(Guid dUMPASSESSMENTS_IDX, Guid sITE_IDX, DateTime aSSESSMENT_DT, string aSSESSED_BY, Guid? ASSESSMENT_TYPE_IDX, bool ACTIVE_SITE_IND, string SITE_DESCRIPTION, string ASSESSMENT_NOTES);
+        Guid? InsertUpdateT_OD_DUMP_ASSESSMENT_DOCUMENTS(Guid? dOC_IDX, Guid dUMPASSESSMENTS_IDX);
     }
 
     public class DbOpenDump : IDbOpenDump
@@ -355,7 +356,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
                                select new SelectListItem
                                {
                                    Value = a.DUMP_ASSESSMENTS_IDX.ToString(),
-                                   Text = a.ASSESSMENT_DT.ToString("DD-MM-YYYY") + " - " + a.ASSESSED_BY
+                                   Text = a.ASSESSMENT_DT.ToString("dd-MM-yyyy")
                                }).ToList();
                 xxx.Insert(0, new SelectListItem() { Value = "98567684-a5d5-4742-ac6d-1dd5080f76a7", Text = "View All" });              
                     return xxx;               
@@ -437,5 +438,42 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             }
 
         }
+        public Guid? InsertUpdateT_OD_DUMP_ASSESSMENT_DOCUMENTS(Guid? dOC_IDX, Guid dUMPASSESSMENTS_IDX)
+        {
+
+            try
+            {
+                Boolean insInd = false;
+
+                T_OD_DUMP_ASSESSMENT_DOCS e = (from c in ctx.T_OD_DUMP_ASSESSMENT_DOCS
+                                     where c.DOC_IDX == dOC_IDX
+                                     select c).FirstOrDefault();
+
+                //insert case
+                if (e == null)
+                {
+                    insInd = true;
+                    e = new T_OD_DUMP_ASSESSMENT_DOCS();
+                   
+                }               
+
+                if (dOC_IDX != null) e.DOC_IDX = (Guid)dOC_IDX;
+                if (dUMPASSESSMENTS_IDX != null) e.DUMP_ASSESSMENTS_IDX = dUMPASSESSMENTS_IDX;               
+
+                if (insInd)
+                    ctx.T_OD_DUMP_ASSESSMENT_DOCS.Add(e);
+
+                ctx.SaveChanges();
+                return e.DOC_IDX;
+            }
+            catch (Exception ex)
+            {
+                log.LogEFException(ex);
+                return null;
+            }
+
+        }
+
+
     }
 }

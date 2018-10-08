@@ -274,7 +274,7 @@
             // use current date as default, if input is empty
             if (!dateAssessments) {
                 dateAssessments = new Date();
-                $("#dateAssessment").val(dateAssessments);
+               // $("#dateAssessment").val(dateAssessments);
 
             }
             $('#dateAssessment').datepicker({
@@ -289,11 +289,11 @@
         });
 
         function GetAssessment(value) {
-            if (@Model.oFieldAssessmentViewModel.TPrtSites != null) {
+            @*if (@Model.oFieldAssessmentViewModel.TPrtSites != null) {*@
                 var siteIndx = "@Model.oFieldAssessmentViewModel.TPrtSites?.SiteIdx";
                 window.location.href = "/OpenDump/FieldAssessments?AssessmentIdx=" + value + "&SiteIdx=" + siteIndx;
 
-            }
+            //}
         }
     </script>
 }

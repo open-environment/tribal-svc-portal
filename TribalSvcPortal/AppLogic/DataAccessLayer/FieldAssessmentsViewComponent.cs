@@ -56,7 +56,9 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             }
             else
             {
-                FieldAssessmentmodel.selDumpAssessmentIdx = Guid.NewGuid();
+                string IDx = "98567684-a5d5-4742-ac6d-1dd5080f76a7";
+                FieldAssessmentmodel.selDumpAssessmentIdx = Guid.Parse(IDx);
+                //   FieldAssessmentmodel.selDumpAssessmentIdx = Guid.NewGuid();
             }
             if (AssessmentIdx != null && SiteIdx == null)
             {
@@ -66,6 +68,8 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
                 FieldAssessmentmodel.AssessmentDropDownList = _DbOpenDump.get_ddl_od_dumpassessment_by_BySITEIDX(oT_OD_DUMP_ASSESSMENTS.SITE_IDX);
                 FieldAssessmentmodel.TOdDumpAssessmentsGridList = _DbOpenDump.GetT_OD_DumpAssessmentList_BySITEIDX(oT_OD_DUMP_ASSESSMENTS.SITE_IDX);
                 FieldAssessmentmodel.TOdDumpAssessments = oT_OD_DUMP_ASSESSMENTS;
+                FieldAssessmentmodel.files_existing = _DbPortal.GetT_PRT_DOCUMENTS_ByDumpAssessmentsIDx((Guid)AssessmentIdx);
+                FieldAssessmentmodel.filesPhoto_existing = _DbPortal.GetT_PRT_DOCUMENTS_Photos_ByDumpAssessmentsIDx((Guid)AssessmentIdx);
             }
             else if (SiteIdx != null && AssessmentIdx == null)
             {
@@ -85,6 +89,8 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
                 FieldAssessmentmodel.AssessmentDropDownList = _DbOpenDump.get_ddl_od_dumpassessment_by_BySITEIDX((Guid)SiteIdx);
                 FieldAssessmentmodel.TOdDumpAssessmentsGridList = _DbOpenDump.GetT_OD_DumpAssessmentList_BySITEIDX((Guid)SiteIdx);
                 FieldAssessmentmodel.TOdDumpAssessments = oT_OD_DUMP_ASSESSMENTS;
+                FieldAssessmentmodel.files_existing = _DbPortal.GetT_PRT_DOCUMENTS_ByDumpAssessmentsIDx((Guid)AssessmentIdx);
+                FieldAssessmentmodel.filesPhoto_existing = _DbPortal.GetT_PRT_DOCUMENTS_Photos_ByDumpAssessmentsIDx((Guid)AssessmentIdx);
             }
             else
             {
@@ -100,7 +106,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
                 FieldAssessmentmodel.AssessmentDropDownList = _DbOpenDump.get_ddl_od_dumpassessment_by_BySITEIDX(Guid.NewGuid());                
                 FieldAssessmentmodel.TOdDumpAssessments = new T_OD_DUMP_ASSESSMENTS();
                 FieldAssessmentmodel.TOdDumpAssessments.DUMP_ASSESSMENTS_IDX = Guid.NewGuid();
-                FieldAssessmentmodel.TOdDumpAssessments.ASSESSMENT_DT = DateTime.Now;
+               // FieldAssessmentmodel.TOdDumpAssessments.ASSESSMENT_DT = DateTime.Now;
             }
             openDumpViewModel.oPreFieldViewModel = PreFieldmodel;
             openDumpViewModel.oFieldAssessmentViewModel = FieldAssessmentmodel;

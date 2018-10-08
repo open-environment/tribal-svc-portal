@@ -1,5 +1,6 @@
 ﻿@using Microsoft.AspNetCore.Identity
 @using TribalSvcPortal.ViewModels
+@using TribalSvcPortal.AppLogic.BusinessLogicLayer
 @model TribalSvcPortal.ViewModels.OpenDumpViewModels.OpenDumpViewModel
 
 @if (Model != null)
@@ -118,20 +119,167 @@
                                     </div>
                                 </div>
                             </div>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <button type="submit" name="submitButton" value="Save" class="btn btn-primary">Save</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+           
+            <section class="panel panel-default" style="margin-top:5px;">
+                <div class="panel-heading">
+                    Photos
+                    <div class="panel-tools">
+                        <a class="btn btn-xs panel-collapse collapses" href="#">
+                        </a>
+                    </div>
+                </div>
+                <div class="panel-body">
+                    <div class="col-lg-12 col-md-12 col-sm-12 no-padding">
+                        <div class="col-lg-6 col-md-6 col-sm-6 no-padding">
+                            <div class="row">
+                                <div class="col-sm-11" style="text-align:Left;">
+                                    <p>
+                                        <a id="add-it" href="#modal-formPhoto" data-toggle="modal" class="add-it btn btn-rounded  btn-rounded btn-success">
+                                            <i class="glyphicon glyphicon-plus"></i> Add More
+                                        </a>
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="row">
+                                @if (Model.oFieldAssessmentViewModel.filesPhoto_existing != null && Model.oFieldAssessmentViewModel.filesPhoto_existing.Count > 0)
+                                {
+                                    <div class="postuploadedfilesholder clearfix">
+                                        <p>Attached Files</p>
+                                        @{
+                                            int i = 0;
+                                        }
+                                        <ul>
+                                            @foreach (var file in Model.oFieldAssessmentViewModel.filesPhoto_existing.OrderByDescending(o => o.CreateDt))
+                                            {
+
+                                                <li>
+                                                    @Html.HiddenFor(modelItem => Model.oFieldAssessmentViewModel.filesPhoto_existing[i].DocIdx)
+
+                                                    <a class="fileupload" href="@Url.Action("FileDownload", "OpenDump", new { id = Model.oFieldAssessmentViewModel.filesPhoto_existing[i].DocIdx })">
+                                                        @if (Utils.FileIsImage(Model.oFieldAssessmentViewModel.filesPhoto_existing[i].DocName))
+                                                        {
+                                                            <span class="glyphicon glyphicon-picture" aria-hidden="true"></span>
+                                                        }
+                                                        else
+                                                        {
+                                                            <span class="glyphicon glyphicon-file" aria-hidden="true"></span>
+                                                        }
+                                                    </a>
+                                                    <a href="@Url.Action("FileDelete", "OpenDump", new { id = Model.oFieldAssessmentViewModel.filesPhoto_existing[i].DocIdx })" class="deleteupload" title="Delete">
+                                                        <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+                                                    </a>
+
+                                                    <a href="#" class="btn btn-rounded btn-xs descinfo activity" title="Edit">
+                                                        <i class="glyphicon glyphicon-pencil" aria-hidden="true"></i>
+                                                    </a>
+                                                    <div class="postedfilename">
+                                                        @Html.DisplayFor(modelItem => Model.oFieldAssessmentViewModel.filesPhoto_existing[i].DocName)
+
+                                                    </div>
+                                                    <div id="divPhotoHideOnEdit">
+                                                        @Html.DisplayFor(modelItem => Model.oFieldAssessmentViewModel.filesPhoto_existing[i].DocComment)
+                                                    </div>
+                                                    <div id="divPhotoShowOnEdit" style="display:none;">
+                                                        @Html.EditorFor(modelItem => Model.oFieldAssessmentViewModel.filesPhoto_existing[i].DocComment, new { @class = "form-control", @maxlength = "200" })
+                                                    </div>
+
+                                                </li>
+
+                                                i++;
+                                            }
+                                        </ul>
+                                    </div>
+                                }
+                            </div>
                         </div>
                     </div>
                 </div>
             </section>
 
-            <div class="row">
-                <div class="col-md-12">
-                    @*<a href="@Url.Action("FieldAssessmentEdit", "OpenDump", Model)" class="btn btn-primary">Save</a>*@
-                    <button type="submit" name="submitButton" value="Save" class="btn btn-primary">Save</button>
-                    @*<button type="submit" class="btn btn-primary">Save</button>*@
+            <section class="panel panel-default" style="margin-top:5px;">
+                <div class="panel-heading">
+                    Files
+                    <div class="panel-tools">
+                        <a class="btn btn-xs panel-collapse collapses" href="#">
+                        </a>
+                    </div>
                 </div>
-            </div>
+                <div class="panel-body">
+                    <div class="col-lg-12 col-md-12 col-sm-12 no-padding">
+                        <div class="col-lg-6 col-md-6 col-sm-6 no-padding">
+                            <div class="row">
+                                <div class="col-sm-11" style="text-align:Left;">
+                                    <p>
+                                        <a id="add-it" href="#modal-formFile" data-toggle="modal" class="add-it btn btn-rounded  btn-rounded btn-success">
+                                            <i class="glyphicon glyphicon-plus"></i> Add More
+                                        </a>
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="row">
+                                @if (Model.oFieldAssessmentViewModel.files_existing != null && Model.oFieldAssessmentViewModel.files_existing.Count > 0)
+                                {
+                                    <div class="postuploadedfilesholder clearfix">
+                                        <p>Attached Files</p>
+                                        @{
+                                            int i = 0;
+                                        }
+                                        <ul>
+                                            @foreach (var file in Model.oFieldAssessmentViewModel.files_existing.OrderByDescending(o => o.CreateDt))
+                                            {
 
-            <p></p>
+                                                <li>
+                                                    @Html.HiddenFor(modelItem => Model.oFieldAssessmentViewModel.files_existing[i].DocIdx)
+
+                                                    <a class="fileupload" href="@Url.Action("FileDownload", "OpenDump", new { id = Model.oFieldAssessmentViewModel.files_existing[i].DocIdx })">
+                                                        @if (Utils.FileIsImage(Model.oFieldAssessmentViewModel.files_existing[i].DocName))
+                                                        {
+                                                            <span class="glyphicon glyphicon-picture" aria-hidden="true"></span>
+                                                        }
+                                                        else
+                                                        {
+                                                            <span class="glyphicon glyphicon-file" aria-hidden="true"></span>
+                                                        }
+                                                    </a>
+                                                    <a href="@Url.Action("FileDelete", "OpenDump", new { id = Model.oFieldAssessmentViewModel.files_existing[i].DocIdx, SiteIdx = Model.oPreFieldViewModel.TPrtSites.SiteIdx })" class="deleteupload" title="Delete">
+                                                        <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+                                                    </a>
+
+                                                    <a href="#" class="btn btn-rounded btn-xs descinfo" title="Edit">
+                                                        <i class="glyphicon glyphicon-pencil" aria-hidden="true"></i>
+                                                    </a>
+                                                    <div class="postedfilename">
+                                                        @Html.DisplayFor(modelItem => Model.oFieldAssessmentViewModel.files_existing[i].DocName)
+
+                                                    </div>
+                                                    <div id="divHideOnEdit">
+                                                        @Html.DisplayFor(modelItem => Model.oFieldAssessmentViewModel.files_existing[i].DocComment)
+                                                    </div>
+                                                    <div id="divShowOnEdit" style="display:none;">
+                                                        @Html.EditorFor(modelItem => Model.oFieldAssessmentViewModel.files_existing[i].DocComment, new { @class = "form-control", @maxlength = "200" })
+                                                    </div>
+
+                                                </li>
+
+                                                i++;
+                                            }
+                                        </ul>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
         }
         else
         {
@@ -186,12 +334,112 @@
         }
     }
 }
+
+<!-- START MODAL FORM  -->
+<div class="modal fade" id="modal-formPhoto" style="display: none;" aria-hidden="true">
+    <div class="modal-dialog">
+        @using (Html.BeginForm("PhotoUpload", "OpenDump", FormMethod.Post, new { enctype = "multipart/form-data" }))
+        {
+            @Html.AntiForgeryToken()
+            @Html.HiddenFor(model => model.oPreFieldViewModel.TPrtSites.SiteIdx)
+            @Html.HiddenFor(model => model.oFieldAssessmentViewModel.TOdDumpAssessments.DUMP_ASSESSMENTS_IDX)
+            @Html.HiddenFor(model => model.oPreFieldViewModel.TPrtSites.OrgId)
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+                    <h3 class="modal-tital">Add Photos</h3>
+                </div>
+                <div class="modal-header">
+                    <div class="form-group">
+                        @Html.LabelFor(x => x.oFieldAssessmentViewModel.filesPhoto)
+                        <div class="input-group">
+                            <label class="input-group-btn">
+                                <span class="btn btn-primary btn btn-default btn-file">
+                                    @*Browse… <input type="file" style="display: none;" name="files" id="files">*@
+                                    @Html.EditorFor(model => model.oFieldAssessmentViewModel.filesPhoto, new { htmlAttributes = new { @id = "filesPhoto", @class = "form-control", @type = "file" } })
+                                </span>
+                            </label>
+                            @*<input id="filename1" type="text" class="form-control" readonly="">*@
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Description</label>
+                        @Html.TextBoxFor(model => model.oFieldAssessmentViewModel.FilePhotoDescription, new { @class = "form-control", @maxlength = "200" })
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="picLoc" type="submit" class="btn btn-sm btn-primary">Save</button>
+                    <button type="submit" class="btn btn-sm btn-default" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+
+        }
+    </div>
+
+</div>
+
+<div class="modal fade" id="modal-formFile" style="display: none;" aria-hidden="true">
+    <div class="modal-dialog">
+        @using (Html.BeginForm("DocUpload", "OpenDump", FormMethod.Post, new { enctype = "multipart/form-data" }))
+        {
+            @Html.AntiForgeryToken()
+            @Html.HiddenFor(model => model.oPreFieldViewModel.TPrtSites.SiteIdx)
+            @Html.HiddenFor(model => model.oFieldAssessmentViewModel.TOdDumpAssessments.DUMP_ASSESSMENTS_IDX)
+            @Html.HiddenFor(model => model.oPreFieldViewModel.TPrtSites.OrgId)
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+                    <h3 class="modal-tital">Add Photos</h3>
+                </div>
+                <div class="modal-header">
+                    <div class="form-group">
+                        @Html.LabelFor(x => x.oFieldAssessmentViewModel.files)
+                        <div class="input-group">
+                            <label class="input-group-btn">
+                                <span class="btn btn-primary btn btn-default btn-file">
+                                    @*Browse… <input type="file" style="display: none;" name="files" id="files">*@
+                                    @Html.EditorFor(model => model.oFieldAssessmentViewModel.files, new { htmlAttributes = new { @id = "files", @class = "form-control", @type = "file" } })
+                                </span>
+                            </label>
+                            @*<input id="filename1" type="text" class="form-control" readonly="">*@
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Description</label>
+                        @Html.TextBoxFor(model => model.oFieldAssessmentViewModel.FileDescription, new { @class = "form-control", @maxlength = "200" })
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="picLocFile" type="submit" class="btn btn-sm btn-primary">Save</button>
+                    <button type="submit" class="btn btn-sm btn-default" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+
+        }
+    </div>
+
+</div>
+<!-- END MODAL FORM -->
+
 @section scripts {
     <script src="~/js/confirm_delete.js">
     </script>
     <script type="text/javascript">
         $(document).ready(function () {
 
+            $('a.descinfo').click(function () {
+                var dad = $(this).parent().parent();
+                dad.find("#divHideOnEdit").hide();
+                dad.find("#divShowOnEdit").show().focus();
+                return false;
+            });
+
+            $('a.descinfo activity').click(function () {
+                var dad = $(this).parent().parent();
+                dad.find("#divPhotoHideOnEdit").hide();
+                dad.find("#divPhotoShowOnEdit").show().focus();
+                return false;
+            });
             // get date from MyDate input field
             var date = $("#date").val();
 
@@ -215,7 +463,7 @@
             // use current date as default, if input is empty
             if (!dateAssessments) {
                 dateAssessments = new Date();
-                $("#dateAssessment").val(dateAssessments);
+               // $("#dateAssessment").val(dateAssessments);
 
             }
             $('#dateAssessment').datepicker({
@@ -228,13 +476,37 @@
             });
 
         });
+        //file upload display filename
+        $("input[id='files']").change(function (e) {
+            var $this = $(this);
+            var FileSize = this.files[0].size / 1024 / 1024;
+            if (FileSize > 20) {
+                $('#files').val('');
+                alert('Files cannot exceed 20 MB');
+            }
+            else {
+                $("#filename1").val($this.val().split('\\').pop());
+            }
+        });
 
+        //file upload display filename
+        $("input[id='filesPhoto']").change(function (e) {
+            var $this = $(this);
+            var FileSize = this.files[0].size / 1024 / 1024;
+            if (FileSize > 20) {
+                $('#filesPhoto').val('');
+                alert('Files cannot exceed 20 MB');
+            }
+            else {
+                $("#filename1").val($this.val().split('\\').pop());
+            }
+        });
         function GetAssessment(value) {
-            if (@Model.oFieldAssessmentViewModel.TPrtSites != null) {
+            @*if (@Model.oFieldAssessmentViewModel.TPrtSites != null) {*@
                 var siteIndx = "@Model.oFieldAssessmentViewModel.TPrtSites?.SiteIdx";
                 window.location.href = "/OpenDump/FieldAssessments?AssessmentIdx=" + value + "&SiteIdx=" + siteIndx;
 
-            }
+            //}
         }
     </script>
 }

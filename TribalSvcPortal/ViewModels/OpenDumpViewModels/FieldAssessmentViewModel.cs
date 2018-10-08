@@ -1,9 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 using TribalSvcPortal.Data.Models;
+using Microsoft.AspNetCore.Http;
 
 namespace TribalSvcPortal.ViewModels.OpenDumpViewModels
 {
@@ -16,5 +18,15 @@ namespace TribalSvcPortal.ViewModels.OpenDumpViewModels
         public T_OD_DUMP_ASSESSMENTS TOdDumpAssessments { get; set; }
         public List<T_OD_DUMP_ASSESSMENTS> TOdDumpAssessmentsGridList { get; set; }
         public Guid selDumpAssessmentIdx { get; set; }
+
+        [DisplayName("Upload Photo")]
+        public IFormFile filesPhoto { get; set; }
+        public string FilePhotoDescription { get; set; }
+        public List<T_PRT_DOCUMENTS> filesPhoto_existing { get; set; }
+
+        [DisplayName("Upload File")]
+        public IFormFile files { get; set; }
+        public string FileDescription { get; set; }
+        public List<T_PRT_DOCUMENTS> files_existing { get; set; }
     }
 }
