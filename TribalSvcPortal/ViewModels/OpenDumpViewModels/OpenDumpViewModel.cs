@@ -13,6 +13,6 @@ namespace TribalSvcPortal.ViewModels.OpenDumpViewModels
     }
     public enum OpenDumpTab
     {
-        Prefield, FieldAssessment, HealthThreat, WasteProfile, SiteCleanUp
+        Prefield, FieldAssessment, HealthThreat, SiteCleanUp
     }
 }

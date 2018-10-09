@@ -19,7 +19,16 @@ namespace TribalSvcPortal.ViewModels.OpenDumpViewModels
         public List<T_OD_DUMP_ASSESSMENTS> TOdDumpAssessmentsGridList { get; set; }
         public Guid selDumpAssessmentIdx { get; set; }
 
-        [DisplayName("Upload Photo")]
+        public IEnumerable<SelectListItem> AverageRainfallList { get; set; }
+        public IEnumerable<SelectListItem> DrainageList { get; set; }
+        public IEnumerable<SelectListItem> FloodingList { get; set; }
+        public IEnumerable<SelectListItem> BurningList { get; set; }
+        public IEnumerable<SelectListItem> FencedList { get; set; }
+        public IEnumerable<SelectListItem> AccessList { get; set; }
+        public IEnumerable<SelectListItem> ConcernList { get; set; }
+        
+
+[DisplayName("Upload Photo")]
         public IFormFile filesPhoto { get; set; }
         public string FilePhotoDescription { get; set; }
         public List<T_PRT_DOCUMENTS> filesPhoto_existing { get; set; }

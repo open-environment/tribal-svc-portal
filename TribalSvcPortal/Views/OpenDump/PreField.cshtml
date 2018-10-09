@@ -48,11 +48,11 @@
                         @await Component.InvokeAsync("PreField", new { SiteIdx = Model.oPreFieldViewModel.TPrtSites.SiteIdx, returnURL = Model.oPreFieldViewModel.returnURL })
 
                     </div>
-                    <div class="@(Model.ActiveTab == OpenDumpTab.FieldAssessment  ? "tab-pane in active" : "tab-pane")" id="tab2">
-                        @*@{ Html.RenderPartial("_FieldAssessments", Model.oFieldAssessmentViewModel); }*@
+                    <div class="@(Model.ActiveTab == OpenDumpTab.FieldAssessment  ? "tab-pane in active" : "tab-pane")" id="tab2">                       
                         @await Component.InvokeAsync("FieldAssessments", new { SiteIdx = Model.oPreFieldViewModel.TPrtSites.SiteIdx, AssessmentIdx = Model.oFieldAssessmentViewModel.selDumpAssessmentIdx })
                     </div>
                     <div class="tab-pane" id="tab3">
+                        @await Component.InvokeAsync("HealthThreat", new { SiteIdx = Model.oPreFieldViewModel.TPrtSites.SiteIdx, AssessmentIdx = Model.oFieldAssessmentViewModel.selDumpAssessmentIdx })
                     </div>
                     <div class="tab-pane" id="tab4">
                     </div>
@@ -73,14 +73,14 @@
     <script src="https://js.arcgis.com/3.25/"></script>
     <script type="text/javascript">
         $(document).ready(function () {
-
             $('a.descinfo').click(function () {
                 var dad = $(this).parent().parent();
                 dad.find("#divHideOnEdit").hide();
                 dad.find("#divShowOnEdit").show().focus();
                 return false;
             });
-            $('a.descinfo activity').click(function () {
+
+            $('a.activity').click(function () {
                 var dad = $(this).parent().parent();
                 dad.find("#divPhotoHideOnEdit").hide();
                 dad.find("#divPhotoShowOnEdit").show().focus();
