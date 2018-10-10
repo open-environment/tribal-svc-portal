@@ -50,22 +50,12 @@
 
                     </div>
                 </div>
-                <div class="col-md-6">
-                    @if (Model.oPreFieldViewModel.TPrtSites != null)
-                    {
-
-                        <div class="form-group">
-                            <a href="@Url.Action("FieldAssessments", "OpenDump", new { SiteIdx = Model.oPreFieldViewModel.TPrtSites.SiteIdx })" class="btn btn-primary"
-                               style="color: #fff;background-color: #5cb85c;border-color: #4cae4c;border-radius: 4px !important;">Add New Assessment</a>
-                        </div>
-                    }
-                </div>
             </div>
         </div>
 
         <section class="panel panel-default" style="margin-top:5px;">
             <div class="panel-heading">
-               Waste Profile
+                Waste Profile
                 <div class="panel-tools">
                     <a class="btn btn-xs panel-collapse collapses" href="#">
                     </a>
@@ -74,45 +64,242 @@
             <div class="panel-body">
                 <div class="col-lg-12 col-md-12 col-sm-12 no-padding">
                     <div class="row">
-                        <div class="col-md-3">
+                        <div class="col-md-8">
                             <div class="form-group">
-                                <label>Date of Assessment</label>
-                                @Html.TextBoxFor(model => model.oFieldAssessmentViewModel.TOdDumpAssessments.ASSESSMENT_DT, "{0:dd/MM/yyyy}", new { @id = "dateAssessment", @class = "form-control datepicker" })
+                                <label><b>Size</b></label>
                             </div>
                         </div>
                         <div class="col-md-4">
-                            <div class="form-group">
-                                <label>Assessed By</label>
-                                @Html.TextBoxFor(model => model.oFieldAssessmentViewModel.TOdDumpAssessments.ASSESSED_BY, new { @class = "form-control", @placeholder = "", @maxlength = "450" })
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    <label><b>Score</b></label>
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    @Html.TextBoxFor(model => model.oFieldAssessmentViewModel.SizeScore, new { @id = "SizeScore", @class = "form-control", @placeholder = "", @maxlength = "2" })
+                                </div>
                             </div>
                         </div>
-                        <div class="col-md-3">
-                            <div class="form-group">
-                                <label>Assessment Type</label>
-                                @Html.DropDownListFor(model => model.oFieldAssessmentViewModel.TOdDumpAssessments.ASSESSMENT_TYPE_IDX, Model.oFieldAssessmentViewModel.AssessmentTypeList, "", new { @class = "form-control" })
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-12" style="margin-top: 8px;">
+                            <label class="col-sm-2 control-label" style="margin-top:8px;">
+                                Surface Area (acres)
+                            </label>
+                            <div class="col-sm-3">
+                                @Html.TextBoxFor(model => model.oFieldAssessmentViewModel.TOdDumpAssessments.AREA_ACRES, new { @id = "acres", @class = "form-control", @placeholder = "", @type = "number", @min = "0", @maxlength = "8" })
                             </div>
                         </div>
-                        <div class="col-md-2" style="margin-top:22px;">
-                            <div class="form-group">
-                                @Html.CheckBoxFor(model => model.oFieldAssessmentViewModel.TOdDumpAssessments.ACTIVE_SITE_IND, new { @checked = "checked" })<label>Active Site</label>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-12" style="margin-top: 8px;">
+                            <label class="col-sm-2 control-label" style="margin-top:8px;">
+                                Total Volume (cu yds)
+                            </label>
+                            <div class="col-sm-3">
+                                @Html.TextBoxFor(model => model.oFieldAssessmentViewModel.TOdDumpAssessments.VOLUME_CU_YD, new { @id = "volume", @class = "form-control", @placeholder = "", @type = "number", @min = "0", @maxlength = "8" })
                             </div>
                         </div>
                     </div>
 
                     <div class="row">
-                        <div class="col-md-6">
+                        <div class="col-md-5">
                             <div class="form-group">
-                                <label>Site Description</label>
-                                @Html.TextAreaFor(model => model.oFieldAssessmentViewModel.TOdDumpAssessments.SITE_DESCRIPTION, new { @class = "form-control", @placeholder = "" })
+                                <label><b>Contents</b></label>
                             </div>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-3">
                             <div class="form-group">
-                                <label>Observations / Notes</label>
-                                @Html.TextAreaFor(model => model.oFieldAssessmentViewModel.TOdDumpAssessments.ASSESSMENT_NOTES, new { @class = "form-control", @placeholder = "" })
+                                <label><b>Sub-Score</b></label>
                             </div>
                         </div>
-                    </div>                  
+                        <div class="col-md-4">
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    <label><b>Score</b></label>
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    @Html.TextBoxFor(model => model.oFieldAssessmentViewModel.ContentScore, new { @id = "ContentScore", @class = "form-control", @placeholder = "", @maxlength = "2" })
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-12 col-md-12 col-sm-12">
+                        <div class="col-lg-12 col-md-12 col-sm-12">
+                            @for (int i = 0; i < Model.oFieldAssessmentViewModel.ContentCheckBoxList.Count(); i++)
+                            {
+                                <div class="col-lg-12 col-md-12 col-sm-12 no-padding">
+                                    <div class="col-lg-5 col-md-5 col-sm-5 checkbox">
+                                        @*<input asp-for="@Model.ContentCheckBoxList[i].IS_CHECKED" type="checkbox" onchange="checkboxclick()" />
+                            <label asp-for="@Model.ContentCheckBoxList[i].REF_WASTE_TYPE_IDX">@Model.ContentCheckBoxList[i].REF_WASTE_TYPE_NAME</label>
+                            <input asp-for="@Model.ContentCheckBoxList[i].REF_WASTE_HAZFACT_SUBSCORE" type="hidden" />*@
+
+                                        @Html.CheckBoxFor(model => model.oFieldAssessmentViewModel.ContentCheckBoxList[i].IS_CHECKED, new { @id = @Model.oFieldAssessmentViewModel.ContentCheckBoxList[i].REF_WASTE_TYPE_IDX, @onchange = "checkboxclick()" })<label>@Model.oFieldAssessmentViewModel.ContentCheckBoxList[i].REF_WASTE_TYPE_NAME</label>
+                                        <br />
+                                    </div>
+                                    @if (@Model.oFieldAssessmentViewModel.ContentCheckBoxList[i].IS_CHECKED)
+                                    {
+                                        <div class="col-lg-3 col-md-3 col-sm-3">
+                                            <label>@Model.oFieldAssessmentViewModel.ContentCheckBoxList[i].REF_WASTE_HAZFACT_SUBSCORE</label>
+                                        </div>
+                                        <div class="col-lg-4 col-md-4 col-sm-4">
+                                            <label></label>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="col-lg-3 col-md-3 col-sm-3">
+                                            <label></label>
+                                        </div>
+                                        <div class="col-lg-4 col-md-4 col-sm-4">
+                                            <label></label>
+                                        </div>
+                                    }
+                                </div>
+                            }
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-5">
+                            <div class="form-group">
+                                <label><b>Hazard Factors</b></label>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label><b>Sub-Score</b></label>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    <label><b>Score</b></label>
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    @Html.TextBoxFor(model => model.oFieldAssessmentViewModel.HazardFactorScore, new { @id = "HazardFactorScore", @class = "form-control", @placeholder = "", @maxlength = "2" })
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-12 col-md-12 col-sm-12 no-padding">
+                        <div class="col-lg-5 col-md-5 col-sm-5 checkbox">
+                            <div class="form-group">
+                                <label>Average RainFall</label>
+                                @Html.DropDownListFor(model => model.oFieldAssessmentViewModel.TOdDumpAssessments.HF_RAINFALL, Model.oFieldAssessmentViewModel.AverageRainfallList, "", new { @class = "form-control" })
+                            </div>
+                        </div>
+
+                        <div class="col-lg-3 col-md-3 col-sm-3">
+                            <label></label>
+                        </div>
+                        <div class="col-lg-4 col-md-4 col-sm-4">
+                            <label></label>
+                        </div>
+                    </div>
+                    <div class="col-lg-12 col-md-12 col-sm-12 no-padding">
+                        <div class="col-lg-5 col-md-5 col-sm-5 checkbox">
+                            <div class="form-group">
+                                <label>Site Drainage and Leachate Potential</label>
+                                @Html.DropDownListFor(model => model.oFieldAssessmentViewModel.TOdDumpAssessments.HF_DRAINAGE, Model.oFieldAssessmentViewModel.DrainageList, "", new { @class = "form-control" })
+                            </div>
+                        </div>
+
+                        <div class="col-lg-3 col-md-3 col-sm-3">
+                            <label></label>
+                        </div>
+                        <div class="col-lg-4 col-md-4 col-sm-4">
+                            <label></label>
+                        </div>
+                    </div>
+                    <div class="col-lg-12 col-md-12 col-sm-12 no-padding">
+                        <div class="col-lg-5 col-md-5 col-sm-5 checkbox">
+                            <div class="form-group">
+                                <label>Flooding Potential</label>
+                                @Html.DropDownListFor(model => model.oFieldAssessmentViewModel.TOdDumpAssessments.HF_FLOODING, Model.oFieldAssessmentViewModel.FloodingList, "", new { @class = "form-control" })
+                            </div>
+                        </div>
+
+                        <div class="col-lg-3 col-md-3 col-sm-3">
+                            <label></label>
+                        </div>
+                        <div class="col-lg-4 col-md-4 col-sm-4">
+                            <label></label>
+                        </div>
+                    </div>
+                    <div class="col-lg-12 col-md-12 col-sm-12 no-padding">
+                        <div class="col-lg-5 col-md-5 col-sm-5 checkbox">
+                            <div class="form-group">
+                                <label>Frequency of Burning</label>
+                                @Html.DropDownListFor(model => model.oFieldAssessmentViewModel.TOdDumpAssessments.HF_BURNING, Model.oFieldAssessmentViewModel.BurningList, "", new { @class = "form-control" })
+                            </div>
+                        </div>
+
+                        <div class="col-lg-3 col-md-3 col-sm-3">
+                            <label></label>
+                        </div>
+                        <div class="col-lg-4 col-md-4 col-sm-4">
+                            <label></label>
+                        </div>
+                    </div>
+                    <div class="col-lg-12 col-md-12 col-sm-12 no-padding">
+                        <div class="col-lg-5 col-md-5 col-sm-5 checkbox">
+                            <div class="form-group">
+                                <label>Fenced Site</label>
+                                @Html.DropDownListFor(model => model.oFieldAssessmentViewModel.TOdDumpAssessments.HF_FENCING, Model.oFieldAssessmentViewModel.FencedList, "", new { @class = "form-control" })
+                            </div>
+                        </div>
+
+                        <div class="col-lg-3 col-md-3 col-sm-3">
+                            <label></label>
+                        </div>
+                        <div class="col-lg-4 col-md-4 col-sm-4">
+                            <label></label>
+                        </div>
+                    </div>
+                    <div class="col-lg-12 col-md-12 col-sm-12 no-padding">
+                        <div class="col-lg-5 col-md-5 col-sm-5 checkbox">
+                            <div class="form-group">
+                                <label>Controlled Access</label>
+                                @Html.DropDownListFor(model => model.oFieldAssessmentViewModel.TOdDumpAssessments.HF_ACCESS_CONTROL, Model.oFieldAssessmentViewModel.AccessList, "", new { @class = "form-control" })
+                            </div>
+                        </div>
+
+                        <div class="col-lg-3 col-md-3 col-sm-3">
+                            <label></label>
+                        </div>
+                        <div class="col-lg-4 col-md-4 col-sm-4">
+                            <label></label>
+                        </div>
+                    </div>
+                    <div class="col-lg-12 col-md-12 col-sm-12 no-padding">
+                        <div class="col-lg-5 col-md-5 col-sm-5 checkbox">
+                            <div class="form-group">
+                                <label>Public Concern</label>
+                                @Html.DropDownListFor(model => model.oFieldAssessmentViewModel.TOdDumpAssessments.HF_PUBLIC_CONCERN, Model.oFieldAssessmentViewModel.ConcernList, "", new { @class = "form-control" })
+                            </div>
+                        </div>
+
+                        <div class="col-lg-3 col-md-3 col-sm-3">
+                            <label></label>
+                        </div>
+                        <div class="col-lg-4 col-md-4 col-sm-4">
+                            <label></label>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label><b>Health Threat Score</b></label>
+                            </div>
+                        </div>                      
+                    </div>
                     <div class="row">
                         <div class="col-md-12">
                             <button type="submit" name="submitButton" value="Save" class="btn btn-primary">Save</button>
@@ -123,3 +310,17 @@
         </section>
     }
 }
+@section scripts {
+    <script src="~/js/confirm_delete.js">
+    </script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            function checkboxclick() {
+            window.location.href = "/OpenDump/HealthThreatContent?model=" + @Model;
+        }
+        });
+
+
+    </script>
+}
+

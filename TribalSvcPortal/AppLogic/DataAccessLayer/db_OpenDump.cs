@@ -43,6 +43,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
         int DeleteT_OD_DumpAssessment(Guid DumpAssessmentIDX);
         Guid? InsertUpdateT_OD_DumpAssessment(Guid dUMPASSESSMENTS_IDX, Guid sITE_IDX, DateTime aSSESSMENT_DT, string aSSESSED_BY, Guid? ASSESSMENT_TYPE_IDX, bool ACTIVE_SITE_IND, string SITE_DESCRIPTION, string ASSESSMENT_NOTES);
         Guid? InsertUpdateT_OD_DUMP_ASSESSMENT_DOCUMENTS(Guid? dOC_IDX, Guid dUMPASSESSMENTS_IDX);
+        List<T_OD_REF_WASTE_TYPE> get_checkbox_refwastetype_by_wastetypecat(string waste_type_cat, Guid? AssessmentIdx);
     }
 
     public class DbOpenDump : IDbOpenDump
@@ -115,6 +116,49 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
                                Value = a.THREAT_FACTOR_IDX.ToString(),
                                Text = a.THREAT_FACTOR_NAME
                            }).ToList();
+
+                return xxx;
+            }
+            catch (Exception ex)
+            {
+                log.LogEFException(ex);
+                return null;
+            }
+        }
+        public List<T_OD_REF_WASTE_TYPE> get_checkbox_refwastetype_by_wastetypecat(string waste_type_cat, Guid? AssessmentIdx)
+        {
+            try
+            {
+                List<T_OD_REF_WASTE_TYPE> xxx = new List<T_OD_REF_WASTE_TYPE>();
+                if (AssessmentIdx == null)
+                {
+                   xxx = (from a in ctx.T_OD_REF_WASTE_TYPE
+                           where a.REF_WASTE_TYPE_CAT == waste_type_cat
+                           orderby a.REF_WASTE_TYPE_NAME
+                           select a).ToList();
+                }
+                else
+                {
+                    xxx = (from a in ctx.T_OD_REF_WASTE_TYPE
+                           where a.REF_WASTE_TYPE_CAT == waste_type_cat
+                           orderby a.REF_WASTE_TYPE_NAME
+                           select a).ToList();
+
+                    List<T_OD_DUMP_ASSESSMENT_CONTENT> todac = (from a in ctx.T_OD_DUMP_ASSESSMENT_CONTENT
+                                                                where a.DUMP_ASSESSMENTS_IDX == AssessmentIdx                                                               
+                                                                select a).ToList();
+                    foreach (T_OD_REF_WASTE_TYPE oWasteType in xxx)
+                    {
+                        foreach (T_OD_DUMP_ASSESSMENT_CONTENT oOneNew in todac)
+                        {
+                            if (oWasteType.REF_WASTE_TYPE_IDX == oOneNew.REF_WASTE_TYPE_IDX)
+                            {
+                                oWasteType.IS_CHECKED = true;
+                                break;
+                            }                           
+                        }
+                    }
+                }
 
                 return xxx;
             }

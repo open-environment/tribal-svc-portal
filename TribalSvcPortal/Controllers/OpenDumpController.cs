@@ -93,13 +93,16 @@ namespace TribalSvcPortal.Controllers
             PreFieldmodel.HomesList = _DbOpenDump.get_ddl_refthreatfactor_by_factortype("Homes");
 
 
-            FieldAssessmentmodel.AverageRainfallList = _DbOpenDump.get_ddl_refdata_by_category("Rainfall");
-            FieldAssessmentmodel.BurningList = _DbOpenDump.get_ddl_refdata_by_category("Burning");
+            FieldAssessmentmodel.AverageRainfallList = _DbOpenDump.get_ddl_refthreatfactor_by_factortype("Rainfall");
+            FieldAssessmentmodel.BurningList = _DbOpenDump.get_ddl_refthreatfactor_by_factortype("Burning");
             FieldAssessmentmodel.ConcernList = _DbOpenDump.get_ddl_refthreatfactor_by_factortype("Concern");
             FieldAssessmentmodel.DrainageList = _DbOpenDump.get_ddl_refthreatfactor_by_factortype("Drainage");
             FieldAssessmentmodel.FloodingList = _DbOpenDump.get_ddl_refthreatfactor_by_factortype("Flooding");
             FieldAssessmentmodel.FencedList = _DbOpenDump.get_ddl_refthreatfactor_by_factortype("Fenced");
             FieldAssessmentmodel.AccessList = _DbOpenDump.get_ddl_refthreatfactor_by_factortype("Access");
+
+            FieldAssessmentmodel.ContentCheckBoxList = _DbOpenDump.get_checkbox_refwastetype_by_wastetypecat("Hazard Factor", AssessmentIdx);
+
 
             PreFieldmodel.OrgList = _DbOpenDump.get_ddl_od_organizations(_UserIDX);
             PreFieldmodel.returnURL = returnURL ?? "Search";
@@ -187,6 +190,11 @@ namespace TribalSvcPortal.Controllers
         public ActionResult HealthThreatEdit(Guid? Assessmentidx, Guid? Siteidx)
         {
             return RedirectToAction(nameof(PreField), new { SiteIdx = Siteidx, returnURL = "Search", AssessmentIdx = Assessmentidx, CreateAssessment = Assessmentidx == null ? true : false, activeTab = OpenDumpTab.HealthThreat });
+        }
+        public ActionResult HealthThreatContent(Guid? RefWasteTypeIdx)
+        {
+            return ViewComponent("HealthThreatContent");
+           // return RedirectToAction(nameof(PreField), new { SiteIdx = Siteidx, returnURL = "Search", AssessmentIdx = Assessmentidx, CreateAssessment = Assessmentidx == null ? true : false, activeTab = OpenDumpTab.HealthThreat });
         }
         [HttpPost, ValidateAntiForgeryToken]
         public ActionResult FieldAssessmentEdit(OpenDumpViewModel model)

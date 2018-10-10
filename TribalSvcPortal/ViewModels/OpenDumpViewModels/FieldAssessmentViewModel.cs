@@ -26,9 +26,12 @@ namespace TribalSvcPortal.ViewModels.OpenDumpViewModels
         public IEnumerable<SelectListItem> FencedList { get; set; }
         public IEnumerable<SelectListItem> AccessList { get; set; }
         public IEnumerable<SelectListItem> ConcernList { get; set; }
-        
+        public List<T_OD_REF_WASTE_TYPE> ContentCheckBoxList { get; set; }
+        public int SizeScore { get; set; }
+        public int ContentScore { get; set; }
+        public int HazardFactorScore { get; set; }
 
-[DisplayName("Upload Photo")]
+        [DisplayName("Upload Photo")]
         public IFormFile filesPhoto { get; set; }
         public string FilePhotoDescription { get; set; }
         public List<T_PRT_DOCUMENTS> filesPhoto_existing { get; set; }

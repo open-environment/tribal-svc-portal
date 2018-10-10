@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TribalSvcPortal.Data.Models
 {
@@ -16,7 +17,8 @@ namespace TribalSvcPortal.Data.Models
         public int? REF_WASTE_HAZFACT_SUBSCORE { get; set; }
         public string MODIFY_USER_ID { get; set; }
         public DateTime? MODIFY_DT { get; set; }
-
+        [NotMapped]
+        public bool IS_CHECKED { get; set; }
         public ICollection<T_OD_DUMP_ASSESSMENT_CONTENT> T_OD_DUMP_ASSESSMENT_CONTENT { get; set; }
     }
 }

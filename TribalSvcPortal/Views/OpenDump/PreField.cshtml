@@ -146,13 +146,34 @@
                 $("#filename1").val($this.val().split('\\').pop());
             }
         });
-        function GetAssessment(value) {
-            @*if (@Model.oFieldAssessmentViewModel.TPrtSites != null) {*@
+        function GetAssessment(value) {           
                 var siteIndx = "@Model.oFieldAssessmentViewModel.TPrtSites?.SiteIdx";
                 window.location.href = "/OpenDump/FieldAssessments?AssessmentIdx=" + value + "&SiteIdx=" + siteIndx;
-
-            //}
+                      
         }
+        function checkboxclick() {
+            window.location.href = "/OpenDump/HealthThreatContent?model=" + @Model;
+        }
+        $("#acres").change(function (e) {
+
+            var num = parseFloat($(this).val());
+            if (num > 5) {
+                $('#SizeScore').val(3);
+            }
+            else if (num >= 0.5 && num <= 5)
+            { 
+                $('#SizeScore').val(2);
+            }
+            else if (num < 0.5) {
+                $('#SizeScore').val(1);
+            }
+            $(this).val(num.toFixed(2));
+        });
+        $("#volume").change(function (e) {
+
+            var num = parseFloat($(this).val());
+            $(this).val(num.toFixed(2));
+        });
     </script>
     @if (Model.oPreFieldViewModel.TPrtSites != null)
     {
