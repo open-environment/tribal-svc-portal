@@ -1,6 +1,7 @@
 ﻿@using Microsoft.AspNetCore.Identity
 @using TribalSvcPortal.ViewModels
 @using TribalSvcPortal.AppLogic.BusinessLogicLayer
+@using TribalSvcPortal.AppLogic.DataAccessLayer
 @model TribalSvcPortal.ViewModels.OpenDumpViewModels.OpenDumpViewModel
 
 @if (Model != null)
@@ -134,31 +135,26 @@
                             {
                                 <div class="col-lg-12 col-md-12 col-sm-12 no-padding">
                                     <div class="col-lg-5 col-md-5 col-sm-5 checkbox">
-                                        @*<input asp-for="@Model.ContentCheckBoxList[i].IS_CHECKED" type="checkbox" onchange="checkboxclick()" />
-                            <label asp-for="@Model.ContentCheckBoxList[i].REF_WASTE_TYPE_IDX">@Model.ContentCheckBoxList[i].REF_WASTE_TYPE_NAME</label>
-                            <input asp-for="@Model.ContentCheckBoxList[i].REF_WASTE_HAZFACT_SUBSCORE" type="hidden" />*@
 
-                                        @Html.CheckBoxFor(model => model.oFieldAssessmentViewModel.ContentCheckBoxList[i].IS_CHECKED, new { @id = @Model.oFieldAssessmentViewModel.ContentCheckBoxList[i].REF_WASTE_TYPE_IDX, @onchange = "checkboxclick()" })<label>@Model.oFieldAssessmentViewModel.ContentCheckBoxList[i].REF_WASTE_TYPE_NAME</label>
+                                        @Html.CheckBoxFor(model => model.oFieldAssessmentViewModel.ContentCheckBoxList[i].IS_CHECKED, new { @id = @Model.oFieldAssessmentViewModel.ContentCheckBoxList[i].REF_WASTE_TYPE_IDX, @class = "cbk" })<label>@Model.oFieldAssessmentViewModel.ContentCheckBoxList[i].REF_WASTE_TYPE_NAME</label>
                                         <br />
                                     </div>
-                                    @if (@Model.oFieldAssessmentViewModel.ContentCheckBoxList[i].IS_CHECKED)
+                                    @if (Model.oFieldAssessmentViewModel.ContentCheckBoxList[i].IS_CHECKED)
                                     {
                                         <div class="col-lg-3 col-md-3 col-sm-3">
-                                            <label>@Model.oFieldAssessmentViewModel.ContentCheckBoxList[i].REF_WASTE_HAZFACT_SUBSCORE</label>
-                                        </div>
-                                        <div class="col-lg-4 col-md-4 col-sm-4">
-                                            <label></label>
+                                            <label style="display:block;" id="label@(Model.oFieldAssessmentViewModel.ContentCheckBoxList[i].REF_WASTE_TYPE_IDX)">@Model.oFieldAssessmentViewModel.ContentCheckBoxList[i].REF_WASTE_HAZFACT_SUBSCORE</label>
                                         </div>
                                     }
                                     else
                                     {
                                         <div class="col-lg-3 col-md-3 col-sm-3">
-                                            <label></label>
+                                            <label style="display:none;" id="label@(Model.oFieldAssessmentViewModel.ContentCheckBoxList[i].REF_WASTE_TYPE_IDX)">@Model.oFieldAssessmentViewModel.ContentCheckBoxList[i].REF_WASTE_HAZFACT_SUBSCORE</label>
                                         </div>
-                                        <div class="col-lg-4 col-md-4 col-sm-4">
-                                            <label></label>
-                                        </div>
+
                                     }
+                                    <div class="col-lg-4 col-md-4 col-sm-4">
+                                        <label></label>
+                                    </div>
                                 </div>
                             }
                         </div>
@@ -187,125 +183,136 @@
                             </div>
                         </div>
                     </div>
+                    @{ RefThreatFactor[] h = @Model.oFieldAssessmentViewModel.TOdRefThreatFactorList.ToArray();
+                    }
 
-                    <div class="col-lg-12 col-md-12 col-sm-12 no-padding">
-                        <div class="col-lg-5 col-md-5 col-sm-5 checkbox">
-                            <div class="form-group">
-                                <label>Average RainFall</label>
-                                @Html.DropDownListFor(model => model.oFieldAssessmentViewModel.TOdDumpAssessments.HF_RAINFALL, Model.oFieldAssessmentViewModel.AverageRainfallList, "", new { @class = "form-control" })
+                        <div class="col-lg-12 col-md-12 col-sm-12 no-padding">
+                            <div class="col-lg-5 col-md-5 col-sm-5">
+                                <div class="form-group">
+                                    <label>Average RainFall</label>
+                                    @{ string nameRainFall = "RainFall";}
+                                    @Html.DropDownListFor(model => model.oFieldAssessmentViewModel.TOdDumpAssessments.HF_RAINFALL, Model.oFieldAssessmentViewModel.AverageRainfallList, "", new { @class = "form-control", @onchange = "GetSubScore(this.value," + Json.Serialize(h) + "," + Json.Serialize(nameRainFall) + ")" })
+                                </div>
+                            </div>
+
+                            <div class="col-lg-3 col-md-3 col-sm-3">
+                                <label id="labelRainfall" class="labelclass">@Model.oFieldAssessmentViewModel.RainfallSubScore</label>
+                            </div>
+                            <div class="col-lg-4 col-md-4 col-sm-4">
+                                <label></label>
+                            </div>
+                        </div>
+                        <div class="col-lg-12 col-md-12 col-sm-12 no-padding">
+                            <div class="col-lg-5 col-md-5 col-sm-5">
+                                <div class="form-group">
+                                    <label>Site Drainage and Leachate Potential</label>
+                                    @{ string nameDrainage = "Drainage";}
+                                    @Html.DropDownListFor(model => model.oFieldAssessmentViewModel.TOdDumpAssessments.HF_DRAINAGE, Model.oFieldAssessmentViewModel.DrainageList, "", new { @class = "form-control", @onchange = "GetSubScore(this.value," + Json.Serialize(h) + "," + Json.Serialize(nameDrainage) + ")" })
+                                </div>
+                            </div>
+
+                            <div class="col-lg-3 col-md-3 col-sm-3">
+                                <label id="labelDrainage" class="labelclass">@Model.oFieldAssessmentViewModel.DrainageSubScore</label>
+                            </div>
+                            <div class="col-lg-4 col-md-4 col-sm-4">
+                                <label></label>
+                            </div>
+                        </div>
+                        <div class="col-lg-12 col-md-12 col-sm-12 no-padding">
+                            <div class="col-lg-5 col-md-5 col-sm-5">
+                                <div class="form-group">
+                                    <label>Flooding Potential</label>
+                                    @{ string nameFlooding = "Flooding";}
+                                    @Html.DropDownListFor(model => model.oFieldAssessmentViewModel.TOdDumpAssessments.HF_FLOODING, Model.oFieldAssessmentViewModel.FloodingList, "", new { @class = "form-control", @onchange = "GetSubScore(this.value," + Json.Serialize(h) + "," + Json.Serialize(nameFlooding) + ")" })
+                                </div>
+                            </div>
+
+                            <div class="col-lg-3 col-md-3 col-sm-3">
+                                <label id="labelFlooding" class="labelclass">@Model.oFieldAssessmentViewModel.FloodingSubScore</label>
+                            </div>
+                            <div class="col-lg-4 col-md-4 col-sm-4">
+                                <label></label>
+                            </div>
+                        </div>
+                        <div class="col-lg-12 col-md-12 col-sm-12 no-padding">
+                            <div class="col-lg-5 col-md-5 col-sm-5">
+                                <div class="form-group">
+                                    <label>Frequency of Burning</label>
+                                    @{ string nameBurning = "Burning";}
+                                    @Html.DropDownListFor(model => model.oFieldAssessmentViewModel.TOdDumpAssessments.HF_BURNING, Model.oFieldAssessmentViewModel.BurningList, "", new { @class = "form-control", @onchange = "GetSubScore(this.value," + Json.Serialize(h) + "," + Json.Serialize(nameBurning) + ")" })
+                                </div>
+                            </div>
+
+                            <div class="col-lg-3 col-md-3 col-sm-3">
+                                <label id="labelBurning" class="labelclass">@Model.oFieldAssessmentViewModel.BurningSubScore</label>
+                            </div>
+                            <div class="col-lg-4 col-md-4 col-sm-4">
+                                <label></label>
+                            </div>
+                        </div>
+                        <div class="col-lg-12 col-md-12 col-sm-12 no-padding">
+                            <div class="col-lg-5 col-md-5 col-sm-5">
+                                <div class="form-group">
+                                    <label>Fenced Site</label>
+                                    @{ string nameFenced = "Fenced";}
+                                    @Html.DropDownListFor(model => model.oFieldAssessmentViewModel.TOdDumpAssessments.HF_FENCING, Model.oFieldAssessmentViewModel.FencedList, "", new { @class = "form-control", @onchange = "GetSubScore(this.value," + Json.Serialize(h) + "," + Json.Serialize(nameFenced) + ")" })
+                                </div>
+                            </div>
+
+                            <div class="col-lg-3 col-md-3 col-sm-3">
+                                <label id="labelFenced" class="labelclass">@Model.oFieldAssessmentViewModel.FencedSubScore</label>
+                            </div>
+                            <div class="col-lg-4 col-md-4 col-sm-4">
+                                <label></label>
+                            </div>
+                        </div>
+                        <div class="col-lg-12 col-md-12 col-sm-12 no-padding">
+                            <div class="col-lg-5 col-md-5 col-sm-5">
+                                <div class="form-group">
+                                    <label>Controlled Access</label>
+                                    @{ string nameAccess = "Access";}
+                                    @Html.DropDownListFor(model => model.oFieldAssessmentViewModel.TOdDumpAssessments.HF_ACCESS_CONTROL, Model.oFieldAssessmentViewModel.AccessList, "", new { @class = "form-control", @onchange = "GetSubScore(this.value," + Json.Serialize(h) + "," + Json.Serialize(nameAccess) + ")" })
+                                </div>
+                            </div>
+
+                            <div class="col-lg-3 col-md-3 col-sm-3">
+                                <label id="labelAccess" class="labelclass">@Model.oFieldAssessmentViewModel.AccessSubScore</label>
+                            </div>
+                            <div class="col-lg-4 col-md-4 col-sm-4">
+                                <label></label>
+                            </div>
+                        </div>
+                        <div class="col-lg-12 col-md-12 col-sm-12 no-padding">
+                            <div class="col-lg-5 col-md-5 col-sm-5">
+                                <div class="form-group">
+                                    <label>Public Concern</label>
+
+                                    @{string nameConcern = "Concern";}
+                                    @Html.DropDownListFor(model => model.oFieldAssessmentViewModel.TOdDumpAssessments.HF_PUBLIC_CONCERN, Model.oFieldAssessmentViewModel.ConcernList, "", new { @class = "form-control", @onchange = "GetSubScore(this.value," + Json.Serialize(h) + "," + Json.Serialize(nameConcern) + ")" })
+                                </div>
+                            </div>
+
+                            <div class="col-lg-3 col-md-3 col-sm-3">
+                                <label id="labelConcern" class="labelclass">@Model.oFieldAssessmentViewModel.ConcernSubScore</label>
+                            </div>
+                            <div class="col-lg-4 col-md-4 col-sm-4">
+                                <label></label>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label><b>Health Threat Score</b></label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <button type="submit" name="submitButton" value="Save" class="btn btn-primary">Save</button>
                             </div>
                         </div>
 
-                        <div class="col-lg-3 col-md-3 col-sm-3">
-                            <label></label>
-                        </div>
-                        <div class="col-lg-4 col-md-4 col-sm-4">
-                            <label></label>
-                        </div>
                     </div>
-                    <div class="col-lg-12 col-md-12 col-sm-12 no-padding">
-                        <div class="col-lg-5 col-md-5 col-sm-5 checkbox">
-                            <div class="form-group">
-                                <label>Site Drainage and Leachate Potential</label>
-                                @Html.DropDownListFor(model => model.oFieldAssessmentViewModel.TOdDumpAssessments.HF_DRAINAGE, Model.oFieldAssessmentViewModel.DrainageList, "", new { @class = "form-control" })
-                            </div>
-                        </div>
-
-                        <div class="col-lg-3 col-md-3 col-sm-3">
-                            <label></label>
-                        </div>
-                        <div class="col-lg-4 col-md-4 col-sm-4">
-                            <label></label>
-                        </div>
-                    </div>
-                    <div class="col-lg-12 col-md-12 col-sm-12 no-padding">
-                        <div class="col-lg-5 col-md-5 col-sm-5 checkbox">
-                            <div class="form-group">
-                                <label>Flooding Potential</label>
-                                @Html.DropDownListFor(model => model.oFieldAssessmentViewModel.TOdDumpAssessments.HF_FLOODING, Model.oFieldAssessmentViewModel.FloodingList, "", new { @class = "form-control" })
-                            </div>
-                        </div>
-
-                        <div class="col-lg-3 col-md-3 col-sm-3">
-                            <label></label>
-                        </div>
-                        <div class="col-lg-4 col-md-4 col-sm-4">
-                            <label></label>
-                        </div>
-                    </div>
-                    <div class="col-lg-12 col-md-12 col-sm-12 no-padding">
-                        <div class="col-lg-5 col-md-5 col-sm-5 checkbox">
-                            <div class="form-group">
-                                <label>Frequency of Burning</label>
-                                @Html.DropDownListFor(model => model.oFieldAssessmentViewModel.TOdDumpAssessments.HF_BURNING, Model.oFieldAssessmentViewModel.BurningList, "", new { @class = "form-control" })
-                            </div>
-                        </div>
-
-                        <div class="col-lg-3 col-md-3 col-sm-3">
-                            <label></label>
-                        </div>
-                        <div class="col-lg-4 col-md-4 col-sm-4">
-                            <label></label>
-                        </div>
-                    </div>
-                    <div class="col-lg-12 col-md-12 col-sm-12 no-padding">
-                        <div class="col-lg-5 col-md-5 col-sm-5 checkbox">
-                            <div class="form-group">
-                                <label>Fenced Site</label>
-                                @Html.DropDownListFor(model => model.oFieldAssessmentViewModel.TOdDumpAssessments.HF_FENCING, Model.oFieldAssessmentViewModel.FencedList, "", new { @class = "form-control" })
-                            </div>
-                        </div>
-
-                        <div class="col-lg-3 col-md-3 col-sm-3">
-                            <label></label>
-                        </div>
-                        <div class="col-lg-4 col-md-4 col-sm-4">
-                            <label></label>
-                        </div>
-                    </div>
-                    <div class="col-lg-12 col-md-12 col-sm-12 no-padding">
-                        <div class="col-lg-5 col-md-5 col-sm-5 checkbox">
-                            <div class="form-group">
-                                <label>Controlled Access</label>
-                                @Html.DropDownListFor(model => model.oFieldAssessmentViewModel.TOdDumpAssessments.HF_ACCESS_CONTROL, Model.oFieldAssessmentViewModel.AccessList, "", new { @class = "form-control" })
-                            </div>
-                        </div>
-
-                        <div class="col-lg-3 col-md-3 col-sm-3">
-                            <label></label>
-                        </div>
-                        <div class="col-lg-4 col-md-4 col-sm-4">
-                            <label></label>
-                        </div>
-                    </div>
-                    <div class="col-lg-12 col-md-12 col-sm-12 no-padding">
-                        <div class="col-lg-5 col-md-5 col-sm-5 checkbox">
-                            <div class="form-group">
-                                <label>Public Concern</label>
-                                @Html.DropDownListFor(model => model.oFieldAssessmentViewModel.TOdDumpAssessments.HF_PUBLIC_CONCERN, Model.oFieldAssessmentViewModel.ConcernList, "", new { @class = "form-control" })
-                            </div>
-                        </div>
-
-                        <div class="col-lg-3 col-md-3 col-sm-3">
-                            <label></label>
-                        </div>
-                        <div class="col-lg-4 col-md-4 col-sm-4">
-                            <label></label>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="form-group">
-                                <label><b>Health Threat Score</b></label>
-                            </div>
-                        </div>                      
-                    </div>
-                    <div class="row">
-                        <div class="col-md-12">
-                            <button type="submit" name="submitButton" value="Save" class="btn btn-primary">Save</button>
-                        </div>
-                    </div>
-                </div>
             </div>
         </section>
     }

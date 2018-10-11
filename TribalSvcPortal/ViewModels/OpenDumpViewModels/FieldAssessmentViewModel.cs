@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using TribalSvcPortal.Data.Models;
 using Microsoft.AspNetCore.Http;
+using TribalSvcPortal.AppLogic.DataAccessLayer;
 
 namespace TribalSvcPortal.ViewModels.OpenDumpViewModels
 {
@@ -20,12 +21,22 @@ namespace TribalSvcPortal.ViewModels.OpenDumpViewModels
         public Guid selDumpAssessmentIdx { get; set; }
 
         public IEnumerable<SelectListItem> AverageRainfallList { get; set; }
+        public int? RainfallSubScore { get; set; }
         public IEnumerable<SelectListItem> DrainageList { get; set; }
+        public int? DrainageSubScore { get; set; }
         public IEnumerable<SelectListItem> FloodingList { get; set; }
+        public int? FloodingSubScore { get; set; }
         public IEnumerable<SelectListItem> BurningList { get; set; }
+        public int? BurningSubScore { get; set; }
         public IEnumerable<SelectListItem> FencedList { get; set; }
+        public int? FencedSubScore { get; set; }
         public IEnumerable<SelectListItem> AccessList { get; set; }
+        public int? AccessSubScore { get; set; }
         public IEnumerable<SelectListItem> ConcernList { get; set; }
+        public int? ConcernSubScore { get; set; }
+
+       public List<RefThreatFactor> TOdRefThreatFactorList { get; set; }
+
         public List<T_OD_REF_WASTE_TYPE> ContentCheckBoxList { get; set; }
         public int SizeScore { get; set; }
         public int ContentScore { get; set; }

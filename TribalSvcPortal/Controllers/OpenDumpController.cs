@@ -100,6 +100,7 @@ namespace TribalSvcPortal.Controllers
             FieldAssessmentmodel.FloodingList = _DbOpenDump.get_ddl_refthreatfactor_by_factortype("Flooding");
             FieldAssessmentmodel.FencedList = _DbOpenDump.get_ddl_refthreatfactor_by_factortype("Fenced");
             FieldAssessmentmodel.AccessList = _DbOpenDump.get_ddl_refthreatfactor_by_factortype("Access");
+            FieldAssessmentmodel.TOdRefThreatFactorList = _DbOpenDump.get_ddl_refthreatfactor();
 
             FieldAssessmentmodel.ContentCheckBoxList = _DbOpenDump.get_checkbox_refwastetype_by_wastetypecat("Hazard Factor", AssessmentIdx);
 

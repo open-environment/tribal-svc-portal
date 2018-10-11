@@ -24,6 +24,14 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
         public decimal? Latitude { get; set; }
         public decimal? Longitude { get; set; }
     }
+    public class RefThreatFactor
+    {
+        public Guid THREAT_FACTOR_IDX { get; set; }
+        public string THREAT_FACTOR_TYPE { get; set; }
+        public string THREAT_FACTOR_NAME { get; set; }
+        public int? THREAT_FACTOR_SCORE { get; set; }
+
+    }
 
     public interface IDbOpenDump
     {
@@ -44,6 +52,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
         Guid? InsertUpdateT_OD_DumpAssessment(Guid dUMPASSESSMENTS_IDX, Guid sITE_IDX, DateTime aSSESSMENT_DT, string aSSESSED_BY, Guid? ASSESSMENT_TYPE_IDX, bool ACTIVE_SITE_IND, string SITE_DESCRIPTION, string ASSESSMENT_NOTES);
         Guid? InsertUpdateT_OD_DUMP_ASSESSMENT_DOCUMENTS(Guid? dOC_IDX, Guid dUMPASSESSMENTS_IDX);
         List<T_OD_REF_WASTE_TYPE> get_checkbox_refwastetype_by_wastetypecat(string waste_type_cat, Guid? AssessmentIdx);
+        List<RefThreatFactor> get_ddl_refthreatfactor();
     }
 
     public class DbOpenDump : IDbOpenDump
@@ -516,6 +525,29 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
                 return null;
             }
 
+        }
+        public List<RefThreatFactor> get_ddl_refthreatfactor()
+        {
+            try
+            {
+                var xxx = (from a in ctx.T_OD_REF_THREAT_FACTORS                          
+                           orderby a.THREAT_FACTOR_SCORE
+                           select new RefThreatFactor
+                           {
+                               THREAT_FACTOR_IDX = a.THREAT_FACTOR_IDX,
+                               THREAT_FACTOR_NAME = a.THREAT_FACTOR_NAME,
+                               THREAT_FACTOR_SCORE =a.THREAT_FACTOR_SCORE,
+                               THREAT_FACTOR_TYPE = a.THREAT_FACTOR_TYPE
+
+                           }).ToList();
+
+                return xxx;
+            }
+            catch (Exception ex)
+            {
+                log.LogEFException(ex);
+                return null;
+            }
         }
 
 

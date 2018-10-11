@@ -146,14 +146,67 @@
                 $("#filename1").val($this.val().split('\\').pop());
             }
         });
-        function GetAssessment(value) {           
+        function GetSubScore(valueIdx, modelx, name) {
+            var Total = 0;
+           
+            for (var i = 0; i < modelx.length;i++)
+            {
+                if (valueIdx != "") {
+                    if (valueIdx.toLowerCase() == modelx[i].threaT_FACTOR_IDX) {
+                        $("#label" + modelx[i].threaT_FACTOR_TYPE).text(modelx[i].threaT_FACTOR_SCORE);
+                    }
+                }
+                else
+                {
+                    $("#label" + name).text('');
+                }
+            }
+            $(".labelclass").each(function () {
+                if ($(this)["0"].textContent != "") {
+                    Total = Total + parseInt($(this)["0"].textContent);                   
+                }
+               
+            });
+            $("#HazardFactorScore").val(Total);
+        }
+        function GetAssessment(value) {
                 var siteIndx = "@Model.oFieldAssessmentViewModel.TPrtSites?.SiteIdx";
                 window.location.href = "/OpenDump/FieldAssessments?AssessmentIdx=" + value + "&SiteIdx=" + siteIndx;
-                      
+
         }
-        function checkboxclick() {
-            window.location.href = "/OpenDump/HealthThreatContent?model=" + @Model;
-        }
+        $(".cbk").change(function () {
+            var select = "";
+            var total = 0;
+            var atleastonechecked = false;
+            $("input[type = 'checkbox']").each(function () {
+                var c = $(this).is(":checked");
+                if (c)
+                {
+                    var id = $(this)["0"].id;
+                    $("#label" + id).css("display", "block");
+                    total = total + parseInt($("#label" + id)["0"].textContent);
+                    if (total >= 25) {
+                        $('#ContentScore').val(8);
+                    }
+                    else if (total > 10 && total < 25) {
+                        $('#ContentScore').val(4);
+                    }
+                    else if (total <= 10) {
+                        $('#ContentScore').val(1);
+                    }
+                    atleastonechecked = true;
+                }
+                else
+                {
+                    var id = $(this)["0"].id;
+                    $("#label" + id).css("display", "none");
+                }
+            });
+            if (atleastonechecked == false) {
+                $('#ContentScore').val(0);
+            }
+        });
+
         $("#acres").change(function (e) {
 
             var num = parseFloat($(this).val());
@@ -161,7 +214,7 @@
                 $('#SizeScore').val(3);
             }
             else if (num >= 0.5 && num <= 5)
-            { 
+            {
                 $('#SizeScore').val(2);
             }
             else if (num < 0.5) {

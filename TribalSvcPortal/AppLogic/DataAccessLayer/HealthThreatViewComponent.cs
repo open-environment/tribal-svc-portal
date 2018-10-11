@@ -50,6 +50,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             FieldAssessmentmodel.FloodingList = _DbOpenDump.get_ddl_refthreatfactor_by_factortype("Flooding");
             FieldAssessmentmodel.FencedList = _DbOpenDump.get_ddl_refthreatfactor_by_factortype("Fenced");
             FieldAssessmentmodel.AccessList = _DbOpenDump.get_ddl_refthreatfactor_by_factortype("Access");
+            FieldAssessmentmodel.TOdRefThreatFactorList = _DbOpenDump.get_ddl_refthreatfactor();
 
             FieldAssessmentmodel.ContentCheckBoxList = _DbOpenDump.get_checkbox_refwastetype_by_wastetypecat("Hazard Factor", AssessmentIdx);
 
@@ -79,6 +80,34 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
                 FieldAssessmentmodel.AssessmentDropDownList = _DbOpenDump.get_ddl_od_dumpassessment_by_BySITEIDX(oT_OD_DUMP_ASSESSMENTS.SITE_IDX);
                 FieldAssessmentmodel.TOdDumpAssessmentsGridList = _DbOpenDump.GetT_OD_DumpAssessmentList_BySITEIDX(oT_OD_DUMP_ASSESSMENTS.SITE_IDX);
                 FieldAssessmentmodel.TOdDumpAssessments = oT_OD_DUMP_ASSESSMENTS;
+                if (FieldAssessmentmodel.TOdDumpAssessments.HF_RAINFALL!=null)
+                {
+                    FieldAssessmentmodel.RainfallSubScore = FieldAssessmentmodel.TOdRefThreatFactorList.Where(x => x.THREAT_FACTOR_IDX == FieldAssessmentmodel.TOdDumpAssessments.HF_RAINFALL).FirstOrDefault().THREAT_FACTOR_SCORE;
+                }
+                if (FieldAssessmentmodel.TOdDumpAssessments.HF_DRAINAGE != null)
+                {
+                    FieldAssessmentmodel.DrainageSubScore = FieldAssessmentmodel.TOdRefThreatFactorList.Where(x => x.THREAT_FACTOR_IDX == FieldAssessmentmodel.TOdDumpAssessments.HF_DRAINAGE).FirstOrDefault().THREAT_FACTOR_SCORE;
+                }
+                if (FieldAssessmentmodel.TOdDumpAssessments.HF_FLOODING != null)
+                {
+                    FieldAssessmentmodel.FloodingSubScore = FieldAssessmentmodel.TOdRefThreatFactorList.Where(x => x.THREAT_FACTOR_IDX == FieldAssessmentmodel.TOdDumpAssessments.HF_FLOODING).FirstOrDefault().THREAT_FACTOR_SCORE;
+                }
+                if (FieldAssessmentmodel.TOdDumpAssessments.HF_BURNING != null)
+                {
+                    FieldAssessmentmodel.BurningSubScore = FieldAssessmentmodel.TOdRefThreatFactorList.Where(x => x.THREAT_FACTOR_IDX == FieldAssessmentmodel.TOdDumpAssessments.HF_BURNING).FirstOrDefault().THREAT_FACTOR_SCORE;
+                }
+                if (FieldAssessmentmodel.TOdDumpAssessments.HF_FENCING != null)
+                {
+                    FieldAssessmentmodel.FencedSubScore = FieldAssessmentmodel.TOdRefThreatFactorList.Where(x => x.THREAT_FACTOR_IDX == FieldAssessmentmodel.TOdDumpAssessments.HF_FENCING).FirstOrDefault().THREAT_FACTOR_SCORE;
+                }
+                if (FieldAssessmentmodel.TOdDumpAssessments.HF_ACCESS_CONTROL != null)
+                {
+                    FieldAssessmentmodel.AccessSubScore = FieldAssessmentmodel.TOdRefThreatFactorList.Where(x => x.THREAT_FACTOR_IDX == FieldAssessmentmodel.TOdDumpAssessments.HF_ACCESS_CONTROL).FirstOrDefault().THREAT_FACTOR_SCORE;
+                }
+                if (FieldAssessmentmodel.TOdDumpAssessments.HF_PUBLIC_CONCERN != null)
+                {
+                    FieldAssessmentmodel.ConcernSubScore = FieldAssessmentmodel.TOdRefThreatFactorList.Where(x => x.THREAT_FACTOR_IDX == FieldAssessmentmodel.TOdDumpAssessments.HF_PUBLIC_CONCERN).FirstOrDefault().THREAT_FACTOR_SCORE;
+                }
                 FieldAssessmentmodel.files_existing = _DbPortal.GetT_PRT_DOCUMENTS_ByDumpAssessmentsIDx((Guid)AssessmentIdx);
                 FieldAssessmentmodel.filesPhoto_existing = _DbPortal.GetT_PRT_DOCUMENTS_Photos_ByDumpAssessmentsIDx((Guid)AssessmentIdx);
             }
