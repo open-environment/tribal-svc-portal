@@ -53,6 +53,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
         Guid? InsertUpdateT_OD_DUMP_ASSESSMENT_DOCUMENTS(Guid? dOC_IDX, Guid dUMPASSESSMENTS_IDX);
         List<T_OD_REF_WASTE_TYPE> get_checkbox_refwastetype_by_wastetypecat(string waste_type_cat, Guid? AssessmentIdx);
         List<RefThreatFactor> get_ddl_refthreatfactor();
+        IEnumerable<SelectListItem> get_ddl_od_assessmentforhealththreat_by_BySITEIDX(Guid? Siteidx);
     }
 
     public class DbOpenDump : IDbOpenDump
@@ -421,7 +422,30 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
                 return null;
             }
         }
-      
+        public IEnumerable<SelectListItem> get_ddl_od_assessmentforhealththreat_by_BySITEIDX(Guid? Siteidx)
+        {
+            try
+            {
+                //if (Siteidx != null)
+                //{
+                var xxx = (from a in ctx.T_OD_DUMP_ASSESSMENTS
+                           where a.SITE_IDX == Siteidx
+                           orderby a.ASSESSMENT_DT
+                           select new SelectListItem
+                           {
+                               Value = a.DUMP_ASSESSMENTS_IDX.ToString(),
+                               Text = a.ASSESSMENT_DT.ToString("dd-MM-yyyy")
+                           }).ToList();
+                xxx.Insert(0, new SelectListItem() { Value = "98567684-a5d5-4742-ac6d-1dd5080f76a7", Text = "Select" });
+                return xxx;
+
+            }
+            catch (Exception ex)
+            {
+                log.LogEFException(ex);
+                return null;
+            }
+        }
         public T_OD_DUMP_ASSESSMENTS GetT_OD_DumpAssessment_ByDumpAssessmentIDX(Guid DumpAssessmentIDX)
         {
             try

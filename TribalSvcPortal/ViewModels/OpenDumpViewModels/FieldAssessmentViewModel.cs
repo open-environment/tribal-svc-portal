@@ -14,6 +14,7 @@ namespace TribalSvcPortal.ViewModels.OpenDumpViewModels
     {
         public T_PRT_SITES TPrtSites { get; set; }
         public IEnumerable<SelectListItem> AssessmentDropDownList { get; set; }
+        public IEnumerable<SelectListItem> AssessmentForHealthThreatDropDownList { get; set; }
         public IEnumerable<SelectListItem> AssessmentTypeList { get; set; }
         public IEnumerable<SelectListItem> AssessedByList { get; set; }
         public T_OD_DUMP_ASSESSMENTS TOdDumpAssessments { get; set; }

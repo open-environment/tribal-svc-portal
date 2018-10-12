@@ -168,6 +168,22 @@
                
             });
             $("#HazardFactorScore").val(Total);
+
+            $('#HazardTotalScore').val(Total);
+            if ($('#SizeTotalScore').val() != '' && $('#ContentTotalScore').val() != '' && $('#HazardTotalScore').val() != '') {
+                var totalvalue = parseInt($('#SizeTotalScore').val()) * (parseInt($('#ContentTotalScore').val()) + parseInt($('#HazardTotalScore').val())) * 10;
+                if (totalvalue >= 0 && totalvalue <= 250) {
+                    $('#FinalScore').text("Low");
+                }
+                else if (totalvalue >= 251 && totalvalue <= 400) {
+                    $('#FinalScore').text("Moderate");
+                }
+                else if (totalvalue >= 401 && totalvalue <= 1488) {
+                    $('#FinalScore').text("High");
+                }
+                $('#HealthThreatScore').val(totalvalue);
+
+            }
         }
         function GetAssessment(value) {
                 var siteIndx = "@Model.oFieldAssessmentViewModel.TPrtSites?.SiteIdx";
@@ -179,31 +195,47 @@
             var total = 0;
             var atleastonechecked = false;
             $("input[type = 'checkbox']").each(function () {
-                var c = $(this).is(":checked");
-                if (c)
-                {
-                    var id = $(this)["0"].id;
-                    $("#label" + id).css("display", "block");
-                    total = total + parseInt($("#label" + id)["0"].textContent);
-                    if (total >= 25) {
-                        $('#ContentScore').val(8);
+                if ($(this)["0"].className == "cbk") {
+                    var c = $(this).is(":checked");
+                    if (c) {
+                        var id = $(this)["0"].id;
+                        $("#label" + id).css("display", "block");
+                        total = total + parseInt($("#label" + id)["0"].textContent);
+                        if (total >= 25) {
+                            $('#ContentScore').val(8);
+                        }
+                        else if (total > 10 && total < 25) {
+                            $('#ContentScore').val(4);
+                        }
+                        else if (total <= 10) {
+                            $('#ContentScore').val(1);
+                        }
+                        atleastonechecked = true;
                     }
-                    else if (total > 10 && total < 25) {
-                        $('#ContentScore').val(4);
+                    else {
+                        var id = $(this)["0"].id;
+                        $("#label" + id).css("display", "none");
                     }
-                    else if (total <= 10) {
-                        $('#ContentScore').val(1);
-                    }
-                    atleastonechecked = true;
-                }
-                else
-                {
-                    var id = $(this)["0"].id;
-                    $("#label" + id).css("display", "none");
                 }
             });
             if (atleastonechecked == false) {
                 $('#ContentScore').val(0);
+            }
+            var contentvalue = $('#ContentScore').val();
+            $('#ContentTotalScore').val(contentvalue);
+            if ($('#SizeTotalScore').val() != '' && $('#ContentTotalScore').val() != '' && $('#HazardTotalScore').val() != '') {
+                var totalvalue = parseInt($('#SizeTotalScore').val()) * (parseInt($('#ContentTotalScore').val()) + parseInt($('#HazardTotalScore').val())) * 10;
+                if (totalvalue >= 0 && totalvalue <= 250) {
+                    $('#FinalScore').text("Low");
+                }
+                else if (totalvalue >= 251 && totalvalue <= 400) {
+                    $('#FinalScore').text("Moderate");
+                }
+                else if (totalvalue >= 401 && totalvalue <= 1488) {
+                    $('#FinalScore').text("High");
+                }
+                $('#HealthThreatScore').val(totalvalue);
+
             }
         });
 
@@ -221,6 +253,23 @@
                 $('#SizeScore').val(1);
             }
             $(this).val(num.toFixed(2));
+            var sizevalue = $('#SizeScore').val();
+            $('#SizeTotalScore').val(sizevalue);
+            if ($('#SizeTotalScore').val() != '' && $('#ContentTotalScore').val() != '' && $('#HazardTotalScore').val() != '')
+            {
+                var totalvalue = parseInt($('#SizeTotalScore').val()) * (parseInt($('#ContentTotalScore').val()) + parseInt($('#HazardTotalScore').val())) * 10;
+                if (totalvalue >= 0 && totalvalue <= 250) {
+                    $('#FinalScore').text("Low");
+                }
+                else if (totalvalue >= 251 && totalvalue <= 400) { 
+                    $('#FinalScore').text("Moderate");
+                }
+                else if (totalvalue >= 401 && totalvalue <= 1488)  {
+                    $('#FinalScore').text("High");
+                 }
+                $('#HealthThreatScore').val(totalvalue);
+
+             }
         });
         $("#volume").change(function (e) {
 

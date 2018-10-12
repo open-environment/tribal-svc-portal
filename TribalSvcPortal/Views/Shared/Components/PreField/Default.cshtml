@@ -288,12 +288,15 @@
 
         });
 
-        function GetAssessment(value) {
-            @*if (@Model.oFieldAssessmentViewModel.TPrtSites != null) {*@
+        function GetAssessment(value) {          
                 var siteIndx = "@Model.oFieldAssessmentViewModel.TPrtSites?.SiteIdx";
                 window.location.href = "/OpenDump/FieldAssessments?AssessmentIdx=" + value + "&SiteIdx=" + siteIndx;
-
-            //}
+            
+        }
+         function GetHealthThreat(value) {          
+                var siteIndx = "@Model.oFieldAssessmentViewModel.TPrtSites?.SiteIdx";
+             window.location.href = "/OpenDump/HealthThreat?AssessmentIdx=" + value + "&SiteIdx=" + siteIndx;
+            
         }
     </script>
 }
