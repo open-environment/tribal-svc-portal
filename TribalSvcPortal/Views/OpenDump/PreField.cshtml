@@ -31,7 +31,7 @@
                             Field Assessments
                         </a>
                     </li>
-                    <li>
+                    <li class="@(Model.ActiveTab == OpenDumpTab.HealthThreat  ? "active" : "")">
                         <a href="#tab3" data-toggle="tab">
                             Waste Profile/Health Threat
                         </a>
@@ -51,7 +51,7 @@
                     <div class="@(Model.ActiveTab == OpenDumpTab.FieldAssessment  ? "tab-pane in active" : "tab-pane")" id="tab2">                       
                         @await Component.InvokeAsync("FieldAssessments", new { SiteIdx = Model.oPreFieldViewModel.TPrtSites.SiteIdx, AssessmentIdx = Model.oFieldAssessmentViewModel.selDumpAssessmentIdx })
                     </div>
-                    <div class="tab-pane" id="tab3">
+                    <div class="@(Model.ActiveTab == OpenDumpTab.HealthThreat  ? "tab-pane in active" : "tab-pane")" id="tab3">
                         @await Component.InvokeAsync("HealthThreat", new { SiteIdx = Model.oPreFieldViewModel.TPrtSites.SiteIdx, AssessmentIdx = Model.oFieldAssessmentViewModel.selDumpAssessmentIdx })
                     </div>
                     <div class="tab-pane" id="tab4">
@@ -276,6 +276,11 @@
             var num = parseFloat($(this).val());
             $(this).val(num.toFixed(2));
         });
+         function GetHealthThreat(value) {          
+                var siteIndx = "@Model.oFieldAssessmentViewModel.TPrtSites?.SiteIdx";
+             window.location.href = "/OpenDump/HealthThreat?AssessmentIdx=" + value + "&SiteIdx=" + siteIndx;
+            
+        }
     </script>
     @if (Model.oPreFieldViewModel.TPrtSites != null)
     {

@@ -48,12 +48,15 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
         List<T_OD_DUMP_ASSESSMENTS> GetT_OD_DumpAssessmentList_BySITEIDX(Guid Siteidx);
         IEnumerable<SelectListItem> get_ddl_od_dumpassessment_by_BySITEIDX(Guid? Siteidx);
         T_OD_DUMP_ASSESSMENTS GetT_OD_DumpAssessment_ByDumpAssessmentIDX(Guid DumpAssessmentIDX);
-        int DeleteT_OD_DumpAssessment(Guid DumpAssessmentIDX);
-        Guid? InsertUpdateT_OD_DumpAssessment(Guid dUMPASSESSMENTS_IDX, Guid sITE_IDX, DateTime aSSESSMENT_DT, string aSSESSED_BY, Guid? ASSESSMENT_TYPE_IDX, bool ACTIVE_SITE_IND, string SITE_DESCRIPTION, string ASSESSMENT_NOTES);
+        int DeleteT_OD_DumpAssessment(Guid DumpAssessmentIDX);   
+        Guid? InsertUpdateT_OD_DumpAssessment(Guid dUMPASSESSMENTS_IDX, Guid sITE_IDX, DateTime aSSESSMENT_DT, string aSSESSED_BY, Guid? ASSESSMENT_TYPE_IDX, bool ACTIVE_SITE_IND, string SITE_DESCRIPTION,
+                                                        string ASSESSMENT_NOTES, decimal? aREA_ACRES, decimal? vOLUMN_CU_YD, Guid? hF_RAINFALL, Guid? hF_DRAINAGE, Guid? hF_FLOODING, Guid? hF_BURNING, Guid? hF_FENCING, Guid? hF_ACCESS_CONTROL,
+                                                        Guid? hF_PUBLIC_CONCERN, int? hEALTH_THREAT_SCORE, string Tab);
         Guid? InsertUpdateT_OD_DUMP_ASSESSMENT_DOCUMENTS(Guid? dOC_IDX, Guid dUMPASSESSMENTS_IDX);
         List<T_OD_REF_WASTE_TYPE> get_checkbox_refwastetype_by_wastetypecat(string waste_type_cat, Guid? AssessmentIdx);
         List<RefThreatFactor> get_ddl_refthreatfactor();
         IEnumerable<SelectListItem> get_ddl_od_assessmentforhealththreat_by_BySITEIDX(Guid? Siteidx);
+        Guid? InsertUpdateT_OD_DumpAssessment_Content(Guid dUMPASSESSMENTS_IDX, Guid rEF_WASTE_TYPE_IDX, decimal? wASTE_AMT, Guid? wASTE_UNIT_MSR, Guid? wASTE_DISPOSAL_METHOD, string wASTE_DISPOSAL_DIST, bool IS_CHECKED);
     }
 
     public class DbOpenDump : IDbOpenDump
@@ -126,7 +129,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
                                Value = a.THREAT_FACTOR_IDX.ToString(),
                                Text = a.THREAT_FACTOR_NAME
                            }).ToList();
-
+                xxx.Insert(0, new SelectListItem { Text = "", Value = "" });
                 return xxx;
             }
             catch (Exception ex)
@@ -140,23 +143,18 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             try
             {
                 List<T_OD_REF_WASTE_TYPE> xxx = new List<T_OD_REF_WASTE_TYPE>();
-                if (AssessmentIdx == null)
-                {
-                   xxx = (from a in ctx.T_OD_REF_WASTE_TYPE
-                           where a.REF_WASTE_TYPE_CAT == waste_type_cat
-                           orderby a.REF_WASTE_TYPE_NAME
-                           select a).ToList();
-                }
-                else
-                {
-                    xxx = (from a in ctx.T_OD_REF_WASTE_TYPE
-                           where a.REF_WASTE_TYPE_CAT == waste_type_cat
-                           orderby a.REF_WASTE_TYPE_NAME
-                           select a).ToList();
+                xxx = (from a in ctx.T_OD_REF_WASTE_TYPE
+                       where a.REF_WASTE_TYPE_CAT == waste_type_cat
+                       orderby a.REF_WASTE_TYPE_NAME
+                       select a).ToList();
+               
+                if (AssessmentIdx != null)
+                {                   
 
                     List<T_OD_DUMP_ASSESSMENT_CONTENT> todac = (from a in ctx.T_OD_DUMP_ASSESSMENT_CONTENT
                                                                 where a.DUMP_ASSESSMENTS_IDX == AssessmentIdx                                                               
                                                                 select a).ToList();
+                   
                     foreach (T_OD_REF_WASTE_TYPE oWasteType in xxx)
                     {
                         foreach (T_OD_DUMP_ASSESSMENT_CONTENT oOneNew in todac)
@@ -410,7 +408,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
                                select new SelectListItem
                                {
                                    Value = a.DUMP_ASSESSMENTS_IDX.ToString(),
-                                   Text = a.ASSESSMENT_DT.ToString("dd-MM-yyyy")
+                                   Text = a.ASSESSMENT_DT.ToString("MM-dd-yyyy")
                                }).ToList();
                 xxx.Insert(0, new SelectListItem() { Value = "98567684-a5d5-4742-ac6d-1dd5080f76a7", Text = "View All" });              
                     return xxx;               
@@ -434,7 +432,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
                            select new SelectListItem
                            {
                                Value = a.DUMP_ASSESSMENTS_IDX.ToString(),
-                               Text = a.ASSESSMENT_DT.ToString("dd-MM-yyyy")
+                               Text = a.ASSESSMENT_DT.ToString("MM-dd-yyyy")
                            }).ToList();
                 xxx.Insert(0, new SelectListItem() { Value = "98567684-a5d5-4742-ac6d-1dd5080f76a7", Text = "Select" });
                 return xxx;
@@ -477,7 +475,9 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             }
         }
 
-        public Guid? InsertUpdateT_OD_DumpAssessment(Guid dUMPASSESSMENTS_IDX, Guid sITE_IDX, DateTime aSSESSMENT_DT, string aSSESSED_BY, Guid? ASSESSMENT_TYPE_IDX, bool ACTIVE_SITE_IND, string SITE_DESCRIPTION, string ASSESSMENT_NOTES)
+        public Guid? InsertUpdateT_OD_DumpAssessment(Guid dUMPASSESSMENTS_IDX, Guid sITE_IDX, DateTime aSSESSMENT_DT, string aSSESSED_BY, Guid? ASSESSMENT_TYPE_IDX, bool ACTIVE_SITE_IND, string SITE_DESCRIPTION,
+                                                        string ASSESSMENT_NOTES, decimal? aREA_ACRES, decimal? vOLUMN_CU_YD, Guid? hF_RAINFALL, Guid? hF_DRAINAGE, Guid? hF_FLOODING, Guid? hF_BURNING, Guid? hF_FENCING, Guid? hF_ACCESS_CONTROL,
+                                                        Guid? hF_PUBLIC_CONCERN, int? hEALTH_THREAT_SCORE, string Tab)
         {
             try
             {
@@ -494,18 +494,79 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
                     e = new T_OD_DUMP_ASSESSMENTS();
                     e.DUMP_ASSESSMENTS_IDX = dUMPASSESSMENTS_IDX;
                 }
-
                 if (sITE_IDX != null) e.SITE_IDX = sITE_IDX;
-                if (aSSESSMENT_DT != null) e.ASSESSMENT_DT = aSSESSMENT_DT;
-                if (aSSESSED_BY != null) e.ASSESSED_BY = aSSESSED_BY;
-                if (ASSESSMENT_TYPE_IDX != null) e.ASSESSMENT_TYPE_IDX = ASSESSMENT_TYPE_IDX;
-                 e.ACTIVE_SITE_IND = ACTIVE_SITE_IND;
-                if (SITE_DESCRIPTION != null) e.SITE_DESCRIPTION = SITE_DESCRIPTION;
-                if (ASSESSMENT_NOTES != null) e.ASSESSMENT_NOTES = ASSESSMENT_NOTES;
 
+                if (Tab == "FieldAssessment")
+                {
+                    if (aSSESSMENT_DT != null) e.ASSESSMENT_DT = aSSESSMENT_DT;
+                    if (aSSESSED_BY != null) e.ASSESSED_BY = aSSESSED_BY;
+                    if (ASSESSMENT_TYPE_IDX != null) e.ASSESSMENT_TYPE_IDX = ASSESSMENT_TYPE_IDX;
+                    e.ACTIVE_SITE_IND = ACTIVE_SITE_IND;
+                    if (SITE_DESCRIPTION != null) e.SITE_DESCRIPTION = SITE_DESCRIPTION;
+                    if (ASSESSMENT_NOTES != null) e.ASSESSMENT_NOTES = ASSESSMENT_NOTES;
+                }
+                else
+                {
+                    if (aREA_ACRES != 0) e.AREA_ACRES = aREA_ACRES;
+                    if (vOLUMN_CU_YD != 0) e.VOLUME_CU_YD = vOLUMN_CU_YD;
+                    if (hF_RAINFALL != null) e.HF_RAINFALL = hF_RAINFALL;
+                    if (hF_DRAINAGE != null) e.HF_DRAINAGE = hF_DRAINAGE;
+                    if (hF_FLOODING != null) e.HF_FLOODING = hF_FLOODING;
+                    if (hF_BURNING != null) e.HF_BURNING = hF_BURNING;
+                    if (hF_FENCING != null) e.HF_FENCING = hF_FENCING;
+                    if (hF_ACCESS_CONTROL != null) e.HF_ACCESS_CONTROL = hF_ACCESS_CONTROL;
+                    if (hF_PUBLIC_CONCERN != null) e.HF_PUBLIC_CONCERN = hF_PUBLIC_CONCERN;
+                    if (hEALTH_THREAT_SCORE != 0) e.HEALTH_THREAT_SCORE = hEALTH_THREAT_SCORE;
+                }
                 if (insInd)
                     ctx.T_OD_DUMP_ASSESSMENTS.Add(e);
                 ctx.SaveChanges();
+                return e.DUMP_ASSESSMENTS_IDX;
+            }
+            catch (Exception ex)
+            {
+                log.LogEFException(ex);
+                return null;
+            }
+
+        }
+
+        public Guid? InsertUpdateT_OD_DumpAssessment_Content(Guid dUMPASSESSMENTS_IDX, Guid rEF_WASTE_TYPE_IDX, decimal? wASTE_AMT, Guid? wASTE_UNIT_MSR, Guid? wASTE_DISPOSAL_METHOD, string wASTE_DISPOSAL_DIST, bool IS_CHECKED)
+        {
+            try
+            {
+                Boolean insInd = false;
+
+                T_OD_DUMP_ASSESSMENT_CONTENT e = (from c in ctx.T_OD_DUMP_ASSESSMENT_CONTENT
+                                           where c.DUMP_ASSESSMENTS_IDX == dUMPASSESSMENTS_IDX && c.REF_WASTE_TYPE_IDX == rEF_WASTE_TYPE_IDX
+                                           select c).FirstOrDefault();
+
+                if (e != null && IS_CHECKED == false)
+                {
+                    T_OD_DUMP_ASSESSMENT_CONTENT tda = new T_OD_DUMP_ASSESSMENT_CONTENT { DUMP_ASSESSMENTS_IDX = dUMPASSESSMENTS_IDX, REF_WASTE_TYPE_IDX = rEF_WASTE_TYPE_IDX };
+                    ctx.Entry(tda).State = Microsoft.EntityFrameworkCore.EntityState.Deleted;
+                    ctx.SaveChanges();
+                }
+                else
+                {
+                    //insert case
+                    if (e == null)
+                    {
+                        insInd = true;
+                        e = new T_OD_DUMP_ASSESSMENT_CONTENT();
+                        e.DUMP_ASSESSMENTS_CONTENT_IDX = Guid.NewGuid();
+                        e.DUMP_ASSESSMENTS_IDX = dUMPASSESSMENTS_IDX;
+                        e.REF_WASTE_TYPE_IDX = rEF_WASTE_TYPE_IDX;
+                    }
+                    if (wASTE_AMT != 0) e.WASTE_AMT = wASTE_AMT;
+                    if (wASTE_UNIT_MSR != null) e.WASTE_UNIT_MSR = wASTE_UNIT_MSR;
+                    if (wASTE_DISPOSAL_METHOD != null) e.WASTE_DISPOSAL_METHOD = wASTE_DISPOSAL_METHOD;
+                    if (wASTE_DISPOSAL_DIST != null) e.WASTE_DISPOSAL_DIST = wASTE_DISPOSAL_DIST;
+
+                    if (insInd)
+                        ctx.T_OD_DUMP_ASSESSMENT_CONTENT.Add(e);
+                    ctx.SaveChanges();
+                }
                 return e.DUMP_ASSESSMENTS_IDX;
             }
             catch (Exception ex)

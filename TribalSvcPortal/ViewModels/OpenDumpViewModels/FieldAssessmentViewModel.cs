@@ -43,6 +43,11 @@ namespace TribalSvcPortal.ViewModels.OpenDumpViewModels
         public int ContentScore { get; set; }
         public int HazardFactorScore { get; set; }
 
+        public int SizeTotalScore { get; set; }
+        public int ContentTotalScore { get; set; }
+        public int HazardTotalScore { get; set; }
+        public string FinalScore { get; set; }
+
         [DisplayName("Upload Photo")]
         public IFormFile filesPhoto { get; set; }
         public string FilePhotoDescription { get; set; }

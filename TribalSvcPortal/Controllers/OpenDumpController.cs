@@ -103,7 +103,7 @@ namespace TribalSvcPortal.Controllers
             FieldAssessmentmodel.TOdRefThreatFactorList = _DbOpenDump.get_ddl_refthreatfactor();
 
             FieldAssessmentmodel.ContentCheckBoxList = _DbOpenDump.get_checkbox_refwastetype_by_wastetypecat("Hazard Factor", AssessmentIdx);
-
+          
 
             PreFieldmodel.OrgList = _DbOpenDump.get_ddl_od_organizations(_UserIDX);
             PreFieldmodel.returnURL = returnURL ?? "Search";
@@ -137,6 +137,8 @@ namespace TribalSvcPortal.Controllers
                 FieldAssessmentmodel.TOdDumpAssessments.DUMP_ASSESSMENTS_IDX = Guid.NewGuid();
                // FieldAssessmentmodel.TOdDumpAssessments.ASSESSMENT_DT = DateTime.Now;
             }
+            
+
             if ((AssessmentIdx != null || CreateAssessment) && AssessmentIdx != Guid.Parse(IDx))
                 FieldAssessmentmodel = this.GetFieldAssessment(AssessmentIdx, SiteIdx);
             openDumpViewModel.oPreFieldViewModel = PreFieldmodel;
@@ -194,14 +196,37 @@ namespace TribalSvcPortal.Controllers
         {
             return RedirectToAction(nameof(PreField), new { SiteIdx = Siteidx, returnURL = "Search", AssessmentIdx = Assessmentidx, CreateAssessment = Assessmentidx == null ? true : false, activeTab = OpenDumpTab.HealthThreat });
         }
-      
+        [HttpPost, ValidateAntiForgeryToken]
+        public ActionResult HealthThreatEdit(OpenDumpViewModel model)
+        {
+            if (model != null)
+            {
+                Guid? DUMP_ASSESSMENTS_IDX = _DbOpenDump.InsertUpdateT_OD_DumpAssessment(model.oFieldAssessmentViewModel.selDumpAssessmentIdx, model.oPreFieldViewModel.TPrtSites.SiteIdx, model.oFieldAssessmentViewModel.TOdDumpAssessments.ASSESSMENT_DT, null,
+                    null, false, null, null,model.oFieldAssessmentViewModel.TOdDumpAssessments.AREA_ACRES, model.oFieldAssessmentViewModel.TOdDumpAssessments.VOLUME_CU_YD, model.oFieldAssessmentViewModel.TOdDumpAssessments.HF_RAINFALL, model.oFieldAssessmentViewModel.TOdDumpAssessments.HF_DRAINAGE, model.oFieldAssessmentViewModel.TOdDumpAssessments.HF_FLOODING,
+                    model.oFieldAssessmentViewModel.TOdDumpAssessments.HF_BURNING, model.oFieldAssessmentViewModel.TOdDumpAssessments.HF_FENCING, model.oFieldAssessmentViewModel.TOdDumpAssessments.HF_ACCESS_CONTROL, model.oFieldAssessmentViewModel.TOdDumpAssessments.HF_PUBLIC_CONCERN, model.oFieldAssessmentViewModel.TOdDumpAssessments.HEALTH_THREAT_SCORE,"HealthThreat");
+
+                foreach (T_OD_REF_WASTE_TYPE oNew in model.oFieldAssessmentViewModel.ContentCheckBoxList)
+                {
+                    if (oNew.IS_CHECKED)
+                    {
+                        _DbOpenDump.InsertUpdateT_OD_DumpAssessment_Content(model.oFieldAssessmentViewModel.selDumpAssessmentIdx, oNew.REF_WASTE_TYPE_IDX, 0, null, null, null, oNew.IS_CHECKED);
+                    }
+                }
+                TempData["Success"] = "Update successful.";
+                // return RedirectToAction("PreField", "OpenDump", new { SiteIdx = model.oPreFieldViewModel.TPrtSites.SiteIdx, returnURL = "Search" });
+                return RedirectToAction(nameof(PreField), new { SiteIdx = model.oPreFieldViewModel.TPrtSites.SiteIdx, returnURL = "Search", AssessmentIdx = model.oFieldAssessmentViewModel.selDumpAssessmentIdx, CreateAssessment = model.oFieldAssessmentViewModel.selDumpAssessmentIdx == null ? true : false, activeTab = OpenDumpTab.HealthThreat });
+            }
+            else
+                TempData["Error"] = "Error updating data.";
+            return RedirectToAction("Search", new { selStr = "", selOrg = "" });
+        }
         [HttpPost, ValidateAntiForgeryToken]
         public ActionResult FieldAssessmentEdit(OpenDumpViewModel model)
         {
             if (model != null)
             {
-                Guid? SiteID = _DbOpenDump.InsertUpdateT_OD_DumpAssessment(model.oFieldAssessmentViewModel.selDumpAssessmentIdx, model.oPreFieldViewModel.TPrtSites.SiteIdx, model.oFieldAssessmentViewModel.TOdDumpAssessments.ASSESSMENT_DT, model.oFieldAssessmentViewModel.TOdDumpAssessments.ASSESSED_BY,
-                    model.oFieldAssessmentViewModel.TOdDumpAssessments.ASSESSMENT_TYPE_IDX, model.oFieldAssessmentViewModel.TOdDumpAssessments.ACTIVE_SITE_IND, model.oFieldAssessmentViewModel.TOdDumpAssessments.SITE_DESCRIPTION, model.oFieldAssessmentViewModel.TOdDumpAssessments.ASSESSMENT_NOTES);
+                Guid? DUMP_ASSESSMENTS_IDX = _DbOpenDump.InsertUpdateT_OD_DumpAssessment(model.oFieldAssessmentViewModel.selDumpAssessmentIdx, model.oPreFieldViewModel.TPrtSites.SiteIdx, model.oFieldAssessmentViewModel.TOdDumpAssessments.ASSESSMENT_DT, model.oFieldAssessmentViewModel.TOdDumpAssessments.ASSESSED_BY,
+                    model.oFieldAssessmentViewModel.TOdDumpAssessments.ASSESSMENT_TYPE_IDX, model.oFieldAssessmentViewModel.TOdDumpAssessments.ACTIVE_SITE_IND, model.oFieldAssessmentViewModel.TOdDumpAssessments.SITE_DESCRIPTION, model.oFieldAssessmentViewModel.TOdDumpAssessments.ASSESSMENT_NOTES, 0,0,null,null,null,null,null,null,null,0, "FieldAssessment");
 
                 foreach (T_PRT_DOCUMENTS docs in model.oFieldAssessmentViewModel.filesPhoto_existing?? new List<T_PRT_DOCUMENTS>())
                 {
