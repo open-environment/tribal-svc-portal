@@ -196,7 +196,7 @@ namespace TribalSvcPortal.Data.Models
                     .HasColumnName("CREATE_DT")
                     .HasColumnType("datetime2(0)");
 
-                entity.Property(e => e.CreateUseridx).HasColumnName("CREATE_USERIDX");
+                entity.Property(e => e.CreateUserId).HasColumnName("CREATE_USER_ID");
 
                 entity.Property(e => e.DocAuthor)
                     .HasColumnName("DOC_AUTHOR")
@@ -236,7 +236,7 @@ namespace TribalSvcPortal.Data.Models
                     .HasColumnName("MODIFY_DT")
                     .HasColumnType("datetime2(0)");
 
-                entity.Property(e => e.ModifyUseridx).HasColumnName("MODIFY_USERIDX");
+                entity.Property(e => e.ModifyUserId).HasColumnName("MODIFY_USER_ID");
 
                 entity.Property(e => e.OrgId)
                     .IsRequired()
@@ -695,7 +695,7 @@ namespace TribalSvcPortal.Data.Models
 
                 entity.Property(e => e.AREA_ACRES).HasColumnType("decimal(8, 2)");
 
-                entity.Property(e => e.ASSESSED_BY).HasMaxLength(450);
+                entity.Property(e => e.ASSESSED_BY).HasMaxLength(100);
 
                 entity.Property(e => e.ASSESSMENT_DT).HasColumnType("datetime2(0)");
 

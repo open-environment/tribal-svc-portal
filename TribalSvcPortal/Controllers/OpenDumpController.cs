@@ -191,11 +191,15 @@ namespace TribalSvcPortal.Controllers
         {
             return RedirectToAction(nameof(PreField), new { SiteIdx = Siteidx, returnURL = "Search", AssessmentIdx = Assessmentidx, CreateAssessment = Assessmentidx == null ? true : false, activeTab = OpenDumpTab.FieldAssessment });
         }
+
+
         [HttpGet]
         public ActionResult HealthThreat(Guid? Assessmentidx, Guid? Siteidx)
         {
             return RedirectToAction(nameof(PreField), new { SiteIdx = Siteidx, returnURL = "Search", AssessmentIdx = Assessmentidx, CreateAssessment = Assessmentidx == null ? true : false, activeTab = OpenDumpTab.HealthThreat });
         }
+
+
         [HttpPost, ValidateAntiForgeryToken]
         public ActionResult HealthThreatEdit(OpenDumpViewModel model)
         {
@@ -220,21 +224,26 @@ namespace TribalSvcPortal.Controllers
                 TempData["Error"] = "Error updating data.";
             return RedirectToAction("Search", new { selStr = "", selOrg = "" });
         }
+
+
         [HttpPost, ValidateAntiForgeryToken]
         public ActionResult FieldAssessmentEdit(OpenDumpViewModel model)
         {
             if (model != null)
             {
+                string _UserIDX;
+                bool isUserExist = _memoryCache.TryGetValue("UserID", out _UserIDX);
+
                 Guid? DUMP_ASSESSMENTS_IDX = _DbOpenDump.InsertUpdateT_OD_DumpAssessment(model.oFieldAssessmentViewModel.selDumpAssessmentIdx, model.oPreFieldViewModel.TPrtSites.SiteIdx, model.oFieldAssessmentViewModel.TOdDumpAssessments.ASSESSMENT_DT, model.oFieldAssessmentViewModel.TOdDumpAssessments.ASSESSED_BY,
                     model.oFieldAssessmentViewModel.TOdDumpAssessments.ASSESSMENT_TYPE_IDX, model.oFieldAssessmentViewModel.TOdDumpAssessments.ACTIVE_SITE_IND, model.oFieldAssessmentViewModel.TOdDumpAssessments.SITE_DESCRIPTION, model.oFieldAssessmentViewModel.TOdDumpAssessments.ASSESSMENT_NOTES, 0,0,null,null,null,null,null,null,null,0, "FieldAssessment");
 
                 foreach (T_PRT_DOCUMENTS docs in model.oFieldAssessmentViewModel.filesPhoto_existing?? new List<T_PRT_DOCUMENTS>())
                 {
-                    _DbPortal.InsertUpdateT_PRT_DOCUMENTS(docs.DocIdx, docs.OrgId, null, null, "Assessment", null, null, docs.DocComment, null, null, null, 1);                    
+                    _DbPortal.InsertUpdateT_PRT_DOCUMENTS(docs.DocIdx, docs.OrgId, null, null, "Assessment", null, null, docs.DocComment, null, null, null, _UserIDX);                    
                 }
                 foreach (T_PRT_DOCUMENTS docs in model.oFieldAssessmentViewModel.files_existing ?? new List<T_PRT_DOCUMENTS>())
                 {
-                    _DbPortal.InsertUpdateT_PRT_DOCUMENTS(docs.DocIdx, docs.OrgId, null, null, "Assessment", null, null, docs.DocComment, null, null, null, 1);
+                    _DbPortal.InsertUpdateT_PRT_DOCUMENTS(docs.DocIdx, docs.OrgId, null, null, "Assessment", null, null, docs.DocComment, null, null, null, _UserIDX);
                 }
                 TempData["Success"] = "Update successful.";
                 // return RedirectToAction("PreField", "OpenDump", new { SiteIdx = model.oPreFieldViewModel.TPrtSites.SiteIdx, returnURL = "Search" });
@@ -244,6 +253,7 @@ namespace TribalSvcPortal.Controllers
                 TempData["Error"] = "Error updating data.";
             return RedirectToAction("Search", new { selStr = "", selOrg = "" });
         }
+
 
         [HttpPost]
         public JsonResult FieldAssessmentDelete(Guid id)
@@ -258,6 +268,8 @@ namespace TribalSvcPortal.Controllers
 
             return Json("Unable to delete");
         }
+
+
         [HttpPost, ValidateAntiForgeryToken]
         public ActionResult DocUpload(OpenDumpViewModel model)
         {
@@ -283,8 +295,9 @@ namespace TribalSvcPortal.Controllers
 
                             string _UserIDX;
                             bool isUserExist = _memoryCache.TryGetValue("UserID", out _UserIDX);
+
                             //insert to database
-                            Guid? DocIDx = _DbPortal.InsertUpdateT_PRT_DOCUMENTS(null, model.oPreFieldViewModel.TPrtSites.OrgId, fileBytes, model.oFieldAssessmentViewModel.files.FileName, "Assessment", model.oFieldAssessmentViewModel.files.ContentType, fileBytes.Length, model.oFieldAssessmentViewModel.FileDescription, null, null, null, 1);
+                            Guid? DocIDx = _DbPortal.InsertUpdateT_PRT_DOCUMENTS(null, model.oPreFieldViewModel.TPrtSites.OrgId, fileBytes, model.oFieldAssessmentViewModel.files.FileName, "Assessment", model.oFieldAssessmentViewModel.files.ContentType, fileBytes.Length, model.oFieldAssessmentViewModel.FileDescription, null, null, null, _UserIDX);
                             _DbOpenDump.InsertUpdateT_OD_DUMP_ASSESSMENT_DOCUMENTS(DocIDx, model.oFieldAssessmentViewModel.TOdDumpAssessments.DUMP_ASSESSMENTS_IDX);
 
                         }
@@ -300,6 +313,7 @@ namespace TribalSvcPortal.Controllers
                 TempData["Error"] = "Error updating data.";
             return RedirectToAction("Search", new { selStr = "", selOrg = "" });
         }
+
 
         [HttpPost, ValidateAntiForgeryToken]
         public ActionResult PhotoUpload(OpenDumpViewModel model)
@@ -327,7 +341,7 @@ namespace TribalSvcPortal.Controllers
                             string _UserIDX;
                             bool isUserExist = _memoryCache.TryGetValue("UserID", out _UserIDX);
                             //insert to database
-                            Guid? DocIDx = _DbPortal.InsertUpdateT_PRT_DOCUMENTS(null, model.oPreFieldViewModel.TPrtSites.OrgId, fileBytes, model.oFieldAssessmentViewModel.filesPhoto.FileName, "Assessment", model.oFieldAssessmentViewModel.filesPhoto.ContentType, fileBytes.Length, model.oFieldAssessmentViewModel.FileDescription, null, null, null, 1);
+                            Guid? DocIDx = _DbPortal.InsertUpdateT_PRT_DOCUMENTS(null, model.oPreFieldViewModel.TPrtSites.OrgId, fileBytes, model.oFieldAssessmentViewModel.filesPhoto.FileName, "Assessment", model.oFieldAssessmentViewModel.filesPhoto.ContentType, fileBytes.Length, model.oFieldAssessmentViewModel.FileDescription, null, null, null, _UserIDX);
                             _DbOpenDump.InsertUpdateT_OD_DUMP_ASSESSMENT_DOCUMENTS(DocIDx, model.oFieldAssessmentViewModel.TOdDumpAssessments.DUMP_ASSESSMENTS_IDX);
 
                         }
@@ -343,6 +357,7 @@ namespace TribalSvcPortal.Controllers
                 TempData["Error"] = "Error updating data.";
             return RedirectToAction("Search", new { selStr = "", selOrg = "" });
         }
+
         public ActionResult FileDownload(Guid? id)
         {
             try
@@ -367,6 +382,7 @@ namespace TribalSvcPortal.Controllers
             return RedirectToAction("Search", new { selStr = "", selOrg = "" });
         }
 
+
         public ActionResult FileDelete(Guid? id, Guid SiteIdx)
         {
             // int UserIDX = db_Accounts.GetUserIDX();
@@ -387,14 +403,19 @@ namespace TribalSvcPortal.Controllers
             TempData["Error"] = "Unable to delete document.";
             return RedirectToAction("Search", new { selStr = "", selOrg = "" });
         }
+
         public IActionResult RefData()
         {
             return View();
         }
+
+
         public IActionResult DumpParcels()
         {
             return View();
         }
+
+
         //[NonAction]
         public FieldAssessmentViewModel GetFieldAssessment(Guid? AssessmentIdx, Guid? SiteIdx)
         {

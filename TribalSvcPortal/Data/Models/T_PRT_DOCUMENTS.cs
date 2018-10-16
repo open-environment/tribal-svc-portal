@@ -17,9 +17,9 @@ namespace TribalSvcPortal.Data.Models
         public string ShareType { get; set; }
         public string DocStatusType { get; set; }
         public bool ActInd { get; set; }
-        public int? CreateUseridx { get; set; }
+        public string CreateUserId { get; set; }
         public DateTime? CreateDt { get; set; }
-        public int? ModifyUseridx { get; set; }
+        public string ModifyUserId { get; set; }
         public DateTime? ModifyDt { get; set; }
 
         public T_PRT_REF_DOC_STATUS_TYPE DocStatusTypeNavigation { get; set; }

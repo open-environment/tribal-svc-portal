@@ -57,7 +57,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
         int InsertUpdateT_PRT_APP_SETTING_CUSTOM(string tERMS_AND_CONDITIONS, string aNNOUNCEMENTS);
         T_PRT_APP_SETTINGS_CUSTOM GetT_PRT_APP_SETTINGS_CUSTOM();
         Guid? InsertUpdateT_PRT_DOCUMENTS(Guid? dOC_IDX, string oRG_ID, byte[] dOC_CONTENT, string dOC_NAME, string dOC_TYPE, string dOC_FILE_TYPE, int? dOC_SIZE, string dOC_COMMENT,
-        string dOC_AUTHOR, string sHARE_TYPE, string dOC_STATUS_TYPE, int? UserIDX);
+        string dOC_AUTHOR, string sHARE_TYPE, string dOC_STATUS_TYPE, string UserID);
         List<T_PRT_DOCUMENTS> GetT_PRT_DOCUMENTS_ByDumpAssessmentsIDx(Guid dUMPASSESSMENTS_IDX);
         List<T_PRT_DOCUMENTS> GetT_PRT_DOCUMENTS_Photos_ByDumpAssessmentsIDx(Guid dUMPASSESSMENTS_IDX);
         T_PRT_DOCUMENTS GetT_PRT_DOCUMENTS_ByID(Guid DocIDX);
@@ -670,7 +670,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
         }
         //*******************************DOCUMENTS *********************************************
         public Guid? InsertUpdateT_PRT_DOCUMENTS(Guid? dOC_IDX, string oRG_ID, byte[] dOC_CONTENT, string dOC_NAME, string dOC_TYPE, string dOC_FILE_TYPE, int? dOC_SIZE, string dOC_COMMENT,
-            string dOC_AUTHOR, string sHARE_TYPE, string dOC_STATUS_TYPE, int? UserIDX)
+            string dOC_AUTHOR, string sHARE_TYPE, string dOC_STATUS_TYPE, string UserID)
         {
 
             try
@@ -688,12 +688,12 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
                     e = new T_PRT_DOCUMENTS();
                     e.DocIdx = Guid.NewGuid();
                     e.CreateDt = System.DateTime.UtcNow;
-                    e.CreateUseridx = UserIDX ?? 0;
+                    e.CreateUserId = UserID;
                 }
                 else
                 {
                     e.ModifyDt = System.DateTime.UtcNow;
-                    e.ModifyUseridx = UserIDX ?? 0;
+                    e.ModifyUserId = UserID;
                 }
 
                 if (dOC_CONTENT != null) e.DocContent = dOC_CONTENT;
