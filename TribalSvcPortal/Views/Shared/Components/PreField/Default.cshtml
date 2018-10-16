@@ -25,7 +25,7 @@
                             Site Name
                         </label>
                         <div class="col-sm-3">
-                            @Html.TextBoxFor(model => model.oPreFieldViewModel.TPrtSites.SiteName, new { @class = "form-control", @placeholder = "", @maxlength = "100" })
+                            @Html.TextBoxFor(model => model.oPreFieldViewModel.TPrtSites.SiteName, new { @class = "form-control", @placeholder = "", @maxlength = "100", required = "required" })
                         </div>
                     </div>
                     <div>
@@ -33,7 +33,7 @@
                             Organization
                         </label>
                         <div class="col-sm-3">
-                            @Html.DropDownListFor(model => model.oPreFieldViewModel.TPrtSites.OrgId, Model.oPreFieldViewModel.OrgList, "", new { @class = "form-control" })
+                            @Html.DropDownListFor(model => model.oPreFieldViewModel.TPrtSites.OrgId, Model.oPreFieldViewModel.OrgList, "", new { @class = "form-control", required = "required" })
                         </div>
                     </div>
                     <div>
@@ -208,7 +208,7 @@
                                 <div class="col-md-5">
                                     <div class="form-group">
                                         <label>Reported On</label>
-                                        @Html.TextBoxFor(model => model.oPreFieldViewModel.TOdSites.REPORTED_ON, "{0:dd/MM/yyyy}", new { @id = "date", @class = "form-control datepicker" })
+                                        @Html.TextBoxFor(model => model.oPreFieldViewModel.TOdSites.REPORTED_ON, "{0:MM/dd/yyyy}", new { @id = "date", @class = "form-control datepicker" })
                                     </div>
                                 </div>
                             </div>
@@ -247,52 +247,5 @@
 
 @section scripts {
     <script src="~/js/confirm_delete.js">
-    </script>
-    <script type="text/javascript">
-        $(document).ready(function () {
-
-            // get date from MyDate input field
-            var date = $("#date").val();
-
-            // use current date as default, if input is empty
-            if (!date) {
-                date = new Date();
-              //  $("#date").val() = new Date();
-            }
-
-            $('#date').datepicker({
-                changeMonth: true,
-                changeYear: true,
-                format: "dd-mm-yyyy",
-                language: "tr",
-                autoclose: true,
-                todayBtn: 'linked'
-            });
-            // get date from MyDate input field
-            var dateAssessments = $("#dateAssessment").val();
-
-            // use current date as default, if input is empty
-            if (!dateAssessments) {
-                dateAssessments = new Date();
-               // $("#dateAssessment").val(dateAssessments);
-
-            }
-            $('#dateAssessment').datepicker({
-                changeMonth: true,
-                changeYear: true,
-                format: "dd-mm-yyyy",
-                language: "tr",
-                autoclose: true,
-                todayBtn: 'linked'
-            });
-
-        });
-
-        function GetAssessment(value) {          
-                var siteIndx = "@Model.oFieldAssessmentViewModel.TPrtSites?.SiteIdx";
-                window.location.href = "/OpenDump/FieldAssessments?AssessmentIdx=" + value + "&SiteIdx=" + siteIndx;
-            
-        }
-        
-    </script>
+    </script>   
 }

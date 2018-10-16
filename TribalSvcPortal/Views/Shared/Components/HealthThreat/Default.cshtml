@@ -21,7 +21,7 @@
                         Site Name
                     </label>
                     <div class="col-sm-3">
-                        @Html.TextBoxFor(model => model.oPreFieldViewModel.TPrtSites.SiteName, new { @class = "form-control", @placeholder = "", @maxlength = "100" })
+                        @Html.TextBoxFor(model => model.oPreFieldViewModel.TPrtSites.SiteName, new { @class = "form-control", @placeholder = "", @maxlength = "100", required = "required" })
                     </div>
                 </div>
                 <div>
@@ -29,7 +29,7 @@
                         Organization
                     </label>
                     <div class="col-sm-3">
-                        @Html.DropDownListFor(model => model.oPreFieldViewModel.TPrtSites.OrgId, Model.oPreFieldViewModel.OrgList, "", new { @class = "form-control" })
+                        @Html.DropDownListFor(model => model.oPreFieldViewModel.TPrtSites.OrgId, Model.oPreFieldViewModel.OrgList, "", new { @class = "form-control", required = "required" })
                     </div>
                 </div>
                 <div>
@@ -48,9 +48,8 @@
                     <label class="col-sm-3 control-label" style="margin-top:8px;">
                         Assessment
                     </label>
-                    <div class="col-sm-8">
-                        @*@{ var siteIdx = Model.oPreFieldViewModel.TPrtSites?.SiteIdx;}*@
-                        @Html.DropDownListFor(model => model.oFieldAssessmentViewModel.selDumpAssessmentIdx, Model.oFieldAssessmentViewModel.AssessmentForHealthThreatDropDownList, "", new { @class = "form-control", @onchange = "GetHealthThreat(this.value)" })
+                    <div class="col-sm-8">                     
+                        @Html.DropDownListFor(model => model.oFieldAssessmentViewModel.selDumpAssessmentIdx, Model.oFieldAssessmentViewModel.AssessmentForHealthThreatDropDownList, "", new { @class = "form-control", required = "required", @onchange = "GetHealthThreat(this.value)" })
 
                     </div>
                 </div>

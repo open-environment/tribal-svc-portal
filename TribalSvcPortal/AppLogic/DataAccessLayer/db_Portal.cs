@@ -62,6 +62,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
         List<T_PRT_DOCUMENTS> GetT_PRT_DOCUMENTS_Photos_ByDumpAssessmentsIDx(Guid dUMPASSESSMENTS_IDX);
         T_PRT_DOCUMENTS GetT_PRT_DOCUMENTS_ByID(Guid DocIDX);
         int DeleteT_PRT_DOCUMENTS(Guid DocIDX);
+        List<T_OD_DUMP_ASSESSMENT_DOCS> GetT_OD_DUMP_ASSESSMENT_DOCS_ByDumpAssessmentsIDx(Guid dUMPASSESSMENTS_IDX);
     }
 
     public class DbPortal : IDbPortal
@@ -720,34 +721,50 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             }
 
         }
-
-        public List<T_PRT_DOCUMENTS> GetT_PRT_DOCUMENTS_ByDumpAssessmentsIDx(Guid dUMPASSESSMENTS_IDX)
+        public List<T_OD_DUMP_ASSESSMENT_DOCS> GetT_OD_DUMP_ASSESSMENT_DOCS_ByDumpAssessmentsIDx(Guid dUMPASSESSMENTS_IDX)
         {
             try
-            {
-                List<T_PRT_DOCUMENTS> oTPRTDOCUMENTSLIST = new List<T_PRT_DOCUMENTS>();
+            {               
                 List<T_OD_DUMP_ASSESSMENT_DOCS> oDumpAssessmentDocsList = (from a in ctx.T_OD_DUMP_ASSESSMENT_DOCS
                                                                            where a.DUMP_ASSESSMENTS_IDX == dUMPASSESSMENTS_IDX
                                                                            select a).ToList();
-                foreach (T_OD_DUMP_ASSESSMENT_DOCS oOneNew in oDumpAssessmentDocsList)
-                {
-                    T_PRT_DOCUMENTS oTPRTDOCUMENTS = (from a in ctx.T_PRT_DOCUMENTS
-                                                      where a.DocIdx == oOneNew.DOC_IDX && !(a.DocFileType.Contains("image"))
-                                                      select a).FirstOrDefault();
-                    if (oTPRTDOCUMENTS != null)
-                    {
-                        oTPRTDOCUMENTSLIST.Add(oTPRTDOCUMENTS);
-                    }
-                }
-                return oTPRTDOCUMENTSLIST;
+               
+                return oDumpAssessmentDocsList;
             }
             catch (Exception ex)
             {
                 log.LogEFException(ex);
                 return null;
             }
-            
+
         }
+        public List<T_PRT_DOCUMENTS> GetT_PRT_DOCUMENTS_ByDumpAssessmentsIDx(Guid dUMPASSESSMENTS_IDX)
+            {
+                try
+                {
+                    List<T_PRT_DOCUMENTS> oTPRTDOCUMENTSLIST = new List<T_PRT_DOCUMENTS>();
+                    List<T_OD_DUMP_ASSESSMENT_DOCS> oDumpAssessmentDocsList = (from a in ctx.T_OD_DUMP_ASSESSMENT_DOCS
+                                                                               where a.DUMP_ASSESSMENTS_IDX == dUMPASSESSMENTS_IDX
+                                                                               select a).ToList();
+                    foreach (T_OD_DUMP_ASSESSMENT_DOCS oOneNew in oDumpAssessmentDocsList)
+                    {
+                        T_PRT_DOCUMENTS oTPRTDOCUMENTS = (from a in ctx.T_PRT_DOCUMENTS
+                                                          where a.DocIdx == oOneNew.DOC_IDX && !(a.DocFileType.Contains("image"))
+                                                          select a).FirstOrDefault();
+                        if (oTPRTDOCUMENTS != null)
+                        {
+                            oTPRTDOCUMENTSLIST.Add(oTPRTDOCUMENTS);
+                        }
+                    }
+                    return oTPRTDOCUMENTSLIST;
+                }
+                catch (Exception ex)
+                {
+                    log.LogEFException(ex);
+                    return null;
+                }
+            
+            }
         public List<T_PRT_DOCUMENTS> GetT_PRT_DOCUMENTS_Photos_ByDumpAssessmentsIDx(Guid dUMPASSESSMENTS_IDX)
         {
             try
@@ -793,18 +810,26 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
         public int DeleteT_PRT_DOCUMENTS(Guid DocIDX)
         {
             try
-            {               
+            {
+                ctx.Database.ExecuteSqlCommand("DELETE FROM T_OD_DUMP_ASSESSMENT_DOCS where DOC_IDX = {0}", DocIDX);
+                ctx.Database.ExecuteSqlCommand("DELETE FROM T_PRT_DOCUMENTS where DOC_IDX = {0}", DocIDX);
+               
 
-                T_PRT_DOCUMENTS tpd = new T_PRT_DOCUMENTS { DocIdx = DocIDX };
-                ctx.Entry(tpd).State = Microsoft.EntityFrameworkCore.EntityState.Deleted;
-                ctx.SaveChanges();
+                // ctx.Database.ExecuteSqlCommand("DELETE FROM T_PRT_DOCUMENTS where DocIdx = '" + DocIDX + "'");
+               // ctx.Database.ExecuteSqlCommand("DELETE FROM T_OD_DUMP_ASSESSMENT_DOCS where DOC_IDX = '" + DocIDX + "'");
 
-               T_OD_DUMP_ASSESSMENT_DOCS todad = new T_OD_DUMP_ASSESSMENT_DOCS { DOC_IDX = DocIDX };
-                ctx.Entry(todad).State = Microsoft.EntityFrameworkCore.EntityState.Deleted;
-                ctx.SaveChanges();
-
+               // T_PRT_DOCUMENTS tpd = new T_PRT_DOCUMENTS { DocIdx = DocIDX };
+                //ctx.Entry(tpd).State = Microsoft.EntityFrameworkCore.EntityState.Deleted;
+                //ctx.SaveChanges();
+              
 
                 return 1;
+                //T_OD_DUMP_ASSESSMENT_DOCS todad = new T_OD_DUMP_ASSESSMENT_DOCS { DOC_IDX = DocIDX };
+                // ctx.Entry(todad).State = Microsoft.EntityFrameworkCore.EntityState.Deleted;
+                // ctx.SaveChanges();
+
+
+               // return 1;
             }
             catch (Exception ex)
             {

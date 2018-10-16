@@ -42,8 +42,7 @@
                         </a>
                     </li>
                 </ul>
-                <div class="tab-content" style="height:0px; padding: 0px;">
-                    @*<div class="tab-pane in active" id="tab1">*@
+                <div class="tab-content" style="height:0px; padding: 0px;">                   
                     <div class="@(Model.ActiveTab == OpenDumpTab.Prefield  ? "tab-pane in active" : "tab-pane")" id="tab1">
                         @await Component.InvokeAsync("PreField", new { SiteIdx = Model.oPreFieldViewModel.TPrtSites.SiteIdx, returnURL = Model.oPreFieldViewModel.returnURL })
 
@@ -73,14 +72,14 @@
     <script src="https://js.arcgis.com/3.25/"></script>
     <script type="text/javascript">
         $(document).ready(function () {
-            $('a.descinfo').click(function () {
+            $('.descinfo').click(function () {
                 var dad = $(this).parent().parent();
                 dad.find("#divHideOnEdit").hide();
                 dad.find("#divShowOnEdit").show().focus();
                 return false;
             });
 
-            $('a.activity').click(function () {
+            $('.activity').click(function () {
                 var dad = $(this).parent().parent();
                 dad.find("#divPhotoHideOnEdit").hide();
                 dad.find("#divPhotoShowOnEdit").show().focus();
@@ -91,8 +90,7 @@
 
             // use current date as default, if input is empty
             if (!date) {
-                date = new Date();
-              //  $("#date").val() = new Date();
+                date = new Date();             
             }
 
             $('#date').datepicker({
@@ -108,8 +106,7 @@
 
             // use current date as default, if input is empty
             if (!dateAssessments) {
-                dateAssessments = new Date();
-               // $("#dateAssessment").val(dateAssessments);
+                dateAssessments = new Date();          
 
             }
             $('#dateAssessment').datepicker({
@@ -126,7 +123,13 @@
         $("input[id='files']").change(function (e) {
             var $this = $(this);
             var FileSize = this.files[0].size / 1024 / 1024;
-            if (FileSize > 20) {
+            if (!this.files[0].type.includes("application"))
+            {
+                $('#files').val('');
+                alert("only files can be uploaded!")
+                e.preventDefault();
+            }
+            else if (FileSize > 20) {
                 $('#files').val('');
                 alert('Files cannot exceed 20 MB');
             }
@@ -138,10 +141,15 @@
         $("input[id='filesPhoto']").change(function (e) {
             var $this = $(this);
             var FileSize = this.files[0].size / 1024 / 1024;
-            if (FileSize > 20) {
+            if (!this.files[0].type.includes("image")) {
+                $('#filesPhoto').val('');
+                alert("Only .jpg/.jpeg/.gif/.png files can be uploaded!")
+                e.preventDefault();
+            }
+            else if (FileSize > 20) {
                 $('#filesPhoto').val('');
                 alert('Files cannot exceed 20 MB');
-            }
+            }             
             else {
                 $("#filename1").val($this.val().split('\\').pop());
             }

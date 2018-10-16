@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -48,7 +49,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
         List<T_OD_DUMP_ASSESSMENTS> GetT_OD_DumpAssessmentList_BySITEIDX(Guid Siteidx);
         IEnumerable<SelectListItem> get_ddl_od_dumpassessment_by_BySITEIDX(Guid? Siteidx);
         T_OD_DUMP_ASSESSMENTS GetT_OD_DumpAssessment_ByDumpAssessmentIDX(Guid DumpAssessmentIDX);
-        int DeleteT_OD_DumpAssessment(Guid DumpAssessmentIDX);   
+        int DeleteT_OD_DumpAssessment(Guid DumpAssessmentIDX);
         Guid? InsertUpdateT_OD_DumpAssessment(Guid dUMPASSESSMENTS_IDX, Guid sITE_IDX, DateTime aSSESSMENT_DT, string aSSESSED_BY, Guid? ASSESSMENT_TYPE_IDX, bool ACTIVE_SITE_IND, string SITE_DESCRIPTION,
                                                         string ASSESSMENT_NOTES, decimal? aREA_ACRES, decimal? vOLUMN_CU_YD, Guid? hF_RAINFALL, Guid? hF_DRAINAGE, Guid? hF_FLOODING, Guid? hF_BURNING, Guid? hF_FENCING, Guid? hF_ACCESS_CONTROL,
                                                         Guid? hF_PUBLIC_CONCERN, int? hEALTH_THREAT_SCORE, string Tab);
@@ -423,9 +424,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
         public IEnumerable<SelectListItem> get_ddl_od_assessmentforhealththreat_by_BySITEIDX(Guid? Siteidx)
         {
             try
-            {
-                //if (Siteidx != null)
-                //{
+            {              
                 var xxx = (from a in ctx.T_OD_DUMP_ASSESSMENTS
                            where a.SITE_IDX == Siteidx
                            orderby a.ASSESSMENT_DT
@@ -434,7 +433,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
                                Value = a.DUMP_ASSESSMENTS_IDX.ToString(),
                                Text = a.ASSESSMENT_DT.ToString("MM-dd-yyyy")
                            }).ToList();
-                xxx.Insert(0, new SelectListItem() { Value = "98567684-a5d5-4742-ac6d-1dd5080f76a7", Text = "Select" });
+                xxx.Insert(0, new SelectListItem { Text = "", Value = "" });
                 return xxx;
 
             }
@@ -462,9 +461,16 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
         {
             try
             {
-                T_OD_DUMP_ASSESSMENTS tda = new T_OD_DUMP_ASSESSMENTS { DUMP_ASSESSMENTS_IDX = DumpAssessmentIDX };
-                ctx.Entry(tda).State = Microsoft.EntityFrameworkCore.EntityState.Deleted;
-                ctx.SaveChanges();
+                ctx.Database.ExecuteSqlCommand("DELETE FROM T_OD_DUMP_ASSESSMENT_CONTENT where DUMP_ASSESSMENTS_IDX = {0}", DumpAssessmentIDX);               
+                ctx.Database.ExecuteSqlCommand("DELETE FROM T_OD_DUMP_ASSESSMENTS where DUMP_ASSESSMENTS_IDX = {0}", DumpAssessmentIDX);
+
+                //T_OD_DUMP_ASSESSMENT_CONTENT todac = new T_OD_DUMP_ASSESSMENT_CONTENT { DUMP_ASSESSMENTS_IDX = DumpAssessmentIDX };
+                //ctx.Entry(todac).State = Microsoft.EntityFrameworkCore.EntityState.Deleted;
+                //ctx.SaveChanges();
+             
+                //T_OD_DUMP_ASSESSMENTS tda = new T_OD_DUMP_ASSESSMENTS { DUMP_ASSESSMENTS_IDX = DumpAssessmentIDX };
+                //ctx.Entry(tda).State = Microsoft.EntityFrameworkCore.EntityState.Deleted;
+                //ctx.SaveChanges();
 
                 return 1;
             }
@@ -492,7 +498,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
                 {
                     insInd = true;
                     e = new T_OD_DUMP_ASSESSMENTS();
-                    e.DUMP_ASSESSMENTS_IDX = dUMPASSESSMENTS_IDX;
+                    e.DUMP_ASSESSMENTS_IDX = Guid.NewGuid(); 
                 }
                 if (sITE_IDX != null) e.SITE_IDX = sITE_IDX;
 

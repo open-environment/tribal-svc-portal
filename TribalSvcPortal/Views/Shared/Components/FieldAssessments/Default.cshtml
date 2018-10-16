@@ -18,7 +18,7 @@
                         Site Name
                     </label>
                     <div class="col-sm-3">
-                        @Html.TextBoxFor(model => model.oPreFieldViewModel.TPrtSites.SiteName, new { @class = "form-control", @placeholder = "", @maxlength = "100" })
+                        @Html.TextBoxFor(model => model.oPreFieldViewModel.TPrtSites.SiteName, new { @class = "form-control", @placeholder = "", @maxlength = "100", required = "required" })
                     </div>
                 </div>
                 <div>
@@ -26,7 +26,7 @@
                         Organization
                     </label>
                     <div class="col-sm-3">
-                        @Html.DropDownListFor(model => model.oPreFieldViewModel.TPrtSites.OrgId, Model.oPreFieldViewModel.OrgList, "", new { @class = "form-control" })
+                        @Html.DropDownListFor(model => model.oPreFieldViewModel.TPrtSites.OrgId, Model.oPreFieldViewModel.OrgList, "", new { @class = "form-control", required = "required" })
                     </div>
                 </div>
                 <div>
@@ -45,10 +45,7 @@
                     <label class="col-sm-3 control-label" style="margin-top:8px;">
                         Assessment
                     </label>                                                                                                                                                                                                  
-                    <div class="col-sm-8">
-                        @*@{ var siteIdx = Model.oPreFieldViewModel.TPrtSites?.SiteIdx;}*@
-                        @*@Html.DropDownListFor(model => model.oFieldAssessmentViewModel.selDumpAssessmentIdx, Model.oFieldAssessmentViewModel.AssessmentDropDownList, "", new { @class = "form-control", @onchange = $"document.location.href= '/OpenDump/FieldAssessments?AssessmentIdx=' + this.options[this.selectedIndex].value + '&SiteIdx='+ siteIdx" })*@
-                      
+                    <div class="col-sm-8">                       
                         @Html.DropDownListFor(model => model.oFieldAssessmentViewModel.selDumpAssessmentIdx, Model.oFieldAssessmentViewModel.AssessmentDropDownList, null, new { @class = "form-control", @onchange = "GetAssessment(this.value)" })
                     </div>
                 </div>
@@ -82,7 +79,7 @@
                             <div class="col-md-3">
                                 <div class="form-group">
                                     <label>Date of Assessment</label>
-                                    @Html.TextBoxFor(model => model.oFieldAssessmentViewModel.TOdDumpAssessments.ASSESSMENT_DT, "{0:dd/MM/yyyy}", new { @id = "dateAssessment", @class = "form-control datepicker" })
+                                    @Html.TextBoxFor(model => model.oFieldAssessmentViewModel.TOdDumpAssessments.ASSESSMENT_DT, "{0:MM/dd/yyyy}", new { @id = "dateAssessment", @class = "form-control datepicker", required = "required" })
                                 </div>
                             </div>
                             <div class="col-md-4">
@@ -164,7 +161,7 @@
                                                             <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
                                                         </a>
 
-                                                        <a href="#" class="btn btn-rounded btn-xs descinfo activity" title="Edit">
+                                                        <a href="#" class="btn btn-rounded btn-xs activity" title="Edit">
                                                             <i class="glyphicon glyphicon-pencil" aria-hidden="true"></i>
                                                         </a>
                                                         <div class="postedfilename" style="overflow-wrap: break-word; word-wrap: break-word;white-space: normal !important;">
@@ -300,7 +297,7 @@
                                             </div>
                                         </td>
                                         <td>
-                                            @Convert.ToDateTime(item.ASSESSMENT_DT).ToString("dd-MM-yyyy")
+                                            @Convert.ToDateTime(item.ASSESSMENT_DT).ToString("MM-dd-yyyy")
                                         </td>
                                         <td>
                                             @Html.DisplayFor(modelItem => item.ASSESSED_BY)
@@ -376,19 +373,17 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
-                    <h3 class="modal-tital">Add Photos</h3>
+                    <h3 class="modal-tital">Add Files</h3>
                 </div>
                 <div class="modal-header">
                     <div class="form-group">
                         @Html.LabelFor(x => x.oFieldAssessmentViewModel.files)
                         <div class="input-group">
                             <label class="input-group-btn">
-                                <span class="btn btn-primary btn btn-default btn-file">
-                                    @*Browse… <input type="file" style="display: none;" name="files" id="files">*@
+                                <span class="btn btn-primary btn btn-default btn-file">                                    
                                     @Html.EditorFor(model => model.oFieldAssessmentViewModel.files, new { htmlAttributes = new { @id = "files", @class = "form-control", @type = "file" } })
                                 </span>
-                            </label>
-                            @*<input id="filename1" type="text" class="form-control" readonly="">*@
+                            </label>                          
                         </div>
                     </div>
                     <div class="form-group">
@@ -410,84 +405,5 @@
 
 @section scripts {
     <script src="~/js/confirm_delete.js">
-    </script>
-    <script type="text/javascript">
-        $(document).ready(function () {
-
-            $('a.descinfo').click(function () {
-                var dad = $(this).parent().parent();
-                dad.find("#divHideOnEdit").hide();
-                dad.find("#divShowOnEdit").show().focus();
-                return false;
-            });
-
-            $('a.activity').click(function () {
-                var dad = $(this).parent().parent();
-                dad.find("#divPhotoHideOnEdit").hide();
-                dad.find("#divPhotoShowOnEdit").show().focus();
-                return false;
-            });
-            // get date from MyDate input field
-            var date = $("#date").val();
-
-            // use current date as default, if input is empty
-            if (!date) {
-                date = new Date();
-              //  $("#date").val() = new Date();
-            }
-
-            $('#date').datepicker({
-                changeMonth: true,
-                changeYear: true,
-                format: "dd-mm-yyyy",
-                language: "tr",
-                autoclose: true,
-                todayBtn: 'linked'
-            });
-            // get date from MyDate input field
-            var dateAssessments = $("#dateAssessment").val();
-
-            // use current date as default, if input is empty
-            if (!dateAssessments) {
-                dateAssessments = new Date();
-               // $("#dateAssessment").val(dateAssessments);
-
-            }
-            $('#dateAssessment').datepicker({
-                changeMonth: true,
-                changeYear: true,
-                format: "dd-mm-yyyy",
-                language: "tr",
-                autoclose: true,
-                todayBtn: 'linked'
-            });
-
-        });
-        //file upload display filename
-        $("input[id='files']").change(function (e) {
-            var $this = $(this);
-            var FileSize = this.files[0].size / 1024 / 1024;
-            if (FileSize > 20) {
-                $('#files').val('');
-                alert('Files cannot exceed 20 MB');
-            }
-            else {
-                $("#filename1").val($this.val().split('\\').pop());
-            }
-        });
-
-        //file upload display filename
-        $("input[id='filesPhoto']").change(function (e) {
-            var $this = $(this);
-            var FileSize = this.files[0].size / 1024 / 1024;
-            if (FileSize > 20) {
-                $('#filesPhoto').val('');
-                alert('Files cannot exceed 20 MB');
-            }
-            else {
-                $("#filename1").val($this.val().split('\\').pop());
-            }
-        });
-       
-    </script>
+    </script> 
 }
