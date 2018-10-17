@@ -42,7 +42,7 @@
                         </a>
                     </li>
                 </ul>
-                <div class="tab-content" style="height:0px; padding: 0px;">                   
+                <div class="tab-content">                   
                     <div class="@(Model.ActiveTab == OpenDumpTab.Prefield  ? "tab-pane in active" : "tab-pane")" id="tab1">
                         @await Component.InvokeAsync("PreField", new { SiteIdx = Model.oPreFieldViewModel.TPrtSites.SiteIdx, returnURL = Model.oPreFieldViewModel.returnURL })
 
@@ -73,14 +73,14 @@
     <script type="text/javascript">
         $(document).ready(function () {
             $('.descinfo').click(function () {
-                var dad = $(this).parent().parent();
+                var dad = $(this).parent();
                 dad.find("#divHideOnEdit").hide();
                 dad.find("#divShowOnEdit").show().focus();
                 return false;
             });
 
             $('.activity').click(function () {
-                var dad = $(this).parent().parent();
+                var dad = $(this).parent();
                 dad.find("#divPhotoHideOnEdit").hide();
                 dad.find("#divPhotoShowOnEdit").show().focus();
                 return false;

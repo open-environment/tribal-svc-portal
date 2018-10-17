@@ -549,12 +549,13 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
 
                 if (e != null && IS_CHECKED == false)
                 {
-                    T_OD_DUMP_ASSESSMENT_CONTENT tda = new T_OD_DUMP_ASSESSMENT_CONTENT { DUMP_ASSESSMENTS_IDX = dUMPASSESSMENTS_IDX, REF_WASTE_TYPE_IDX = rEF_WASTE_TYPE_IDX };
-                    ctx.Entry(tda).State = Microsoft.EntityFrameworkCore.EntityState.Deleted;
-                    ctx.SaveChanges();
+                    ctx.Database.ExecuteSqlCommand("DELETE FROM T_OD_DUMP_ASSESSMENT_CONTENT where DUMP_ASSESSMENTS_IDX = {0} and REF_WASTE_TYPE_IDX = {1}", dUMPASSESSMENTS_IDX, rEF_WASTE_TYPE_IDX);
+                    //T_OD_DUMP_ASSESSMENT_CONTENT tda = new T_OD_DUMP_ASSESSMENT_CONTENT { DUMP_ASSESSMENTS_IDX = dUMPASSESSMENTS_IDX, REF_WASTE_TYPE_IDX = rEF_WASTE_TYPE_IDX };
+                    //ctx.Entry(tda).State = Microsoft.EntityFrameworkCore.EntityState.Deleted;
+                    //ctx.SaveChanges();
                 }
-                else
-                {
+                else if (IS_CHECKED)
+                {                   
                     //insert case
                     if (e == null)
                     {
@@ -573,7 +574,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
                         ctx.T_OD_DUMP_ASSESSMENT_CONTENT.Add(e);
                     ctx.SaveChanges();
                 }
-                return e.DUMP_ASSESSMENTS_IDX;
+                return dUMPASSESSMENTS_IDX;
             }
             catch (Exception ex)
             {

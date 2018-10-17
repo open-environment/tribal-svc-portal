@@ -205,10 +205,9 @@ namespace TribalSvcPortal.Controllers
                 model.oFieldAssessmentViewModel.selDumpAssessmentIdx = (Guid)DUMP_ASSESSMENTS_IDX;
                 foreach (T_OD_REF_WASTE_TYPE oNew in model.oFieldAssessmentViewModel.ContentCheckBoxList)
                 {
-                    if (oNew.IS_CHECKED)
-                    {
-                        _DbOpenDump.InsertUpdateT_OD_DumpAssessment_Content(model.oFieldAssessmentViewModel.selDumpAssessmentIdx, oNew.REF_WASTE_TYPE_IDX, 0, null, null, null, oNew.IS_CHECKED);
-                    }
+
+                    _DbOpenDump.InsertUpdateT_OD_DumpAssessment_Content(model.oFieldAssessmentViewModel.selDumpAssessmentIdx, oNew.REF_WASTE_TYPE_IDX, 0, null, null, null, oNew.IS_CHECKED);
+
                 }
                 TempData["Success"] = "Update successful.";
                 // return RedirectToAction("PreField", "OpenDump", new { SiteIdx = model.oPreFieldViewModel.TPrtSites.SiteIdx, returnURL = "Search" });
