@@ -135,7 +135,7 @@ namespace TribalSvcPortal.Controllers
                 PreFieldmodel.TPrtSites.SiteIdx = Guid.NewGuid();
                 FieldAssessmentmodel.TOdDumpAssessments = new T_OD_DUMP_ASSESSMENTS();
                 FieldAssessmentmodel.TOdDumpAssessments.DUMP_ASSESSMENTS_IDX = Guid.NewGuid();
-               // FieldAssessmentmodel.TOdDumpAssessments.ASSESSMENT_DT = DateTime.Now;
+                FieldAssessmentmodel.TOdDumpAssessments.ASSESSMENT_DT = DateTime.Now;
             }
             
 
@@ -158,7 +158,8 @@ namespace TribalSvcPortal.Controllers
 
             if (newSiteID != null)
             {
-                Guid? SiteID = _DbOpenDump.InsertUpdateT_OD_SITES((Guid)newSiteID, model.oPreFieldViewModel.TOdSites.REPORTED_BY, model.oPreFieldViewModel.TOdSites.REPORTED_ON, model.oPreFieldViewModel.TOdSites.COMMUNITY_IDX,
+                string sDate = model.oPreFieldViewModel.TOdSites.REPORTED_ON.Value.Month + "-" + model.oPreFieldViewModel.TOdSites.REPORTED_ON.Value.Day + "-" + model.oPreFieldViewModel.TOdSites.REPORTED_ON.Value.Year;
+                Guid? SiteID = _DbOpenDump.InsertUpdateT_OD_SITES((Guid)newSiteID, model.oPreFieldViewModel.TOdSites.REPORTED_BY, Convert.ToDateTime(sDate), model.oPreFieldViewModel.TOdSites.COMMUNITY_IDX,
                     model.oPreFieldViewModel.TOdSites.SITE_SETTING_IDX, model.oPreFieldViewModel.TOdSites.PF_AQUIFER_VERT_DIST, model.oPreFieldViewModel.TOdSites.PF_SURF_WATER_HORIZ_DIST, model.oPreFieldViewModel.TOdSites.PF_HOMES_DIST);
 
                 TempData["Success"] = "Update successful.";
@@ -224,8 +225,9 @@ namespace TribalSvcPortal.Controllers
             {
                 string _UserIDX;
                 bool isUserExist = _memoryCache.TryGetValue("UserID", out _UserIDX);
-                
-                Guid? DUMP_ASSESSMENTS_IDX = _DbOpenDump.InsertUpdateT_OD_DumpAssessment(model.oFieldAssessmentViewModel.selDumpAssessmentIdx, model.oPreFieldViewModel.TPrtSites.SiteIdx, model.oFieldAssessmentViewModel.TOdDumpAssessments.ASSESSMENT_DT, model.oFieldAssessmentViewModel.TOdDumpAssessments.ASSESSED_BY,
+
+                string sDate = model.oFieldAssessmentViewModel.TOdDumpAssessments.ASSESSMENT_DT.Month + "-" + model.oFieldAssessmentViewModel.TOdDumpAssessments.ASSESSMENT_DT.Day + "-" + model.oFieldAssessmentViewModel.TOdDumpAssessments.ASSESSMENT_DT.Year;
+                Guid? DUMP_ASSESSMENTS_IDX = _DbOpenDump.InsertUpdateT_OD_DumpAssessment(model.oFieldAssessmentViewModel.selDumpAssessmentIdx, model.oPreFieldViewModel.TPrtSites.SiteIdx, Convert.ToDateTime(sDate), model.oFieldAssessmentViewModel.TOdDumpAssessments.ASSESSED_BY,
                     model.oFieldAssessmentViewModel.TOdDumpAssessments.ASSESSMENT_TYPE_IDX, model.oFieldAssessmentViewModel.TOdDumpAssessments.ACTIVE_SITE_IND, model.oFieldAssessmentViewModel.TOdDumpAssessments.SITE_DESCRIPTION, model.oFieldAssessmentViewModel.TOdDumpAssessments.ASSESSMENT_NOTES, 0,0,null,null,null,null,null,null,null,0, "FieldAssessment");
                 model.oFieldAssessmentViewModel.selDumpAssessmentIdx = (Guid) DUMP_ASSESSMENTS_IDX;
                 foreach (T_PRT_DOCUMENTS docs in model.oFieldAssessmentViewModel.filesPhoto_existing?? new List<T_PRT_DOCUMENTS>())
@@ -460,8 +462,10 @@ namespace TribalSvcPortal.Controllers
                 FieldAssessmentmodel.AssessmentDropDownList = _DbOpenDump.get_ddl_od_dumpassessment_by_BySITEIDX((Guid)SiteIdx);
                 FieldAssessmentmodel.AssessmentForHealthThreatDropDownList = _DbOpenDump.get_ddl_od_assessmentforhealththreat_by_BySITEIDX((Guid)SiteIdx);
                 FieldAssessmentmodel.TOdDumpAssessmentsGridList = _DbOpenDump.GetT_OD_DumpAssessmentList_BySITEIDX((Guid)SiteIdx);
-                FieldAssessmentmodel.TOdDumpAssessments = oT_OD_DUMP_ASSESSMENTS;
+                // FieldAssessmentmodel.TOdDumpAssessments = oT_OD_DUMP_ASSESSMENTS;
+                FieldAssessmentmodel.TOdDumpAssessments = new T_OD_DUMP_ASSESSMENTS();
                 FieldAssessmentmodel.TOdDumpAssessments.DUMP_ASSESSMENTS_IDX = Guid.NewGuid();
+                FieldAssessmentmodel.TOdDumpAssessments.ASSESSMENT_DT = DateTime.Now;
             }
             else if (SiteIdx != null && AssessmentIdx != null)
             {
@@ -478,15 +482,11 @@ namespace TribalSvcPortal.Controllers
                 //FieldAssessmentmodel.TPrtSites = _DbPortal.GetT_PRT_SITES_BySITEIDX((Guid)SiteIdx);
                 FieldAssessmentmodel.TOdDumpAssessments = new T_OD_DUMP_ASSESSMENTS();
                 FieldAssessmentmodel.TOdDumpAssessments.DUMP_ASSESSMENTS_IDX = Guid.NewGuid();
-               // FieldAssessmentmodel.TOdDumpAssessments.ASSESSMENT_DT = DateTime.Now;
+                FieldAssessmentmodel.TOdDumpAssessments.ASSESSMENT_DT = DateTime.Now;
             }
-            //openDumpViewModel.oFieldAssessmentViewModel = FieldAssessmentmodel;
-            //return View(openDumpViewModel);
-            //  return PartialView("_FieldAssessments", FieldAssessmentmodel);
-            // return PartialView("_FieldAssessments", FieldAssessmentmodel);
-            //return new EmptyResult();
+          
             return FieldAssessmentmodel;
-            //  return RedirectToAction(nameof(PreField), new { SiteIdx = SiteIdx, returnURL = "Search", assessmentModel = FieldAssessmentmodel });
+           
         }
     }
 }

@@ -96,26 +96,27 @@
             $('#date').datepicker({
                 changeMonth: true,
                 changeYear: true,
-                format: "dd-mm-yyyy",
+                format: "mm-dd-yyyy",
                 language: "tr",
                 autoclose: true,
                 todayBtn: 'linked'
             });
             // get date from MyDate input field
-            var dateAssessments = $("#dateAssessment").val();
+            var dateAssessment = $("#dateAssessment").val();
 
             // use current date as default, if input is empty
-            if (!dateAssessments) {
-                dateAssessments = new Date();          
+            if (!dateAssessment) {
+                dateAssessment = new Date();          
 
             }
             $('#dateAssessment').datepicker({
                 changeMonth: true,
                 changeYear: true,
-                format: "dd-mm-yyyy",
+                format: "mm-dd-yyyy",
                 language: "tr",
                 autoclose: true,
                 todayBtn: 'linked'
+               
             });
 
         });

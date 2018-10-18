@@ -19,7 +19,7 @@
             @Html.HiddenFor(model => model.oPreFieldViewModel.activeTab)
             @Html.ValidationSummary(true, "", new { @class = "text-danger" })
             <div class="row">
-                <div class="col-sm-12"  style="margin-top: 8px;">
+                <div class="col-sm-12" style="margin-top: 8px;">
                     <div>
                         <label class="col-sm-1 control-label" style="margin-top:8px;">
                             Site Name
@@ -208,7 +208,7 @@
                                 <div class="col-md-5">
                                     <div class="form-group">
                                         <label>Reported On</label>
-                                        @Html.TextBoxFor(model => model.oPreFieldViewModel.TOdSites.REPORTED_ON, "{0:MM/dd/yyyy}", new { @id = "date", @class = "form-control datepicker" })
+                                        @Html.TextBoxFor(model => model.oPreFieldViewModel.TOdSites.REPORTED_ON, "{0:MM-dd-yyyy}", new { @id = "date", @class = "form-control datepicker" })
                                     </div>
                                 </div>
                             </div>
@@ -247,5 +247,6 @@
 
 @section scripts {
     <script src="~/js/confirm_delete.js">
-    </script>   
+    </script>
+   
 }

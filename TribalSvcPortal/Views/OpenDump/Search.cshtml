@@ -106,8 +106,11 @@
                                 <td>
                                     @Html.DisplayFor(modelItem => item.ReportedBy)
                                 </td>
-                                <td>                                  
+                                <td>
+                                    @if(item.ReportedOn!=null)
+                                    {
                                     @Convert.ToDateTime(item.ReportedOn).ToString("MM-dd-yyyy")
+                                    }
                                 </td>
 
                             </tr>

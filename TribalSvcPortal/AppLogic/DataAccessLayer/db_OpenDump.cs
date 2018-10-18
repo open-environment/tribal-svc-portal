@@ -297,7 +297,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             try
             {
                 List<OpenDumpSiteListDisplay> xxx = new List<OpenDumpSiteListDisplay>();
-                OpenDumpSiteListDisplay OpenDumpSite = new OpenDumpSiteListDisplay();
+                List<OpenDumpSiteListDisplay> OpenDumpSite = new List<OpenDumpSiteListDisplay>();
                 var odsld = (from a in ctx.T_PRT_ORG_USERS
                            join b in ctx.T_PRT_ORGANIZATIONS on a.OrgId equals b.OrgId
                            join c in ctx.T_PRT_ORG_USER_CLIENT on a.OrgUserIdx equals c.OrgUserIdx
@@ -325,10 +325,13 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
                                Latitude = a.Latitude,
                                Longitude = a.Longitude
 
-                           }).FirstOrDefault();
+                           }).ToList();
                     if (OpenDumpSite != null)
                     {
-                        xxx.Add(OpenDumpSite);
+                        foreach (OpenDumpSiteListDisplay oNew in OpenDumpSite)
+                        {
+                            xxx.Add(oNew);
+                        }
                     }
                 }                          
 
