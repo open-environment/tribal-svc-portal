@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Identity;
 using TribalSvcPortal.Data.Models;
 using TribalSvcPortal.ViewModels.OpenDumpViewModels;
 using TribalSvcPortal.AppLogic.DataAccessLayer;
+using TribalSvcPortal.AppLogic.BusinessLogicLayer;
 using Microsoft.Extensions.Caching.Memory;
 using System.IO;
 using Microsoft.AspNetCore.Http;
@@ -415,6 +416,21 @@ namespace TribalSvcPortal.Controllers
             return View();
         }
 
+
+        public IActionResult IHSReport()
+        {
+            byte[] pdf = PDFReportGen.CreatePDFReport();
+            if (pdf != null)
+            {
+                var content = new System.IO.MemoryStream(pdf);
+                return File(pdf, "application/pdf", "report.pdf");
+            }
+            else
+            {
+                TempData["Error"] = "Unable to generate document.";
+                return RedirectToAction("Search", new { selStr = "", selOrg = "" });
+            }
+        }
 
         //[NonAction]
         public FieldAssessmentViewModel GetFieldAssessment(Guid? AssessmentIdx, Guid? SiteIdx)
