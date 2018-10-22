@@ -145,7 +145,7 @@
             {
                 var map, tb;
 
-                require(["esri/map",
+                require(["esri/map",                   
                     "esri/InfoTemplate",
                     "esri/geometry/Point",
                     "esri/toolbars/draw",
@@ -160,7 +160,7 @@
                 ],
 
                     function (
-                        Map, InfoTemplate,
+                        Map, InfoTemplate,                       
                         Point,
                         Draw,
                         SimpleMarkerSymbol, SimpleLineSymbol,
@@ -182,7 +182,8 @@
 
                             var gl = new GraphicsLayer();
                             map.addLayer(gl);
-
+                           
+                          
                             for (var count = 0; count < searchList.length; count++) {
                                 var p = new Point(searchList[count].longitude, searchList[count].latitude);
                                 var i = {
@@ -193,8 +194,13 @@
                                 var siteid = searchList[count].siteAddress;
                                 var it = new InfoTemplate("Coordinates");
                                 var g = new Graphic(p, s, i).setInfoTemplate(it);
-                                gl.add(g);
+                                gl.add(g);                              
+                                //var extent = new Extent(p, new SpatialReference({ wkid: 4326 }));
+                                //sp.add(p);
+                                
                             }
+                          //  map.setExtent(gl.fullExtent, true);
+                           // map.centerAndZoom(sp, 2);
                         }
              });
 

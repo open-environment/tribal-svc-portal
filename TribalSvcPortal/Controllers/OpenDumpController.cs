@@ -159,9 +159,20 @@ namespace TribalSvcPortal.Controllers
 
             if (newSiteID != null)
             {
-                string sDate = model.oPreFieldViewModel.TOdSites.REPORTED_ON.Value.Month + "-" + model.oPreFieldViewModel.TOdSites.REPORTED_ON.Value.Day + "-" + model.oPreFieldViewModel.TOdSites.REPORTED_ON.Value.Year;
-                Guid? SiteID = _DbOpenDump.InsertUpdateT_OD_SITES((Guid)newSiteID, model.oPreFieldViewModel.TOdSites.REPORTED_BY, Convert.ToDateTime(sDate), model.oPreFieldViewModel.TOdSites.COMMUNITY_IDX,
-                    model.oPreFieldViewModel.TOdSites.SITE_SETTING_IDX, model.oPreFieldViewModel.TOdSites.PF_AQUIFER_VERT_DIST, model.oPreFieldViewModel.TOdSites.PF_SURF_WATER_HORIZ_DIST, model.oPreFieldViewModel.TOdSites.PF_HOMES_DIST);
+                if (model.oPreFieldViewModel.TOdSites.REPORTED_ON != null)
+                {
+                    string sDate = model.oPreFieldViewModel.TOdSites.REPORTED_ON.Value.Month + "-" + model.oPreFieldViewModel.TOdSites.REPORTED_ON.Value.Day + "-" + model.oPreFieldViewModel.TOdSites.REPORTED_ON.Value.Year;
+                    Guid? SiteID = _DbOpenDump.InsertUpdateT_OD_SITES((Guid)newSiteID, model.oPreFieldViewModel.TOdSites.REPORTED_BY, Convert.ToDateTime(sDate), model.oPreFieldViewModel.TOdSites.COMMUNITY_IDX,
+                                      model.oPreFieldViewModel.TOdSites.SITE_SETTING_IDX, model.oPreFieldViewModel.TOdSites.PF_AQUIFER_VERT_DIST, model.oPreFieldViewModel.TOdSites.PF_SURF_WATER_HORIZ_DIST, model.oPreFieldViewModel.TOdSites.PF_HOMES_DIST);
+
+                }
+                else
+                {
+                    Guid? SiteID = _DbOpenDump.InsertUpdateT_OD_SITES((Guid)newSiteID, model.oPreFieldViewModel.TOdSites.REPORTED_BY, model.oPreFieldViewModel.TOdSites.REPORTED_ON, model.oPreFieldViewModel.TOdSites.COMMUNITY_IDX,
+                  model.oPreFieldViewModel.TOdSites.SITE_SETTING_IDX, model.oPreFieldViewModel.TOdSites.PF_AQUIFER_VERT_DIST, model.oPreFieldViewModel.TOdSites.PF_SURF_WATER_HORIZ_DIST, model.oPreFieldViewModel.TOdSites.PF_HOMES_DIST);
+
+                }
+
 
                 TempData["Success"] = "Update successful.";
                 return RedirectToAction("PreField", "OpenDump", new { SiteIdx = newSiteID, returnURL = model.oPreFieldViewModel.returnURL });

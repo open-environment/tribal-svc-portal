@@ -6,6 +6,7 @@
 
 }
 <link rel="stylesheet" href="https://js.arcgis.com/3.25/esri/css/esri.css">
+
 <!-- render the main content -->
 <div class="row">
     <div class="col-sm-12">
@@ -32,22 +33,22 @@
                         </a>
                     </li>
                     <li class="@(Model.ActiveTab == OpenDumpTab.HealthThreat  ? "active" : "")">
-                        <a href="#tab3" data-toggle="tab">
+                        <a href="#tab3" data-toggle="tab" id="atab3">
                             Waste Profile/Health Threat
                         </a>
                     </li>
-                    <li>
-                        <a href="#tab5" data-toggle="tab">
+                    <li class="@(Model.ActiveTab == OpenDumpTab.SiteCleanUp  ? "active" : "")">
+                        <a href="#tab4" data-toggle="tab" id="atab4">
                             Site Cleanup
                         </a>
                     </li>
                 </ul>
-                <div class="tab-content">                   
+                <div class="tab-content">
                     <div class="@(Model.ActiveTab == OpenDumpTab.Prefield  ? "tab-pane in active" : "tab-pane")" id="tab1">
                         @await Component.InvokeAsync("PreField", new { SiteIdx = Model.oPreFieldViewModel.TPrtSites.SiteIdx, returnURL = Model.oPreFieldViewModel.returnURL })
 
                     </div>
-                    <div class="@(Model.ActiveTab == OpenDumpTab.FieldAssessment  ? "tab-pane in active" : "tab-pane")" id="tab2">                       
+                    <div class="@(Model.ActiveTab == OpenDumpTab.FieldAssessment  ? "tab-pane in active" : "tab-pane")" id="tab2">
                         @await Component.InvokeAsync("FieldAssessments", new { SiteIdx = Model.oPreFieldViewModel.TPrtSites.SiteIdx, AssessmentIdx = Model.oFieldAssessmentViewModel.selDumpAssessmentIdx })
                     </div>
                     <div class="@(Model.ActiveTab == OpenDumpTab.HealthThreat  ? "tab-pane in active" : "tab-pane")" id="tab3">
@@ -55,8 +56,7 @@
                     </div>
                     <div class="tab-pane" id="tab4">
                     </div>
-                    <div class="tab-pane" id="tab5">
-                    </div>
+
                 </div>
             </div>
             <!-- *********************** END TABS ****************************************** -->
@@ -69,9 +69,27 @@
 @section scripts {
     <script src="~/js/confirm_delete.js">
     </script>
-    <script src="https://js.arcgis.com/3.25/"></script>
+    <style>
+        .disabledAnchor {
+            pointer-events: none !important;
+            cursor: default;
+            color: white;
+        }
+    </style>
     <script type="text/javascript">
         $(document).ready(function () {
+           
+            if (@Model.oFieldAssessmentViewModel.AssessmentDropDownList.Count()==1)
+            {
+                $('#atab3').addClass('disabledAnchor');
+                $('#atab4').addClass('disabledAnchor');
+            }
+            else
+            {
+                $('#atab3').removeClass('disabledAnchor');
+                $('#atab4').removeClass('disabledAnchor');
+            }
+
             $('.descinfo').click(function () {
                 var dad = $(this).parent();
                 dad.find("#divHideOnEdit").hide();
@@ -80,46 +98,46 @@
             });
 
             $('.activity').click(function () {
-                var dad = $(this).parent();
-                dad.find("#divPhotoHideOnEdit").hide();
-                dad.find("#divPhotoShowOnEdit").show().focus();
-                return false;
-            });
-            // get date from MyDate input field
-            var date = $("#date").val();
+                    var dad = $(this).parent();
+                    dad.find("#divPhotoHideOnEdit").hide();
+                    dad.find("#divPhotoShowOnEdit").show().focus();
+                    return false;
+                });
+                // get date from MyDate input field
+                var date = $("#date").val();
 
-            // use current date as default, if input is empty
-            if (!date) {
-                date = new Date();             
-            }
+                // use current date as default, if input is empty
+                if (!date) {
+                    date = new Date();
+                }
 
             $('#date').datepicker({
-                changeMonth: true,
+                    changeMonth: true,
                 changeYear: true,
                 format: "mm-dd-yyyy",
                 language: "tr",
                 autoclose: true,
                 todayBtn: 'linked'
             });
-            // get date from MyDate input field
-            var dateAssessment = $("#dateAssessment").val();
+                // get date from MyDate input field
+                var dateAssessment = $("#dateAssessment").val();
 
-            // use current date as default, if input is empty
-            if (!dateAssessment) {
-                dateAssessment = new Date();          
+                // use current date as default, if input is empty
+                if (!dateAssessment) {
+                    dateAssessment = new Date();
 
-            }
+                }
             $('#dateAssessment').datepicker({
-                changeMonth: true,
+                    changeMonth: true,
                 changeYear: true,
                 format: "mm-dd-yyyy",
                 language: "tr",
                 autoclose: true,
                 todayBtn: 'linked'
-               
+
             });
 
-        });
+            });
         //file upload display filename
         $("input[id='files']").change(function (e) {
             var $this = $(this);
@@ -150,14 +168,14 @@
             else if (FileSize > 20) {
                 $('#filesPhoto').val('');
                 alert('Files cannot exceed 20 MB');
-            }             
+            }
             else {
                 $("#filename1").val($this.val().split('\\').pop());
             }
         });
         function GetSubScore(valueIdx, modelx, name) {
             var Total = 0;
-           
+
             for (var i = 0; i < modelx.length;i++)
             {
                 if (valueIdx != "") {
@@ -172,9 +190,9 @@
             }
             $(".labelclass").each(function () {
                 if ($(this)["0"].textContent != "") {
-                    Total = Total + parseInt($(this)["0"].textContent);                   
+                    Total = Total + parseInt($(this)["0"].textContent);
                 }
-               
+
             });
             $("#HazardFactorScore").val(Total);
 
@@ -195,6 +213,7 @@
             }
         }
         function GetAssessment(value) {
+          
                 var siteIndx = "@Model.oFieldAssessmentViewModel.TPrtSites?.SiteIdx";
                 window.location.href = "/OpenDump/FieldAssessments?AssessmentIdx=" + value + "&SiteIdx=" + siteIndx;
         }
@@ -269,7 +288,7 @@
                 if (totalvalue >= 0 && totalvalue <= 250) {
                     $('#FinalScore').text("Low");
                 }
-                else if (totalvalue >= 251 && totalvalue <= 400) { 
+                else if (totalvalue >= 251 && totalvalue <= 400) {
                     $('#FinalScore').text("Moderate");
                 }
                 else if (totalvalue >= 401 && totalvalue <= 1488)  {
@@ -284,12 +303,13 @@
             var num = parseFloat($(this).val());
             $(this).val(num.toFixed(2));
         });
-         function GetHealthThreat(value) {          
+         function GetHealthThreat(value) {
                 var siteIndx = "@Model.oFieldAssessmentViewModel.TPrtSites?.SiteIdx";
              window.location.href = "/OpenDump/HealthThreat?AssessmentIdx=" + value + "&SiteIdx=" + siteIndx;
-            
+
         }
     </script>
+    <script src="https://js.arcgis.com/3.25/"></script>
     @if (Model.oPreFieldViewModel.TPrtSites != null)
     {
         <script type="text/javascript">
@@ -347,6 +367,7 @@
                                 );
                                 map.infoWindow.show(p, i);
                             }
+                            map.centerAndZoom(p, 2);
                         }
                         map.on("click", addPoint);
                         function addPoint(evt) {
