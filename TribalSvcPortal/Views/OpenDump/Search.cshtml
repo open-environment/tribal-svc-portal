@@ -194,13 +194,12 @@
                                 var siteid = searchList[count].siteAddress;
                                 var it = new InfoTemplate("Coordinates");
                                 var g = new Graphic(p, s, i).setInfoTemplate(it);
-                                gl.add(g);                              
-                                //var extent = new Extent(p, new SpatialReference({ wkid: 4326 }));
-                                //sp.add(p);
-                                
-                            }
-                          //  map.setExtent(gl.fullExtent, true);
-                           // map.centerAndZoom(sp, 2);
+                                gl.add(g);                             
+                                                            
+                            }  
+                             //create an extent matching the graphics of the parcel(s)  
+                            var zoomExtent = esri.graphicsExtent(gl.graphics);
+                            map.setExtent(zoomExtent, true);
                         }
              });
 

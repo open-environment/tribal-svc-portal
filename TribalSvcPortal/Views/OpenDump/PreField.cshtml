@@ -54,7 +54,7 @@
                     <div class="@(Model.ActiveTab == OpenDumpTab.HealthThreat  ? "tab-pane in active" : "tab-pane")" id="tab3">
                         @await Component.InvokeAsync("HealthThreat", new { SiteIdx = Model.oPreFieldViewModel.TPrtSites.SiteIdx, AssessmentIdx = Model.oFieldAssessmentViewModel.selDumpAssessmentIdx })
                     </div>
-                    <div class="tab-pane" id="tab4">
+                    <div class="@(Model.ActiveTab == OpenDumpTab.SiteCleanUp  ? "tab-pane in active" : "tab-pane")" id="tab4">
                     </div>
 
                 </div>
