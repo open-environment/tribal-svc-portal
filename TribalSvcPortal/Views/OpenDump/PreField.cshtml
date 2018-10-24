@@ -55,6 +55,7 @@
                         @await Component.InvokeAsync("HealthThreat", new { SiteIdx = Model.oPreFieldViewModel.TPrtSites.SiteIdx, AssessmentIdx = Model.oFieldAssessmentViewModel.selDumpAssessmentIdx })
                     </div>
                     <div class="@(Model.ActiveTab == OpenDumpTab.SiteCleanUp  ? "tab-pane in active" : "tab-pane")" id="tab4">
+                        @await Component.InvokeAsync("SiteCleanup", new { SiteIdx = Model.oPreFieldViewModel.TPrtSites.SiteIdx, AssessmentIdx = Model.oFieldAssessmentViewModel.selDumpAssessmentIdx })
                     </div>
 
                 </div>
@@ -303,10 +304,20 @@
             var num = parseFloat($(this).val());
             $(this).val(num.toFixed(2));
         });
+        $("#wasteamount").change(function (e) {
+
+            var num = parseFloat($(this).val());
+            $(this).val(num.toFixed(2));
+        });
          function GetHealthThreat(value) {
                 var siteIndx = "@Model.oFieldAssessmentViewModel.TPrtSites?.SiteIdx";
              window.location.href = "/OpenDump/HealthThreat?AssessmentIdx=" + value + "&SiteIdx=" + siteIndx;
 
+        }
+        function GetSiteCleanup(value)
+        { 
+             var siteIndx = "@Model.oFieldAssessmentViewModel.TPrtSites?.SiteIdx";
+            window.location.href = "/OpenDump/SiteCleanup?AssessmentIdx=" + value + "&SiteIdx=" + siteIndx;
         }
     </script>
     <script src="https://js.arcgis.com/3.25/"></script>

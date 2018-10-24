@@ -51,8 +51,8 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             FieldAssessmentmodel.FencedList = _DbOpenDump.get_ddl_refthreatfactor_by_factortype("Fenced");
             FieldAssessmentmodel.AccessList = _DbOpenDump.get_ddl_refthreatfactor_by_factortype("Access");
             FieldAssessmentmodel.TOdRefThreatFactorList = _DbOpenDump.get_ddl_refthreatfactor();
-
-            FieldAssessmentmodel.ContentCheckBoxList = _DbOpenDump.get_checkbox_refwastetype_by_wastetypecat("Hazard Factor", AssessmentIdx);
+            FieldAssessmentmodel.DisposalMethodList = _DbOpenDump.get_ddl_ref_disposal();
+            FieldAssessmentmodel.ContentCheckBoxList = _DbOpenDump.get_checkbox_refwastetype_by_wastetypecat(AssessmentIdx);
 
             int Total = 0;
             for (int i = 0; i < FieldAssessmentmodel.ContentCheckBoxList.Count; i++)

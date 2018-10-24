@@ -13,12 +13,12 @@ using TribalSvcPortal.ViewModels.OpenDumpViewModels;
 
 namespace TribalSvcPortal.AppLogic.DataAccessLayer
 {
-    public class FieldAssessmentsViewComponent : ViewComponent
+    public class SiteCleanupViewComponent: ViewComponent
     {
         private readonly IDbPortal _DbPortal;
         private readonly IDbOpenDump _DbOpenDump;
         private readonly IMemoryCache _memoryCache;
-        public FieldAssessmentsViewComponent(
+        public SiteCleanupViewComponent(
            IDbPortal DbPortal,
            IMemoryCache memoryCache,
             IDbOpenDump DbOpenDump
@@ -37,7 +37,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             if (AssessmentIdx != null)
             {
                 oT_OD_DUMP_ASSESSMENTS = _DbOpenDump.GetT_OD_DumpAssessment_ByDumpAssessmentIDX((Guid)AssessmentIdx);
-            }          
+            }
             var PreFieldmodel = new PreFieldViewModel();
             var FieldAssessmentmodel = new FieldAssessmentViewModel();
 
@@ -57,9 +57,9 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             else
             {
                 string IDx = "98567684-a5d5-4742-ac6d-1dd5080f76a7";
-                FieldAssessmentmodel.selDumpAssessmentIdx = Guid.Parse(IDx);
-                //   FieldAssessmentmodel.selDumpAssessmentIdx = Guid.NewGuid();
+                FieldAssessmentmodel.selDumpAssessmentIdx = Guid.Parse(IDx);             
             }
+            FieldAssessmentmodel.DisposalMethodList = _DbOpenDump.get_ddl_ref_disposal();
             if (AssessmentIdx != null && SiteIdx == null)
             {
                 PreFieldmodel.TPrtSites = _DbPortal.GetT_PRT_SITES_BySITEIDX(oT_OD_DUMP_ASSESSMENTS.SITE_IDX);
@@ -81,7 +81,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
                 FieldAssessmentmodel.AssessmentDropDownList = _DbOpenDump.get_ddl_od_dumpassessment_by_BySITEIDX((Guid)SiteIdx);
                 FieldAssessmentmodel.AssessmentForHealthThreatDropDownList = _DbOpenDump.get_ddl_od_assessmentforhealththreat_by_BySITEIDX((Guid)SiteIdx);
                 FieldAssessmentmodel.TOdDumpAssessmentsGridList = _DbOpenDump.GetT_OD_DumpAssessmentList_BySITEIDX((Guid)SiteIdx);
-                //FieldAssessmentmodel.TOdDumpAssessments = oT_OD_DUMP_ASSESSMENTS;
+               
                 FieldAssessmentmodel.TOdDumpAssessments = new T_OD_DUMP_ASSESSMENTS();
                 FieldAssessmentmodel.TOdDumpAssessments.DUMP_ASSESSMENTS_IDX = Guid.NewGuid();
                 FieldAssessmentmodel.TOdDumpAssessments.ASSESSMENT_DT = DateTime.Now;
@@ -118,9 +118,9 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             }
             openDumpViewModel.oPreFieldViewModel = PreFieldmodel;
             openDumpViewModel.oFieldAssessmentViewModel = FieldAssessmentmodel;
-            openDumpViewModel.ActiveTab = OpenDumpTab.FieldAssessment;
-            return View(openDumpViewModel);          
-           
+            openDumpViewModel.ActiveTab = OpenDumpTab.SiteCleanUp;
+            return View(openDumpViewModel);
+
         }
     }
 }

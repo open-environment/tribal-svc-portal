@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TribalSvcPortal.Data.Models
 {
@@ -15,5 +16,9 @@ namespace TribalSvcPortal.Data.Models
 
         public T_OD_DUMP_ASSESSMENTS DUMP_ASSESSMENTS_IDXNavigation { get; set; }
         public T_OD_REF_WASTE_TYPE REF_WASTE_TYPE_IDXNavigation { get; set; }
+        [NotMapped]
+        public string REF_WASTE_TYPE_NAME { get; set; }
+        [NotMapped]
+        public string REF_WASTE_TYPE_CAT { get; set; }
     }
 }

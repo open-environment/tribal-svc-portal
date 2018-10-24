@@ -102,9 +102,9 @@ namespace TribalSvcPortal.Controllers
             FieldAssessmentmodel.FencedList = _DbOpenDump.get_ddl_refthreatfactor_by_factortype("Fenced");
             FieldAssessmentmodel.AccessList = _DbOpenDump.get_ddl_refthreatfactor_by_factortype("Access");
             FieldAssessmentmodel.TOdRefThreatFactorList = _DbOpenDump.get_ddl_refthreatfactor();
-
-            FieldAssessmentmodel.ContentCheckBoxList = _DbOpenDump.get_checkbox_refwastetype_by_wastetypecat("Hazard Factor", AssessmentIdx);
-          
+            FieldAssessmentmodel.DisposalMethodList = _DbOpenDump.get_ddl_ref_disposal();
+           
+            FieldAssessmentmodel.ContentCheckBoxList = _DbOpenDump.get_checkbox_refwastetype_by_wastetypecat(AssessmentIdx);          
 
             PreFieldmodel.OrgList = _DbOpenDump.get_ddl_od_organizations(_UserIDX);
             PreFieldmodel.returnURL = returnURL ?? "Search";
@@ -206,7 +206,11 @@ namespace TribalSvcPortal.Controllers
         {
             return RedirectToAction(nameof(PreField), new { SiteIdx = Siteidx, returnURL = "Search", AssessmentIdx = Assessmentidx, CreateAssessment = Assessmentidx == null ? true : false, activeTab = OpenDumpTab.HealthThreat });
         }
-
+        [HttpGet]
+        public ActionResult SiteCleanup(Guid? Assessmentidx, Guid? Siteidx)
+        {
+            return RedirectToAction(nameof(PreField), new { SiteIdx = Siteidx, returnURL = "Search", AssessmentIdx = Assessmentidx, CreateAssessment = Assessmentidx == null ? true : false, activeTab = OpenDumpTab.SiteCleanUp });
+        }
         [HttpPost, ValidateAntiForgeryToken]
         public ActionResult HealthThreatEdit(OpenDumpViewModel model)
         {
@@ -258,6 +262,26 @@ namespace TribalSvcPortal.Controllers
                 TempData["Error"] = "Error updating data.";
             return RedirectToAction("Search", new { selStr = "", selOrg = "" });
         }
+        [HttpPost, ValidateAntiForgeryToken]
+        public ActionResult SiteCleanupEdit(OpenDumpViewModel model)
+        {
+            if (model != null)
+            {
+              
+                model.oFieldAssessmentViewModel.selDumpAssessmentIdx = model.oFieldAssessmentViewModel.selDumpAssessmentIdx;
+                foreach (T_OD_DUMP_ASSESSMENT_CONTENT oNew in model.oFieldAssessmentViewModel.WasteAmountList)
+                {
+                    _DbOpenDump.InsertUpdateT_OD_DumpAssessment_Content(model.oFieldAssessmentViewModel.selDumpAssessmentIdx, oNew.REF_WASTE_TYPE_IDX, oNew.WASTE_AMT, oNew.WASTE_UNIT_MSR, oNew.WASTE_DISPOSAL_METHOD, oNew.WASTE_DISPOSAL_DIST, true);
+
+                }
+                TempData["Success"] = "Update successful.";
+                // return RedirectToAction("PreField", "OpenDump", new { SiteIdx = model.oPreFieldViewModel.TPrtSites.SiteIdx, returnURL = "Search" });
+                return RedirectToAction(nameof(PreField), new { SiteIdx = model.oPreFieldViewModel.TPrtSites.SiteIdx, returnURL = "Search", AssessmentIdx = model.oFieldAssessmentViewModel.selDumpAssessmentIdx, CreateAssessment = model.oFieldAssessmentViewModel.selDumpAssessmentIdx == null ? true : false, activeTab = OpenDumpTab.SiteCleanUp });
+            }
+            else
+                TempData["Error"] = "Error updating data.";
+            return RedirectToAction("Search", new { selStr = "", selOrg = "" });
+        }
 
 
         [HttpPost]
@@ -275,7 +299,7 @@ namespace TribalSvcPortal.Controllers
 
                 if (SuccID == 1)
                 return Json("Success");
-               // return RedirectToAction(nameof(PreField), new { SiteIdx = null, returnURL = "Search", AssessmentIdx = null, CreateAssessment = Assessmentidx == null ? true : false, activeTab = OpenDumpTab.FieldAssessment });
+              
             }
 
             return Json("Unable to delete");

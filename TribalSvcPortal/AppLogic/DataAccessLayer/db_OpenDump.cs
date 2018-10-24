@@ -54,10 +54,12 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
                                                         string ASSESSMENT_NOTES, decimal? aREA_ACRES, decimal? vOLUMN_CU_YD, Guid? hF_RAINFALL, Guid? hF_DRAINAGE, Guid? hF_FLOODING, Guid? hF_BURNING, Guid? hF_FENCING, Guid? hF_ACCESS_CONTROL,
                                                         Guid? hF_PUBLIC_CONCERN, int? hEALTH_THREAT_SCORE, string Tab);
         Guid? InsertUpdateT_OD_DUMP_ASSESSMENT_DOCUMENTS(Guid? dOC_IDX, Guid dUMPASSESSMENTS_IDX);
-        List<T_OD_REF_WASTE_TYPE> get_checkbox_refwastetype_by_wastetypecat(string waste_type_cat, Guid? AssessmentIdx);
+        List<T_OD_REF_WASTE_TYPE> get_checkbox_refwastetype_by_wastetypecat(Guid? AssessmentIdx);
         List<RefThreatFactor> get_ddl_refthreatfactor();
         IEnumerable<SelectListItem> get_ddl_od_assessmentforhealththreat_by_BySITEIDX(Guid? Siteidx);
         Guid? InsertUpdateT_OD_DumpAssessment_Content(Guid dUMPASSESSMENTS_IDX, Guid rEF_WASTE_TYPE_IDX, decimal? wASTE_AMT, Guid? wASTE_UNIT_MSR, Guid? wASTE_DISPOSAL_METHOD, string wASTE_DISPOSAL_DIST, bool IS_CHECKED);
+        IEnumerable<SelectListItem> get_ddl_ref_disposal();
+        List<T_OD_DUMP_ASSESSMENT_CONTENT> GetT_OD_DumpAssessmentContent_ByDumpAssessmentIDX(Guid DumpAssessmentIDX);
     }
 
     public class DbOpenDump : IDbOpenDump
@@ -139,13 +141,12 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
                 return null;
             }
         }
-        public List<T_OD_REF_WASTE_TYPE> get_checkbox_refwastetype_by_wastetypecat(string waste_type_cat, Guid? AssessmentIdx)
+        public List<T_OD_REF_WASTE_TYPE> get_checkbox_refwastetype_by_wastetypecat(Guid? AssessmentIdx)
         {
             try
             {
                 List<T_OD_REF_WASTE_TYPE> xxx = new List<T_OD_REF_WASTE_TYPE>();
-                xxx = (from a in ctx.T_OD_REF_WASTE_TYPE
-                       where a.REF_WASTE_TYPE_CAT == waste_type_cat
+                xxx = (from a in ctx.T_OD_REF_WASTE_TYPE                     
                        orderby a.REF_WASTE_TYPE_NAME
                        select a).ToList();
                
@@ -645,6 +646,48 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             }
         }
 
+        public IEnumerable<SelectListItem> get_ddl_ref_disposal()
+        {
+            try
+            {
+                var xxx = (from a in ctx.T_OD_REF_DISPOSAL                
+                         
+                           select new SelectListItem
+                           {
+                               Value = a.REF_DISPOSAL_IDX.ToString(),
+                               Text = a.DISPOSAL_NAME
+                           }).ToList();
+                xxx.Insert(0, new SelectListItem { Text = "", Value = "" });               
+                return xxx;
+            }
+            catch (Exception ex)
+            {
+                log.LogEFException(ex);
+                return null;
+            }
+        }
+        public List<T_OD_DUMP_ASSESSMENT_CONTENT> GetT_OD_DumpAssessmentContent_ByDumpAssessmentIDX(Guid DumpAssessmentIDX)
+        {
+            try
+            {
+               List<T_OD_DUMP_ASSESSMENT_CONTENT> oT_OD_DUMP_ASSESSMENT_CONTENT_List = (from a in ctx.T_OD_DUMP_ASSESSMENT_CONTENT
+                                                                                    where a.DUMP_ASSESSMENTS_IDX == DumpAssessmentIDX
+                                                                                     select a).ToList();
 
+                foreach (T_OD_DUMP_ASSESSMENT_CONTENT oNew in oT_OD_DUMP_ASSESSMENT_CONTENT_List)
+                {
+                    T_OD_REF_WASTE_TYPE wastetype = ctx.T_OD_REF_WASTE_TYPE.Where(x => x.REF_WASTE_TYPE_IDX == oNew.REF_WASTE_TYPE_IDX).FirstOrDefault();
+                    oNew.REF_WASTE_TYPE_NAME = wastetype.REF_WASTE_TYPE_NAME;
+                    oNew.REF_WASTE_TYPE_CAT = wastetype.REF_WASTE_TYPE_CAT;
+                }
+
+                return oT_OD_DUMP_ASSESSMENT_CONTENT_List.OrderBy(x=>x.REF_WASTE_TYPE_CAT).ThenBy(x=>x.REF_WASTE_TYPE_NAME).ToList();
+            }
+            catch (Exception ex)
+            {
+                log.LogEFException(ex);
+                return null;
+            }
+        }
     }
 }

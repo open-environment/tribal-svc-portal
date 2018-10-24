@@ -35,8 +35,10 @@ namespace TribalSvcPortal.ViewModels.OpenDumpViewModels
         public int? AccessSubScore { get; set; }
         public IEnumerable<SelectListItem> ConcernList { get; set; }
         public int? ConcernSubScore { get; set; }
+        public IEnumerable<SelectListItem> DisposalMethodList { get; set; }
+        public List<T_OD_DUMP_ASSESSMENT_CONTENT> WasteAmountList { get; set; }
 
-       public List<RefThreatFactor> TOdRefThreatFactorList { get; set; }
+        public List<RefThreatFactor> TOdRefThreatFactorList { get; set; }
 
         public List<T_OD_REF_WASTE_TYPE> ContentCheckBoxList { get; set; }
         public int SizeScore { get; set; }
