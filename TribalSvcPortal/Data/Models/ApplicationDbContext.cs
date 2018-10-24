@@ -41,6 +41,7 @@ namespace TribalSvcPortal.Data.Models
         public virtual DbSet<T_OD_REF_THREAT_FACTORS> T_OD_REF_THREAT_FACTORS { get; set; }
         public virtual DbSet<T_OD_REF_WASTE_TYPE> T_OD_REF_WASTE_TYPE { get; set; }
         public virtual DbSet<T_OD_DUMP_ASSESSMENT_CONTENT> T_OD_DUMP_ASSESSMENT_CONTENT { get; set; }
+        public virtual DbSet<T_OD_REF_DISPOSAL> T_OD_REF_DISPOSAL { get; set; }
 
         //**************** END TABLES *******************************************************
 
@@ -946,6 +947,24 @@ namespace TribalSvcPortal.Data.Models
                     .HasConstraintName("FK_T_OD_SITE_DTL_SS");
             });
 
+
+            modelBuilder.Entity<T_OD_REF_DISPOSAL>(entity =>
+            {
+                entity.HasKey(e => e.REF_DISPOSAL_IDX);
+
+                entity.Property(e => e.REF_DISPOSAL_IDX).HasDefaultValueSql("(newid())");
+
+                entity.Property(e => e.DISPOSAL_NAME)
+                    .IsRequired()
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.ORG_ID)
+                    .HasMaxLength(30)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.PRICE_PER_TON).HasColumnType("decimal(10, 2)");
+            });
 
             /*************** TABLE COLUMNS END   *******************/
 
