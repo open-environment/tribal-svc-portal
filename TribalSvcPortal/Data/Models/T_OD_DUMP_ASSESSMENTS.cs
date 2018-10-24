@@ -33,6 +33,12 @@ namespace TribalSvcPortal.Data.Models
         public DateTime? CREATE_DT { get; set; }
         public string MODIFY_USER_ID { get; set; }
         public DateTime? MODIFY_DT { get; set; }
+        public decimal? COST_CLEANUP_AMT { get; set; }
+        public decimal? COST_TRANSPORT_AMT { get; set; }
+        public decimal? COST_DISPOSAL_AMT { get; set; }
+        public decimal? COST_RESTORE_AMT { get; set; }
+        public decimal? COST_SURVEIL_AMT { get; set; }
+        public decimal? COST_TOTAL_AMT { get; set; }
 
         public T_OD_REF_DATA ASSESSMENT_TYPE_IDXNavigation { get; set; }
         public T_OD_REF_THREAT_FACTORS HF_ACCESS_CONTROLNavigation { get; set; }

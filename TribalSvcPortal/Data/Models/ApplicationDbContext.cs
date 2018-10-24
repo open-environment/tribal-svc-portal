@@ -700,6 +700,18 @@ namespace TribalSvcPortal.Data.Models
 
                 entity.Property(e => e.ASSESSMENT_DT).HasColumnType("datetime2(0)");
 
+                entity.Property(e => e.COST_CLEANUP_AMT).HasColumnType("decimal(12, 2)");
+
+                entity.Property(e => e.COST_DISPOSAL_AMT).HasColumnType("decimal(12, 2)");
+
+                entity.Property(e => e.COST_RESTORE_AMT).HasColumnType("decimal(12, 2)");
+
+                entity.Property(e => e.COST_SURVEIL_AMT).HasColumnType("decimal(12, 2)");
+
+                entity.Property(e => e.COST_TOTAL_AMT).HasColumnType("decimal(12, 2)");
+
+                entity.Property(e => e.COST_TRANSPORT_AMT).HasColumnType("decimal(12, 2)");
+
                 entity.Property(e => e.CREATE_DT).HasColumnType("datetime2(0)");
 
                 entity.Property(e => e.CREATE_USER_ID).HasMaxLength(450);
@@ -803,7 +815,7 @@ namespace TribalSvcPortal.Data.Models
                     .WithMany(p => p.T_OD_REF_DATA)
                     .HasForeignKey(d => d.REF_DATA_CAT_NAME)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__T_OD_REF___REF_D__1CA7377D");
+                    .HasConstraintName("FK__T_OD_REF___REF_D__4E3E9311");
             });
 
             modelBuilder.Entity<T_OD_REF_DATA_CATEGORIES>(entity =>
@@ -818,6 +830,24 @@ namespace TribalSvcPortal.Data.Models
                 entity.Property(e => e.REF_DATA_CAT_DESC)
                     .HasMaxLength(200)
                     .IsUnicode(false);
+            });
+
+            modelBuilder.Entity<T_OD_REF_DISPOSAL>(entity =>
+            {
+                entity.HasKey(e => e.REF_DISPOSAL_IDX);
+
+                entity.Property(e => e.REF_DISPOSAL_IDX).HasDefaultValueSql("(newid())");
+
+                entity.Property(e => e.DISPOSAL_NAME)
+                    .IsRequired()
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.ORG_ID)
+                    .HasMaxLength(30)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.PRICE_PER_TON).HasColumnType("decimal(10, 2)");
             });
 
             modelBuilder.Entity<T_OD_REF_THREAT_FACTORS>(entity =>
@@ -945,25 +975,6 @@ namespace TribalSvcPortal.Data.Models
                     .WithMany(p => p.T_OD_SITESSITE_SETTING_IDXNavigation)
                     .HasForeignKey(d => d.SITE_SETTING_IDX)
                     .HasConstraintName("FK_T_OD_SITE_DTL_SS");
-            });
-
-
-            modelBuilder.Entity<T_OD_REF_DISPOSAL>(entity =>
-            {
-                entity.HasKey(e => e.REF_DISPOSAL_IDX);
-
-                entity.Property(e => e.REF_DISPOSAL_IDX).HasDefaultValueSql("(newid())");
-
-                entity.Property(e => e.DISPOSAL_NAME)
-                    .IsRequired()
-                    .HasMaxLength(50)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.ORG_ID)
-                    .HasMaxLength(30)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.PRICE_PER_TON).HasColumnType("decimal(10, 2)");
             });
 
             /*************** TABLE COLUMNS END   *******************/
