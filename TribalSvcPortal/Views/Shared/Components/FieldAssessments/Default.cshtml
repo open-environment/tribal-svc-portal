@@ -79,7 +79,7 @@
                             <div class="col-md-3">
                                 <div class="form-group">
                                     <label>Date of Assessment</label>
-                                    @Html.TextBoxFor(model => model.oFieldAssessmentViewModel.TOdDumpAssessments.ASSESSMENT_DT, "{0:MM-dd-yyyy}", new { @id = "dateAssessment", @class = "form-control datepicker", required = "required" })
+                                    @Html.TextBoxFor(model => model.oFieldAssessmentViewModel.TOdDumpAssessments.ASSESSMENT_DT, "{0:MM-dd-yyyy}", new {@id = "dateAssessment", @class = "form-control datepicker", required = "required" })
                                 </div>
                             </div>
                             <div class="col-md-4">
@@ -183,7 +183,7 @@
                                                     }
                                                 </ul>
                                             </div>
-                                                    }
+                                        }
                                     </div>
                                 </div>
                             </div>
@@ -252,18 +252,18 @@
                                                     }
                                                 </ul>
                                             </div>
-                                                    }
+                                        }
                                     </div>
                                 </div>
                             </div>
-                         }
-                            @*</div>*@
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <button type="submit" name="submitButton" value="Save" class="btn btn-primary">Save</button>
-                                </div>
+                        }
+                        @*</div>*@
+                        <div class="row">
+                            <div class="col-md-12">
+                                <button type="submit" name="submitButton" value="Save" class="btn btn-primary">Save</button>
                             </div>
                         </div>
+                    </div>
                 </div>
             </section>
 
@@ -412,7 +412,30 @@
 
 @section scripts {
     <script src="~/js/confirm_delete.js">
-    </script>   
+    </script>
+    <script type="text/javascript">
+        $(function () {
+            // get date from MyDate input field
+            var dateAssessment = $("#dateAssessment").val();
+
+            // use current date as default, if input is empty
+            if (!dateAssessment) {
+                dateAssessment = new Date();
+
+            }
+            $('#dateAssessment').datepicker({
+                changeMonth: true,
+                changeYear: true,
+                format: "mm-dd-yyyy",
+                language: "tr",
+                autoclose: true,
+                todayBtn: 'linked',
+                dateFormat: 'mm/dd/yy'
+
+            });
+
+        });
+    </script>
     <script type="text/javascript">
         $(document).ready(function () {
             $('.descinfo').click(function () {
@@ -458,7 +481,8 @@
                 format: "mm-dd-yyyy",
                 language: "tr",
                 autoclose: true,
-                todayBtn: 'linked'
+                todayBtn: 'linked',
+                dateFormat: 'mm/dd/yy'
 
             });
 

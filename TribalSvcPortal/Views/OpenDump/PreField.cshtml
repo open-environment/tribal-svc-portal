@@ -78,8 +78,31 @@
         }
     </style>
     <script type="text/javascript">
+        $(function () {
+            // get date from MyDate input field
+            var dateAssessment = $("#dateAssessment").val();
+
+            // use current date as default, if input is empty
+            if (!dateAssessment) {
+                dateAssessment = new Date();
+
+            }
+            $('#dateAssessment').datepicker({
+                changeMonth: true,
+                changeYear: true,
+                format: "mm-dd-yyyy",
+                language: "tr",
+                autoclose: true,
+                todayBtn: 'linked',
+                dateFormat: 'mm/dd/yy'
+
+            });
+
+        });
+    </script>
+    <script type="text/javascript">
         $(document).ready(function () {
-           
+
             if (@Model.oFieldAssessmentViewModel.AssessmentDropDownList.Count()==1)
             {
                 $('#atab3').addClass('disabledAnchor');
@@ -134,7 +157,8 @@
                 format: "mm-dd-yyyy",
                 language: "tr",
                 autoclose: true,
-                todayBtn: 'linked'
+                todayBtn: 'linked',
+                dateFormat: 'mm/dd/yy'
 
             });
 
@@ -214,7 +238,7 @@
             }
         }
         function GetAssessment(value) {
-          
+
                 var siteIndx = "@Model.oFieldAssessmentViewModel.TPrtSites?.SiteIdx";
                 window.location.href = "/OpenDump/FieldAssessments?AssessmentIdx=" + value + "&SiteIdx=" + siteIndx;
         }
@@ -315,7 +339,7 @@
 
         }
         function GetSiteCleanup(value)
-        { 
+        {
              var siteIndx = "@Model.oFieldAssessmentViewModel.TPrtSites?.SiteIdx";
             window.location.href = "/OpenDump/SiteCleanup?AssessmentIdx=" + value + "&SiteIdx=" + siteIndx;
         }

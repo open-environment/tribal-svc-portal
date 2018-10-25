@@ -42,12 +42,12 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             var FieldAssessmentmodel = new FieldAssessmentViewModel();
 
             FieldAssessmentmodel.AssessmentTypeList = _DbOpenDump.get_ddl_refdata_by_category("Assessment Type");
-
-            PreFieldmodel.SiteSettingsList = _DbOpenDump.get_ddl_refdata_by_category("Site Setting");
-            PreFieldmodel.CommunityList = _DbOpenDump.get_ddl_refdata_by_category("Community");
-            PreFieldmodel.AquiferList = _DbOpenDump.get_ddl_refthreatfactor_by_factortype("Aquifer");
-            PreFieldmodel.SurfaceWaterList = _DbOpenDump.get_ddl_refthreatfactor_by_factortype("Surface Water");
-            PreFieldmodel.HomesList = _DbOpenDump.get_ddl_refthreatfactor_by_factortype("Homes");
+            FieldAssessmentmodel.DisposalMethodList = _DbOpenDump.get_ddl_ref_disposal();
+            //PreFieldmodel.SiteSettingsList = _DbOpenDump.get_ddl_refdata_by_category("Site Setting");
+            //PreFieldmodel.CommunityList = _DbOpenDump.get_ddl_refdata_by_category("Community");
+            //PreFieldmodel.AquiferList = _DbOpenDump.get_ddl_refthreatfactor_by_factortype("Aquifer");
+            //PreFieldmodel.SurfaceWaterList = _DbOpenDump.get_ddl_refthreatfactor_by_factortype("Surface Water");
+            //PreFieldmodel.HomesList = _DbOpenDump.get_ddl_refthreatfactor_by_factortype("Homes");
             PreFieldmodel.OrgList = _DbOpenDump.get_ddl_od_organizations(_UserIDX);
             PreFieldmodel.returnURL = "Search";
             if (AssessmentIdx != null)
@@ -84,7 +84,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
                
                 FieldAssessmentmodel.TOdDumpAssessments = new T_OD_DUMP_ASSESSMENTS();
                 FieldAssessmentmodel.TOdDumpAssessments.DUMP_ASSESSMENTS_IDX = Guid.NewGuid();
-                FieldAssessmentmodel.TOdDumpAssessments.ASSESSMENT_DT = DateTime.Now;
+                //FieldAssessmentmodel.TOdDumpAssessments.ASSESSMENT_DT = DateTime.Now;
             }
             else if (SiteIdx != null && AssessmentIdx != null)
             {
@@ -114,7 +114,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
                 FieldAssessmentmodel.AssessmentForHealthThreatDropDownList = _DbOpenDump.get_ddl_od_assessmentforhealththreat_by_BySITEIDX((Guid)SiteIdx);
                 FieldAssessmentmodel.TOdDumpAssessments = new T_OD_DUMP_ASSESSMENTS();
                 FieldAssessmentmodel.TOdDumpAssessments.DUMP_ASSESSMENTS_IDX = Guid.NewGuid();
-                FieldAssessmentmodel.TOdDumpAssessments.ASSESSMENT_DT = DateTime.Now;
+                //FieldAssessmentmodel.TOdDumpAssessments.ASSESSMENT_DT = DateTime.Now;
             }
             openDumpViewModel.oPreFieldViewModel = PreFieldmodel;
             openDumpViewModel.oFieldAssessmentViewModel = FieldAssessmentmodel;
