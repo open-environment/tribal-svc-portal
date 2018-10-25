@@ -79,13 +79,6 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
                 FieldAssessmentmodel.ContentScore = 0;
             }
             FieldAssessmentmodel.ContentTotalScore = FieldAssessmentmodel.ContentScore;
-
-            //PreFieldmodel.SiteSettingsList = _DbOpenDump.get_ddl_refdata_by_category("Site Setting");
-            //PreFieldmodel.CommunityList = _DbOpenDump.get_ddl_refdata_by_category("Community");
-
-            //PreFieldmodel.AquiferList = _DbOpenDump.get_ddl_refthreatfactor_by_factortype("Aquifer");
-            //PreFieldmodel.SurfaceWaterList = _DbOpenDump.get_ddl_refthreatfactor_by_factortype("Surface Water");
-            //PreFieldmodel.HomesList = _DbOpenDump.get_ddl_refthreatfactor_by_factortype("Homes");
             PreFieldmodel.OrgList = _DbOpenDump.get_ddl_od_organizations(_UserIDX);
             PreFieldmodel.returnURL = "Search";
             if (AssessmentIdx != null)

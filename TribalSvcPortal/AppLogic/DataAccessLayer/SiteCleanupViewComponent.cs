@@ -42,12 +42,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             var FieldAssessmentmodel = new FieldAssessmentViewModel();
 
             FieldAssessmentmodel.AssessmentTypeList = _DbOpenDump.get_ddl_refdata_by_category("Assessment Type");
-            FieldAssessmentmodel.DisposalMethodList = _DbOpenDump.get_ddl_ref_disposal();
-            //PreFieldmodel.SiteSettingsList = _DbOpenDump.get_ddl_refdata_by_category("Site Setting");
-            //PreFieldmodel.CommunityList = _DbOpenDump.get_ddl_refdata_by_category("Community");
-            //PreFieldmodel.AquiferList = _DbOpenDump.get_ddl_refthreatfactor_by_factortype("Aquifer");
-            //PreFieldmodel.SurfaceWaterList = _DbOpenDump.get_ddl_refthreatfactor_by_factortype("Surface Water");
-            //PreFieldmodel.HomesList = _DbOpenDump.get_ddl_refthreatfactor_by_factortype("Homes");
+            FieldAssessmentmodel.DisposalMethodList = _DbOpenDump.get_ddl_ref_disposal();       
             PreFieldmodel.OrgList = _DbOpenDump.get_ddl_od_organizations(_UserIDX);
             PreFieldmodel.returnURL = "Search";
             if (AssessmentIdx != null)

@@ -60,7 +60,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             {
                 FieldAssessmentmodel.AssessmentDropDownList = _DbOpenDump.get_ddl_od_dumpassessment_by_BySITEIDX(Guid.NewGuid());
                 FieldAssessmentmodel.AssessmentForHealthThreatDropDownList = _DbOpenDump.get_ddl_od_assessmentforhealththreat_by_BySITEIDX((Guid)SiteIdx);
-                // FieldAssessmentmodel.AssessmentDropDownList = _DbOpenDump.get_ddl_od_dumpassessment_by_BySITEIDX(Guid.Parse(IDx));
+            
                 PreFieldmodel.TPrtSites = new T_PRT_SITES();
                 if (PreFieldmodel.OrgList.Count() == 1)
                 {

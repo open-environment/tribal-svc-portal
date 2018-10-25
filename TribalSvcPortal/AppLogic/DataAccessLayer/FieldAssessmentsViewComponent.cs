@@ -41,24 +41,9 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             var PreFieldmodel = new PreFieldViewModel();
             var FieldAssessmentmodel = new FieldAssessmentViewModel();
 
-            FieldAssessmentmodel.AssessmentTypeList = _DbOpenDump.get_ddl_refdata_by_category("Assessment Type");
-            //FieldAssessmentmodel.AverageRainfallList = _DbOpenDump.get_ddl_refthreatfactor_by_factortype("Rainfall");
-            //FieldAssessmentmodel.BurningList = _DbOpenDump.get_ddl_refthreatfactor_by_factortype("Burning");
-            //FieldAssessmentmodel.ConcernList = _DbOpenDump.get_ddl_refthreatfactor_by_factortype("Concern");
-            //FieldAssessmentmodel.DrainageList = _DbOpenDump.get_ddl_refthreatfactor_by_factortype("Drainage");
-            //FieldAssessmentmodel.FloodingList = _DbOpenDump.get_ddl_refthreatfactor_by_factortype("Flooding");
-            //FieldAssessmentmodel.FencedList = _DbOpenDump.get_ddl_refthreatfactor_by_factortype("Fenced");
-            //FieldAssessmentmodel.AccessList = _DbOpenDump.get_ddl_refthreatfactor_by_factortype("Access");
-            //FieldAssessmentmodel.TOdRefThreatFactorList = _DbOpenDump.get_ddl_refthreatfactor();
-            //FieldAssessmentmodel.DisposalMethodList = _DbOpenDump.get_ddl_ref_disposal();
-            //FieldAssessmentmodel.ContentCheckBoxList = _DbOpenDump.get_checkbox_refwastetype_by_wastetypecat(AssessmentIdx);
+            FieldAssessmentmodel.AssessmentTypeList = _DbOpenDump.get_ddl_refdata_by_category("Assessment Type");         
 
-
-            PreFieldmodel.SiteSettingsList = _DbOpenDump.get_ddl_refdata_by_category("Site Setting");
-            //PreFieldmodel.CommunityList = _DbOpenDump.get_ddl_refdata_by_category("Community");
-            //PreFieldmodel.AquiferList = _DbOpenDump.get_ddl_refthreatfactor_by_factortype("Aquifer");
-            //PreFieldmodel.SurfaceWaterList = _DbOpenDump.get_ddl_refthreatfactor_by_factortype("Surface Water");
-            //PreFieldmodel.HomesList = _DbOpenDump.get_ddl_refthreatfactor_by_factortype("Homes");
+            PreFieldmodel.SiteSettingsList = _DbOpenDump.get_ddl_refdata_by_category("Site Setting");       
             PreFieldmodel.OrgList = _DbOpenDump.get_ddl_od_organizations(_UserIDX);
             PreFieldmodel.returnURL = "Search";
             if (AssessmentIdx != null)
@@ -68,8 +53,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             else
             {
                 string IDx = "98567684-a5d5-4742-ac6d-1dd5080f76a7";
-                FieldAssessmentmodel.selDumpAssessmentIdx = Guid.Parse(IDx);
-                //   FieldAssessmentmodel.selDumpAssessmentIdx = Guid.NewGuid();
+                FieldAssessmentmodel.selDumpAssessmentIdx = Guid.Parse(IDx);              
             }
             if (AssessmentIdx != null && SiteIdx == null)
             {
@@ -82,7 +66,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
                 FieldAssessmentmodel.TOdDumpAssessments = oT_OD_DUMP_ASSESSMENTS;
                 FieldAssessmentmodel.files_existing = _DbPortal.GetT_PRT_DOCUMENTS_ByDumpAssessmentsIDx((Guid)AssessmentIdx);
                 FieldAssessmentmodel.filesPhoto_existing = _DbPortal.GetT_PRT_DOCUMENTS_Photos_ByDumpAssessmentsIDx((Guid)AssessmentIdx);
-               // FieldAssessmentmodel.WasteAmountList = _DbOpenDump.GetT_OD_DumpAssessmentContent_ByDumpAssessmentIDX((Guid)AssessmentIdx);
+             
             }
             else if (SiteIdx != null && AssessmentIdx == null)
             {
@@ -95,7 +79,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
                 //FieldAssessmentmodel.TOdDumpAssessments = oT_OD_DUMP_ASSESSMENTS;
                 FieldAssessmentmodel.TOdDumpAssessments = new T_OD_DUMP_ASSESSMENTS();
                 FieldAssessmentmodel.TOdDumpAssessments.DUMP_ASSESSMENTS_IDX = Guid.NewGuid();
-                //FieldAssessmentmodel.TOdDumpAssessments.ASSESSMENT_DT = DateTime.Now;
+              
             }
             else if (SiteIdx != null && AssessmentIdx != null)
             {
@@ -108,7 +92,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
                 FieldAssessmentmodel.TOdDumpAssessments = oT_OD_DUMP_ASSESSMENTS;
                 FieldAssessmentmodel.files_existing = _DbPortal.GetT_PRT_DOCUMENTS_ByDumpAssessmentsIDx((Guid)AssessmentIdx);
                 FieldAssessmentmodel.filesPhoto_existing = _DbPortal.GetT_PRT_DOCUMENTS_Photos_ByDumpAssessmentsIDx((Guid)AssessmentIdx);
-               // FieldAssessmentmodel.WasteAmountList = _DbOpenDump.GetT_OD_DumpAssessmentContent_ByDumpAssessmentIDX((Guid)AssessmentIdx);
+              
             }
             else
             {
