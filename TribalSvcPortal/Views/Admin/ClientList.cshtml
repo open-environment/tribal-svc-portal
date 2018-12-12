@@ -21,29 +21,29 @@
             {
                 <tr>
                     <td style="min-width:65px">
-                        <a href="@Url.Action("ClientEdit","Admin", new { id=item.ClientId })" class="btn btn-rounded btn-xs btn-info"><i class="glyphicon glyphicon-pencil"></i></a>
+                        <a href="@Url.Action("ClientEdit","Admin", new { id=item.CLIENT_ID })" class="btn btn-rounded btn-xs btn-info"><i class="glyphicon glyphicon-pencil"></i></a>
                         <div class="delete-section" style="display:inline">
                             <a class=" btn btn-rounded btn-xs btn-danger delete-link"><i class="glyphicon glyphicon-remove"></i></a>
-                            <div class="btn btn-rounded btn-xs btn-warning delete-confirm" style="display:none" data-delete-id="@item.ClientId" data-delete-p="/Admin/ClientDelete"><b>Confirm Delete</b></div>
+                            <div class="btn btn-rounded btn-xs btn-warning delete-confirm" style="display:none" data-delete-id="@item.CLIENT_ID" data-delete-p="/Admin/ClientDelete"><b>Confirm Delete</b></div>
                         </div>
                     </td>
                     <td>
-                        @Html.DisplayFor(modelItem => item.ClientId)
+                        @Html.DisplayFor(modelItem => item.CLIENT_ID)
                     </td>
                     <td>
-                        @Html.DisplayFor(modelItem => item.ClientName)
+                        @Html.DisplayFor(modelItem => item.CLIENT_NAME)
                     </td>
                     <td>
-                        @Html.DisplayFor(modelItem => item.ClientUrl)
+                        @Html.DisplayFor(modelItem => item.CLIENT_URL)
                     </td>
                     <td>
-                        @Html.DisplayFor(modelItem => item.ClientGrantType)
+                        @Html.DisplayFor(modelItem => item.CLIENT_GRANT_TYPE)
                     </td>
                     <td>
-                        @Html.DisplayFor(modelItem => item.ClientRedirectUri)
+                        @Html.DisplayFor(modelItem => item.CLIENT_REDIRECT_URI)
                     </td>
                     <td>
-                        @Html.DisplayFor(modelItem => item.ClientPostLogoutUri)
+                        @Html.DisplayFor(modelItem => item.CLIENT_POST_LOGOUT_URI)
                     </td>
                 </tr>
             }

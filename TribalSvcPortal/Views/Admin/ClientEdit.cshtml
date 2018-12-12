@@ -20,22 +20,22 @@
                     <div class="col-md-4">
                         <div class="form-group">
                             <label>Client ID</label>
-                            @Html.TextBoxFor(model => model.ClientId, new { @class = "form-control" })
-                            @Html.ValidationMessageFor(model => model.ClientId)
+                            @Html.TextBoxFor(model => model.CLIENT_ID, new { @class = "form-control" })
+                            @Html.ValidationMessageFor(model => model.CLIENT_ID)
                         </div>
                     </div>
                     <div class="col-md-4">
                         <div class="form-group">
                             <label>Client Name</label>
-                            @Html.TextBoxFor(model => model.ClientName, new { @class = "form-control" })
-                            @Html.ValidationMessageFor(model => model.ClientName)
+                            @Html.TextBoxFor(model => model.CLIENT_NAME, new { @class = "form-control" })
+                            @Html.ValidationMessageFor(model => model.CLIENT_NAME)
                         </div>
                     </div>
                     <div class="col-md-4">
                         <div class="form-group">
                             <label>Grant Type</label>
-                            @Html.TextBoxFor(model => model.ClientGrantType, new { @class = "form-control" })
-                            @Html.ValidationMessageFor(model => model.ClientGrantType)
+                            @Html.TextBoxFor(model => model.CLIENT_GRANT_TYPE, new { @class = "form-control" })
+                            @Html.ValidationMessageFor(model => model.CLIENT_GRANT_TYPE)
                         </div>
                     </div>
                 </div>
@@ -43,8 +43,8 @@
                     <div class="col-md-12">
                         <div class="form-group">
                             <label>Client URL</label>
-                            @Html.TextBoxFor(model => model.ClientUrl, new { @class = "form-control", @placeholder = "URL of client application" })
-                            @Html.ValidationMessageFor(model => model.ClientUrl)
+                            @Html.TextBoxFor(model => model.CLIENT_URL, new { @class = "form-control", @placeholder = "URL of client application" })
+                            @Html.ValidationMessageFor(model => model.CLIENT_URL)
                         </div>
                     </div>
                 </div>
@@ -52,8 +52,8 @@
                     <div class="col-md-12">
                         <div class="form-group">
                             <label>Redirect URI</label>
-                            @Html.TextBoxFor(model => model.ClientRedirectUri, new { @class = "form-control", @placeholder = "URI used for OIDC callback" })
-                            @Html.ValidationMessageFor(model => model.ClientRedirectUri)
+                            @Html.TextBoxFor(model => model.CLIENT_REDIRECT_URI, new { @class = "form-control", @placeholder = "URI used for OIDC callback" })
+                            @Html.ValidationMessageFor(model => model.CLIENT_REDIRECT_URI)
                         </div>
                     </div>
                 </div>
@@ -61,8 +61,8 @@
                     <div class="col-md-12">
                         <div class="form-group">
                             <label>Post Logout URI</label>
-                            @Html.TextBoxFor(model => model.ClientPostLogoutUri, new { @class = "form-control" })
-                            @Html.ValidationMessageFor(model => model.ClientPostLogoutUri)
+                            @Html.TextBoxFor(model => model.CLIENT_POST_LOGOUT_URI, new { @class = "form-control" })
+                            @Html.ValidationMessageFor(model => model.CLIENT_POST_LOGOUT_URI)
                         </div>
                     </div>
                 </div>

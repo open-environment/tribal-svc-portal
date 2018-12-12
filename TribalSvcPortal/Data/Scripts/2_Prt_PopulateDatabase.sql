@@ -20,8 +20,8 @@ INSERT INTO T_PRT_APP_SETTINGS_CUSTOM ([TERMS_AND_CONDITIONS],[ANNOUNCEMENTS]) v
 
 
 --****************ROLES *****************************************************************************************
-INSERT INTO [T_PRT_ROLES] ([Id], ConcurrencyStamp, [Name],[NormalizedName]) 
-  VALUES ('e6884ad7-2135-4cd3-843c-d6eaa0edcbcd', '51518535-6538-4fd2-b6ed-8b4af39ddb60','PortalAdmin','PORTALADMIN');
+INSERT INTO [T_PRT_ROLES] ([Id], ConcurrencyStamp, [Name],[NormalizedName],ROLE_DESC) 
+  VALUES ('e6884ad7-2135-4cd3-843c-d6eaa0edcbcd', '51518535-6538-4fd2-b6ed-8b4af39ddb60','PortalAdmin','PORTALADMIN','Global administration role for the tribal portal, spanning all organizations.');
 
 GO
 
@@ -76,6 +76,18 @@ INSERT INTO [T_PRT_ORG_CLIENT_ALIAS]([ORG_ID], [CLIENT_ID], [ORG_CLIENT_ALIAS]) 
 INSERT INTO [T_PRT_ORG_CLIENT_ALIAS]([ORG_ID], [CLIENT_ID], [ORG_CLIENT_ALIAS]) values ('KICKAPOO','emergency_hound','Kickapoo Tribe');
 INSERT INTO [T_PRT_ORG_CLIENT_ALIAS]([ORG_ID], [CLIENT_ID], [ORG_CLIENT_ALIAS]) values ('MCNCREEK','emergency_hound','Muscogee Creek Nation');
 
+--****************T_PRT_ORG_EMAIL ************************************************************************************
+INSERT INTO [T_PRT_ORG_EMAIL_RULE]([ORG_ID],[EMAIL_STRING]) values ('ABSHAWNEE','astribe.com');
+INSERT INTO [T_PRT_ORG_EMAIL_RULE]([ORG_ID],[EMAIL_STRING]) values ('CHOCNAT','choctaw.org');
+INSERT INTO [T_PRT_ORG_EMAIL_RULE]([ORG_ID],[EMAIL_STRING]) values ('CHOCNAT','choctawnation.com');
+INSERT INTO [T_PRT_ORG_EMAIL_RULE]([ORG_ID],[EMAIL_STRING]) values ('DELAWARENATION','delawarenation.com');
+INSERT INTO [T_PRT_ORG_EMAIL_RULE]([ORG_ID],[EMAIL_STRING]) values ('KICKAPOO','kickapootribeofoklahoma.com');
+INSERT INTO [T_PRT_ORG_EMAIL_RULE]([ORG_ID],[EMAIL_STRING]) values ('KICKAPOO','okkt.net');
+INSERT INTO [T_PRT_ORG_EMAIL_RULE]([ORG_ID],[EMAIL_STRING]) values ('MCNCREEK','mcn-nsn.gov');
+INSERT INTO [T_PRT_ORG_EMAIL_RULE]([ORG_ID],[EMAIL_STRING]) values ('OSAGENTN','osagenation-nsn.gov');
+INSERT INTO [T_PRT_ORG_EMAIL_RULE]([ORG_ID],[EMAIL_STRING]) values ('SFNOES','sacandfoxnation-nsn.gov');
+INSERT INTO [T_PRT_ORG_EMAIL_RULE]([ORG_ID],[EMAIL_STRING]) values ('SNEPO','sno-nsn.gov');
+
 
 --****************T_REF_SHARE_TYPE ************************************************************************************
 INSERT INTO T_PRT_REF_SHARE_TYPE (SHARE_TYPE,SHARE_DESC,ACT_IND) values ('Jurisdiction', 'Only allow users of same jurisdiction to view', 1);
@@ -92,3 +104,9 @@ INSERT INTO T_PRT_REF_DOC_TYPE (DOC_TYPE,DOC_TYPE_DESC,ACT_IND,CREATE_DT) VALUES
 INSERT INTO T_PRT_REF_DOC_STATUS_TYPE (DOC_STATUS_TYPE,ACT_IND) VALUES ('Current', 1);
 INSERT INTO T_PRT_REF_DOC_STATUS_TYPE (DOC_STATUS_TYPE,ACT_IND) VALUES ('Archive', 1);
 INSERT INTO T_PRT_REF_DOC_STATUS_TYPE (DOC_STATUS_TYPE,ACT_IND) VALUES ('Historical', 1);
+
+
+--****************T_REF_UNITS ************************************************************************************
+INSERT INTO T_PRT_REF_UNITS (UNIT_MSR_CD,UNIT_MSR_CAT, STD_UNIT_IND, UNIT_CONVERSION) VALUES ('units', 'units',1,0);
+INSERT INTO T_PRT_REF_UNITS (UNIT_MSR_CD,UNIT_MSR_CAT, STD_UNIT_IND, UNIT_CONVERSION) VALUES ('cu-yds', 'volume',1,0);
+INSERT INTO T_PRT_REF_UNITS (UNIT_MSR_CD,UNIT_MSR_CAT, STD_UNIT_IND, UNIT_CONVERSION) VALUES ('tons', 'weight',1,0);

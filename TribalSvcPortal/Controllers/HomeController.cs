@@ -1,11 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Linq;
+using System.Text.Encodings.Web;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Caching.Memory;
+using TribalSvcPortal.AppLogic.BusinessLogicLayer;
 using TribalSvcPortal.AppLogic.DataAccessLayer;
 using TribalSvcPortal.Data.Models;
 using TribalSvcPortal.ViewModels;
@@ -18,24 +17,44 @@ namespace TribalSvcPortal.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IDbPortal _DbPortal;
-        private readonly IMemoryCache _memoryCache;
+
         public HomeController(
             UserManager<ApplicationUser> userManager,
             RoleManager<IdentityRole> roleManager,
-              IMemoryCache memoryCache,
             IDbPortal DbPortal)
         {
             _userManager = userManager;
             _roleManager = roleManager;
             _DbPortal = DbPortal;
-            _memoryCache = memoryCache;
         }
 
-        public IActionResult Index()
+        public IActionResult Index(string id)
         {
-            _DbPortal.GetT_PRT_SYS_LOG();
+            var model = new HomeViewModel {
+                selOrg = id
+            };
 
-            return View();
+            return View(model);
+        }
+
+        public IActionResult Maps(string id)
+        {
+            var model = new HomeViewModel
+            {
+                selOrg = id
+            };
+
+            return View(model);
+        }
+
+        public IActionResult api(string id)
+        {
+            var model = new HomeViewModel
+            {
+                selOrg = id
+            };
+
+            return View(model);
         }
 
         public IActionResult About()
@@ -47,8 +66,6 @@ namespace TribalSvcPortal.Controllers
 
         public IActionResult Contact()
         {
-            ViewData["Message"] = "Your contact page.";
-
             return View();
         }
 
@@ -57,6 +74,14 @@ namespace TribalSvcPortal.Controllers
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
 
+        public ActionResult TermsAndConditions()
+        {
+            var model = new TermsAndConditionsViewModel();
+            T_PRT_APP_SETTINGS_CUSTOM cust = _DbPortal.GetT_PRT_APP_SETTINGS_CUSTOM();
+            model.TermsAndConditions = cust.TERMS_AND_CONDITIONS;
+
+            return View(model);
+        }
 
         public IActionResult Initialize()
         {
@@ -82,18 +107,29 @@ namespace TribalSvcPortal.Controllers
                 }
 
                 //now create master user
-                var user = new ApplicationUser();
-                user.UserName = model.Email;
-                user.Email = model.Email;
+                var user = new ApplicationUser
+                {
+                    UserName = model.Email,
+                    Email = model.Email
+                };
                 Task<IdentityResult> chkUser = _userManager.CreateAsync(user, "changeme1");
                 chkUser.Wait();
 
-                //now add user to the role
                 if (chkUser.Result.Succeeded)
                 {
+                    //now add user to the role
                     var result1 = _userManager.AddToRoleAsync(user, "PortalAdmin");
                     result1.Wait();
-                    TempData["Success"] = "User created with password 'changeme1'";
+
+                    //send confirmation email
+                    string code = _userManager.GenerateEmailConfirmationTokenAsync(user).Result;
+                    var callbackUrl = Url.EmailConfirmationLink(user.Id, code, Request.Scheme);
+                    bool emailSucc = Utils.SendEmail(null, model.Email, null, null, "Confirm your email", $"Please confirm your account by clicking this link: <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>link</a>", null, null, "");
+
+                    if (emailSucc)
+                        TempData["Success"] = "User created with password 'changeme1'";
+                    else
+                        TempData["Error"] = "User created with password 'changeme1' but verification email failed.";
                 }
             }
             else

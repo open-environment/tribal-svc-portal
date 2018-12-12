@@ -1,17 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using TribalSvcPortal.Data.Models;
-using TribalSvcPortal.ViewModels;
-using TribalSvcPortal.ViewModels.AdminViewModels;
 using TribalSvcPortal.AppLogic.DataAccessLayer;
-using Microsoft.Extensions.Caching.Memory;
+using TribalSvcPortal.Data.Models;
+using TribalSvcPortal.ViewModels.AdminViewModels;
 
 namespace TribalSvcPortal.Controllers
 {
@@ -21,17 +16,15 @@ namespace TribalSvcPortal.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IDbPortal _DbPortal;
-        private readonly IMemoryCache _memoryCache;
+
         public AdminController(
             UserManager<ApplicationUser> userManager,
             RoleManager<IdentityRole> roleManager,
-               IMemoryCache memoryCache,
             IDbPortal DbPortal)
         {
             _userManager = userManager;
             _roleManager = roleManager;
             _DbPortal = DbPortal;
-            _memoryCache = memoryCache;
         }
 
         public IActionResult Index()
@@ -88,8 +81,8 @@ namespace TribalSvcPortal.Controllers
                 UserOrgs = _DbPortal.GetT_PRT_ORG_USERS_ByUserID(id),
                 ddl_Orgs = _DbPortal.GetT_PRT_ORGANIZATIONS().Select(x => new SelectListItem
                 {
-                    Value = x.OrgId.ToString(),
-                    Text = x.OrgName
+                    Value = x.ORG_ID.ToString(),
+                    Text = x.ORG_NAME
                 })
             };
 
@@ -139,17 +132,19 @@ namespace TribalSvcPortal.Controllers
 
 
         [HttpPost]
-        public async Task<IActionResult> UserDelete(string id)
+        public async Task<JsonResult> UserDelete(string id)
         {          
             var user = await _userManager.FindByIdAsync(id);
-
             if (user != null)
             {
-                var IdentityResult = await _userManager.DeleteAsync(user);
-                return View(IdentityResult);
+                IdentityResult x = await _userManager.DeleteAsync(user);
+                if (x.Succeeded)
+                    return Json("Success");
+                else
+                    return Json("Unable to delete user.");
             }
             else
-                return null;
+                return Json("Unable to find user to delete.");
         }
 
 
@@ -174,16 +169,13 @@ namespace TribalSvcPortal.Controllers
         }
 
         [HttpPost]
-        public IActionResult OrgUserDelete(int id, string id2)
-        {
-           
+        public JsonResult OrgUserDelete(int id, string id2)
+        {           
             int SuccID = _DbPortal.DeleteT_PRT_ORG_USERS(id);
             if (SuccID > 0)
-                TempData["Success"] = "Record has been deleted.";
+                return Json("Success");
             else
-                TempData["Error"] = "Unable to delete user from organization.";
-
-            return RedirectToAction("UserEdit", new { id = id2 });
+                return Json("Unable to delete user from organization.");
         }
 
 
@@ -210,7 +202,7 @@ namespace TribalSvcPortal.Controllers
 
             if (model != null)
             {
-                string ClientID = _DbPortal.InsertUpdateT_PRT_CLIENTS(model.ClientId, model.ClientName, model.ClientGrantType, model.ClientRedirectUri, model.ClientPostLogoutUri, model.ClientUrl);
+                string ClientID = _DbPortal.InsertUpdateT_PRT_CLIENTS(model.CLIENT_ID, model.CLIENT_NAME, model.CLIENT_GRANT_TYPE, model.CLIENT_REDIRECT_URI, model.CLIENT_POST_LOGOUT_URI, model.CLIENT_URL);
 
                 if (ClientID != null)
                     TempData["Success"] = "Update successful.";
@@ -219,7 +211,7 @@ namespace TribalSvcPortal.Controllers
 
             }
 
-            return RedirectToAction("ClientEdit", new { id = model.ClientId });
+            return RedirectToAction("ClientEdit", new { id = model.CLIENT_ID });
         }
 
 
@@ -232,9 +224,71 @@ namespace TribalSvcPortal.Controllers
         }
 
 
-        public IActionResult OrgEdit()
+        public IActionResult OrgEdit(string id)
         {
-            return View();
+            var model = new OrgEditViewModel
+            {
+                Organization = _DbPortal.GetT_PRT_ORGANIZATIONS_ByOrgID(id),
+                OrgEmails = _DbPortal.GetT_PRT_ORG_EMAIL_RULE_ByOrgID(id)
+            };
+
+            //handling insert case
+            if (model.Organization == null)
+            {
+                model.Organization = new T_PRT_ORGANIZATIONS();
+            }
+            return View(model);
+        }
+
+
+        [HttpPost, ValidateAntiForgeryToken]
+        public IActionResult OrgEdit(T_PRT_ORGANIZATIONS org)
+        {
+            //security check
+            string _UserIDX = _userManager.GetUserId(User);
+            if (_DbPortal.IsUserAnOrgAdmin(_UserIDX, org.ORG_ID))
+            {
+                string ClientID = _DbPortal.InsertUpdateT_PRT_ORGANIZATIONS(org.ORG_ID, org.ORG_NAME);
+
+                if (ClientID != null)
+                    TempData["Success"] = "Update successful.";
+                else
+                    TempData["Error"] = "Error editing organization.";
+
+            }
+            else
+                TempData["Error"] = "No rights to edit this Organization.";
+
+            return RedirectToAction("OrgEdit", new { id = org.ORG_ID });
+
+        }
+
+
+        //******************************* ORG EMAIL **********************************************************
+        [HttpPost, ValidateAntiForgeryToken]
+        public IActionResult OrgEditEmail(OrgEditViewModel model)
+        {
+            string _UserIDX = _userManager.GetUserId(User);
+
+            int SuccID = _DbPortal.InsertT_PRT_ORG_EMAIL_RULE(model.Organization.ORG_ID, model.new_email, _UserIDX);
+
+            if (SuccID == 1)
+                TempData["Success"] = "Update successful.";
+            else
+                TempData["Error"] = "Error updating data.";
+
+            return RedirectToAction("OrgEdit", new { id = model.Organization.ORG_ID });
+        }
+
+        // POST: /Admin/RefAgencyEditEmailDelete
+        [HttpPost]
+        public JsonResult RefAgencyEditEmailDelete(string id, string id2)
+        {
+            int SuccID = _DbPortal.DeleteT_OE_ORGANIZATION_EMAIL_RULE(id, id2);
+            if (SuccID == 0)
+                return Json("Unable to delete record.");
+            else
+                return Json("Success");
         }
 
 
@@ -250,8 +304,8 @@ namespace TribalSvcPortal.Controllers
                 OrgUserClients = _DbPortal.GetT_PRT_ORG_USERS_CLIENT_ByOrgUserID(id),
                 ddl_Clients = _DbPortal.GetT_PRT_CLIENTS().Select(x => new SelectListItem
                 {
-                    Value = x.ClientId,
-                    Text = x.ClientName
+                    Value = x.CLIENT_ID,
+                    Text = x.CLIENT_NAME
                 })
             };
 
@@ -298,8 +352,8 @@ namespace TribalSvcPortal.Controllers
             var model = new SettingsViewModel
             {                
             app_settings = _DbPortal.GetT_PRT_APP_SETTING_List(),
-                TermsAndConditions = custSettings.TermsAndConditions,
-                Announcements = custSettings.Announcements
+                TermsAndConditions = custSettings.TERMS_AND_CONDITIONS,
+                Announcements = custSettings.ANNOUNCEMENTS
             };
             return View(model);
     }
@@ -311,7 +365,7 @@ namespace TribalSvcPortal.Controllers
         {
            string UserID = _userManager.GetUserId(User);
 
-            int SuccID = _DbPortal.InsertUpdateT_PRT_APP_SETTING(model.edit_app_setting.SettingIdx, model.edit_app_setting.SettingName, model.edit_app_setting.SettingValue, false, null, UserID);
+            int SuccID = _DbPortal.InsertUpdateT_PRT_APP_SETTING(model.edit_app_setting.SETTING_IDX, model.edit_app_setting.SETTING_NAME, model.edit_app_setting.SETTING_VALUE, false, null, UserID);
             if (SuccID > 0)
                 TempData["Success"] = "Data Saved.";
             else
@@ -352,10 +406,5 @@ namespace TribalSvcPortal.Controllers
         }
 
     }
-
-
-
-
-
 
 }

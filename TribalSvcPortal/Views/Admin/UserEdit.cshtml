@@ -35,17 +35,17 @@
                 </div>
             }
             <div class="row">
-                <div class="col-md-6">
+                <div class="col-md-3">
                     <div class="form-group">
                         <label>First Name</label>
-                        @Html.TextBoxFor(model => model.appUser.FIRST_NAME, new { @class = "form-control", @placeholder = "First Name" })
+                        @Html.TextBoxFor(model => model.appUser.FIRST_NAME, new { @class = "form-control" })
                         @Html.ValidationMessageFor(model => model.appUser.FIRST_NAME)
                     </div>
                 </div>
-                <div class="col-md-6">
+                <div class="col-md-3">
                     <div class="form-group">
                         <label>Last Name</label>
-                        @Html.TextBoxFor(model => model.appUser.LAST_NAME, new { @class = "form-control", @placeholder = "Last Name" })
+                        @Html.TextBoxFor(model => model.appUser.LAST_NAME, new { @class = "form-control" })
                         @Html.ValidationMessageFor(model => model.appUser.LAST_NAME)
                     </div>
                 </div>
@@ -53,8 +53,8 @@
 
 
             <p>
-                <button type="submit" class="btn btn-sm btn-primary">Save</button>
-                <a class=" btn btn-sm btn-warning" href="@Url.Action("UserList")">Back to List</a>
+                <button type="submit" class="btn btn-eecip">Save</button>
+                <a class=" btn btn-warning" href="@Url.Action("UserList")">Back to List</a>
             </p>
 
         }
@@ -85,11 +85,11 @@
                 <div class="col-sm-3">
                     <div class="form-group">
                         <br /><br />
-                        <button type="submit" name="submitButton" value="Add" class="btn btn-success btn-sm btn-block">
+                        <button type="submit" name="submitButton" value="Add" class="btn btn-eecip btn-sm btn-block">
                             Assign Role <i class="clip-arrow-right"></i>
                         </button>
                         <br />
-                        <button type="submit" name="submitButton" value="Remove" class="btn btn-success btn-sm  btn-block">
+                        <button type="submit" name="submitButton" value="Remove" class="btn btn-eecip btn-sm  btn-block">
                             <i class="clip-arrow-left"></i> Remove Role
                         </button>
                     </div>
@@ -118,7 +118,7 @@
                     <tr>
                         <th></th>
                         <th>Organization</th>
-                        <th>Is Admin?</th>
+                        <th>Access Level</th>
                         <th>Status</th>
                     </tr>
                 </thead>
@@ -137,7 +137,14 @@
                             @Html.DisplayFor(modelItem => item.ORG_NAME)
                         </td>
                         <td>
-                            @Html.DisplayFor(modelItem => item.ORG_ADMIN_IND)
+                            @if (item.ORG_ADMIN_IND == true)
+                            {
+                                <span class="label label-success"> Admin</span>
+                            }
+                            else
+                            {
+                                <span class="label label-beige"> User</span>
+                            }
                         </td>
                         <td>
                             @Html.DisplayFor(modelItem => item.STATUS_IND)
@@ -149,7 +156,7 @@
         </div>
 
         <p>
-            <a href="#modal-form" class="btn btn-s-md btn-primary add-it" data-toggle="modal">Add Organization Access</a>
+            <a href="#modal-form" class="btn btn-s-md btn-eecip add-it" data-toggle="modal">Add Organization Access</a>
         </p>
 
     </div>
@@ -164,7 +171,7 @@
                     <div class="col-sm-12 ">
                         <h3 class="m-t-none m-b">Add Organization Access</h3>
 
-                        @using (Html.BeginForm("OrgUserEdit", "Admin", FormMethod.Post, new { @class = "" }))
+                        @using (Html.BeginForm("OrgUserEdit", "Admin", FormMethod.Post, new { @id = "norepostform" }))
                         {
                             @Html.AntiForgeryToken()
                             @Html.Hidden("uidx", Model.appUser.Id)
@@ -181,7 +188,7 @@
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="form-group">
-                                            Admin Access:
+                                            Access Level:
                                             @Html.DropDownList("AdminInd", new List<SelectListItem>
                                            {
                                                new SelectListItem{ Text="User", Value = "U" },
@@ -202,8 +209,8 @@
                                 </div>
                                 <div class="row">
                                     <div class="col-md-12">
-                                        <button id="picLoc" type="submit" class="btn btn-sm btn-primary"><strong>Save</strong></button>
-                                        <button type="submit" class="btn btn-sm btn-default" data-dismiss="modal"><strong>Cancel</strong></button>
+                                        <button id="picLoc" type="submit" class="btn btn-sm btn-eecip">Save</button>
+                                        <button type="submit" class="btn btn-sm btn-default" data-dismiss="modal">Cancel</button>
                                     </div>
                                 </div>
                             </div>

@@ -1,0 +1,82 @@
+﻿@model TribalSvcPortal.ViewModels.AdminViewModels.RoleEditViewModel
+@{
+    ViewBag.Title = "Role Details";
+    ViewBag.SubTitle = "Select which users belong to a security role.";
+}
+
+<!-- render the main content -->
+<div class="row">
+    <div class="col-sm-12">
+        <section class="panel panel-default">
+            <div class="panel-heading">
+                Role Details
+                <div class="panel-tools">
+                    <a class="btn btn-xs panel-collapse collapses" href="#">
+                    </a>
+                </div>
+            </div>
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label>Role Name</label>
+                            @Html.TextBoxFor(model => model.T_PRT_ROLES.Name, new { @class = "form-control", @placeholder = "" })
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- start: USER ROLE ASSIGNMENT -->
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                User Role Assignment
+                <div class="panel-tools">
+                    <a class="btn btn-xs panel-collapse collapses" href="#">
+                    </a>
+                </div>
+            </div>
+            <div class="panel-body">
+                @using (Html.BeginForm("RoleEdit", "Admin", FormMethod.Post, new { @class = "" }))
+                {
+                    @Html.AntiForgeryToken()
+                    @Html.ValidationSummary(true)
+                    @Html.HiddenFor(model => model.T_PRT_ROLES.Id)
+
+                    <div class="row" style="padding-left: 15px">
+                        <div class="col-md-5">
+                            <div class="form-group">
+                                <label>Users Not In Role</label>
+                                @Html.ListBoxFor(model => model.Users_Not_In_Role_Selected, Model.Users_Not_In_Role, new { @class = "form-control", size = 10 })
+                            </div>
+                        </div>
+                        <div class="col-sm-2">
+                            <div class="form-group">
+                                <br /><br />
+                                <button type="submit" name="submitButton" value="Add" class="btn btn-success btn-sm btn-block">
+                                    Add to Role  <i class="clip-arrow-right-2"></i>
+                                </button>
+                                <br />
+                                <button type="submit" name="submitButton" value="Remove" class="btn btn-success btn-sm  btn-block">
+                                    <i class="clip-arrow-left-2"></i> Remove from Role
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-md-5">
+                            <div class="form-group">
+                                <label>Users In Role</label>
+                                @Html.ListBoxFor(model => model.Users_In_Role_Selected, Model.Users_In_Role, new { @class = "form-control", size = 10 })
+                                @Html.ValidationMessageFor(model => model.Users_In_Role_Selected)
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+        <!-- end: USER ROLE ASSIGNMENT -->
+
+
+    </div>
+</div>
+

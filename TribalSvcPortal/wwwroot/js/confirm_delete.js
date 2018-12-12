@@ -39,12 +39,11 @@
             removeEvents();
             confirmButton.fadeOut(700);
 
-            var idval = confirmButton.attr('data-delete-array') == "Y" ? confirmButton.attr('data-delete-id').split(',') : confirmButton.attr('data-delete-id');
+            var idval = confirmButton.attr('data-delete-array') === "Y" ? confirmButton.attr('data-delete-id').split(',') : confirmButton.attr('data-delete-id');
 
             $.ajax({
                 type: "POST",
                 url: delPath,
-                //contentType: "application/json",
                 dataType: "json",
                 traditional: true,
                 data: {
@@ -52,8 +51,7 @@
                     id2: confirmButton.attr('data-delete-id2')
                 },
                 success: function (response) {
-                    console.log(response);
-                    if (response == "Success") {
+                    if (response === "Success") {
                         if (confirmButton.attr('data-success-url') != null && confirmButton.attr('data-success-url').length > 0) {
                             var redirPath = window.location.protocol + "//" + window.location.host + "/" + appPath + confirmButton.attr('data-success-url');
                             window.location.replace(redirPath);

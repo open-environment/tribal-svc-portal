@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Hosting;
@@ -11,20 +7,19 @@ using Microsoft.Extensions.DependencyInjection;
 using TribalSvcPortal.Services;
 using TribalSvcPortal.Data.Models;
 using TribalSvcPortal.AppLogic.DataAccessLayer;
-using Microsoft.AspNetCore.Hosting.Internal;
 
 namespace TribalSvcPortal
 {
     public class Startup
     {
+        public IHostingEnvironment HostingEnvironment { get; }
+        public IConfiguration Configuration { get; }
         public Startup(IHostingEnvironment env, IConfiguration config)
         {
             HostingEnvironment = env;
             Configuration = config;
         }
 
-        public IHostingEnvironment HostingEnvironment { get; }
-        public IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
@@ -46,6 +41,8 @@ namespace TribalSvcPortal
             .AddDefaultTokenProviders();
 
             services.AddMvc();
+
+            //cache memory of the left menu
             services.AddMemoryCache();
 
             // Add application services.
@@ -53,15 +50,13 @@ namespace TribalSvcPortal
             services.AddScoped<IDbPortal, DbPortal>();
             services.AddScoped<IDbOpenDump, DbOpenDump>();
 
-            
             //configure identity server with in-memory stores, keys, clients and scopes
             services.AddIdentityServer()
                 .AddDeveloperSigningCredential(true)  //adds a demo signing certificate
-                .AddInMemoryIdentityResources(Config.GetIdentityResources())                
-                .AddInMemoryClients(Config.GetClients2())
+                .AddInMemoryIdentityResources(IdentityServerConfig.GetIdentityResources()) 
+                .AddInMemoryClients(IdentityServerConfig.GetClients2())
                 .AddAspNetIdentity<ApplicationUser>()
-                .AddProfileService<CustomProfileService>()
-                ;
+                .AddProfileService<CustomProfileService>();
 
             // requires
             // using Microsoft.AspNetCore.Identity.UI.Services;
@@ -88,6 +83,7 @@ namespace TribalSvcPortal
 
             app.UseIdentityServer();
 
+            //Identity is enabled:
             app.UseAuthentication();
 
             app.UseMvc(routes =>

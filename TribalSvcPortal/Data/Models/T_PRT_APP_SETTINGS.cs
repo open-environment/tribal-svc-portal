@@ -5,12 +5,12 @@ namespace TribalSvcPortal.Data.Models
 {
     public partial class T_PRT_APP_SETTINGS
     {
-        public int SettingIdx { get; set; }
-        public string SettingName { get; set; }
-        public string SettingDesc { get; set; }
-        public string SettingValue { get; set; }
-        public bool? EncryptInd { get; set; }
-        public string ModifyUserId { get; set; }
-        public DateTime? ModifyDt { get; set; }
+        public int SETTING_IDX { get; set; }
+        public string SETTING_NAME { get; set; }
+        public string SETTING_DESC { get; set; }
+        public string SETTING_VALUE { get; set; }
+        public bool? ENCRYPT_IND { get; set; }
+        public string MODIFY_USER_ID { get; set; }
+        public DateTime? MODIFY_DT { get; set; }
     }
 }

@@ -12,7 +12,7 @@ body {
 }
 
     body.bg_style_1 {
-        background: url("Images/bg.png") rgba(0, 0, 0, 0) !important;
+        background: url("../images/bg.png") rgba(0, 0, 0, 0) !important;
     }
 
 a, a:focus, a:hover, a:active {
@@ -24,7 +24,7 @@ h1, h2, h3 {
 }
 /* ---------------------------------------------------------------------- */
 /*	Forms
- /* ---------------------------------------------------------------------- */
+/* ---------------------------------------------------------------------- */
 textarea, input[type="text"], input[type="password"], input[type="datetime"], input[type="datetime-local"], input[type="date"], input[type="month"], input[type="time"], input[type="week"], input[type="number"], input[type="email"], input[type="url"], input[type="search"], input[type="tel"], input[type="color"] {
     background-color: #FFFFFF;
     border: 1px solid #D5D5D5;
@@ -3318,7 +3318,7 @@ body.login {
 }
 
     body.login.example1 {
-        background-image: url("Images/bg.png");
+        background-image: url("../images/bg.png");
         background-color: rgba(0, 0, 0, 0);
     }
 

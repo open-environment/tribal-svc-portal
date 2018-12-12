@@ -17,13 +17,13 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             {
                 T_PRT_SYS_LOG e = new T_PRT_SYS_LOG
                 {
-                    LogType = logType,
-                    LogMsg = logMsg,
-                    LogDt = System.DateTime.Now
+                    LOG_TYPE = logType,
+                    LOG_MSG = logMsg,
+                    LOG_DT = System.DateTime.Now
                 };
                 _context.T_PRT_SYS_LOG.Add(e);
                 _context.SaveChanges();
-                return e.SysLogId;
+                return e.SYS_LOG_ID;
             }
             catch (Exception ex)
             {
@@ -50,13 +50,13 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             //    }
             //}
             //else
-            {
+            //{
                 Exception realerror = ex;
                 while (realerror.InnerException != null)
                     realerror = realerror.InnerException;
 
                 err = realerror.Message ?? "";
-            }
+            //}
 
             InsertT_PRT_SYS_LOG("ERROR", err.SubStringPlus(0, 2000));
         }

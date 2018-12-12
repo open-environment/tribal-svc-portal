@@ -34,22 +34,22 @@
                                         <tr>
                                             <td>
                                                 <a href="#modal-form" class="btn btn-rounded btn-xs btn-info modal-it" data-toggle="modal"><i class="glyphicon glyphicon-pencil"></i></a>
-                                                @Html.HiddenFor(modelItem => item.SettingIdx)
-                                                @Html.HiddenFor(modelItem => item.SettingName)
-                                                @if (item.EncryptInd != true)
+                                                @Html.HiddenFor(modelItem => item.SETTING_IDX)
+                                                @Html.HiddenFor(modelItem => item.SETTING_NAME)
+                                                @if (item.ENCRYPT_IND != true)
                                                 {
-                                                    @Html.HiddenFor(modelItem => item.SettingValue)
+                                                    @Html.HiddenFor(modelItem => item.SETTING_VALUE)
                                                 }
-                                                @Html.HiddenFor(modelItem => item.EncryptInd)
+                                                @Html.HiddenFor(modelItem => item.ENCRYPT_IND)
                                             </td>
                                             <td>
-                                                @Html.DisplayFor(modelItem => item.SettingName)
+                                                @Html.DisplayFor(modelItem => item.SETTING_NAME)
                                             </td>
                                             <td>
-                                                @Html.DisplayFor(modelItem => item.SettingDesc)
+                                                @Html.DisplayFor(modelItem => item.SETTING_DESC)
                                             </td>
                                             <td>
-                                                @(item.EncryptInd != true ? item.SettingValue : "*********************")
+                                                @(item.ENCRYPT_IND != true ? item.SETTING_VALUE : "*********************")
                                             </td>
                                         </tr>
                                     }
@@ -129,21 +129,21 @@
                         @using (Html.BeginForm("Settings", "Admin", FormMethod.Post))
                         {
                             @Html.AntiForgeryToken()
-                            @Html.HiddenFor(model => model.edit_app_setting.SettingIdx)
+                            @Html.HiddenFor(model => model.edit_app_setting.SETTING_IDX)
 
                             <div class="panel-body">
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <label>Global Setting Name</label>
-                                            @Html.TextBoxFor(model => model.edit_app_setting.SettingName, new { @class = "form-control", @readonly = "readonly" })
+                                            @Html.TextBoxFor(model => model.edit_app_setting.SETTING_NAME, new { @class = "form-control", @readonly = "readonly" })
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <label>Global Setting Value</label>
-                                            @Html.TextBoxFor(model => model.edit_app_setting.SettingValue, new { @class = "form-control" })
-                                            @Html.ValidationMessageFor(model => model.edit_app_setting.SettingValue)
+                                            @Html.TextBoxFor(model => model.edit_app_setting.SETTING_VALUE, new { @class = "form-control" })
+                                            @Html.ValidationMessageFor(model => model.edit_app_setting.SETTING_VALUE)
                                         </div>
                                     </div>
                                 </div>
@@ -167,7 +167,7 @@
 <!-- END MODAL FORM -->
 
 @section Scripts {
-    <script src="//cdn.tinymce.com/4/tinymce.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/tinymce/4.5.1/tinymce.min.js"></script>
     <script type="text/javascript">
         $(document).ready(function () {
             //create an event when button is clicked to display modal

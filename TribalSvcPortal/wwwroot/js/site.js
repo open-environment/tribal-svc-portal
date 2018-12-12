@@ -86,21 +86,7 @@ var Main = function () {
             $('.popovers').popover();
         }
     };
-    //function to allow a button or a link to open a tab
-    var runShowTab = function () {
-        if ($(".show-tab").length) {
-            $('.show-tab').bind('click', function (e) {
-                e.preventDefault();
-                var tabToShow = $(this).attr("href");
-                if ($(tabToShow).length) {
-                    $('a[href="' + tabToShow + '"]').tab('show');
-                }
-            });
-        }
-        if (getParameterByName('tabId').length) {
-            $('a[href="#' + getParameterByName('tabId') + '"]').tab('show');
-        }
-    };
+
     var runPanelScroll = function () {
         if ($(".panel-scroll").length) {
             $('.panel-scroll').perfectScrollbar({
@@ -120,7 +106,6 @@ var Main = function () {
             });
         }
         $(".accordion").collapse().height('auto');
-        var lastClicked;
 
         $('.accordion .accordion-toggle').bind('click', function () {
             currentTab = $(this);
@@ -228,13 +213,6 @@ var Main = function () {
         });
     };
 
-    //function to return the querystring parameter with a given name.
-    var getParameterByName = function (name) {
-        name = name.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
-        var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
-            results = regex.exec(location.search);
-        return results == null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
-    };
 
     //Window Resize Function (needed to keep footer on bottom)
     var runWIndowResize = function (func, threshold, execAsap) {
@@ -247,9 +225,9 @@ var Main = function () {
     //prevent form to be posted multiple times
     var noRepostForm = function () {
         $('#norepostform').submit(function () {
-            if ($(this).valid()) {
+            //if ($(this).valid()) {
                 $(this).find(':submit').attr('disabled', 'disabled');
-            }
+            //}
         });
     };
 
@@ -273,7 +251,6 @@ var Main = function () {
             runTooltips();
             runPopovers();
             runPanelScroll();
-            runShowTab();
             runAccordionFeatures();
             noRepostForm();
             leftMenuShading();

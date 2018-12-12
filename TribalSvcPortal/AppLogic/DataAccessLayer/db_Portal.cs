@@ -5,6 +5,8 @@ using TribalSvcPortal.Data.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using TribalSvcPortal.AppLogic.BusinessLogicLayer;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using System.Text.RegularExpressions;
 
 namespace TribalSvcPortal.AppLogic.DataAccessLayer
 {
@@ -32,57 +34,82 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
 
     public interface IDbPortal
     {
+        //*****************APP SETTINGS**********************************
         string GetT_PRT_APP_SETTING(string settingName);
         List<T_PRT_APP_SETTINGS> GetT_PRT_APP_SETTING_List();
         int InsertUpdateT_PRT_APP_SETTING(int sETTING_IDX, string sETTING_NAME, string sETTING_VALUE, bool? eNCRYPT_IND, string sETTING_VALUE_SALT, string cREATE_USER);
+
+        //*****************APP SETTINGS CUSTOM**********************************
+        T_PRT_APP_SETTINGS_CUSTOM GetT_PRT_APP_SETTINGS_CUSTOM();
+        int InsertUpdateT_PRT_APP_SETTING_CUSTOM(string tERMS_AND_CONDITIONS, string aNNOUNCEMENTS);
+
+        //**************************** T_PRT_CLIENTS ***********************************************
         List<T_PRT_CLIENTS> GetT_PRT_CLIENTS();
         T_PRT_CLIENTS GetT_PRT_CLIENTS_ByClientID(string id);
         string InsertUpdateT_PRT_CLIENTS(string cLIENT_ID, string cLIENT_NAME, string cLIENT_GRANT_TYPE, string cLIENT_REDIRECT_URI, string cLIENT_POST_LOGOUT_URI, string cLIENT_URL);
+
+        //******************************T_PRT_ORGANIZATIONS***********************************************
         List<T_PRT_ORGANIZATIONS> GetT_PRT_ORGANIZATIONS();
+        T_PRT_ORGANIZATIONS GetT_PRT_ORGANIZATIONS_ByOrgID(string OrgID);
+        string InsertUpdateT_PRT_ORGANIZATIONS(string oRG_ID, string oRG_NAME);
+        List<T_PRT_ORGANIZATIONS> GetT_PRT_ORGANIZATIONS_ByEmail(string Email);
+
+        //******************************T_PRT_ORG_EMAIL_RULE***********************************************
+        List<T_PRT_ORG_EMAIL_RULE> GetT_PRT_ORG_EMAIL_RULE_ByOrgID(string OrgID);
+        int InsertT_PRT_ORG_EMAIL_RULE(string oRG_ID, string eMAIL_STRING, string cREATE_USER);
+        int DeleteT_OE_ORGANIZATION_EMAIL_RULE(string OrgID, string email);
+
+        //******************************T_PRT_ORG_USERS***********************************************
         T_PRT_ORG_USERS GetT_PRT_ORG_USERS_ByOrgUserID(int id);
         List<UserOrgDisplayType> GetT_PRT_ORG_USERS_ByUserID(string id);
         int InsertUpdateT_PRT_ORG_USERS(int? oRG_USER_IDX, string oRG_ID, string _Id, bool? oRG_ADMIN_IND, string sTATUS_IND, string cREATE_USER);
         int DeleteT_PRT_ORG_USERS(int id);
+        bool IsUserAnOrgAdmin(string UserID, string OrgID);
+
+
+        //******************************T_PRT_ORG_USERS_CLIENT***********************************************
         List<OrgUserClientDisplayType> GetT_PRT_ORG_USERS_CLIENT_ByOrgUserID(int _OrgUserIDX);
         List<OrgUserClientDisplayType> GetT_PRT_ORG_USERS_CLIENT_ByUserID(string _UserIDX);
         IEnumerable<T_PRT_CLIENTS> GetT_PRT_ORG_USERS_CLIENT_DistinctClientByUserID(string UserID);
+        IEnumerable<T_PRT_CLIENTS> GetDistinct_USERS_CLIENT_ByUserID(string _UserIDX);
+        IEnumerable<SelectListItem> get_ddl_T_PRT_ORG_USERS_CLIENT_ByUserIDandClient(string UserIDX, string ClientID);
         int InsertUpdateT_PRT_ORG_USERS_CLIENT(int? oRG_USER_CLIENT_IDX, int? oRG_USER_IDX, string cLIENT_ID, bool? aDMIN_IND, string sTATUS_IND, string cREATE_USER);
         int DeleteT_PRT_ORG_USER_CLIENT(int id);
+
+        //**************************** T_PRT_ROLES ***********************************************
         IEnumerable<IdentityRole> GetT_PRT_ROLES_BelongingToUser(string UserID);
+
+        //*****************SYS_LOG**********************************
         T_PRT_SYS_LOG GetT_PRT_SYS_LOG();
-        IEnumerable<T_PRT_CLIENTS> GetDistinct_USERS_CLIENT_ByUserID(string _UserIDX);
+
+        //**************************** T_PRT_SITES ***********************************************
         Guid? InsertUpdateT_PRT_SITES(Guid? sITE_IDX, string oRG_ID, string sITE_NAME, string ePA_ID, decimal? lATITUDE, decimal? lONGITUDE, string sITE_ADDRESS, string UserIDX);
         T_PRT_SITES GetT_PRT_SITES_BySITEIDX(Guid Siteidx);
         int DeleteT_PRT_SITES(Guid sITE_IDX);
-        int InsertUpdateT_PRT_APP_SETTING_CUSTOM(string tERMS_AND_CONDITIONS, string aNNOUNCEMENTS);
-        T_PRT_APP_SETTINGS_CUSTOM GetT_PRT_APP_SETTINGS_CUSTOM();
+
+        //**************************** T_PRT_DOCUMENTS ***********************************************
         Guid? InsertUpdateT_PRT_DOCUMENTS(Guid? dOC_IDX, string oRG_ID, byte[] dOC_CONTENT, string dOC_NAME, string dOC_TYPE, string dOC_FILE_TYPE, int? dOC_SIZE, string dOC_COMMENT,
         string dOC_AUTHOR, string sHARE_TYPE, string dOC_STATUS_TYPE, string UserID);
-        List<T_PRT_DOCUMENTS> GetT_PRT_DOCUMENTS_ByDumpAssessmentsIDx(Guid dUMPASSESSMENTS_IDX);
-        List<T_PRT_DOCUMENTS> GetT_PRT_DOCUMENTS_Photos_ByDumpAssessmentsIDx(Guid dUMPASSESSMENTS_IDX);
         T_PRT_DOCUMENTS GetT_PRT_DOCUMENTS_ByID(Guid DocIDX);
         int DeleteT_PRT_DOCUMENTS(Guid DocIDX);
-        List<T_OD_DUMP_ASSESSMENT_DOCS> GetT_OD_DUMP_ASSESSMENT_DOCS_ByDumpAssessmentsIDx(Guid dUMPASSESSMENTS_IDX);
     }
 
     public class DbPortal : IDbPortal
     {
-        private static readonly DbContextOptions<ApplicationDbContext> _contextOptions = new DbContextOptions<ApplicationDbContext>();
-      //ApplicationDbContext _context = new ApplicationDbContext(_contextOptions);
-        private readonly ApplicationDbContext ctx = new ApplicationDbContext(_contextOptions);
-        //public DbPortal(ApplicationDbContext _context)
-        //{
-        //    ctx = _context;
-        //}
-        
+        private readonly ApplicationDbContext ctx;
+        public DbPortal(ApplicationDbContext _context)
+        {
+            ctx = _context;
+        }
+
         //*****************APP SETTINGS**********************************
         public string GetT_PRT_APP_SETTING(string settingName)
         {
             try
             {
                 return (from a in ctx.T_PRT_APP_SETTINGS
-                        where a.SettingName == settingName
-                        select a).FirstOrDefault().SettingValue;
+                        where a.SETTING_NAME == settingName
+                        select a).FirstOrDefault().SETTING_VALUE;
             }
             catch (Exception ex)
             {
@@ -96,7 +123,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
                 try
                 {
                     return (from a in ctx.T_PRT_APP_SETTINGS
-                            orderby a.SettingIdx
+                            orderby a.SETTING_IDX
                             select a).ToList();
                 }
                 catch (Exception ex)
@@ -113,7 +140,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
                 Boolean insInd = false;
 
                 T_PRT_APP_SETTINGS e = (from c in ctx.T_PRT_APP_SETTINGS
-                                        where c.SettingIdx == sETTING_IDX
+                                        where c.SETTING_IDX == sETTING_IDX
                                     select c).FirstOrDefault();
 
                 if (e == null)
@@ -122,17 +149,17 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
                     e = new T_PRT_APP_SETTINGS();
                 }
 
-                if (sETTING_NAME != null) e.SettingName = sETTING_NAME;
-                if (sETTING_VALUE != null) e.SettingValue = sETTING_VALUE;
+                if (sETTING_NAME != null) e.SETTING_NAME = sETTING_NAME;
+                if (sETTING_VALUE != null) e.SETTING_VALUE = sETTING_VALUE;
 
-                e.ModifyDt = System.DateTime.Now;
-                e.ModifyUserId = cREATE_USER;
+                e.MODIFY_DT = System.DateTime.Now;
+                e.MODIFY_USER_ID = cREATE_USER;
 
                 if (insInd)
                     ctx.T_PRT_APP_SETTINGS.Add(e);
 
                 ctx.SaveChanges();
-                return e.SettingIdx;
+                return e.SETTING_IDX;
             }
             catch (Exception ex)
             {
@@ -173,14 +200,14 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
                         e = new T_PRT_APP_SETTINGS_CUSTOM();
                     }
 
-                    if (tERMS_AND_CONDITIONS != null) e.TermsAndConditions = Utils.GetSafeHtml(tERMS_AND_CONDITIONS);
-                    if (aNNOUNCEMENTS != null) e.Announcements = Utils.GetSafeHtml(aNNOUNCEMENTS);
+                    if (tERMS_AND_CONDITIONS != null) e.TERMS_AND_CONDITIONS = Utils.GetSafeHtml(tERMS_AND_CONDITIONS);
+                    if (aNNOUNCEMENTS != null) e.ANNOUNCEMENTS = Utils.GetSafeHtml(aNNOUNCEMENTS);
 
                     if (insInd)
                         ctx.T_PRT_APP_SETTINGS_CUSTOM.Add(e);
 
                     ctx.SaveChanges();
-                    return e.SettingCustomIdx;
+                    return e.SETTING_CUSTOM_IDX;
                 }
                 catch (Exception ex)
                 {
@@ -188,6 +215,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
                     return 0;
                 }            
         }
+
 
         //**************************** T_PRT_CLIENTS ***********************************************
         public List<T_PRT_CLIENTS> GetT_PRT_CLIENTS()
@@ -208,7 +236,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             try
             {
                 return (from a in ctx.T_PRT_CLIENTS
-                        where a.ClientId == id
+                        where a.CLIENT_ID == id
                         select a).FirstOrDefault();
             }
             catch (Exception ex)
@@ -227,7 +255,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
                 T_PRT_CLIENTS e = null;
 
                 e = (from c in ctx.T_PRT_CLIENTS
-                     where c.ClientId == cLIENT_ID
+                     where c.CLIENT_ID == cLIENT_ID
                         select c).FirstOrDefault();
 
                 if (e == null)
@@ -236,18 +264,18 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
                     e = new T_PRT_CLIENTS();
                 }
 
-                if (cLIENT_ID != null) e.ClientId = cLIENT_ID;
-                if (cLIENT_NAME != null) e.ClientName = cLIENT_NAME;
-                if (cLIENT_GRANT_TYPE != null) e.ClientGrantType = cLIENT_GRANT_TYPE;
-                if (cLIENT_REDIRECT_URI != null) e.ClientRedirectUri = cLIENT_REDIRECT_URI;
-                if (cLIENT_POST_LOGOUT_URI != null) e.ClientPostLogoutUri = cLIENT_POST_LOGOUT_URI;
-                if (cLIENT_URL != null) e.ClientUrl = cLIENT_URL;
+                if (cLIENT_ID != null) e.CLIENT_ID = cLIENT_ID;
+                if (cLIENT_NAME != null) e.CLIENT_NAME = cLIENT_NAME;
+                if (cLIENT_GRANT_TYPE != null) e.CLIENT_GRANT_TYPE = cLIENT_GRANT_TYPE;
+                if (cLIENT_REDIRECT_URI != null) e.CLIENT_REDIRECT_URI = cLIENT_REDIRECT_URI;
+                if (cLIENT_POST_LOGOUT_URI != null) e.CLIENT_POST_LOGOUT_URI = cLIENT_POST_LOGOUT_URI;
+                if (cLIENT_URL != null) e.CLIENT_URL = cLIENT_URL;
 
                 if (insInd)
                     ctx.T_PRT_CLIENTS.Add(e);
 
                 ctx.SaveChanges();
-                return e.ClientId;
+                return e.CLIENT_ID;
             }
             catch (Exception ex)
             {
@@ -272,6 +300,129 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             }
         }
 
+        public T_PRT_ORGANIZATIONS GetT_PRT_ORGANIZATIONS_ByOrgID(string OrgID)
+        {
+            try
+            {
+                return ( from a in ctx.T_PRT_ORGANIZATIONS
+                         where a.ORG_ID == OrgID
+                         select a).FirstOrDefault();
+            }
+            catch (Exception ex)
+            {
+                log.LogEFException(ex);
+                return null;
+            }
+        }
+
+        public string InsertUpdateT_PRT_ORGANIZATIONS(string oRG_ID, string oRG_NAME)
+        {
+            try
+            {
+                Boolean insInd = false;
+
+                T_PRT_ORGANIZATIONS e = null;
+
+                e = (from c in ctx.T_PRT_ORGANIZATIONS
+                     where c.ORG_ID == oRG_ID
+                     select c).FirstOrDefault();
+
+                if (e == null)
+                {
+                    insInd = true;
+                    e = new T_PRT_ORGANIZATIONS();
+                    e.ORG_ID = oRG_ID;
+                }
+
+                if (oRG_NAME != null) e.ORG_NAME = oRG_NAME;
+
+                if (insInd)
+                    ctx.T_PRT_ORGANIZATIONS.Add(e);
+
+                ctx.SaveChanges();
+                return e.ORG_ID;
+            }
+            catch (Exception ex)
+            {
+                log.LogEFException(ex);
+                return null;
+            }
+        }
+
+        public List<T_PRT_ORGANIZATIONS> GetT_PRT_ORGANIZATIONS_ByEmail(string email)
+        {
+            try
+            {
+                var domain = Regex.Match(email, "@(.*)").Groups[1].Value;
+
+                return (from a in ctx.T_PRT_ORGANIZATIONS
+                        join b in ctx.T_PRT_ORG_EMAIL_RULE on a.ORG_ID equals b.ORG_ID
+                        where b.EMAIL_STRING.ToUpper() == domain.ToUpper()
+                        select a).ToList();
+            }
+            catch (Exception ex)
+            {
+                log.LogEFException(ex);
+                throw ex;
+            }
+        }
+
+
+
+        //******************************T_PRT_ORG_EMAIL_RULE***********************************************
+        public List<T_PRT_ORG_EMAIL_RULE> GetT_PRT_ORG_EMAIL_RULE_ByOrgID(string OrgID)
+        {
+            try
+            {
+                return (from a in ctx.T_PRT_ORG_EMAIL_RULE
+                        where a.ORG_ID == OrgID
+                        select a).ToList();
+            }
+            catch (Exception ex)
+            {
+                log.LogEFException(ex);
+                return null;
+            }
+        }
+
+        public int InsertT_PRT_ORG_EMAIL_RULE(string oRG_ID, string eMAIL_STRING, string cREATE_USER)
+        {
+            try
+            {
+                T_PRT_ORG_EMAIL_RULE e = new T_PRT_ORG_EMAIL_RULE();
+                e.ORG_ID = oRG_ID;
+                e.EMAIL_STRING = eMAIL_STRING;
+                e.MODIFY_DT = System.DateTime.Now;
+                e.MODIFY_USERIDX = 0;
+
+                ctx.T_PRT_ORG_EMAIL_RULE.Add(e);
+                ctx.SaveChanges();
+                return 1;
+            }
+            catch (Exception ex)
+            {
+                log.LogEFException(ex);
+                return 0;
+            }
+        }
+
+        public int DeleteT_OE_ORGANIZATION_EMAIL_RULE(string OrgID, string email)
+        {
+            try
+            {
+                T_PRT_ORG_EMAIL_RULE rec = new T_PRT_ORG_EMAIL_RULE { ORG_ID = OrgID, EMAIL_STRING = email };
+                ctx.Entry(rec).State = Microsoft.EntityFrameworkCore.EntityState.Deleted;
+                ctx.SaveChanges();
+
+                return 1;
+            }
+            catch (Exception ex)
+            {
+                log.LogEFException(ex);
+                return 0;
+            }
+        }
+
 
 
         //******************************T_PRT_ORG_USERS***********************************************
@@ -280,7 +431,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             try
             {
                 return (from a in ctx.T_PRT_ORG_USERS
-                           where a.OrgUserIdx == id
+                           where a.ORG_USER_IDX == id
                            select a).FirstOrDefault();
             }
             catch (Exception ex)
@@ -295,16 +446,16 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             try
             {
                 var xxx = (from a in ctx.T_PRT_ORG_USERS
-                           join b in ctx.T_PRT_ORGANIZATIONS on a.OrgId equals b.OrgId
+                           join b in ctx.T_PRT_ORGANIZATIONS on a.ORG_ID equals b.ORG_ID
                            where a.Id == UserId
-                           orderby b.OrgName
+                           orderby b.ORG_NAME
                            select new UserOrgDisplayType
                            {
-                               ORG_USER_IDX = a.OrgUserIdx,
-                               ORG_ID = b.OrgId,
-                               ORG_ADMIN_IND = a.OrgAdminInd,
-                               STATUS_IND = a.StatusInd,
-                               ORG_NAME = b.OrgName
+                               ORG_USER_IDX = a.ORG_USER_IDX,
+                               ORG_ID = b.ORG_ID,
+                               ORG_ADMIN_IND = a.ORG_ADMIN_IND,
+                               STATUS_IND = a.STATUS_IND,
+                               ORG_NAME = b.ORG_NAME
                            }).ToList();
 
                 return xxx;
@@ -326,14 +477,14 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
                 T_PRT_ORG_USERS e = null;
 
                 e = (from c in ctx.T_PRT_ORG_USERS
-                     where c.OrgUserIdx == oRG_USER_IDX
+                     where c.ORG_USER_IDX == oRG_USER_IDX
                      select c).FirstOrDefault();
 
                 //now try to grab from user and org id
                 if (e == null)
                 {
                     e = (from c in ctx.T_PRT_ORG_USERS
-                         where c.OrgId.ToUpper() == oRG_ID.ToUpper()
+                         where c.ORG_ID.ToUpper() == oRG_ID.ToUpper()
                          && c.Id == _Id
                          select c).FirstOrDefault();
                 }
@@ -343,26 +494,26 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
                     insInd = true;
                     e = new T_PRT_ORG_USERS
                     {
-                        CreateDt = System.DateTime.Now,
-                        CreateUserId = cREATE_USER
+                        CREATE_DT = System.DateTime.Now,
+                        CREATE_USER_ID = cREATE_USER
                     };
                 }
                 else
                 {
-                    e.ModifyDt = System.DateTime.Now;
-                    e.ModifyUserId = cREATE_USER;
+                    e.MODIFY_DT = System.DateTime.Now;
+                    e.MODIFY_USER_ID = cREATE_USER;
                 }
 
-                if (oRG_ID != null) e.OrgId = oRG_ID;
+                if (oRG_ID != null) e.ORG_ID = oRG_ID;
                 if (_Id != null) e.Id = _Id;
-                if (oRG_ADMIN_IND != null) e.OrgAdminInd = oRG_ADMIN_IND ?? false;
-                if (sTATUS_IND != null) e.StatusInd = sTATUS_IND;
+                if (oRG_ADMIN_IND != null) e.ORG_ADMIN_IND = oRG_ADMIN_IND ?? false;
+                if (sTATUS_IND != null) e.STATUS_IND = sTATUS_IND;
 
                 if (insInd)
                     ctx.T_PRT_ORG_USERS.Add(e);
 
                 ctx.SaveChanges();
-                return e.OrgUserIdx;
+                return e.ORG_USER_IDX;
             }
             catch (Exception ex)
             {
@@ -376,7 +527,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
         {
             try
             {
-                T_PRT_ORG_USERS rec = new T_PRT_ORG_USERS { OrgUserIdx = id };
+                T_PRT_ORG_USERS rec = new T_PRT_ORG_USERS { ORG_USER_IDX = id };
                 ctx.Entry(rec).State = Microsoft.EntityFrameworkCore.EntityState.Deleted;
                 ctx.SaveChanges();
 
@@ -389,6 +540,21 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             }
         }
 
+        public bool IsUserAnOrgAdmin(string UserID, string OrgID)
+        {
+            try
+            {
+                return (from a in ctx.T_PRT_ORG_USERS
+                        where a.Id == UserID
+                        && a.ORG_ID == OrgID
+                        select a).FirstOrDefault()?.ORG_ADMIN_IND ?? false;
+            }
+            catch (Exception ex)
+            {
+                log.LogEFException(ex);
+                return false;
+            }
+        }
 
 
         //******************************T_PRT_ORG_USER_CLIENT***********************************************
@@ -397,17 +563,17 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             try
             {
                 var xxx = (from a in ctx.T_PRT_ORG_USER_CLIENT
-                           join b in ctx.T_PRT_ORG_USERS on a.OrgUserIdx equals b.OrgUserIdx
-                           where a.OrgUserIdx == _OrgUserIDX
-                           orderby a.ClientId
+                           join b in ctx.T_PRT_ORG_USERS on a.ORG_USER_IDX equals b.ORG_USER_IDX
+                           where a.ORG_USER_IDX == _OrgUserIDX
+                           orderby a.CLIENT_ID
                             select new OrgUserClientDisplayType
                             {
-                                ORG_USER_CLIENT_IDX = a.OrgUserClientIdx,
-                                ORG_USER_IDX = a.OrgUserIdx,
-                                CLIENT_ID = a.ClientId,
-                                ADMIN_IND = a.AdminInd,
-                                STATUS_IND = a.StatusInd,
-                                ORG_ID = b.OrgId,
+                                ORG_USER_CLIENT_IDX = a.ORG_USER_CLIENT_IDX,
+                                ORG_USER_IDX = a.ORG_USER_IDX,
+                                CLIENT_ID = a.CLIENT_ID,
+                                ADMIN_IND = a.ADMIN_IND,
+                                STATUS_IND = a.STATUS_IND,
+                                ORG_ID = b.ORG_ID,
                                 UserID = b.Id,
                                 UserName = b.Id
                             }).ToList();
@@ -427,20 +593,20 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             try
             {
                 var xxx = (from a in ctx.T_PRT_ORG_USER_CLIENT
-                            join b in ctx.T_PRT_ORG_USERS on a.OrgUserIdx equals b.OrgUserIdx
-                           join c in ctx.T_PRT_ORG_CLIENT_ALIAS on new { a.ClientId, b.OrgId } equals new { c.ClientId, c.OrgId }
+                            join b in ctx.T_PRT_ORG_USERS on a.ORG_USER_IDX equals b.ORG_USER_IDX
+                           join c in ctx.T_PRT_ORG_CLIENT_ALIAS on new { a.CLIENT_ID, b.ORG_ID } equals new { c.CLIENT_ID, c.ORG_ID }
                             where b.Id == _UserIDX
                             select new OrgUserClientDisplayType
                             {
-                                ORG_USER_CLIENT_IDX = a.OrgUserClientIdx,
-                                ORG_USER_IDX = a.OrgUserIdx,
-                                CLIENT_ID = a.ClientId,
-                                ADMIN_IND = a.AdminInd,
-                                STATUS_IND = a.StatusInd,
-                                ORG_ID = b.OrgId,
+                                ORG_USER_CLIENT_IDX = a.ORG_USER_CLIENT_IDX,
+                                ORG_USER_IDX = a.ORG_USER_IDX,
+                                CLIENT_ID = a.CLIENT_ID,
+                                ADMIN_IND = a.ADMIN_IND,
+                                STATUS_IND = a.STATUS_IND,
+                                ORG_ID = b.ORG_ID,
                                 UserID = b.Id,
                                 UserName = b.Id,
-                                ORG_CLIENT_ALIAS = c.OrgClientAlias
+                                ORG_CLIENT_ALIAS = c.ORG_CLIENT_ALIAS
                             }).ToList();
 
                 return xxx;
@@ -457,11 +623,11 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             try
             {
                 var xxx = (from a in ctx.T_PRT_ORG_USER_CLIENT
-                           join b in ctx.T_PRT_ORG_USERS on a.OrgUserIdx equals b.OrgUserIdx
-                           join c in ctx.T_PRT_CLIENTS on a.ClientId equals c.ClientId
-                            where b.Id == UserID
-                            orderby a.ClientId
-                            select c).ToList().Distinct();
+                           join b in ctx.T_PRT_ORG_USERS on a.ORG_USER_IDX equals b.ORG_USER_IDX
+                           join c in ctx.T_PRT_CLIENTS on a.CLIENT_ID equals c.CLIENT_ID
+                           where b.Id == UserID
+                           orderby a.CLIENT_ID
+                           select c).ToList().Distinct();
 
                 return xxx;
             }
@@ -477,9 +643,9 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             try
             {
                 var xxx = (from a in ctx.T_PRT_ORG_USER_CLIENT
-                           join b in ctx.T_PRT_ORG_USERS on a.OrgUserIdx equals b.OrgUserIdx
-                           join c in ctx.T_PRT_ORG_CLIENT_ALIAS on new { a.ClientId, b.OrgId } equals new { c.ClientId, c.OrgId }
-                           join d in ctx.T_PRT_CLIENTS on a.ClientId equals d.ClientId
+                           join b in ctx.T_PRT_ORG_USERS on a.ORG_USER_IDX equals b.ORG_USER_IDX
+                           join c in ctx.T_PRT_ORG_CLIENT_ALIAS on new { a.CLIENT_ID, b.ORG_ID } equals new { c.CLIENT_ID, c.ORG_ID }
+                           join d in ctx.T_PRT_CLIENTS on a.CLIENT_ID equals d.CLIENT_ID
                            where b.Id == _UserIDX
                            select d).ToList().Distinct();
 
@@ -492,6 +658,32 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             }
         }
 
+        public IEnumerable<SelectListItem> get_ddl_T_PRT_ORG_USERS_CLIENT_ByUserIDandClient(string UserIDX, string ClientID)
+        {
+            try
+            {
+                var xxx = (from a in ctx.T_PRT_ORG_USERS
+                           join b in ctx.T_PRT_ORGANIZATIONS on a.ORG_ID equals b.ORG_ID
+                           join c in ctx.T_PRT_ORG_USER_CLIENT on a.ORG_USER_IDX equals c.ORG_USER_IDX
+                           where a.Id == UserIDX
+                           && c.CLIENT_ID == ClientID
+                           orderby b.ORG_NAME
+                           select new SelectListItem
+                           {
+                               Value = a.ORG_ID.ToString(),
+                               Text = b.ORG_NAME
+                           }).ToList();
+
+                return xxx;
+            }
+            catch (Exception ex)
+            {
+                log.LogEFException(ex);
+                return null;
+            }
+
+        }
+
         public int InsertUpdateT_PRT_ORG_USERS_CLIENT(int? oRG_USER_CLIENT_IDX, int? oRG_USER_IDX, string cLIENT_ID, bool? aDMIN_IND, string sTATUS_IND, string cREATE_USER)
         {
             try
@@ -501,15 +693,15 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
                 T_PRT_ORG_USER_CLIENT e = null;
 
                 e = (from c in ctx.T_PRT_ORG_USER_CLIENT
-                     where c.OrgUserClientIdx == oRG_USER_CLIENT_IDX
+                     where c.ORG_USER_CLIENT_IDX == oRG_USER_CLIENT_IDX
                         select c).FirstOrDefault();
 
                 //now try to grab from user and org id
                 if (e == null)
                 {
                     e = (from c in ctx.T_PRT_ORG_USER_CLIENT
-                         where c.ClientId.ToUpper() == cLIENT_ID.ToUpper()
-                            && c.OrgUserIdx == oRG_USER_IDX
+                         where c.CLIENT_ID.ToUpper() == cLIENT_ID.ToUpper()
+                            && c.ORG_USER_IDX == oRG_USER_IDX
                             select c).FirstOrDefault();
                 }
 
@@ -518,26 +710,26 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
                     insInd = true;
                     e = new T_PRT_ORG_USER_CLIENT
                     {
-                        CreateDt = System.DateTime.Now,
-                        CreateUserId = cREATE_USER
+                        CREATE_DT = System.DateTime.Now,
+                        CREATE_USER_ID = cREATE_USER
                     };
                 }
                 else
                 {
-                    e.ModifyDt = System.DateTime.Now;
-                    e.ModifyUserId = cREATE_USER;
+                    e.MODIFY_DT = System.DateTime.Now;
+                    e.MODIFY_USER_ID = cREATE_USER;
                 }
 
-                if (oRG_USER_IDX != null) e.OrgUserIdx = oRG_USER_IDX ?? 0;
-                if (cLIENT_ID != null) e.ClientId = cLIENT_ID;
-                if (aDMIN_IND != null) e.AdminInd = aDMIN_IND ?? false;
-                if (sTATUS_IND != null) e.StatusInd = sTATUS_IND;
+                if (oRG_USER_IDX != null) e.ORG_USER_IDX = oRG_USER_IDX ?? 0;
+                if (cLIENT_ID != null) e.CLIENT_ID = cLIENT_ID;
+                if (aDMIN_IND != null) e.ADMIN_IND = aDMIN_IND ?? false;
+                if (sTATUS_IND != null) e.STATUS_IND = sTATUS_IND;
 
                 if (insInd)
                     ctx.T_PRT_ORG_USER_CLIENT.Add(e);
 
                 ctx.SaveChanges();
-                return e.OrgUserIdx;
+                return e.ORG_USER_IDX;
             }
             catch (Exception ex)
             {
@@ -551,7 +743,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
         {
             try
             {
-                T_PRT_ORG_USER_CLIENT rec = new T_PRT_ORG_USER_CLIENT { OrgUserClientIdx = id };
+                T_PRT_ORG_USER_CLIENT rec = new T_PRT_ORG_USER_CLIENT { ORG_USER_CLIENT_IDX = id };
                 ctx.Entry(rec).State = Microsoft.EntityFrameworkCore.EntityState.Deleted;
                 ctx.SaveChanges();
 
@@ -565,6 +757,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
 
         }
               
+
 
         //*****************ROLES**********************************
         public IEnumerable<IdentityRole> GetT_PRT_ROLES_BelongingToUser(string UserID)
@@ -599,7 +792,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
                 Boolean insInd = false;
 
                 T_PRT_SITES e = (from c in ctx.T_PRT_SITES
-                                 where c.SiteIdx == sITE_IDX
+                                 where c.SITE_IDX == sITE_IDX
                                  select c).FirstOrDefault();
 
                 //insert case
@@ -607,29 +800,29 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
                 {
                     insInd = true;
                     e = new T_PRT_SITES();
-                    e.SiteIdx = Guid.NewGuid();
-                    e.CreateDt = System.DateTime.UtcNow;
-                    e.CreateUserId = UserIDX;
+                    e.SITE_IDX = Guid.NewGuid();
+                    e.CREATE_DT = System.DateTime.UtcNow;
+                    e.CREATE_USER_ID = UserIDX;
                 }
                 else
                 {
-                    e.ModifyDt = System.DateTime.UtcNow;
-                    e.ModifyUserId = UserIDX;
+                    e.MODIFY_DT = System.DateTime.UtcNow;
+                    e.MODIFY_USER_ID = UserIDX;
                 }
 
-                if (oRG_ID != null) e.OrgId = oRG_ID;
-                if (sITE_NAME != null) e.SiteName = sITE_NAME;
-                if (ePA_ID != null) e.EpaId = ePA_ID;
-                if (lATITUDE != null) e.Latitude = lATITUDE;
-                if (lONGITUDE != null) e.Longitude = lONGITUDE;
-                if (sITE_ADDRESS != null) e.SiteAddress = sITE_ADDRESS;
+                if (oRG_ID != null) e.ORG_ID = oRG_ID;
+                if (sITE_NAME != null) e.SITE_NAME = sITE_NAME;
+                if (ePA_ID != null) e.EPA_ID = ePA_ID;
+                if (lATITUDE != null) e.LATITUDE = lATITUDE;
+                if (lONGITUDE != null) e.LONGITUDE = lONGITUDE;
+                if (sITE_ADDRESS != null) e.SITE_ADDRESS = sITE_ADDRESS;
 
 
                 if (insInd)
                     ctx.T_PRT_SITES.Add(e);
 
                 ctx.SaveChanges();
-                return e.SiteIdx;
+                return e.SITE_IDX;
             }
             catch (Exception ex)
             {
@@ -643,7 +836,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             try
             {
                 return (from a in ctx.T_PRT_SITES
-                        where a.SiteIdx == Siteidx
+                        where a.SITE_IDX == Siteidx
                         select a).FirstOrDefault();
             }
             catch (Exception ex)
@@ -657,7 +850,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
         {
             try
             {
-                T_PRT_SITES tps = new T_PRT_SITES { SiteIdx = sITE_IDX };
+                T_PRT_SITES tps = new T_PRT_SITES { SITE_IDX = sITE_IDX };
                 ctx.Entry(tps).State = Microsoft.EntityFrameworkCore.EntityState.Deleted;
                 ctx.SaveChanges();
 
@@ -669,6 +862,8 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
                 return 0;
             }
         }
+
+
         //*******************************DOCUMENTS *********************************************
         public Guid? InsertUpdateT_PRT_DOCUMENTS(Guid? dOC_IDX, string oRG_ID, byte[] dOC_CONTENT, string dOC_NAME, string dOC_TYPE, string dOC_FILE_TYPE, int? dOC_SIZE, string dOC_COMMENT,
             string dOC_AUTHOR, string sHARE_TYPE, string dOC_STATUS_TYPE, string UserID)
@@ -679,7 +874,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
                 Boolean insInd = false;
 
                 T_PRT_DOCUMENTS e = (from c in ctx.T_PRT_DOCUMENTS
-                                    where c.DocIdx == dOC_IDX
+                                    where c.DOC_IDX == dOC_IDX
                                     select c).FirstOrDefault();
 
                 //insert case
@@ -687,32 +882,32 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
                 {
                     insInd = true;
                     e = new T_PRT_DOCUMENTS();
-                    e.DocIdx = Guid.NewGuid();
-                    e.CreateDt = System.DateTime.UtcNow;
-                    e.CreateUserId = UserID;
+                    e.DOC_IDX = Guid.NewGuid();
+                    e.CREATE_DT = System.DateTime.UtcNow;
+                    e.CREATE_USER_ID = UserID;
                 }
                 else
                 {
-                    e.ModifyDt = System.DateTime.UtcNow;
-                    e.ModifyUserId = UserID;
+                    e.MODIFY_DT = System.DateTime.UtcNow;
+                    e.MODIFY_USER_ID = UserID;
                 }
 
-                if (dOC_CONTENT != null) e.DocContent = dOC_CONTENT;
-                if (dOC_NAME != null) e.DocName = dOC_NAME;
-                if (dOC_TYPE != null) e.DocType = dOC_TYPE;
-                if (dOC_FILE_TYPE != null) e.DocFileType = dOC_FILE_TYPE;
-                if (dOC_SIZE != null) e.DocSize = dOC_SIZE;
-                if (dOC_COMMENT != null) e.DocComment = dOC_COMMENT;
-                if (dOC_AUTHOR != null) e.DocAuthor = dOC_AUTHOR;
-                if (oRG_ID != null) e.OrgId = oRG_ID;
-                if (dOC_STATUS_TYPE != null) e.DocStatusType = dOC_STATUS_TYPE;
-                if (sHARE_TYPE != null) e.ShareType = sHARE_TYPE;
+                if (dOC_CONTENT != null) e.DOC_CONTENT = dOC_CONTENT;
+                if (dOC_NAME != null) e.DOC_NAME = dOC_NAME;
+                if (dOC_TYPE != null) e.DOC_TYPE = dOC_TYPE;
+                if (dOC_FILE_TYPE != null) e.DOC_FILE_TYPE = dOC_FILE_TYPE;
+                if (dOC_SIZE != null) e.DOC_SIZE = dOC_SIZE;
+                if (dOC_COMMENT != null) e.DOC_COMMENT = dOC_COMMENT;
+                if (dOC_AUTHOR != null) e.DOC_AUTHOR = dOC_AUTHOR;
+                if (oRG_ID != null) e.ORG_ID = oRG_ID;
+                if (dOC_STATUS_TYPE != null) e.DOC_STATUS_TYPE = dOC_STATUS_TYPE;
+                if (sHARE_TYPE != null) e.SHARE_TYPE = sHARE_TYPE;
                 
                 if (insInd)
                     ctx.T_PRT_DOCUMENTS.Add(e);
 
                 ctx.SaveChanges();
-                return e.DocIdx;
+                return e.DOC_IDX;
             }
             catch (Exception ex)
             {
@@ -721,115 +916,39 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             }
 
         }
-        public List<T_OD_DUMP_ASSESSMENT_DOCS> GetT_OD_DUMP_ASSESSMENT_DOCS_ByDumpAssessmentsIDx(Guid dUMPASSESSMENTS_IDX)
-        {
-            try
-            {               
-                List<T_OD_DUMP_ASSESSMENT_DOCS> oDumpAssessmentDocsList = (from a in ctx.T_OD_DUMP_ASSESSMENT_DOCS
-                                                                           where a.DUMP_ASSESSMENTS_IDX == dUMPASSESSMENTS_IDX
-                                                                           select a).ToList();
-               
-                return oDumpAssessmentDocsList;
-            }
-            catch (Exception ex)
-            {
-                log.LogEFException(ex);
-                return null;
-            }
 
-        }
-        public List<T_PRT_DOCUMENTS> GetT_PRT_DOCUMENTS_ByDumpAssessmentsIDx(Guid dUMPASSESSMENTS_IDX)
-            {
-                try
-                {
-                    List<T_PRT_DOCUMENTS> oTPRTDOCUMENTSLIST = new List<T_PRT_DOCUMENTS>();
-                    List<T_OD_DUMP_ASSESSMENT_DOCS> oDumpAssessmentDocsList = (from a in ctx.T_OD_DUMP_ASSESSMENT_DOCS
-                                                                               where a.DUMP_ASSESSMENTS_IDX == dUMPASSESSMENTS_IDX
-                                                                               select a).ToList();
-                    foreach (T_OD_DUMP_ASSESSMENT_DOCS oOneNew in oDumpAssessmentDocsList)
-                    {
-                        T_PRT_DOCUMENTS oTPRTDOCUMENTS = (from a in ctx.T_PRT_DOCUMENTS
-                                                          where a.DocIdx == oOneNew.DOC_IDX && !(a.DocFileType.Contains("image"))
-                                                          select a).FirstOrDefault();
-                        if (oTPRTDOCUMENTS != null)
-                        {
-                            oTPRTDOCUMENTSLIST.Add(oTPRTDOCUMENTS);
-                        }
-                    }
-                    return oTPRTDOCUMENTSLIST;
-                }
-                catch (Exception ex)
-                {
-                    log.LogEFException(ex);
-                    return null;
-                }
-            
-            }
-        public List<T_PRT_DOCUMENTS> GetT_PRT_DOCUMENTS_Photos_ByDumpAssessmentsIDx(Guid dUMPASSESSMENTS_IDX)
-        {
-            try
-            {
-                List<T_PRT_DOCUMENTS> oTPRTDOCUMENTSLIST = new List<T_PRT_DOCUMENTS>();
-                List<T_OD_DUMP_ASSESSMENT_DOCS> oDumpAssessmentDocsList = (from a in ctx.T_OD_DUMP_ASSESSMENT_DOCS
-                                                                           where a.DUMP_ASSESSMENTS_IDX == dUMPASSESSMENTS_IDX
-                                                                           select a).ToList();
-                foreach (T_OD_DUMP_ASSESSMENT_DOCS oOneNew in oDumpAssessmentDocsList)
-                {
-                    T_PRT_DOCUMENTS oTPRTDOCUMENTS = (from a in ctx.T_PRT_DOCUMENTS
-                                                      where a.DocIdx == oOneNew.DOC_IDX && a.DocFileType.Contains("image")
-                                                      select a).FirstOrDefault();
-                    if (oTPRTDOCUMENTS != null)
-                    {
-                        oTPRTDOCUMENTSLIST.Add(oTPRTDOCUMENTS);
-                    }
-                }
-                return oTPRTDOCUMENTSLIST;
-            }
-            catch (Exception ex)
-            {
-                log.LogEFException(ex);
-                return null;
-            }
-
-        }
         public T_PRT_DOCUMENTS GetT_PRT_DOCUMENTS_ByID(Guid DocIDX)
-        {           
-                try
-                {
-                    return (from a in ctx.T_PRT_DOCUMENTS
-                            where a.DocIdx == DocIDX
-                            select a).FirstOrDefault();
-                }
-                catch (Exception ex)
-                {
-                    log.LogEFException(ex);
-                    return null;
-                }
-            
+        {
+            try
+            {
+                return (from a in ctx.T_PRT_DOCUMENTS
+                        where a.DOC_IDX == DocIDX
+                        select a).FirstOrDefault();
+            }
+            catch (Exception ex)
+            {
+                log.LogEFException(ex);
+                return null;
+            }
+
         }
+
         public int DeleteT_PRT_DOCUMENTS(Guid DocIDX)
         {
             try
             {
                 ctx.Database.ExecuteSqlCommand("DELETE FROM T_OD_DUMP_ASSESSMENT_DOCS where DOC_IDX = {0}", DocIDX);
                 ctx.Database.ExecuteSqlCommand("DELETE FROM T_PRT_DOCUMENTS where DOC_IDX = {0}", DocIDX);
-               
 
-                // ctx.Database.ExecuteSqlCommand("DELETE FROM T_PRT_DOCUMENTS where DocIdx = '" + DocIDX + "'");
-               // ctx.Database.ExecuteSqlCommand("DELETE FROM T_OD_DUMP_ASSESSMENT_DOCS where DOC_IDX = '" + DocIDX + "'");
-
-               // T_PRT_DOCUMENTS tpd = new T_PRT_DOCUMENTS { DocIdx = DocIDX };
+                // T_PRT_DOCUMENTS tpd = new T_PRT_DOCUMENTS { DocIdx = DocIDX };
                 //ctx.Entry(tpd).State = Microsoft.EntityFrameworkCore.EntityState.Deleted;
                 //ctx.SaveChanges();
-              
 
-                return 1;
                 //T_OD_DUMP_ASSESSMENT_DOCS todad = new T_OD_DUMP_ASSESSMENT_DOCS { DOC_IDX = DocIDX };
                 // ctx.Entry(todad).State = Microsoft.EntityFrameworkCore.EntityState.Deleted;
                 // ctx.SaveChanges();
 
-
-               // return 1;
+                return 1;
             }
             catch (Exception ex)
             {
@@ -838,7 +957,6 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             }
 
         }
-        //********************************************************************
 
     }
 }

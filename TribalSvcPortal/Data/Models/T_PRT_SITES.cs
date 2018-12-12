@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 
 namespace TribalSvcPortal.Data.Models
 {
@@ -11,20 +10,19 @@ namespace TribalSvcPortal.Data.Models
             T_PRT_SITE_INTERESTS = new HashSet<T_PRT_SITE_INTERESTS>();
         }
 
-        public Guid SiteIdx { get; set; }
-        public string OrgId { get; set; }
-        [Required(ErrorMessage = "please Enter SiteName")]
-        public string SiteName { get; set; }
-        public string EpaId { get; set; }
-        public decimal? Latitude { get; set; }
-        public decimal? Longitude { get; set; }
-        public string SiteAddress { get; set; }
-        public string CreateUserId { get; set; }
-        public DateTime? CreateDt { get; set; }
-        public string ModifyUserId { get; set; }
-        public DateTime? ModifyDt { get; set; }
+        public Guid SITE_IDX { get; set; }
+        public string ORG_ID { get; set; }
+        public string SITE_NAME { get; set; }
+        public string EPA_ID { get; set; }
+        public decimal? LATITUDE { get; set; }
+        public decimal? LONGITUDE { get; set; }
+        public string SITE_ADDRESS { get; set; }
+        public string CREATE_USER_ID { get; set; }
+        public DateTime? CREATE_DT { get; set; }
+        public string MODIFY_USER_ID { get; set; }
+        public DateTime? MODIFY_DT { get; set; }
 
-        public T_PRT_ORGANIZATIONS Org { get; set; }
+        public T_PRT_ORGANIZATIONS ORG_ { get; set; }
         public ICollection<T_PRT_SITE_INTERESTS> T_PRT_SITE_INTERESTS { get; set; }
     }
 }

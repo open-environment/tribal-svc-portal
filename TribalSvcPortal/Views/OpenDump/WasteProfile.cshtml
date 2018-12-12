@@ -1,0 +1,487 @@
+﻿@model TribalSvcPortal.ViewModels.OpenDumpViewModels.WasteProfileViewModel
+
+<div id="tabs" class="tabbable">
+    <ul id="myTab" class="nav nav-tabs tab-blue">
+        <li>
+            <a href="@Url.Action("PreField", "OpenDump", new { id = Model.Assessment.SITE_IDX })">
+                Pre-Field
+            </a>
+        </li>
+        <li>
+            <a href="@Url.Action("AssessmentDetails", "OpenDump", new { id = Model.Assessment.DUMP_ASSESSMENTS_IDX })">
+                Field Assessments
+            </a>
+        </li>
+        <li class="active">
+            <a href="#tab3" data-toggle="tab">
+                Waste Profile/Health Threat
+            </a>
+        </li>
+        <li class="">
+            <a href="@Url.Action("Cleanup", "OpenDump", new { id = Model.Assessment.DUMP_ASSESSMENTS_IDX })">
+                Site Cleanup
+            </a>
+        </li>
+    </ul>
+
+    <div class="tab-content">
+        <div class="tab-pane in active" id="tab3">
+            <!-- render the main content -->
+            <div class="row">
+                <div class="col-xs-6 col-sm-4 col-md-4">
+                    <h4>@Model.SiteName (@Model.Assessment.ASSESSMENT_DT.ToShortDateString())</h4>
+                </div>
+                <div class="col-xs-6 col-sm-4 col-md-4">
+                    <h4><span class="label"> Health Threat: <label class="healthThreatScoreText"></label></span></h4>
+                </div>
+                <div class="col-xs-12 col-md-4 col-sm-4 pull-right">
+                    <div class="btn-group pull-right">
+                        <a href="#" data-toggle="dropdown" class="btn btn-primary dropdown-toggle" aria-expanded="false">
+                            Change Assessment <span class="caret"></span>
+                        </a>
+                        <ul class="dropdown-menu" role="menu">
+                            @foreach (var item1 in Model.ddl_Assessments)
+                            {
+                                <li>
+                                    <a href="@Url.Action("WasteProfile", "OpenDump", new { id = item1.Value })">
+                                        @item1.Text
+                                    </a>
+                                </li>
+                            }
+                        </ul>
+                    </div>
+                    <a href="@Url.Action("Assessments", "OpenDump", new { id = Model.Assessment.SITE_IDX })" class="btn btn-primary pull-right tooltips" style="margin-left:10px; margin-right:10px"
+                       data-original-title="Return to list of assessments" data-placement="bottom">
+                        <i class="clip-list"></i>
+                    </a>
+                </div>
+            </div>
+
+
+            @if (Model != null)
+            {
+                @using (Html.BeginForm("WasteProfile", "OpenDump", FormMethod.Post, new { @id = "norepostform", enctype = "multipart/form-data" }))
+                {
+                    @Html.AntiForgeryToken()
+                    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                    @Html.HiddenFor(model => model.Assessment.DUMP_ASSESSMENTS_IDX)
+                    @Html.HiddenFor(model => model.Assessment.SITE_IDX)
+
+                    <section class="panel panel-default">
+                        <div class="panel-heading">
+                            Waste Profile
+                            <div class="panel-tools">
+                                <a class="btn btn-xs panel-collapse collapses" href="#">
+                                </a>
+                            </div>
+                        </div>
+                        <div class="panel-body">
+
+                            <table class="table table-hover table-bordered" data-ride="datatables">
+                                <thead>
+                                    <tr class="thead-inverse">
+                                        <th style="font-size:20px;" colspan="2">Size</th>
+                                        <th style="width:200px">
+                                            <div style="font-size:20px; float: left">Score</div>
+                                            @Html.TextBoxFor(model => model.SizeScore, new { @class = "form-control size-score", @placeholder = "", @disabled = "disabled", @style = "font-size:18px; float:right; width:70px; height:30px; text-align: center;" })
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td colspan="3">
+                                            <div class="form-horizontal">
+                                                <div class="form-group2">
+                                                    <label class="col-sm-2 control-label" style="min-width:100px;">Surface Area (acres)</label>
+                                                    <div class="col-sm-10">
+                                                        @Html.TextBoxFor(model => model.Assessment.AREA_ACRES, new { @id = "acres", @class = "form-control", @type = "number", @step = "0.01", @min = "0", @maxlength = "8", @style = "width:130px;" })
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="3">
+                                            <div class="form-horizontal">
+                                                <div class="form-group2">
+                                                    <label class="col-sm-2 control-label" style="min-width:100px;">Total Volume (cu yds)</label>
+                                                    <div class="col-sm-10">
+                                                        @Html.TextBoxFor(model => model.Assessment.VOLUME_CU_YD, new { @id = "volume", @class = "form-control", @type = "number", @step = "0.01", @min = "0", @maxlength = "10", @style = "width:130px;" })
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+
+                            <table class="table table-hover table-bordered" data-ride="datatables" style="margin-top:10px;">
+                                <thead>
+                                    <tr class="thead-inverse">
+                                        <th style="font-size:20px;" colspan="1">Contents</th>
+                                        <th style="font-size:20px;" colspan="1">Subscore</th>
+                                        <th style="width:200px">
+                                            <div style="font-size:20px; float: left">Score</div>
+                                            @Html.TextBoxFor(model => model.ContentScore, new { @id = "ContentScore", @class = "form-control content-score", @placeholder = "", @disabled = "disabled", @style = "font-size:18px; float:right; width:70px; height:30px; text-align: center;" })
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @for (int i = 0; i < Model.ContentCheckBoxList.Count(); i++)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <div class="checkbox" style="margin-left:60px;margin-bottom:0px; margin-top:0px;">
+                                                    @Html.HiddenFor(model => model.ContentCheckBoxList[i].T_OD_REF_WASTE_TYPE.REF_WASTE_TYPE_IDX)
+                                                    @Html.CheckBoxFor(model => model.ContentCheckBoxList[i].IsChecked, new { @id = @Model.ContentCheckBoxList[i].T_OD_REF_WASTE_TYPE.REF_WASTE_TYPE_IDX, @class = "cbk" })<label>@Model.ContentCheckBoxList[i].T_OD_REF_WASTE_TYPE.REF_WASTE_TYPE_NAME</label>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <label style="@(Model.ContentCheckBoxList[i].IsChecked ? "display:block;" : "display:none;")" id="label@(Model.ContentCheckBoxList[i].T_OD_REF_WASTE_TYPE.REF_WASTE_TYPE_IDX)">@Model.ContentCheckBoxList[i].T_OD_REF_WASTE_TYPE.REF_WASTE_HAZFACT_SUBSCORE</label>
+                                            </td>
+                                            <td colspan="1"></td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+
+                            <table class="table table-hover table-bordered" data-ride="datatables" style="margin-top:10px;">
+                                <thead>
+                                    <tr class="thead-inverse">
+                                        <th style="font-size:20px;" colspan="1">Hazard Factors</th>
+                                        <th style="font-size:20px;" colspan="1">Subscore</th>
+                                        <th style="width:200px">
+                                            <div style="font-size:20px; float: left">Score</div>
+                                            @Html.TextBoxFor(model => model.HazardFactorScore, new { @id = "HazardFactorScore", @class = "form-control hazard-score", @placeholder = "", @disabled = "disabled", @style = "font-size:18px; float:right; width:70px; height:30px; text-align: center;" })
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <div class="form-horizontal">
+                                                <div class="form-group2">
+                                                    <label class="col-sm-3 control-label" style="min-width:100px;">Average RainFall</label>
+                                                    <div class="col-sm-9">
+                                                        @Html.DropDownListFor(model => model.Assessment.HF_RAINFALL, Model.AverageRainfallList, null, new { @class = "form-control hazard-factor" })
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <label id="labelRainfall" class="labelclass">@Model.RainfallSubScore</label>
+                                        </td>
+                                        <td colspan="1"></td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="form-horizontal">
+                                                <div class="form-group2">
+                                                    <label class="col-sm-3 control-label" style="min-width:100px;">Site Drainage and Leachate Potential</label>
+                                                    <div class="col-sm-9">
+                                                        @Html.DropDownListFor(model => model.Assessment.HF_DRAINAGE, Model.DrainageList, null, new { @class = "form-control hazard-factor" })
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <label id="labelDrainage" class="labelclass">@Model.DrainageSubScore</label>
+                                        </td>
+                                        <td colspan="1"></td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="form-horizontal">
+                                                <div class="form-group2">
+                                                    <label class="col-sm-3 control-label" style="min-width:100px;">Flooding Potential</label>
+                                                    <div class="col-sm-9">
+                                                        @Html.DropDownListFor(model => model.Assessment.HF_FLOODING, Model.FloodingList, null, new { @class = "form-control hazard-factor" })
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <label id="labelFlooding" class="labelclass">@Model.FloodingSubScore</label>
+                                        </td>
+                                        <td colspan="1"></td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="form-horizontal">
+                                                <div class="form-group2">
+                                                    <label class="col-sm-3 control-label" style="min-width:100px;">Frequency of Burning</label>
+                                                    <div class="col-sm-9">
+                                                        @Html.DropDownListFor(model => model.Assessment.HF_BURNING, Model.BurningList, null, new { @class = "form-control hazard-factor" })
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <label id="labelBurning" class="labelclass">@Model.BurningSubScore</label>
+                                        </td>
+                                        <td colspan="1"></td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="form-horizontal">
+                                                <div class="form-group2">
+                                                    <label class="col-sm-3 control-label" style="min-width:100px;">Fenced Site</label>
+                                                    <div class="col-sm-9">
+                                                        @Html.DropDownListFor(model => model.Assessment.HF_FENCING, Model.FencedList, null, new { @class = "form-control hazard-factor" })
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <label id="labelFenced" class="labelclass">@Model.FencedSubScore</label>
+                                        </td>
+                                        <td colspan="1"></td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="form-horizontal">
+                                                <div class="form-group2">
+                                                    <label class="col-sm-3 control-label" style="min-width:100px;">Controlled Access</label>
+                                                    <div class="col-sm-9">
+                                                        @Html.DropDownListFor(model => model.Assessment.HF_ACCESS_CONTROL, Model.AccessList, null, new { @class = "form-control hazard-factor" })
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <label id="labelAccess" class="labelclass">@Model.AccessSubScore</label>
+                                        </td>
+                                        <td colspan="1"></td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="form-horizontal">
+                                                <div class="form-group2">
+                                                    <label class="col-sm-3 control-label" style="min-width:100px;">Public Concern</label>
+                                                    <div class="col-sm-9">
+                                                        @Html.DropDownListFor(model => model.Assessment.HF_PUBLIC_CONCERN, Model.ConcernList, null, new { @class = "form-control hazard-factor" })
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <label id="labelConcern" class="labelclass">@Model.ConcernSubScore</label>
+                                        </td>
+                                        <td colspan="1"></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label><b>Health Threat Score</b></label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12" style="text-align:center;">
+                                    <div class="form-group">
+                                        <label> [Size Score] x ([Content Score] + [Hazard Factor Score]) x [Proximity Factor Score] = Health Threat Score</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12" style="text-align:center;">
+                                    <div class="col-md-12">
+                                        <div>
+                                            <div class="col-md-1 no-padding">
+                                                @Html.TextBoxFor(model => model.SizeScore, new { @id= "SizeTotalScore", @class = "form-control size-score", @style = "width:26px;", disabled = "disabled", @readonly = "readonly" })
+                                            </div>
+                                            <div class="col-md-1 no-padding"> <label>X</label></div>
+                                            <div class="col-md-1 no-padding"><label>(</label></div>
+                                            <div class="col-md-1 no-padding">
+                                                @Html.TextBoxFor(model => model.ContentScore, new { @id = "ContentTotalScore", @class = "form-control content-score", @style = "width:26px;", disabled = "disabled", @readonly = "readonly" })
+                                            </div>
+                                            <div class="col-md-1 no-padding">
+                                                <label>+</label>
+                                            </div>
+                                            <div class="col-md-1 no-padding">
+
+                                                @Html.TextBoxFor(model => model.HazardFactorScore, new { @id = "HazardTotalScore", @class = "form-control hazard-score", @style = "width:26px;", disabled = "disabled", @readonly = "readonly" })
+                                            </div>
+                                            <div class="col-md-1 no-padding">
+                                                <label>)</label>
+                                            </div>
+                                            <div class="col-md-1 no-padding">
+                                                <label>X</label>
+                                            </div>
+                                            <div class="col-md-1 no-padding">
+                                                @Html.TextBoxFor(model => model.ProximityScore, new { @id = "ProximityTotalScore", @class = "form-control", @style = "width:26px;", disabled = "disabled", @readonly = "readonly" })
+                                            </div>
+                                            <div class="col-md-1 no-padding">
+                                                <label>=</label>
+                                            </div>
+                                            <div class="col-md-1 no-padding">
+                                                @Html.TextBoxFor(model => model.Assessment.HEALTH_THREAT_SCORE, new { @class = "form-control", @placeholder = "", @style = "width:55px;" })
+                                            </div>
+                                            <div class="col-md-1 no-padding">
+                                                <label class="healthThreatScoreText"></label>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12" style="text-align: center;">
+                                    <button type="submit" name="submitButton" value="Save" class="btn btn-primary">Save</button>
+                                </div>
+                            </div>
+
+                        </div>
+                    </section>
+                }
+            }
+
+
+        </div>
+    </div>
+</div>
+
+
+@section scripts {
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        CalcSizeSubScore();
+        CalcContentSubScore();
+        CalcHazardSubScore();
+        CalcTotalScore();
+    });
+
+    $("#acres").change(function () {
+        CalcSizeSubScore();
+        CalcTotalScore();
+    });
+
+    $("#volume").change(function (e) {
+        $(this).val(parseFloat($(this).val()).toFixed(2));
+    });
+
+    $(".cbk").change(function () {
+        if ($(this).is(":checked")) {
+            $("#label" + $(this)["0"].id).css("display", "block");
+        }
+        else
+            $("#label" + $(this)["0"].id).css("display", "none");
+
+        CalcContentSubScore();
+        CalcTotalScore();
+    });
+
+    $(".hazard-factor").change(function () {
+        var _val = $(this).val();
+        RetrieveHazFactorSubscore(_val, $(this));
+    });
+
+    function RetrieveHazFactorSubscore(valueIdx, modelNode) {
+        if (valueIdx.length == 36) {
+            $.post('@Url.Action("GetHealthThreatScore", "OpenDump")', AddAntiForgeryToken({ threatFactor: valueIdx }))
+                .done(function (response) {
+                    if (response.msg != "Error") {
+                        $(modelNode).closest("td").next("td").find("label").text(response.msg);
+                    }
+                    else {
+                        $(modelNode).closest("td").next("td").find("label").text("0");
+                    }
+                }).fail(function () {
+                    $(modelNode).closest("td").next("td").find("label").text("0");
+                });
+        }
+        else {
+            $(modelNode).closest("td").next("td").find("label").text("0");
+        }
+
+        //then add all subscores
+        CalcHazardSubScore();
+        CalcTotalScore();
+    }
+
+
+    function CalcContentSubScore() {
+        var total = 0;
+
+        $("input[type = 'checkbox']").each(function () {
+            if ($(this)["0"].className == "cbk") {
+                if ($(this).is(":checked")) {
+                    var id = $(this)["0"].id;
+                    $("#label" + id).css("display", "block");
+                    total = total + parseInt($("#label" + id)["0"].textContent);
+                }
+            }
+        });
+
+        if (total >= 25) {
+            $('.content-score').val(8);
+        }
+        else if (total > 10 && total < 25) {
+            $('.content-score').val(4);
+        }
+        else if (total > 0 && total <= 10) {
+            $('.content-score').val(1);
+        }
+        else
+            $('.content-score').val(0);
+    }
+
+    function CalcSizeSubScore() {
+        var num = parseFloat($("#acres").val());
+        if (num > 5) {
+            $('.size-score').val(3);
+        }
+        else if (num >= 0.5 && num <= 5) {
+            $('.size-score').val(2);
+        }
+        else if (num < 0.5) {
+            $('.size-score').val(1);
+        }
+        $(this).val(num.toFixed(2));
+    }
+
+    function CalcHazardSubScore() {
+        var Total = 0;
+        $(".labelclass").each(function () {
+            if ($(this)["0"].textContent != "") {
+                Total = Total + parseInt($(this)["0"].textContent);
+            }
+        });
+        $(".hazard-score").val(Total);
+    }
+
+    function CalcTotalScore() {
+        if ($('#SizeTotalScore').val() != '' && $('#ContentTotalScore').val() != '' && $('#HazardTotalScore').val() != '' && $('#ProximityTotalScore').val() != '') {
+
+            var totalvalue = parseInt($('#SizeTotalScore').val()) * (parseInt($('#ContentTotalScore').val()) + parseInt($('#HazardTotalScore').val())) * parseInt($('#ProximityTotalScore').val());
+            $('#Assessment_HEALTH_THREAT_SCORE').val(totalvalue);
+
+            $('.healthThreatScoreText').parent().removeClass();
+            if (totalvalue >= 0 && totalvalue <= 250) {
+                $('.healthThreatScoreText').text("Low");
+                $('.healthThreatScoreText').parent().addClass("label label-success")
+            }
+            else if (totalvalue >= 251 && totalvalue <= 400) {
+                $('.healthThreatScoreText').text("Moderate");
+                $('.healthThreatScoreText').parent().addClass("label label-warning")
+            }
+            else if (totalvalue >= 401) {
+                $('.healthThreatScoreText').text("High");
+                $('.healthThreatScoreText').parent().addClass("label label-danger")
+            }
+        }
+    }
+
+
+    AddAntiForgeryToken = function (data) {
+        data.__RequestVerificationToken = $('input[name=__RequestVerificationToken]').val();
+        return data;
+    };
+</script>
+}

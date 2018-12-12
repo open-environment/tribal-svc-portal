@@ -1,14 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using TribalSvcPortal.Data.Models;
-using TribalSvcPortal.AppLogic.DataAccessLayer;
-using System.IO;
-using System.Threading.Tasks;
-using TribalSvcPortal.Services;
+﻿using HtmlAgilityPack;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
-using HtmlAgilityPack;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.IO;
+using System.Linq;
+using TribalSvcPortal.AppLogic.DataAccessLayer;
+using TribalSvcPortal.Data.Models;
 
 namespace TribalSvcPortal.AppLogic.BusinessLogicLayer
 {
@@ -30,24 +28,23 @@ namespace TribalSvcPortal.AppLogic.BusinessLogicLayer
 
             return str.Substring(index, length);
         }
+
         public static bool SendEmail(string from, string to, List<string> cc, List<string> bcc, string subj, string body, byte[] attach, string attachFileName, string bodyHTML = null)
         {
+            IDbPortal _DbPortal = new DbPortal(_context);
+
             try
             {
-
-                // IDbPortal _DbPortal = new DbPortal(_context);
-                IDbPortal _DbPortal = new DbPortal();
                 //************* GET SMTP SERVER SETTINGS ****************************
                 string mailServer = _DbPortal.GetT_PRT_APP_SETTING("EMAIL_SERVER");
                 string Port = _DbPortal.GetT_PRT_APP_SETTING("EMAIL_PORT");
                 string smtpUser = _DbPortal.GetT_PRT_APP_SETTING("EMAIL_SECURE_USER");
                 string smtpUserPwd = _DbPortal.GetT_PRT_APP_SETTING("EMAIL_SECURE_PWD");
               
+
                 //*************SET MESSAGE SENDER *********************                   
                 if (from == null)
-                {
                     from = _DbPortal.GetT_PRT_APP_SETTING("EMAIL_FROM");
-                }
 
                 //************** REROUTE TO SENDGRID HELPER IF SENDGRID ENABLED ******
                 if (mailServer == "smtp.sendgrid.net")
@@ -55,65 +52,118 @@ namespace TribalSvcPortal.AppLogic.BusinessLogicLayer
                     bool SendStatus = SendGridHelper.SendGridEmail(from, to, cc, bcc, subj, body, smtpUserPwd, bodyHTML).GetAwaiter().GetResult();
                     return SendStatus;
                 }
+
+
+                System.Net.Mail.MailMessage message = new System.Net.Mail.MailMessage();
+                message.From = new System.Net.Mail.MailAddress(from);
+                message.To.Add(to);
+                if (cc != null)
+                {
+                    foreach (string cc1 in cc)
+                        message.CC.Add(cc1);
+                }
+                if (bcc != null)
+                {
+                    foreach (string bcc1 in bcc)
+                        message.Bcc.Add(bcc1);
+                }
+
+                message.Subject = subj;
+                message.Body = body;
+                //*************ATTACHMENT START**************************
+                if (attach != null)
+                {
+                    System.Net.Mail.Attachment att = new System.Net.Mail.Attachment(new MemoryStream(attach), attachFileName);
+                    message.Attachments.Add(att);
+                }
+                //*************ATTACHMENT END****************************
+
+
+                //***************SET SMTP SERVER *************************
+                if (smtpUser.Length > 0)  //smtp server requires authentication
+                {
+                    var smtp = new System.Net.Mail.SmtpClient(mailServer, Convert.ToInt32(Port))
+                    {
+                        Credentials = new System.Net.NetworkCredential(smtpUser, smtpUserPwd),
+                        EnableSsl = true
+                    };
+                    smtp.Send(message);
+
+                }
                 else
                 {
-
-                    System.Net.Mail.MailMessage message = new System.Net.Mail.MailMessage();
-                    message.From = new System.Net.Mail.MailAddress(from);
-                    message.To.Add(to);
-                    if (cc != null)
-                    {
-                        foreach (string cc1 in cc)
-                        {
-                            message.CC.Add(cc1);
-                        }
-                    }
-                    if (bcc != null)
-                    {
-                        foreach (string bcc1 in bcc)
-                        {
-                            message.Bcc.Add(bcc1);
-                        }
-                    }
-
-                    message.Subject = subj;
-                    message.Body = body;
-                    //*************ATTACHMENT START**************************
-                    if (attach != null)
-                    {
-                        System.Net.Mail.Attachment att = new System.Net.Mail.Attachment(new MemoryStream(attach), attachFileName);
-                        message.Attachments.Add(att);
-                    }
-                    //*************ATTACHMENT END****************************
-
-
-                    //***************SET SMTP SERVER *************************
-                    if (smtpUser.Length > 0)  //smtp server requires authentication
-                    {
-                        var smtp = new System.Net.Mail.SmtpClient(mailServer, Convert.ToInt32(Port))
-                        {
-                            Credentials = new System.Net.NetworkCredential(smtpUser, smtpUserPwd),
-                            EnableSsl = true
-                        };
-                        smtp.Send(message);
-
-                    }
-                    else
-                    {
-                        System.Net.Mail.SmtpClient smtp = new System.Net.Mail.SmtpClient(mailServer);
-                        smtp.Send(message);
-                    }
-                    
+                    System.Net.Mail.SmtpClient smtp = new System.Net.Mail.SmtpClient(mailServer);
+                    smtp.Send(message);
                 }
+                    
+
                 return true;
             }
             catch (Exception ex)
             {
-                if (ex.InnerException != null)               
+                //if (ex.InnerException != null)
+                //    log.LogEFException(ex);
+                //    _DbPortal.InsertT_OE_SYS_LOG("EMAIL ERR", ex.InnerException.ToString());
+                //else if (ex.Message != null)
+                //    db_Ref.InsertT_OE_SYS_LOG("EMAIL ERR", ex.Message.ToString());
+                //else
+                //    db_Ref.InsertT_OE_SYS_LOG("EMAIL ERR", "Unknown error");
 
                 return false;
             }
+
+        }
+
+        /// <summary>
+        ///  Generic data type converter 
+        /// </summary>
+        public static bool TryConvert<T>(object value, out T result)
+        {
+            result = default(T);
+            if (value == null || value == DBNull.Value) return false;
+
+            if (typeof(T) == value.GetType())
+            {
+                result = (T)value;
+                return true;
+            }
+
+            string typeName = typeof(T).Name;
+
+            try
+            {
+                if (typeName.IndexOf(typeof(System.Nullable).Name, StringComparison.Ordinal) > -1 ||
+                    typeof(T).BaseType.Name.IndexOf(typeof(System.Enum).Name, StringComparison.Ordinal) > -1)
+                {
+                    TypeConverter tc = TypeDescriptor.GetConverter(typeof(T));
+                    result = (T)tc.ConvertFrom(value);
+                }
+                else
+                    result = (T)Convert.ChangeType(value, typeof(T));
+            }
+            catch
+            {
+                return false;
+            }
+
             return true;
+        }
+
+        /// <summary>
+        ///  Converts to another datatype or returns default value
+        /// </summary>
+        public static T ConvertOrDefault<T>(this object value)
+        {
+            T result = default(T);
+            TryConvert<T>(value, out result);
+            return result;
+        }
+
+
+        public static TResult GetPropertyValue<TResult>(this object t, string propertyName)
+        {
+            object val = t.GetType().GetProperties().Single(pi => pi.Name == propertyName).GetValue(t, null);
+            return (TResult)val;
         }
 
         public static string GetSafeHtml(string html, bool useXssSantiser = false)
@@ -275,6 +325,7 @@ namespace TribalSvcPortal.AppLogic.BusinessLogicLayer
 
             return RemoveUnwantedTags(html, unwantedTagNames);
         }
+
         public static string RemoveUnwantedTags(string html, List<string> unwantedTagNames)
         {
             if (string.IsNullOrEmpty(html))

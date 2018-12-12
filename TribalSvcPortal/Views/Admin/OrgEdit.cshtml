@@ -13,33 +13,126 @@
             @Html.AntiForgeryToken()
             @Html.ValidationSummary(true)
 
-            @Html.HiddenFor(model => model.Organization.OrgId)
-
             if (Model != null)
             {
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
                             <label>Organization ID</label>
-                            @Html.TextBoxFor(model => model.Organization.OrgId, new { @class = "form-control", @placeholder = "Org ID" })
-                            @Html.ValidationMessageFor(model => model.Organization.OrgId)
+                            @Html.TextBoxFor(model => model.Organization.ORG_ID, new { @class = "form-control" })
+                            @Html.ValidationMessageFor(model => model.Organization.ORG_ID)
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
                             <label>Organization Name</label>
-                            @Html.TextBoxFor(model => model.Organization.OrgName, new { @readonly = "readonly", @class = "form-control" })
-                            @Html.ValidationMessageFor(model => model.Organization.OrgName)
+                            @Html.TextBoxFor(model => model.Organization.ORG_NAME, new { @class = "form-control" })
+                            @Html.ValidationMessageFor(model => model.Organization.ORG_NAME)
                         </div>
                     </div>
                 </div>
             }
             <p>
-                <button type="submit" class="btn btn-sm btn-primary">Save</button>
-                <a class=" btn btn-sm btn-warning" href="@Url.Action("OrgList" )">Back to List</a>
+                <button type="submit" class="btn btn-primary">Save</button>
+                <a class="btn btn-warning" href="@Url.Action("OrgList" )">Back to List</a>
             </p>
 
         }
 
     </div>
 </section>
+
+
+<!-- start: AGENCY EMAIL RULES -->
+<div class="row">
+    <div class="col-sm-6">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                Email Rules
+                <div class="panel-tools">
+                    <a class="btn btn-xs panel-collapse collapses" href="#">
+                    </a>
+                </div>
+            </div>
+            <div class="panel-body">
+                @if (Model.OrgEmails != null && Model.OrgEmails.Count > 0)
+                {
+                    <div class="table-responsive">
+                        <table class="table table-striped m-b-none" data-ride="datatables">
+                            <thead>
+                                <tr>
+                                    <th></th>
+                                    <th>Email Rule</th>
+                                </tr>
+                            </thead>
+                            @foreach (var item in Model.OrgEmails)
+                            {
+                                <tr>
+                                    <td>
+                                        <div class="delete-section" style="display:inline">
+                                            <a class=" btn btn-rounded btn-xs btn-danger delete-link"><i class="glyphicon glyphicon-remove"></i></a>
+                                            <div class="btn btn-rounded btn-xs btn-warning delete-confirm" style="display:none" data-delete-id="@item.ORG_ID" data-delete-id2="@item.EMAIL_STRING" data-delete-p="/Admin/RefAgencyEditEmailDelete"><b>Confirm Delete</b></div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.EMAIL_STRING)
+                                    </td>
+                                </tr>
+                            }
+                        </table>
+                    </div>
+                }
+                <p>
+                    <a id="add-it" href="#modal-form" data-toggle="modal" class="add-it btn btn-rounded  btn-rounded btn-success"><i class="glyphicon glyphicon-plus"></i> Add Email Rule</a>
+                </p>
+
+            </div>
+        </div>
+    </div>
+</div>
+<!-- end: AGENCY EMAIL RULES -->
+<!-- START EMAIL RULE MODAL FORM  -->
+<div class="modal fade" id="modal-form" style="display: none;" aria-hidden="true">
+    <div class="modal-dialog">
+        @using (Html.BeginForm("OrgEditEmail", "Admin", FormMethod.Post, new { @class = "" }))
+        {
+            @Html.AntiForgeryToken()
+            @Html.HiddenFor(model => model.Organization.ORG_ID)
+
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+                    <h3 class="modal-tital">Add Email Rule</h3>
+                    (For example if email is JohnDoe@abc.com, email rule will be abc.com)
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-sm-12 ">
+                            <div class="panel-body">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <label>Email Rule</label>
+                                            @Html.TextBoxFor(model => model.new_email, new { @class = "form-control", @maxlength = "100" })
+                                            @Html.ValidationMessageFor(model => model.new_email)
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="picLoc" type="submit" class="btn btn-sm btn-primary">Save</button>
+                    <button type="submit" class="btn btn-sm btn-default" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+<!-- END MODAL FORM -->
+
+
+@section scripts {
+    <script src="~/js/confirm_delete.js"></script>
+}

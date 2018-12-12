@@ -1,8 +1,6 @@
 ﻿@using TribalSvcPortal.HtmlHelpers
 @model IEnumerable<T_PRT_CLIENTS>
 
-@*@using EECIP.App_Logic.DataAccessLayer*@
-
 <div class="main-navigation navbar-collapse collapse navbar-collapse-left">
     <!-- start: MAIN MENU TOGGLER BUTTON -->
     <div class="navigation-toggler">
@@ -12,42 +10,55 @@
     <!-- end: MAIN MENU TOGGLER BUTTON -->
     <!-- start: MAIN NAVIGATION MENU -->
     <ul class="main-navigation-menu">
-
-        <li class="lvl1 @Html.ActivePage("Dashboard", "Index")">
-            <a href="@Url.Action("Index","Dashboard")">
+        <li class="lvl1 @Html.ActivePage("Home", "Index")">
+            <a href="@Url.Action("Index","Home")">
                 <i class="clip-home"></i>
-                <span class="title">Home</span><span class="selected"></span>
+                <span class="title">Portal</span>
+                <i class="icon-arrow"></i>
+                <span class="selected"></span>
             </a>
+            <ul class="sub-menu" style="display:block;">
+                <li class="@Html.ActivePage("Home", "Services")">
+                    <a href="@Url.Action("Services", "Home")">
+                        <span class="title">Services </span>
+                    </a>
+                </li>
+                <li class="@Html.ActivePage("Home", "Events")">
+                    <a href="@Url.Action("Events", "Home")">
+                        <span class="title">Events </span>
+                    </a>
+                </li>
+                <li class="@Html.ActivePage("Home", "Maps")">
+                    <a href="@Url.Action("Maps", "Home")">
+                        <span class="title">Maps </span>
+                    </a>
+                </li>
+                <li class="@Html.ActivePage("Home", "api")">
+                    <a href="@Url.Action("api", "Home")">
+                        <span class="title">Data APIs </span>
+                    </a>
+                </li>
+            </ul>
         </li>
         @if (Model != null)
         {
             @foreach (var MenuItem in Model)
             {
-                @if (@MenuItem.ClientLocalInd == false)
+                @if (@MenuItem.CLIENT_LOCAL_IND == false)
                 {
-                    <li class="lvl1 @Html.ActivePage("Dashboard", "Index2")">
-                        @*<a href="@Url.Action("Index2", "Dashboard")">*@
-                        <a href="@MenuItem.ClientUrl">
-                            <i class="@MenuItem.ClientImage"></i>
-                            <span class="title">@MenuItem.ClientName<i class="clip-new-tab"></i></span>
+                    <li class="lvl1">
+                        <a href="@MenuItem.CLIENT_URL">
+                            <i class="clip-new-tab"></i>
+                            <span class="title">@MenuItem.CLIENT_NAME</span>
                         </a>
                     </li>
                 }
-                @*@if (@MenuItem.ClientId == "emergency_hound")
-                {
-                    <li class="lvl1 @Html.ActivePage("Dashboard", "Index3")">                       
-                        <a href="@MenuItem.ClientUrl">
-                            <i class="glyphicon glyphicon-plus "></i>
-                            <span class="title">Emergency Hound <i class="clip-new-tab"></i></span>
-                        </a>
-                    </li>
-                }*@
-                @if (@MenuItem.ClientLocalInd == true)
+                else if (MenuItem.CLIENT_NAME == "Open Dump" )
                 {
                     <li class="open">
                         <a href="javascript:void(0)">
                             <i class="clip-leaf"></i>
-                            <span class="title">@MenuItem.ClientName</span>
+                            <span class="title">Open Dump</span>
                             <i class="icon-arrow"></i>
                         </a>
                         <ul class="sub-menu" style="display:block;">
@@ -65,7 +76,10 @@
                     </li>
                 }
             }
+
+
         }
+
         @if (User.IsInRole("PortalAdmin"))
         {
             <li class="open">
@@ -73,7 +87,6 @@
                     <i class="clip-cog-2"></i>
                     <span class="title">Administration</span>
                     <i class="icon-arrow"></i>
-                    <span class="selected"></span>
                 </a>
                 <ul class="sub-menu" style="display:block;">
                     <li class="@Html.ActivePage("Admin", "Settings")">
@@ -87,7 +100,7 @@
                             <i class="icon-arrow"></i>
                         </a>
                         <ul class="sub-menu">
-                            <li class="lvl3 @Html.ActivePage("Admin", "UserList")">
+                            <li class="lvl3 @Html.ActivePage("Admin", "UserList,UserEdit,OrgUserClients")">
                                 <a href="@Url.Action("UserList","Admin")">
                                     <span class="title">Users </span>
                                 </a>
@@ -97,12 +110,12 @@
                                     <span class="title">Roles </span>
                                 </a>
                             </li>
-                            <li class="lvl3 @Html.ActivePage("Admin", "ClientList")">
+                            <li class="lvl3 @Html.ActivePage("Admin", "ClientList,ClientEdit")">
                                 <a href="@Url.Action("ClientList","Admin")">
                                     <span class="title">Clients </span>
                                 </a>
                             </li>
-                            <li class="lvl3 @Html.ActivePage("Admin", "OrgList")">
+                            <li class="lvl3 @Html.ActivePage("Admin", "OrgList,OrgEdit")">
                                 <a href="@Url.Action("OrgList","Admin")">
                                     <span class="title">Organizations </span>
                                 </a>
@@ -114,7 +127,7 @@
                             <span class="title">Email Config </span>
                         </a>
                     </li>
-                    <li class="@Html.ActivePage("Admin", "Ref")">
+                    @*<li class="@Html.ActivePage("Admin", "Ref")">
                         <a href="javascript:;">
                             <span class="title">Reference Data</span>
                             <i class="icon-arrow"></i>
@@ -126,7 +139,7 @@
                                 </a>
                             </li>
                         </ul>
-                    </li>
+                    </li>*@
                     <li class="@Html.ActivePage("Admin", "Ref")">
                         <a href="javascript:;">
                             <span class="title">Logging</span>

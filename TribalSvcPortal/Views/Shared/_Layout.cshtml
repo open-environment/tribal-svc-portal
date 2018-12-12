@@ -5,7 +5,7 @@
     <meta name="description" content="The Tribal Services Portal allows people to discover and use tribal services." />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="content-security-policy" content="upgrade-insecure-requests" />
-    <title>@ViewData["Title"] - Tribal Services Portal</title>
+    <title>@ViewData["Title"] @(ViewData["Title"]!=null ? " - " : "") Tribal Services Portal</title>
     <link rel="shortcut icon" href="@Url.Content("~/favicon.ico")">
     <environment include="Development">
         <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
@@ -16,7 +16,7 @@
         <link rel="stylesheet" href="~/css/theme_dark.css" />
         <link rel="stylesheet" href="~/css/toastr.css" />
         <link rel="stylesheet" href="~/css/site.css" />
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.6.4/css/bootstrap-datepicker.css"/>       
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/css/bootstrap-datepicker.css"/>       
     </environment>
     <environment exclude="Development">
         <link rel="stylesheet" href="https://ajax.aspnetcdn.com/ajax/bootstrap/3.3.7/css/bootstrap.min.css"
@@ -25,11 +25,11 @@
         <link rel="stylesheet" href="~/css/site.min.css" asp-append-version="true" />
     </environment>
     @RenderSection("customstyles", required: false)
-    @RenderSection("HeaderJS", required: false);
+    @RenderSection("HeaderJS", required: false)
 </head>
 <body>
     <!-- start: HEADER -->
-    <nav class="navbar navbar-inverse navbar-fixed-top">
+    <div class="navbar navbar-inverse navbar-fixed-top">
         <!-- start: TOP NAVIGATION CONTAINER -->
         <div class="container">
             <div class="navbar-header pull-left">
@@ -37,12 +37,15 @@
                     <span class="sr-only">Toggle navigation</span>
                     <span class="clip-user-3"></span>
                 </button>
-                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse-left">
-                    <span class="sr-only">Toggle navigation</span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                </button>
+                @if (User.Identity.IsAuthenticated)
+                {
+                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse-left">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                }
                 <a asp-area="" asp-controller="Home" asp-action="Index" class="navbar-brand">Tribal Services Portal</a>
             </div>
             <div class="navbar-collapse collapse">
@@ -50,29 +53,24 @@
                 @await Html.PartialAsync("_LoginPartial")
             </div>
         </div>
-    </nav>
+    </div>
     <!-- end: HEADER -->
     <!-- start: MAIN CONTAINER -->
     <div class="main-container">
         @if (User.Identity.IsAuthenticated)
         {
-        <div class="navbar-content">
-            <!-- start: LEFT MENU -->
-            @await Component.InvokeAsync("MenuItems")
-            <!-- end: LEFT MENU -->
-        </div>
+            <div class="navbar-content">
+                <!-- start: LEFT MENU -->
+                @await Component.InvokeAsync("MenuItems")
+                <!-- end: LEFT MENU -->
+            </div>
         }
         else
         {
             <style>
-                .page-header {
-                    display: none;
-                }
-
                 .main-content {
                     margin-left: 0px;
                 }
-
                     .main-content .container {
                         padding: 0 !important;
                     }
@@ -130,15 +128,10 @@
     <!-- end: FOOTER -->
 
     <environment include="Development">
-
         <script src="~/lib/jquery/dist/jquery.js"></script>
         <script src="~/lib/bootstrap/dist/js/bootstrap.js"></script>
         <script src="~/js/toastr.js" asp-append-version="true"></script>
-        <script src="~/js/site.js" asp-append-version="true"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.6.4/js/bootstrap-datepicker.js"></script>
-      
-       
-
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/js/bootstrap-datepicker.js"></script>
     </environment>
     <environment exclude="Development">
         <script src="https://ajax.aspnetcdn.com/ajax/jquery/jquery-2.2.0.min.js"
@@ -153,9 +146,11 @@
                 crossorigin="anonymous"
                 integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa">
         </script>
-        <script src="~/js/site.min.js" asp-append-version="true"></script>       
-
+        <script src="~/js/toastr.min.js" asp-append-version="true"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/js/bootstrap-datepicker.min.js"></script>
     </environment>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
     <script>
         jQuery(document).ready(function () {
             Main.init();

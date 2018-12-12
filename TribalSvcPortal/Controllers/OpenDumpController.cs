@@ -1,156 +1,54 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Identity;
+using System;
+using System.IO;
+using System.Linq;
+using TribalSvcPortal.AppLogic.BusinessLogicLayer;
+using TribalSvcPortal.AppLogic.DataAccessLayer;
 using TribalSvcPortal.Data.Models;
 using TribalSvcPortal.ViewModels.OpenDumpViewModels;
-using TribalSvcPortal.AppLogic.DataAccessLayer;
-using TribalSvcPortal.AppLogic.BusinessLogicLayer;
-using Microsoft.Extensions.Caching.Memory;
-using System.IO;
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Identity;
 
 namespace TribalSvcPortal.Controllers
 {
+    [Authorize]
     public class OpenDumpController : Controller
     {
-
+        private readonly UserManager<ApplicationUser> _userManager;
         private readonly IDbPortal _DbPortal;
         private readonly IDbOpenDump _DbOpenDump;
-        private readonly IMemoryCache _memoryCache;
+        private readonly IHostingEnvironment _hostingEnvironment;
 
         public OpenDumpController(
-            IMemoryCache memoryCache,
+            UserManager<ApplicationUser> userManager,
             IDbPortal DbPortal,
-            IDbOpenDump DbOpenDump)
+            IDbOpenDump DbOpenDump,
+            IHostingEnvironment hostingEnvironment)
         {
+            _userManager = userManager;
             _DbPortal = DbPortal;
             _DbOpenDump = DbOpenDump;
-            _memoryCache = memoryCache;
-        }
-
-        public IActionResult Index()
-        {
-            return View();
+            _hostingEnvironment = hostingEnvironment;
         }
 
 
+        #region SEARCH PAGE CONTROLLERS **********************************************************************
         public ActionResult Search(string selStr, string selOrg)
         {
-            string _UserIDX;
-            bool isUserExist = _memoryCache.TryGetValue("UserID", out _UserIDX);
+            string _UserIDX = _userManager.GetUserId(User);
 
-            if (selStr == null && selOrg == null)
-            {
-                SearchViewModel model = new SearchViewModel();
-                model.ddl_Org = _DbOpenDump.get_ddl_od_organizations(_UserIDX);
-                model.searchResults = _DbOpenDump.get_AllOpenDump_Sites(_UserIDX);
+            SearchViewModel model = new SearchViewModel {
+                ddl_Org = _DbPortal.get_ddl_T_PRT_ORG_USERS_CLIENT_ByUserIDandClient(_UserIDX, "open_dump"),
+                searchResults = _DbOpenDump.getT_OD_SITES_ListBySearch(_UserIDX, selStr, selOrg)
+            };
 
-                if (model.ddl_Org.Count() == 1)
-                {
-                    foreach (var orgid in model.ddl_Org)
-                    {
-                        model.selOrg = orgid.Value;
-                    }
-                }
-                return View(model);
-            }
-            else
-            {
-                var model = new SearchViewModel
-                {
-                    ddl_Org = _DbOpenDump.get_ddl_od_organizations(_UserIDX),
-                    searchResults = _DbOpenDump.get_OpenDump_Sites_By_Organization_SiteName(selStr, selOrg)
-                };
-                if (model.ddl_Org.Count() == 1)
-                {
-                    foreach (var orgid in model.ddl_Org)
-                    {
-                        model.selOrg = orgid.Value;
-                    }
-                }
-                return View(model);
-            }
-
+            model.selOrg = selOrg ?? (model.ddl_Org.Count() == 1 ? model.ddl_Org.ToList()[0].Value : null);
+            return View(model);
         }
 
-
-        // GET: /OpenDump/PreField
-        public ActionResult PreField(Guid? SiteIdx, string returnURL, Guid? AssessmentIdx, bool CreateAssessment, OpenDumpTab activeTab = OpenDumpTab.Prefield)
-        {
-            string _UserIDX;
-            bool isUserExist = _memoryCache.TryGetValue("UserID", out _UserIDX);
-            OpenDumpViewModel openDumpViewModel = new OpenDumpViewModel();
-            var PreFieldmodel = new PreFieldViewModel();
-            var FieldAssessmentmodel = new FieldAssessmentViewModel();                 
-
-            string IDx = "98567684-a5d5-4742-ac6d-1dd5080f76a7";
-            FieldAssessmentmodel.selDumpAssessmentIdx = Guid.Parse(IDx);
-            if (SiteIdx != null)
-            {
-                PreFieldmodel.TPrtSites = _DbPortal.GetT_PRT_SITES_BySITEIDX((Guid)SiteIdx);
-                PreFieldmodel.TOdSites = _DbOpenDump.GetT_OD_SITES_BySITEIDX((Guid)SiteIdx);
-                FieldAssessmentmodel.TPrtSites = _DbPortal.GetT_PRT_SITES_BySITEIDX((Guid)SiteIdx);
-                FieldAssessmentmodel.AssessmentDropDownList = _DbOpenDump.get_ddl_od_dumpassessment_by_BySITEIDX((Guid)SiteIdx);              
-
-            }
-            else
-            {
-                FieldAssessmentmodel.AssessmentDropDownList = _DbOpenDump.get_ddl_od_dumpassessment_by_BySITEIDX(Guid.NewGuid());            
-
-                PreFieldmodel.TPrtSites = new T_PRT_SITES();              
-                PreFieldmodel.TPrtSites.SiteIdx = Guid.NewGuid();
-                FieldAssessmentmodel.TOdDumpAssessments = new T_OD_DUMP_ASSESSMENTS();
-                FieldAssessmentmodel.TOdDumpAssessments.DUMP_ASSESSMENTS_IDX = Guid.NewGuid();
-                //FieldAssessmentmodel.TOdDumpAssessments.ASSESSMENT_DT = DateTime.Now;
-            }
-
-
-            if ((AssessmentIdx != null || CreateAssessment) && AssessmentIdx != Guid.Parse(IDx))
-                FieldAssessmentmodel = this.GetFieldAssessment(AssessmentIdx, SiteIdx);
-            openDumpViewModel.oPreFieldViewModel = PreFieldmodel;
-            openDumpViewModel.oFieldAssessmentViewModel = FieldAssessmentmodel;
-            openDumpViewModel.ActiveTab = activeTab;
-            return View(openDumpViewModel);
-        }
-
-        [HttpPost, ValidateAntiForgeryToken]
-        public ActionResult OpenDumpEdit(OpenDumpViewModel model)
-        {     
-            string _UserIDX;
-            bool isUserExist = _memoryCache.TryGetValue("UserID", out _UserIDX);
-
-            Guid? newSiteID = _DbPortal.InsertUpdateT_PRT_SITES(model.oPreFieldViewModel.TPrtSites.SiteIdx, model.oPreFieldViewModel.TPrtSites.OrgId, model.oPreFieldViewModel.TPrtSites.SiteName ?? "",
-                    model.oPreFieldViewModel.TPrtSites.EpaId ?? "", model.oPreFieldViewModel.TPrtSites.Latitude, model.oPreFieldViewModel.TPrtSites.Longitude, model.oPreFieldViewModel.TPrtSites.SiteAddress ?? "", _UserIDX);
-
-            if (newSiteID != null)
-            {
-                if (model.oPreFieldViewModel.TOdSites.REPORTED_ON != null)
-                {
-                    string sDate = model.oPreFieldViewModel.TOdSites.REPORTED_ON.Value.Month + "-" + model.oPreFieldViewModel.TOdSites.REPORTED_ON.Value.Day + "-" + model.oPreFieldViewModel.TOdSites.REPORTED_ON.Value.Year;
-                    Guid? SiteID = _DbOpenDump.InsertUpdateT_OD_SITES((Guid)newSiteID, model.oPreFieldViewModel.TOdSites.REPORTED_BY, Convert.ToDateTime(sDate), model.oPreFieldViewModel.TOdSites.COMMUNITY_IDX,
-                                      model.oPreFieldViewModel.TOdSites.SITE_SETTING_IDX, model.oPreFieldViewModel.TOdSites.PF_AQUIFER_VERT_DIST, model.oPreFieldViewModel.TOdSites.PF_SURF_WATER_HORIZ_DIST, model.oPreFieldViewModel.TOdSites.PF_HOMES_DIST);
-
-                }
-                else
-                {
-                    Guid? SiteID = _DbOpenDump.InsertUpdateT_OD_SITES((Guid)newSiteID, model.oPreFieldViewModel.TOdSites.REPORTED_BY, model.oPreFieldViewModel.TOdSites.REPORTED_ON, model.oPreFieldViewModel.TOdSites.COMMUNITY_IDX,
-                  model.oPreFieldViewModel.TOdSites.SITE_SETTING_IDX, model.oPreFieldViewModel.TOdSites.PF_AQUIFER_VERT_DIST, model.oPreFieldViewModel.TOdSites.PF_SURF_WATER_HORIZ_DIST, model.oPreFieldViewModel.TOdSites.PF_HOMES_DIST);
-
-                }
-
-
-                TempData["Success"] = "Update successful.";
-                return RedirectToAction("PreField", "OpenDump", new { SiteIdx = newSiteID, returnURL = model.oPreFieldViewModel.returnURL });
-            }
-            else
-                TempData["Error"] = "Error updating data.";
-            return RedirectToAction(model.oPreFieldViewModel.returnURL ?? "Search", new { selStr = "", selOrg = "" });
-        }
         [HttpPost]
-        public JsonResult PreFieldDelete(Guid id)
+        public JsonResult SiteDelete(Guid id)
         {
             if (id != null)
             {
@@ -163,146 +61,466 @@ namespace TribalSvcPortal.Controllers
             return Json("Unable to delete");
         }
 
-        // GET: /OpenDump/FieldAssessment
-        [HttpGet]
-        public ActionResult FieldAssessments(Guid? Assessmentidx, Guid? Siteidx)
+        #endregion
+
+
+        #region PREFIELD TAB CONTROLLERS **********************************************************************
+        // GET: /OpenDump/PreField
+        public ActionResult PreField(Guid? id, string returnURL)
         {
-            return RedirectToAction(nameof(PreField), new { SiteIdx = Siteidx, returnURL = "Search", AssessmentIdx = Assessmentidx, CreateAssessment = Assessmentidx == null ? true : false, activeTab = OpenDumpTab.FieldAssessment });
-        }
-        [HttpGet]
-        public ActionResult HealthThreat(Guid? Assessmentidx, Guid? Siteidx)
-        {
-            return RedirectToAction(nameof(PreField), new { SiteIdx = Siteidx, returnURL = "Search", AssessmentIdx = Assessmentidx, CreateAssessment = Assessmentidx == null ? true : false, activeTab = OpenDumpTab.HealthThreat });
-        }
-        [HttpGet]
-        public ActionResult SiteCleanup(Guid? Assessmentidx, Guid? Siteidx)
-        {
-            return RedirectToAction(nameof(PreField), new { SiteIdx = Siteidx, returnURL = "Search", AssessmentIdx = Assessmentidx, CreateAssessment = Assessmentidx == null ? true : false, activeTab = OpenDumpTab.SiteCleanUp });
-        }
-        [HttpPost, ValidateAntiForgeryToken]
-        public ActionResult HealthThreatEdit(OpenDumpViewModel model)
-        {
-            if (model != null)
-            {
-                Guid? DUMP_ASSESSMENTS_IDX = _DbOpenDump.InsertUpdateT_OD_DumpAssessment(model.oFieldAssessmentViewModel.selDumpAssessmentIdx, model.oPreFieldViewModel.TPrtSites.SiteIdx, model.oFieldAssessmentViewModel.TOdDumpAssessments.ASSESSMENT_DT, null,
-                    null, false, null, null,model.oFieldAssessmentViewModel.TOdDumpAssessments.AREA_ACRES, model.oFieldAssessmentViewModel.TOdDumpAssessments.VOLUME_CU_YD, model.oFieldAssessmentViewModel.TOdDumpAssessments.HF_RAINFALL, model.oFieldAssessmentViewModel.TOdDumpAssessments.HF_DRAINAGE, model.oFieldAssessmentViewModel.TOdDumpAssessments.HF_FLOODING,
-                    model.oFieldAssessmentViewModel.TOdDumpAssessments.HF_BURNING, model.oFieldAssessmentViewModel.TOdDumpAssessments.HF_FENCING, model.oFieldAssessmentViewModel.TOdDumpAssessments.HF_ACCESS_CONTROL, model.oFieldAssessmentViewModel.TOdDumpAssessments.HF_PUBLIC_CONCERN, model.oFieldAssessmentViewModel.TOdDumpAssessments.HEALTH_THREAT_SCORE,"HealthThreat");
-                model.oFieldAssessmentViewModel.selDumpAssessmentIdx = (Guid)DUMP_ASSESSMENTS_IDX;
-                foreach (T_OD_REF_WASTE_TYPE oNew in model.oFieldAssessmentViewModel.ContentCheckBoxList)
+            string _UserIDX = _userManager.GetUserId(User);
+
+            //TODO add security
+
+            var model = new PreFieldViewModel {
+                SiteSettingsList = _DbOpenDump.get_ddl_T_OD_REF_DATA_by_category("Site Setting"),
+                CommunityList = _DbOpenDump.get_ddl_T_OD_REF_DATA_by_category("Community"),
+                AquiferList = _DbOpenDump.get_ddl_OD_REF_THREAT_FACTORS_by_type("Aquifer"),
+                SurfaceWaterList = _DbOpenDump.get_ddl_OD_REF_THREAT_FACTORS_by_type("Surface Water"),
+                HomesList = _DbOpenDump.get_ddl_OD_REF_THREAT_FACTORS_by_type("Homes"),
+                OrgList = _DbPortal.get_ddl_T_PRT_ORG_USERS_CLIENT_ByUserIDandClient(_UserIDX, "open_dump"),
+                returnURL = returnURL ?? "Search"
+            };
+
+            if (id != null) {
+                model.TPrtSite = _DbPortal.GetT_PRT_SITES_BySITEIDX((Guid)id);
+                model.TOdSite = _DbOpenDump.getT_OD_SITES_BySITEIDX((Guid)id);
+
+                //fail if site ID provided but not found
+                if (model.TOdSite == null)
                 {
-
-                    _DbOpenDump.InsertUpdateT_OD_DumpAssessment_Content(model.oFieldAssessmentViewModel.selDumpAssessmentIdx, oNew.REF_WASTE_TYPE_IDX, 0, null, null, null, oNew.IS_CHECKED);
-
+                    TempData["Error"] = "Site not found.";
+                    return RedirectToAction("Search", "OpenDump");
                 }
-                TempData["Success"] = "Update successful.";
-                // return RedirectToAction("PreField", "OpenDump", new { SiteIdx = model.oPreFieldViewModel.TPrtSites.SiteIdx, returnURL = "Search" });
-                return RedirectToAction(nameof(PreField), new { SiteIdx = model.oPreFieldViewModel.TPrtSites.SiteIdx, returnURL = "Search", AssessmentIdx = model.oFieldAssessmentViewModel.selDumpAssessmentIdx, CreateAssessment = model.oFieldAssessmentViewModel.selDumpAssessmentIdx == null ? true : false, activeTab = OpenDumpTab.HealthThreat });
             }
-            else
-                TempData["Error"] = "Error updating data.";
-            return RedirectToAction("Search", new { selStr = "", selOrg = "" });
-        }
-        [HttpPost, ValidateAntiForgeryToken]
-        public ActionResult FieldAssessmentEdit(OpenDumpViewModel model)
-        {
-            if (model != null)
+            else //insert case
             {
-                string _UserIDX;
-                bool isUserExist = _memoryCache.TryGetValue("UserID", out _UserIDX);
+                model.TPrtSite = new T_PRT_SITES();
+                model.TOdSite = new T_OD_SITES();
 
-                string sDate = model.oFieldAssessmentViewModel.TOdDumpAssessments.ASSESSMENT_DT.Month + "-" + model.oFieldAssessmentViewModel.TOdDumpAssessments.ASSESSMENT_DT.Day + "-" + model.oFieldAssessmentViewModel.TOdDumpAssessments.ASSESSMENT_DT.Year;
-                Guid? DUMP_ASSESSMENTS_IDX = _DbOpenDump.InsertUpdateT_OD_DumpAssessment(model.oFieldAssessmentViewModel.selDumpAssessmentIdx, model.oPreFieldViewModel.TPrtSites.SiteIdx, Convert.ToDateTime(sDate), model.oFieldAssessmentViewModel.TOdDumpAssessments.ASSESSED_BY,
-                    model.oFieldAssessmentViewModel.TOdDumpAssessments.ASSESSMENT_TYPE_IDX, model.oFieldAssessmentViewModel.TOdDumpAssessments.ACTIVE_SITE_IND, model.oFieldAssessmentViewModel.TOdDumpAssessments.SITE_DESCRIPTION, model.oFieldAssessmentViewModel.TOdDumpAssessments.ASSESSMENT_NOTES, 0,0,null,null,null,null,null,null,null,0, "FieldAssessment");
-                model.oFieldAssessmentViewModel.selDumpAssessmentIdx = (Guid) DUMP_ASSESSMENTS_IDX;
-                foreach (T_PRT_DOCUMENTS docs in model.oFieldAssessmentViewModel.filesPhoto_existing?? new List<T_PRT_DOCUMENTS>())
-                {
-                    _DbPortal.InsertUpdateT_PRT_DOCUMENTS(docs.DocIdx, docs.OrgId, null, null, "Assessment", null, null, docs.DocComment, null, null, null, _UserIDX);                    
-                }
-                foreach (T_PRT_DOCUMENTS docs in model.oFieldAssessmentViewModel.files_existing ?? new List<T_PRT_DOCUMENTS>())
-                {
-                    _DbPortal.InsertUpdateT_PRT_DOCUMENTS(docs.DocIdx, docs.OrgId, null, null, "Assessment", null, null, docs.DocComment, null, null, null, _UserIDX);
-                }
-                TempData["Success"] = "Update successful.";
-                // return RedirectToAction("PreField", "OpenDump", new { SiteIdx = model.oPreFieldViewModel.TPrtSites.SiteIdx, returnURL = "Search" });
-                return RedirectToAction(nameof(PreField), new { SiteIdx = model.oPreFieldViewModel.TPrtSites.SiteIdx, returnURL = "Search", AssessmentIdx = model.oFieldAssessmentViewModel.selDumpAssessmentIdx, CreateAssessment = model.oFieldAssessmentViewModel.selDumpAssessmentIdx == null ? true : false, activeTab = OpenDumpTab.FieldAssessment });
+                //if one org, then prepopulate it in the list
+                if (model.OrgList.Count() == 1)
+                    model.TPrtSite.ORG_ID = model.OrgList.First().Value;
             }
-            else
-                TempData["Error"] = "Error updating data.";
-            return RedirectToAction("Search", new { selStr = "", selOrg = "" });
+
+            return View(model);
         }
+
         [HttpPost, ValidateAntiForgeryToken]
-        public ActionResult SiteCleanupEdit(OpenDumpViewModel model)
+        public ActionResult PreField(PreFieldViewModel model)
         {
-            if (model != null)
-            {
-              
-                model.oFieldAssessmentViewModel.selDumpAssessmentIdx = model.oFieldAssessmentViewModel.selDumpAssessmentIdx;
-                foreach (T_OD_DUMP_ASSESSMENT_CONTENT oNew in model.oFieldAssessmentViewModel.WasteAmountList)
-                {
-                    _DbOpenDump.InsertUpdateT_OD_DumpAssessment_Content(model.oFieldAssessmentViewModel.selDumpAssessmentIdx, oNew.REF_WASTE_TYPE_IDX, oNew.WASTE_AMT, oNew.WASTE_UNIT_MSR, oNew.WASTE_DISPOSAL_METHOD, oNew.WASTE_DISPOSAL_DIST, true);
+            string _UserIDX = _userManager.GetUserId(User);
 
+            Guid? newSiteID = _DbPortal.InsertUpdateT_PRT_SITES(model.TPrtSite.SITE_IDX, model.TPrtSite.ORG_ID, model.TPrtSite.SITE_NAME ?? "",
+                    model.TPrtSite.EPA_ID ?? "", model.TPrtSite.LATITUDE, model.TPrtSite.LONGITUDE, model.TPrtSite.SITE_ADDRESS ?? "", _UserIDX);
+
+            if (newSiteID != null)
+            {
+                newSiteID = _DbOpenDump.InsertUpdateT_OD_SITES((Guid)newSiteID, model.TOdSite.REPORTED_BY, model.TOdSite.REPORTED_ON, model.TOdSite.COMMUNITY_IDX, model.TOdSite.SITE_SETTING_IDX,
+                    model.TOdSite.PF_AQUIFER_VERT_DIST, model.TOdSite.PF_SURF_WATER_HORIZ_DIST, model.TOdSite.PF_HOMES_DIST);
+
+                if (newSiteID != null)
+                {
+                    TempData["Success"] = "Update successful.";
+                    return RedirectToAction("PreField", "OpenDump", new { SiteIdx = newSiteID, returnURL = model.returnURL });
                 }
-                TempData["Success"] = "Update successful.";
-                // return RedirectToAction("PreField", "OpenDump", new { SiteIdx = model.oPreFieldViewModel.TPrtSites.SiteIdx, returnURL = "Search" });
-                return RedirectToAction(nameof(PreField), new { SiteIdx = model.oPreFieldViewModel.TPrtSites.SiteIdx, returnURL = "Search", AssessmentIdx = model.oFieldAssessmentViewModel.selDumpAssessmentIdx, CreateAssessment = model.oFieldAssessmentViewModel.selDumpAssessmentIdx == null ? true : false, activeTab = OpenDumpTab.SiteCleanUp });
             }
-            else
-                TempData["Error"] = "Error updating data.";
-            return RedirectToAction("Search", new { selStr = "", selOrg = "" });
+
+            //error if got this far
+            TempData["Error"] = "Error updating data.";
+            return RedirectToAction("PreField", "OpenDump", new { SiteIdx = newSiteID, returnURL = model.returnURL });
         }
 
+        #endregion
+
+
+        #region ASSESSMENT TAB CONTROLLERS ************************************************************
+        // GET: /OpenDump/Assessments
+        [HttpGet]
+        public ActionResult Assessments(Guid? id)
+        {
+            T_PRT_SITES s = _DbPortal.GetT_PRT_SITES_BySITEIDX(id.ConvertOrDefault<Guid>());
+            if (s != null)
+            {
+                T_PRT_ORGANIZATIONS o = _DbPortal.GetT_PRT_ORGANIZATIONS_ByOrgID(s.ORG_ID);
+                if (o != null)
+                {
+                    var model = new AssessmentsViewModel
+                    {
+                        SiteIDX = id,
+                        SiteName = s.SITE_NAME,
+                        OrgName = o.ORG_NAME,
+                        T_OD_DUMP_ASSESSMENTS = _DbOpenDump.getT_OD_DUMP_ASSESSMENTS_BySITEIDX(id.ConvertOrDefault<Guid>())
+                    };
+                    return View(model);
+                }
+            }
+
+            //error if got this far
+            TempData["Error"] = "Invalid site.";
+            return RedirectToAction("Search", "OpenDump");
+        }
 
         [HttpPost]
-        public JsonResult FieldAssessmentDelete(Guid id)
+        public JsonResult AssessmentDelete(Guid id)
         {
             if (id != null)
             {
-                List<T_OD_DUMP_ASSESSMENT_DOCS> oList = _DbPortal.GetT_OD_DUMP_ASSESSMENT_DOCS_ByDumpAssessmentsIDx(id);
-                int SuccID = 0;
-                foreach (T_OD_DUMP_ASSESSMENT_DOCS oNewItem in oList)
-                {
-                    SuccID = _DbPortal.DeleteT_PRT_DOCUMENTS(oNewItem.DOC_IDX);
-                }
-                SuccID = _DbOpenDump.DeleteT_OD_DumpAssessment(id);
-
+                int SuccID = _DbOpenDump.deleteT_OD_DumpAssessment(id);
                 if (SuccID == 1)
-                return Json("Success");
-              
+                    return Json("Success");
             }
 
             return Json("Unable to delete");
         }
 
+        public IActionResult IHSReport(Guid? id)
+        {
+
+            dynamic data = _DbOpenDump.getT_OD_DUMP_ASSESSMENTS_ByDumpAssessmentIDX(id.ConvertOrDefault<Guid>());
+
+            var rpt = new PDFReportGen(_hostingEnvironment);
+            byte[] pdf = rpt.CreatePDFReport("rpt_OpenDumpSurvey.xml", data);
+            if (pdf != null)
+            {
+                var content = new System.IO.MemoryStream(pdf);
+                return File(pdf, "application/pdf", "report.pdf");
+            }
+            else
+            {
+                TempData["Error"] = "Unable to generate document.";
+                return RedirectToAction("Search", new { selStr = "", selOrg = "" });
+            }
+        }
+
+        public ActionResult AssessmentDetails(Guid? id, Guid? SiteIdx)
+        {
+            //string _UserIDX = _userManager.GetUserId(User);
+
+            var model = new AssessmentDetailViewModel {
+                ddl_AssessmentTypeList = _DbOpenDump.get_ddl_T_OD_REF_DATA_by_category("Assessment Type")
+            };
+
+            //update case
+            if (id != null && SiteIdx == null)
+            {
+                model.Assessment = _DbOpenDump.getT_OD_DUMP_ASSESSMENTS_ByDumpAssessmentIDX((Guid)id);
+                model.files_existing = _DbOpenDump.GetT_PRT_DOCUMENTS_ByDumpAssessmentsIDx((Guid)id);
+                model.filesPhoto_existing = _DbOpenDump.GetT_PRT_DOCUMENTS_Photos_ByDumpAssessmentsIDx((Guid)id);
+            }
+            //insert case
+            else if (id == null && SiteIdx != null)
+            {
+                model.Assessment = new T_OD_DUMP_ASSESSMENTS {                    
+                    SITE_IDX = SiteIdx.ConvertOrDefault<Guid>(),
+                    ASSESSMENT_DT = System.DateTime.Today
+                };
+            }
+
+            //populate site name and org name
+            T_PRT_SITES s = _DbPortal.GetT_PRT_SITES_BySITEIDX(model.Assessment.SITE_IDX);
+            if (s != null)
+            {
+                T_PRT_ORGANIZATIONS o = _DbPortal.GetT_PRT_ORGANIZATIONS_ByOrgID(s.ORG_ID);
+                if (o != null)
+                {
+                    model.SiteName = s.SITE_NAME;
+                    model.OrgName = o.ORG_NAME;
+                }
+            }
+
+            //populate other stuffs
+            model.ddl_Assessments = _DbOpenDump.get_ddl_T_OD_DUMP_ASSESSMENTS_by_BySITEIDX(model.Assessment.SITE_IDX);
+
+            //fail if no assessment found or created
+            if (model.Assessment == null)
+            {
+                TempData["Error"] = "Assessment not found.";
+                return RedirectToAction("Search", "OpenDump");
+            }
+
+            return View(model);
+        }
 
         [HttpPost, ValidateAntiForgeryToken]
-        public ActionResult DocUpload(OpenDumpViewModel model)
+        public ActionResult AssessmentDetails(AssessmentDetailViewModel model)
+        {
+            if (model != null && model.Assessment != null && model.Assessment.SITE_IDX != null)
+            {
+                var a = model.Assessment;
+                string _UserIDX = _userManager.GetUserId(User);
+
+                //security check
+                //_DbOpenDump.GetT_OD_SITES_BySITEIDX
+
+
+                Guid? SuccIDX = _DbOpenDump.InsertUpdateT_OD_DumpAssessment(a.DUMP_ASSESSMENTS_IDX, a.SITE_IDX, a.ASSESSMENT_DT, a.ASSESSED_BY,
+                    a.ASSESSMENT_TYPE_IDX, a.ACTIVE_SITE_IND, a.SITE_DESCRIPTION, a.ASSESSMENT_NOTES, null, null, null, null, null, null, null, null, null, null,
+                    null, null, null, null, null, null);
+
+                if (SuccIDX != null) {
+
+                    foreach (T_PRT_DOCUMENTS docs in model.filesPhoto_existing ?? Enumerable.Empty<T_PRT_DOCUMENTS>())
+                        _DbPortal.InsertUpdateT_PRT_DOCUMENTS(docs.DOC_IDX, docs.ORG_ID, null, null, "Assessment", null, null, docs.DOC_COMMENT, null, null, null, _UserIDX);
+                    foreach (T_PRT_DOCUMENTS docs in model.files_existing ?? Enumerable.Empty<T_PRT_DOCUMENTS>())
+                        _DbPortal.InsertUpdateT_PRT_DOCUMENTS(docs.DOC_IDX, docs.ORG_ID, null, null, "Assessment", null, null, docs.DOC_COMMENT, null, null, null, _UserIDX);
+
+                    TempData["Success"] = "Update successful.";
+                    return RedirectToAction("AssessmentDetails", "OpenDump", new { id = SuccIDX });
+                }
+
+            }
+
+
+            TempData["Error"] = "Error updating data.";
+            return RedirectToAction("Search");
+        }
+
+
+        #endregion
+
+
+        #region WASTE PROFILE TAB CONTROLLERS **********************************************************************
+        public ActionResult WasteProfile(Guid? id)
+        {
+            //id is Dump Assessment ID
+
+            var model = new WasteProfileViewModel
+            {
+                Assessment = _DbOpenDump.getT_OD_DUMP_ASSESSMENTS_ByDumpAssessmentIDX((Guid)id),
+                ContentCheckBoxList = _DbOpenDump.getT_OD_DUMP_ASSESSMENT_CONTENT_by_AssessIDX(id),
+                AverageRainfallList = _DbOpenDump.get_ddl_OD_REF_THREAT_FACTORS_by_type("Rainfall"),
+                BurningList = _DbOpenDump.get_ddl_OD_REF_THREAT_FACTORS_by_type("Burning"),
+                ConcernList = _DbOpenDump.get_ddl_OD_REF_THREAT_FACTORS_by_type("Concern"),
+                DrainageList = _DbOpenDump.get_ddl_OD_REF_THREAT_FACTORS_by_type("Drainage"),
+                FloodingList = _DbOpenDump.get_ddl_OD_REF_THREAT_FACTORS_by_type("Flooding"),
+                FencedList = _DbOpenDump.get_ddl_OD_REF_THREAT_FACTORS_by_type("Fenced"),
+                AccessList = _DbOpenDump.get_ddl_OD_REF_THREAT_FACTORS_by_type("Access"),
+            };
+
+            if (model.Assessment != null)
+            {
+                if (model.Assessment.HF_RAINFALL != null) model.RainfallSubScore = _DbOpenDump.getT_OD_REF_THREAT_FACTOR_ByID((Guid)model.Assessment.HF_RAINFALL).THREAT_FACTOR_SCORE;
+                if (model.Assessment.HF_DRAINAGE != null) model.DrainageSubScore = _DbOpenDump.getT_OD_REF_THREAT_FACTOR_ByID((Guid)model.Assessment.HF_DRAINAGE).THREAT_FACTOR_SCORE;
+                if (model.Assessment.HF_FLOODING != null) model.FloodingSubScore = _DbOpenDump.getT_OD_REF_THREAT_FACTOR_ByID((Guid)model.Assessment.HF_FLOODING).THREAT_FACTOR_SCORE;
+                if (model.Assessment.HF_BURNING != null) model.BurningSubScore = _DbOpenDump.getT_OD_REF_THREAT_FACTOR_ByID((Guid)model.Assessment.HF_BURNING).THREAT_FACTOR_SCORE;
+                if (model.Assessment.HF_FENCING != null) model.FencedSubScore = _DbOpenDump.getT_OD_REF_THREAT_FACTOR_ByID((Guid)model.Assessment.HF_FENCING).THREAT_FACTOR_SCORE;
+                if (model.Assessment.HF_ACCESS_CONTROL != null) model.AccessSubScore = _DbOpenDump.getT_OD_REF_THREAT_FACTOR_ByID((Guid)model.Assessment.HF_ACCESS_CONTROL).THREAT_FACTOR_SCORE;
+                if (model.Assessment.HF_PUBLIC_CONCERN != null) model.ConcernSubScore = _DbOpenDump.getT_OD_REF_THREAT_FACTOR_ByID((Guid)model.Assessment.HF_PUBLIC_CONCERN).THREAT_FACTOR_SCORE;
+
+                model.ddl_Assessments = _DbOpenDump.get_ddl_T_OD_DUMP_ASSESSMENTS_by_BySITEIDX(model.Assessment.SITE_IDX);
+
+                //populate site name
+                T_PRT_SITES s = _DbPortal.GetT_PRT_SITES_BySITEIDX(model.Assessment.SITE_IDX);
+                if (s != null)
+                {
+                    model.SiteName = s.SITE_NAME;
+
+                    //populate proximity subscore
+                    T_OD_SITES od = _DbOpenDump.getT_OD_SITES_BySITEIDX(s.SITE_IDX);
+                    int? Prox1 = (od.PF_AQUIFER_VERT_DIST != null ? _DbOpenDump.getT_OD_REF_THREAT_FACTOR_ByID((Guid)od.PF_AQUIFER_VERT_DIST).THREAT_FACTOR_SCORE : 0);
+                    int? Prox2 = (od.PF_SURF_WATER_HORIZ_DIST != null ? _DbOpenDump.getT_OD_REF_THREAT_FACTOR_ByID((Guid)od.PF_SURF_WATER_HORIZ_DIST).THREAT_FACTOR_SCORE : 0);
+                    int? Prox3 = (od.PF_HOMES_DIST != null ? _DbOpenDump.getT_OD_REF_THREAT_FACTOR_ByID((Guid)od.PF_HOMES_DIST).THREAT_FACTOR_SCORE : 0);
+                    model.ProximityScore = (Prox1??0) + (Prox2??0) + (Prox3??0);
+                }
+
+                return View(model);
+            }
+
+            TempData["Error"] = "Unable to find assessment.";
+            return RedirectToAction("Search");
+        }
+
+        [HttpPost, ValidateAntiForgeryToken]
+        public ActionResult WasteProfile(WasteProfileViewModel model)
+        {
+            if (model != null && model.Assessment != null)
+            {
+                var a = model.Assessment;
+                Guid? DUMP_ASSESSMENTS_IDX = _DbOpenDump.InsertUpdateT_OD_DumpAssessment(a.DUMP_ASSESSMENTS_IDX, null, null, null, null, true, null, null, a.AREA_ACRES, 
+                    a.VOLUME_CU_YD, a.HF_RAINFALL, a.HF_DRAINAGE, a.HF_FLOODING, a.HF_BURNING, a.HF_FENCING, a.HF_ACCESS_CONTROL, a.HF_PUBLIC_CONCERN, a.HEALTH_THREAT_SCORE,
+                    null, null, null, null, null, null);
+
+                foreach (SelectedWasteTypeDisplay oNew in model.ContentCheckBoxList)
+                {
+                    _DbOpenDump.InsertUpdateT_OD_DumpAssessment_Content(null, a.DUMP_ASSESSMENTS_IDX, oNew.T_OD_REF_WASTE_TYPE.REF_WASTE_TYPE_IDX, null, null, null, null, oNew.IsChecked);
+                }
+                TempData["Success"] = "Update successful.";
+            }
+            else
+                TempData["Error"] = "Error updating data.";
+
+            return RedirectToAction("WasteProfile", new { id = model.Assessment.DUMP_ASSESSMENTS_IDX });
+        }
+
+        [HttpPost]
+        public JsonResult GetHealthThreatScore(Guid? threatFactor)
+        {
+            T_OD_REF_THREAT_FACTORS h = _DbOpenDump.getT_OD_REF_THREAT_FACTOR_ByID((Guid)threatFactor);
+            if (h != null)
+                return Json(new { msg = h.THREAT_FACTOR_SCORE.ToString() });
+            else
+                return Json(new { msg = "Error" });
+        }
+
+        #endregion
+
+
+        #region SITE CLEANUP TAB CONTROLLERS **********************************************************************
+        public ActionResult Cleanup(Guid? id)
+        {
+            var model = new CleanupViewModel
+            {
+                Assessment = _DbOpenDump.getT_OD_DUMP_ASSESSMENTS_ByDumpAssessmentIDX((Guid)id),
+                DumpContents = _DbOpenDump.getT_OD_DUMP_ASSESSMENT_CONTENT_ByDumpAssessmentIDX((Guid)id),
+                ddl_DisposalMethod = _DbOpenDump.get_ddl_ref_disposal()
+            };
+
+            if (model.Assessment != null)
+            {
+                model.ddl_Assessments = _DbOpenDump.get_ddl_T_OD_DUMP_ASSESSMENTS_by_BySITEIDX(model.Assessment.SITE_IDX);
+
+                //populate site name
+                T_PRT_SITES s = _DbPortal.GetT_PRT_SITES_BySITEIDX(model.Assessment.SITE_IDX);
+                if (s != null)
+                {
+                    model.SiteName = s.SITE_NAME;
+                }
+
+                return View(model);
+            }
+
+
+            return View(model);
+        }
+
+        [HttpPost, ValidateAntiForgeryToken]
+        public ActionResult Cleanup(CleanupViewModel model)
+        {
+            if (model != null && model.Assessment != null && model.Assessment.DUMP_ASSESSMENTS_IDX != null)
+            {
+                foreach (AssessmentContentTypeDisplay oNew in model.DumpContents)
+                {
+                    _DbOpenDump.InsertUpdateT_OD_DumpAssessment_Content(oNew.DUMP_ASSESSMENTS_CONTENT_IDX, null, null, oNew.WASTE_AMT, oNew.UNIT_MSR_IDX, oNew.WASTE_DISPOSAL_METHOD, oNew.WASTE_DISPOSAL_DIST, true);
+                }
+
+                //recalculate costs
+                _DbOpenDump.CalcCleanup(model.Assessment.DUMP_ASSESSMENTS_IDX);
+                TempData["Success"] = "Update successful.";
+
+            }
+            else
+                TempData["Error"] = "Error updating data.";
+
+            return RedirectToAction("Cleanup", new { id = model.Assessment.DUMP_ASSESSMENTS_IDX });
+        }
+
+        public ActionResult Cleanup2(Guid? id)
+        {
+            var model = new Cleanup2ViewModel
+            {
+                Assessment = _DbOpenDump.getT_OD_DUMP_ASSESSMENTS_ByDumpAssessmentIDX((Guid)id),
+                AssessmentCleanups = _DbOpenDump.getT_OD_DUMP_ASSESSMENT_CLEANUP_by_AssessIDX((Guid)id)
+            };
+
+            return View(model);
+        }
+
+        public ActionResult CleanupRestoration(Guid? id, string Cat)
+        {
+            var model = new CleanupRestorationViewModel
+            {
+                rESTORE_CAT = Cat,
+                Assessment = _DbOpenDump.getT_OD_DUMP_ASSESSMENTS_ByDumpAssessmentIDX((Guid)id),
+                Restores = _DbOpenDump.getT_OD_DUMP_ASSESSMENT_RESTORE_by_DumpAssessIDXandCat((Guid)id, Cat)
+            };
+            return View(model);
+        }
+        
+        [HttpPost, ValidateAntiForgeryToken]
+        public ActionResult RestoreAdd(CleanupRestorationViewModel model)
+        {
+            if (model != null && model.Assessment.DUMP_ASSESSMENTS_IDX != null)
+            {
+                Guid? SuccID = _DbOpenDump.InsertUpdateT_OD_DUMP_ASSESSMENT_RESTORE(model.edit_restore_idx, model.Assessment.DUMP_ASSESSMENTS_IDX, model.rESTORE_CAT, model.newRestoreActivity, model.newRestoreAmt, null);
+                if (SuccID != null)
+                {
+                    //update restoration total 
+                    _DbOpenDump.InsertUpdateT_OD_DumpAssessment(model.Assessment.DUMP_ASSESSMENTS_IDX, null, null, null, null, null, null, null, null, null, null, null, null,
+                        null, null, null, null, null, null, null, null, 
+                        model.rESTORE_CAT == "Restore" ? _DbOpenDump.getT_OD_DUMP_ASSESSMENT_RESTORE_Sum_by_AssessIDX(model.Assessment.DUMP_ASSESSMENTS_IDX, "Restore") : null,
+                        model.rESTORE_CAT == "Surveil" ? _DbOpenDump.getT_OD_DUMP_ASSESSMENT_RESTORE_Sum_by_AssessIDX(model.Assessment.DUMP_ASSESSMENTS_IDX, "Surveil") : null,
+                        null);
+
+                    TempData["Success"] = "Update successful.";
+                }
+                else
+                    TempData["Error"] = "Error updating data.";
+            }
+            else
+                TempData["Error"] = "Error updating data.";
+
+            return RedirectToAction("CleanupRestoration", new { id = model.Assessment.DUMP_ASSESSMENTS_IDX, Cat = model.rESTORE_CAT });
+        }
+
+        [HttpPost]
+        public JsonResult CleanupRestoreDelete(Guid id)
+        {
+            T_OD_DUMP_ASSESSMENT_RESTORE r = _DbOpenDump.getT_OD_DUMP_ASSESSMENT_RESTORE_by_IDX(id);
+            if (r != null)
+            {
+                int SuccID = _DbOpenDump.DeleteT_OD_DUMP_ASSESSMENT_RESTORE(id);
+                if (SuccID == 1)
+                {
+                    //update restoration total 
+                    _DbOpenDump.InsertUpdateT_OD_DumpAssessment(r.DUMP_ASSESSMENTS_IDX, null, null, null, null, null, null, null, null, null, null, null, null,
+                        null, null, null, null, null, null, null, null,
+                        r.RESTORE_CAT == "Restore" ? _DbOpenDump.getT_OD_DUMP_ASSESSMENT_RESTORE_Sum_by_AssessIDX(r.DUMP_ASSESSMENTS_IDX, "Restore") : null,
+                        r.RESTORE_CAT == "Surveil" ? _DbOpenDump.getT_OD_DUMP_ASSESSMENT_RESTORE_Sum_by_AssessIDX(r.DUMP_ASSESSMENTS_IDX, "Surveil") : null,
+                        null);
+
+                    return Json("Success");
+                }
+            }
+
+            return Json("Unable to delete");
+        }
+
+        #endregion
+
+
+
+
+        [HttpPost, ValidateAntiForgeryToken]
+        public ActionResult DocUpload(AssessmentDetailViewModel model)
         {
             if (model != null)
             {
-                if (model.oFieldAssessmentViewModel.files != null)
+                if (model.files != null)
                 {                   
                     byte[] fileBytes = null;
 
-                    if (model.oFieldAssessmentViewModel.files != null)
+                    if (model.files != null)
                     {
-                        if (model.oFieldAssessmentViewModel.files == null || model.oFieldAssessmentViewModel.files.Length == 0)
+                        if (model.files == null || model.files.Length == 0)
                             return Content("file not selected");
 
                         var path = Path.Combine(
                                     Directory.GetCurrentDirectory(), "wwwroot",
-                                    model.oFieldAssessmentViewModel.files.FileName);
+                                    model.files.FileName);
                         MemoryStream memoryStream = new MemoryStream();
                         using (var stream = new FileStream(path, FileMode.Create))
                         {
-                            model.oFieldAssessmentViewModel.files.CopyToAsync(memoryStream);
+                            model.files.CopyToAsync(memoryStream);
                             fileBytes = memoryStream.ToArray();
 
-                            string _UserIDX;
-                            bool isUserExist = _memoryCache.TryGetValue("UserID", out _UserIDX);
+                            string _UserIDX = _userManager.GetUserId(User);
 
                             //insert to database
-                            Guid? DocIDx = _DbPortal.InsertUpdateT_PRT_DOCUMENTS(null, model.oPreFieldViewModel.TPrtSites.OrgId, fileBytes, model.oFieldAssessmentViewModel.files.FileName, "Assessment", model.oFieldAssessmentViewModel.files.ContentType, fileBytes.Length, model.oFieldAssessmentViewModel.FileDescription, null, null, null, _UserIDX);
-                            _DbOpenDump.InsertUpdateT_OD_DUMP_ASSESSMENT_DOCUMENTS(DocIDx, model.oFieldAssessmentViewModel.TOdDumpAssessments.DUMP_ASSESSMENTS_IDX);
+                            T_PRT_SITES s = _DbPortal.GetT_PRT_SITES_BySITEIDX(model.Assessment.SITE_IDX);
+
+                            Guid? DocIDx = _DbPortal.InsertUpdateT_PRT_DOCUMENTS(null, s.ORG_ID, fileBytes, model.files.FileName, "Assessment", model.files.ContentType, fileBytes.Length, model.FileDescription, null, null, null, _UserIDX);
+                            _DbOpenDump.InsertUpdateT_OD_DUMP_ASSESSMENT_DOCUMENTS(DocIDx, model.Assessment.DUMP_ASSESSMENTS_IDX);
 
                         }
                     }
@@ -310,43 +528,42 @@ namespace TribalSvcPortal.Controllers
                 }
               
                 TempData["Success"] = "Update successful.";
-                //return RedirectToAction("PreField", "OpenDump", new { SiteIdx = model.oPreFieldViewModel.TPrtSites.SiteIdx, returnURL = "Search" });
-                return RedirectToAction(nameof(PreField), new { SiteIdx = model.oPreFieldViewModel.TPrtSites.SiteIdx, returnURL = "Search", AssessmentIdx = model.oFieldAssessmentViewModel.selDumpAssessmentIdx, CreateAssessment = model.oFieldAssessmentViewModel.selDumpAssessmentIdx == null ? true : false, activeTab = OpenDumpTab.FieldAssessment });
+                return RedirectToAction("AssessmentDetails", "OpenDump", new { AssessmentIdx = model.Assessment.DUMP_ASSESSMENTS_IDX });
             }
             else
                 TempData["Error"] = "Error updating data.";
             return RedirectToAction("Search", new { selStr = "", selOrg = "" });
         }
 
-
         [HttpPost, ValidateAntiForgeryToken]
-        public ActionResult PhotoUpload(OpenDumpViewModel model)
+        public ActionResult PhotoUpload(AssessmentDetailViewModel model)
         {
             if (model != null)
             {
-                if (model.oFieldAssessmentViewModel.filesPhoto != null)
+                if (model.filesPhoto != null)
                 {
                     byte[] fileBytes = null;
 
-                    if (model.oFieldAssessmentViewModel.filesPhoto != null)
+                    if (model.filesPhoto != null)
                     {
-                        if (model.oFieldAssessmentViewModel.filesPhoto == null || model.oFieldAssessmentViewModel.filesPhoto.Length == 0)
+                        if (model.filesPhoto == null || model.filesPhoto.Length == 0)
                             return Content("file not selected");
 
                         var path = Path.Combine(
                                     Directory.GetCurrentDirectory(), "wwwroot",
-                                    model.oFieldAssessmentViewModel.filesPhoto.FileName);
+                                    model.filesPhoto.FileName);
                         MemoryStream memoryStream = new MemoryStream();
                         using (var stream = new FileStream(path, FileMode.Create))
                         {
-                            model.oFieldAssessmentViewModel.filesPhoto.CopyToAsync(memoryStream);
+                            model.filesPhoto.CopyToAsync(memoryStream);
                             fileBytes = memoryStream.ToArray();
 
-                            string _UserIDX;
-                            bool isUserExist = _memoryCache.TryGetValue("UserID", out _UserIDX);
+                            string _UserIDX = _userManager.GetUserId(User);
                             //insert to database
-                            Guid? DocIDx = _DbPortal.InsertUpdateT_PRT_DOCUMENTS(null, model.oPreFieldViewModel.TPrtSites.OrgId, fileBytes, model.oFieldAssessmentViewModel.filesPhoto.FileName, "Assessment", model.oFieldAssessmentViewModel.filesPhoto.ContentType, fileBytes.Length, model.oFieldAssessmentViewModel.FileDescription, null, null, null, _UserIDX);
-                            _DbOpenDump.InsertUpdateT_OD_DUMP_ASSESSMENT_DOCUMENTS(DocIDx, model.oFieldAssessmentViewModel.TOdDumpAssessments.DUMP_ASSESSMENTS_IDX);
+                            T_PRT_SITES s = _DbPortal.GetT_PRT_SITES_BySITEIDX(model.Assessment.SITE_IDX);
+
+                            Guid? DocIDx = _DbPortal.InsertUpdateT_PRT_DOCUMENTS(null, s.ORG_ID, fileBytes, model.filesPhoto.FileName, "Assessment", model.filesPhoto.ContentType, fileBytes.Length, model.FileDescription, null, null, null, _UserIDX);
+                            _DbOpenDump.InsertUpdateT_OD_DUMP_ASSESSMENT_DOCUMENTS(DocIDx, model.Assessment.DUMP_ASSESSMENTS_IDX);
 
                         }
                     }
@@ -354,8 +571,7 @@ namespace TribalSvcPortal.Controllers
                 }
 
                 TempData["Success"] = "Update successful.";
-                // return RedirectToAction("PreField", "OpenDump", new { SiteIdx = model.oPreFieldViewModel.TPrtSites.SiteIdx, returnURL = "Search" });
-                return RedirectToAction(nameof(PreField), new { SiteIdx = model.oPreFieldViewModel.TPrtSites.SiteIdx, returnURL = "Search", AssessmentIdx = model.oFieldAssessmentViewModel.selDumpAssessmentIdx, CreateAssessment = model.oFieldAssessmentViewModel.selDumpAssessmentIdx == null ? true : false, activeTab = OpenDumpTab.FieldAssessment });
+                //return RedirectToAction("AssessmentDetails", "OpenDump", new { AssessmentIdx = DUMP_ASSESSMENTS_IDX });
             }
             else
                 TempData["Error"] = "Error updating data.";
@@ -369,13 +585,13 @@ namespace TribalSvcPortal.Controllers
                 T_PRT_DOCUMENTS doc = _DbPortal.GetT_PRT_DOCUMENTS_ByID((Guid)id);
                 var cd = new System.Net.Mime.ContentDisposition
                 {
-                    FileName = doc.DocName,
+                    FileName = doc.DOC_NAME,
                     Inline = false
                 };
 
                 Response.Headers["Content-Disposition"] =  cd.ToString();
-                if (doc.DocContent != null)
-                    return File(doc.DocContent, doc.DocFileType ?? "application/octet-stream");
+                if (doc.DOC_CONTENT != null)
+                    return File(doc.DOC_CONTENT, doc.DOC_FILE_TYPE ?? "application/octet-stream");
             }
             catch (Exception ex)
             {
@@ -385,7 +601,6 @@ namespace TribalSvcPortal.Controllers
             TempData["Error"] = "Unable to download document.";
             return RedirectToAction("Search", new { selStr = "", selOrg = "" });
         }
-
 
         public ActionResult FileDelete(Guid? id, Guid SiteIdx)
         {
@@ -399,7 +614,7 @@ namespace TribalSvcPortal.Controllers
                 if (SuccID > 0)
                 {
                     TempData["Success"] = "File removed.";
-                    return RedirectToAction("PreField", "OpenDump", new { SiteIdx = SiteIdx, returnURL = "Search" });
+                    //return RedirectToAction("AssessmentDetails", "OpenDump", new { AssessmentIdx = model.Assessment.DUMP_ASSESSMENTS_IDX });
                 }
                
             }                   
@@ -408,104 +623,22 @@ namespace TribalSvcPortal.Controllers
             return RedirectToAction("Search", new { selStr = "", selOrg = "" });
         }
 
+
+
+
         public IActionResult RefData()
         {
             return View();
         }
 
-
+        [AllowAnonymous]
         public IActionResult DumpParcels()
         {
+            //var identity = (ClaimsIdentity)User.Identity;
+            //IEnumerable<Claim> claims = identity.Claims;
+
             return View();
         }
 
-
-        public IActionResult IHSReport()
-        {
-            byte[] pdf = PDFReportGen.CreatePDFReport();
-            if (pdf != null)
-            {
-                var content = new System.IO.MemoryStream(pdf);
-                return File(pdf, "application/pdf", "report.pdf");
-            }
-            else
-            {
-                TempData["Error"] = "Unable to generate document.";
-                return RedirectToAction("Search", new { selStr = "", selOrg = "" });
-            }
-        }
-
-        //[NonAction]
-        public FieldAssessmentViewModel GetFieldAssessment(Guid? AssessmentIdx, Guid? SiteIdx)
-        {
-            string _UserIDX;
-            OpenDumpViewModel openDumpViewModel = new OpenDumpViewModel();
-            bool isUserExist = _memoryCache.TryGetValue("UserID", out _UserIDX);
-            T_OD_DUMP_ASSESSMENTS oT_OD_DUMP_ASSESSMENTS = new T_OD_DUMP_ASSESSMENTS();
-            if (AssessmentIdx != null)
-            {
-                oT_OD_DUMP_ASSESSMENTS = _DbOpenDump.GetT_OD_DumpAssessment_ByDumpAssessmentIDX((Guid)AssessmentIdx);
-            }
-            //OpenDumpViewModel openDumpViewModel = new OpenDumpViewModel();
-            //var PreFieldmodel = new PreFieldViewModel();
-            var FieldAssessmentmodel = new FieldAssessmentViewModel();
-
-            FieldAssessmentmodel.AssessmentTypeList = _DbOpenDump.get_ddl_refdata_by_category("Assessment Type");
-
-            //model.SiteSettingsList = _DbOpenDump.get_ddl_refdata_by_category("Site Setting");
-            //model.CommunityList = _DbOpenDump.get_ddl_refdata_by_category("Community");
-            //model.AquiferList = _DbOpenDump.get_ddl_refthreatfactor_by_factortype("Aquifer");
-            //model.SurfaceWaterList = _DbOpenDump.get_ddl_refthreatfactor_by_factortype("Surface Water");
-            //model.HomesList = _DbOpenDump.get_ddl_refthreatfactor_by_factortype("Homes");
-            //model.OrgList = _DbOpenDump.get_ddl_od_organizations(_UserIDX);
-            //model.returnURL = "Search";
-            if (AssessmentIdx != null)
-            {
-                FieldAssessmentmodel.selDumpAssessmentIdx = (Guid)AssessmentIdx;
-            }
-            else
-            {
-                FieldAssessmentmodel.selDumpAssessmentIdx = Guid.NewGuid();
-            }
-            if (AssessmentIdx != null && SiteIdx == null)
-            {
-                FieldAssessmentmodel.TPrtSites = _DbPortal.GetT_PRT_SITES_BySITEIDX(oT_OD_DUMP_ASSESSMENTS.SITE_IDX);
-                FieldAssessmentmodel.AssessmentDropDownList = _DbOpenDump.get_ddl_od_dumpassessment_by_BySITEIDX(oT_OD_DUMP_ASSESSMENTS.SITE_IDX);
-                FieldAssessmentmodel.AssessmentForHealthThreatDropDownList = _DbOpenDump.get_ddl_od_assessmentforhealththreat_by_BySITEIDX((Guid)SiteIdx);
-                FieldAssessmentmodel.TOdDumpAssessmentsGridList = _DbOpenDump.GetT_OD_DumpAssessmentList_BySITEIDX(oT_OD_DUMP_ASSESSMENTS.SITE_IDX);
-                FieldAssessmentmodel.TOdDumpAssessments = oT_OD_DUMP_ASSESSMENTS;
-            }
-            else if (SiteIdx != null && AssessmentIdx == null)
-            {
-                FieldAssessmentmodel.TPrtSites = _DbPortal.GetT_PRT_SITES_BySITEIDX((Guid)SiteIdx);
-                FieldAssessmentmodel.AssessmentDropDownList = _DbOpenDump.get_ddl_od_dumpassessment_by_BySITEIDX((Guid)SiteIdx);
-                FieldAssessmentmodel.AssessmentForHealthThreatDropDownList = _DbOpenDump.get_ddl_od_assessmentforhealththreat_by_BySITEIDX((Guid)SiteIdx);
-                FieldAssessmentmodel.TOdDumpAssessmentsGridList = _DbOpenDump.GetT_OD_DumpAssessmentList_BySITEIDX((Guid)SiteIdx);
-                // FieldAssessmentmodel.TOdDumpAssessments = oT_OD_DUMP_ASSESSMENTS;
-                FieldAssessmentmodel.TOdDumpAssessments = new T_OD_DUMP_ASSESSMENTS();
-                FieldAssessmentmodel.TOdDumpAssessments.DUMP_ASSESSMENTS_IDX = Guid.NewGuid();
-                //FieldAssessmentmodel.TOdDumpAssessments.ASSESSMENT_DT = DateTime.Now;
-            }
-            else if (SiteIdx != null && AssessmentIdx != null)
-            {
-                FieldAssessmentmodel.TPrtSites = _DbPortal.GetT_PRT_SITES_BySITEIDX((Guid)SiteIdx);
-                FieldAssessmentmodel.AssessmentDropDownList = _DbOpenDump.get_ddl_od_dumpassessment_by_BySITEIDX((Guid)SiteIdx);
-                FieldAssessmentmodel.AssessmentForHealthThreatDropDownList = _DbOpenDump.get_ddl_od_assessmentforhealththreat_by_BySITEIDX((Guid)SiteIdx);
-                FieldAssessmentmodel.TOdDumpAssessmentsGridList = _DbOpenDump.GetT_OD_DumpAssessmentList_BySITEIDX((Guid)SiteIdx);
-                FieldAssessmentmodel.TOdDumpAssessments = oT_OD_DUMP_ASSESSMENTS;
-            }
-            else
-            {
-                FieldAssessmentmodel.AssessmentDropDownList = _DbOpenDump.get_ddl_od_dumpassessment_by_BySITEIDX(Guid.NewGuid());
-                FieldAssessmentmodel.AssessmentForHealthThreatDropDownList = _DbOpenDump.get_ddl_od_assessmentforhealththreat_by_BySITEIDX((Guid)SiteIdx);
-                //FieldAssessmentmodel.TPrtSites = _DbPortal.GetT_PRT_SITES_BySITEIDX((Guid)SiteIdx);
-                FieldAssessmentmodel.TOdDumpAssessments = new T_OD_DUMP_ASSESSMENTS();
-                FieldAssessmentmodel.TOdDumpAssessments.DUMP_ASSESSMENTS_IDX = Guid.NewGuid();
-                //FieldAssessmentmodel.TOdDumpAssessments.ASSESSMENT_DT = DateTime.Now;
-            }
-          
-            return FieldAssessmentmodel;
-           
-        }
     }
 }

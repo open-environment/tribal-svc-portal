@@ -5,17 +5,17 @@ namespace TribalSvcPortal.Data.Models
 {
     public partial class T_PRT_ORG_USER_CLIENT
     {
-        public int OrgUserClientIdx { get; set; }
-        public int OrgUserIdx { get; set; }
-        public string ClientId { get; set; }
-        public bool AdminInd { get; set; }
-        public string StatusInd { get; set; }
-        public string CreateUserId { get; set; }
-        public DateTime? CreateDt { get; set; }
-        public string ModifyUserId { get; set; }
-        public DateTime? ModifyDt { get; set; }
+        public int ORG_USER_CLIENT_IDX { get; set; }
+        public int ORG_USER_IDX { get; set; }
+        public string CLIENT_ID { get; set; }
+        public bool ADMIN_IND { get; set; }
+        public string STATUS_IND { get; set; }
+        public string CREATE_USER_ID { get; set; }
+        public DateTime? CREATE_DT { get; set; }
+        public string MODIFY_USER_ID { get; set; }
+        public DateTime? MODIFY_DT { get; set; }
 
-        public T_PRT_CLIENTS Client { get; set; }
-        public T_PRT_ORG_USERS OrgUserIdxNavigation { get; set; }
+        public T_PRT_CLIENTS CLIENT_ { get; set; }
+        public T_PRT_ORG_USERS ORG_USER_IDXNavigation { get; set; }
     }
 }

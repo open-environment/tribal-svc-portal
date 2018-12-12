@@ -4,7 +4,7 @@
     ViewBag.SubTitle = "Search and view open dump records.";
 }
 <link rel="stylesheet" href="https://js.arcgis.com/3.25/esri/css/esri.css">
-<!-- *********************** START FILTER ****************************************** -->
+
 @using (Html.BeginForm("Search", "OpenDump", FormMethod.Get, new { @class = "" }))
 {
     <div class="row aligned-row">
@@ -41,7 +41,7 @@
                     </div>
                     <div class="row">
                         <div class="col-md-12">
-                            <button class="btn btn-success" type="submit">
+                            <button class="btn btn-eecip" type="submit">
                                 <i class="clip-search-2"> </i>Search
                             </button>
                         </div>
@@ -57,17 +57,17 @@
     <ul id="myTab" class="nav nav-tabs tab-blue">
         <li class="active tooltips" style="line-height: 22px; font-size: 22px;" data-rel="tooltip" data-original-title="List View">
             <a href="#tabList" data-toggle="tab">
-                <i id="entHelp" class="clip-list help-icon color-eecip"></i>
+                <i class="clip-list color-eecip"></i>
             </a>
         </li>
         <li class="tooltips" style="line-height: 22px; font-size: 22px;" data-rel="tooltip" data-original-title="Map View">
             <a href="#tabMap" data-toggle="tab">
-                <i id="entHelp" class="clip-earth help-icon color-eecip"></i>
+                <i class="clip-earth color-eecip"></i>
             </a>
         </li>
         <li class="pull-right">
-            <a href="@Url.Action("PreField", "OpenDump", new { selOrg = Model.selOrg, returnURL = "Search" })" class="btn btn-rounded btn-success"
-               style="color: #fff;background-color: #5cb85c;border-color: #4cae4c;border-radius: 4px !important;"><i class="glyphicon glyphicon-plus"></i>Add New</a>
+            <a href="@Url.Action("PreField", "OpenDump", new { selOrg = Model.selOrg, returnURL = "Search" })" class="btn btn-rounded "
+               style="color: #fff;background-color: #6AB43E;border-color: #6AB43E;border-radius: 4px !important;"><i class="glyphicon glyphicon-plus"></i> Add New</a>
         </li>
     </ul>
 
@@ -79,41 +79,72 @@
                     <thead>
                         <tr class="thead-inverse">
                             <th style="min-width:70px"></th>
+                            @if (Model.ddl_Org.Count() > 1)
+                            {
+                            <th>Organization</th>
+                            }
                             <th>Site Name</th>
                             <th>Site Address</th>
                             <th>Reported By</th>
                             <th>Reported On</th>
+                            <th>Last Assessed</th>
+                            <th>Health Threat</th>
                         </tr>
                     </thead>
                     @if (Model.searchResults != null)
                     {
                         @foreach (var item in Model.searchResults)
                         {
-                            <tr>
-                                <td style="min-width:65px">
-                                    <a href="@Url.Action("PreField", "OpenDump", new { SiteIdx = item.Site_Idx, selOrg = Model.selOrg, returnURL = "Search" })" class="btn btn-rounded btn-xs btn-info"><i class="glyphicon glyphicon-pencil"></i></a>
-                                    <div class="delete-section" style="display:inline">
-                                        <a class=" btn btn-rounded btn-xs btn-danger delete-link"><i class="glyphicon glyphicon-remove"></i></a>
-                                        <div class="btn btn-rounded btn-xs btn-warning delete-confirm" style="display:none" data-delete-id="@item.Site_Idx" data-delete-p="/OpenDump/PreFieldDelete"><b>Confirm Delete</b></div>
-                                    </div>
-                                </td>
-                                <td>
-                                    @Html.DisplayFor(modelItem => item.SiteName)
-                                </td>
-                                <td>
-                                    @Html.DisplayFor(modelItem => item.SiteAddress)
-                                </td>
-                                <td>
-                                    @Html.DisplayFor(modelItem => item.ReportedBy)
-                                </td>
-                                <td>
-                                    @if(item.ReportedOn!=null)
-                                    {
-                                    @Convert.ToDateTime(item.ReportedOn).ToString("MM-dd-yyyy")
-                                    }
-                                </td>
-
-                            </tr>
+                    <tr>
+                        <td style="min-width:65px">
+                            <a href="@Url.Action("PreField", "OpenDump", new { id = item.Site_Idx, returnURL = "Search" })" class="btn btn-rounded btn-xs btn-info"><i class="glyphicon glyphicon-pencil"></i></a>
+                            <div class="delete-section" style="display:inline">
+                                <a class=" btn btn-rounded btn-xs btn-danger delete-link"><i class="glyphicon glyphicon-remove"></i></a>
+                                <div class="btn btn-rounded btn-xs btn-warning delete-confirm" style="display:none" data-delete-id="@item.Site_Idx" data-delete-p="/OpenDump/SiteDelete"><b>Confirm Delete</b></div>
+                            </div>
+                        </td>
+                        @if (Model.ddl_Org.Count() > 1)
+                        {
+                            <td>
+                                @Html.DisplayFor(modelItem => item.OrgName)
+                            </td>
+                        }
+                        <td>
+                            @Html.DisplayFor(modelItem => item.SiteName)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.SiteAddress)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.ReportedBy)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.ReportedOn)
+                        </td>
+                        <td>
+                            @if (item.LAST_ASSESSED != DateTime.MinValue)
+                            {
+                                @Html.DisplayFor(modelItem => item.LAST_ASSESSED)
+                            }
+                        </td>
+                        <td>
+                            @if (item.HEALTH_THREAT_SCORE != null)
+                            {
+                                if (item.HEALTH_THREAT_SCORE > 400)
+                                {
+                                    <span class="label label-danger"> High @Html.DisplayFor(modelItem => item.HEALTH_THREAT_SCORE)</span>
+                                }
+                                else if (item.HEALTH_THREAT_SCORE > 250)
+                                {
+                                    <span class="label label-warning">Medium (@Html.DisplayFor(modelItem => item.HEALTH_THREAT_SCORE))</span>
+                                }
+                                else
+                                {
+                                    <span class="label label-success">Low @Html.DisplayFor(modelItem => item.HEALTH_THREAT_SCORE)</span>
+                                }
+                            }
+                        </td>
+                    </tr>
                         }
                     }
 
@@ -130,81 +161,88 @@
 @section scripts {
     <script src="~/js/confirm_delete.js"></script>
     <script src="https://js.arcgis.com/3.25/"></script>
-    <style>
+    @*<style>
         div.esriPopupWrapper .zoomTo {
             display: none;
         }
-    </style>
+    </style>*@
     @if (Model.searchResults != null)
     {
-        <script type="text/javascript">
+    <script type="text/javascript">
 
-            LoadMap(JSON.parse('@Html.Raw(Json.Serialize(@Model.searchResults))'));
+            LoadMap();
 
-            function LoadMap(searchList)
+            function LoadMap()
             {
-                var map, tb;
+                var map;
+                var siteArray = [];
+                @foreach (var item in Model.searchResults)
+                {
+                    if (item.Latitude != null && item.Longitude != null)
+                    {
+                        @:siteArray.push("@item.Latitude", "@item.Longitude");
+                    }
+                }
 
-                require(["esri/map",                   
+                console.log(siteArray);
+
+                require(["esri/map",
                     "esri/InfoTemplate",
                     "esri/geometry/Point",
-                    "esri/toolbars/draw",
                     "esri/symbols/SimpleMarkerSymbol",
-                    "esri/symbols/SimpleLineSymbol",
-                    "esri/symbols/PictureFillSymbol",
-                    "esri/symbols/CartographicLineSymbol",
                     "esri/graphic",
                     "esri/layers/GraphicsLayer",
-                    "esri/graphicsUtils",
-                    "esri/Color", "dojo/dom", "dojo/on", "dojo/domReady!"
+                    "esri/Color", "dojo/domReady!"
                 ],
 
                     function (
-                        Map, InfoTemplate,                       
+                        Map,
+                        InfoTemplate,
                         Point,
-                        Draw,
-                        SimpleMarkerSymbol, SimpleLineSymbol,
-                        PictureFillSymbol, CartographicLineSymbol,
-                        Graphic, GraphicsLayer, graphicsUtils,
-                        Color, dom, on
-                    ) {
+                        SimpleMarkerSymbol,
+                        Graphic,
+                        GraphicsLayer,
+                        Color)
+                    {
                         map = new Map("tabMap", {
-                            basemap: "gray",
+                            basemap: "topo",
                             center: [-42.1737, 69.6354],
-                            zoom: 2
+                            zoom: 6
                         });
 
-                map.on("load", initOperationalLayer);
+                        map.on("load", initOperationalLayer);
 
                         function initOperationalLayer() {
 
                             var s = new SimpleMarkerSymbol().setStyle(SimpleMarkerSymbol.STYLE_SQUARE).setColor(new Color([255, 0, 0, 2]));
+//                            var gl = new GraphicsLayer();
+//                            map.addLayer(gl);
 
-                            var gl = new GraphicsLayer();
-                            map.addLayer(gl);
-                           
-                          
-                            for (var count = 0; count < searchList.length; count++) {
-                                var p = new Point(searchList[count].longitude, searchList[count].latitude);
-                                var i = {
-                                    x: searchList[count].longitude, y: searchList[count].latitude, SiteName: searchList[count].siteName,
-                                    SiteAddress: searchList[count].siteAddress, ReportedBy: searchList[count].reportedBy, ReportedOn: searchList[count].reportedOn,
-                                    Goto: "<a href='PreField?SiteIdx=" + searchList[count].site_Idx + "&returnURL=Search'" + "> Edit</a>"
-                                };
-                                var siteid = searchList[count].siteAddress;
-                                var it = new InfoTemplate("Coordinates");
-                                var g = new Graphic(p, s, i).setInfoTemplate(it);
-                                gl.add(g);                             
-                                                            
-                            }  
-                             //create an extent matching the graphics of the parcel(s)  
-                            var zoomExtent = esri.graphicsExtent(gl.graphics);
-                            map.setExtent(zoomExtent, true);
+                            siteArray.forEach(function (entry) {
+                                console.log(entry);
+                                var p = new Point(entry.latitude, entry.longitude);
+                                map.graphics.add(new Graphic(p, s));
+//                                var i = {
+//                                    x: entry.latitude, y: entry.longitude//, SiteName: item.siteName, SiteAddress: item.siteAddress, ReportedBy: item.reportedBy, ReportedOn: item.reportedOn,
+////                                    Goto: "<a href='PreField?id=" + item.site_Idx + "&returnURL=Search'" + ">Edit</a>"
+//                                };
+
+//                                var it = new InfoTemplate("Coordinates");
+//                                var g = new Graphic(p, s, i).setInfoTemplate(it);
+//                                var g = new Graphic(p, s);
+//                                gl.add(g);
+                            });
+
+
+                            //create an extent matching the graphics of the parcel(s)
+//                            var zoomExtent = esri.graphicsExtent(gl.graphics);
+                            //map.setExtent(zoomExtent, true);
                         }
-             });
 
-          }
-        </script>
+                    });
+
+            }
+    </script>
     }
 
 }

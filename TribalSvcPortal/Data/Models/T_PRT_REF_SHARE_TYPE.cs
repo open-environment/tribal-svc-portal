@@ -10,9 +10,9 @@ namespace TribalSvcPortal.Data.Models
             T_PRT_DOCUMENTS = new HashSet<T_PRT_DOCUMENTS>();
         }
 
-        public string ShareType { get; set; }
-        public string ShareDesc { get; set; }
-        public bool? ActInd { get; set; }
+        public string SHARE_TYPE { get; set; }
+        public string SHARE_DESC { get; set; }
+        public bool? ACT_IND { get; set; }
 
         public ICollection<T_PRT_DOCUMENTS> T_PRT_DOCUMENTS { get; set; }
     }

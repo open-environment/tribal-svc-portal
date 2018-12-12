@@ -5,10 +5,10 @@ namespace TribalSvcPortal.Data.Models
 {
     public partial class T_PRT_CLIENT_ROLES
     {
-        public int ClientRolesIdx { get; set; }
-        public string ClientRoleName { get; set; }
-        public string ClientId { get; set; }
+        public int CLIENT_ROLES_IDX { get; set; }
+        public string CLIENT_ROLE_NAME { get; set; }
+        public string CLIENT_ID { get; set; }
 
-        public T_PRT_CLIENTS Client { get; set; }
+        public T_PRT_CLIENTS CLIENT_ { get; set; }
     }
 }

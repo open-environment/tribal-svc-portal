@@ -10,13 +10,13 @@ namespace TribalSvcPortal.Data.Models
             T_PRT_DOCUMENTS = new HashSet<T_PRT_DOCUMENTS>();
         }
 
-        public string DocType { get; set; }
-        public string DocTypeDesc { get; set; }
-        public bool ActInd { get; set; }
-        public string CreateUserId { get; set; }
-        public DateTime? CreateDt { get; set; }
-        public string ModifyUserId { get; set; }
-        public DateTime? ModifyDt { get; set; }
+        public string DOC_TYPE { get; set; }
+        public string DOC_TYPE_DESC { get; set; }
+        public bool ACT_IND { get; set; }
+        public string CREATE_USER_ID { get; set; }
+        public DateTime? CREATE_DT { get; set; }
+        public string MODIFY_USER_ID { get; set; }
+        public DateTime? MODIFY_DT { get; set; }
 
         public ICollection<T_PRT_DOCUMENTS> T_PRT_DOCUMENTS { get; set; }
     }

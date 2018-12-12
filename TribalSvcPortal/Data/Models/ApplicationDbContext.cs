@@ -1,6 +1,4 @@
-﻿using System;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;  //add each time
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;  //add each time
 using Microsoft.Extensions.Configuration;  //add each time
@@ -10,8 +8,8 @@ namespace TribalSvcPortal.Data.Models
 {
     public partial class ApplicationDbContext : IdentityDbContext<ApplicationUser>  //modify each time
     {
-        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) //add each time
-            : base(options)
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) 
+            : base(options) //add each time
         {
         }
 
@@ -22,26 +20,34 @@ namespace TribalSvcPortal.Data.Models
         public virtual DbSet<T_PRT_CLIENTS> T_PRT_CLIENTS { get; set; }
         public virtual DbSet<T_PRT_DOCUMENTS> T_PRT_DOCUMENTS { get; set; }
         public virtual DbSet<T_PRT_ORG_CLIENT_ALIAS> T_PRT_ORG_CLIENT_ALIAS { get; set; }
+        public virtual DbSet<T_PRT_ORG_EMAIL_RULE> T_PRT_ORG_EMAIL_RULE { get; set; }
         public virtual DbSet<T_PRT_ORG_USER_CLIENT> T_PRT_ORG_USER_CLIENT { get; set; }
         public virtual DbSet<T_PRT_ORG_USERS> T_PRT_ORG_USERS { get; set; }
         public virtual DbSet<T_PRT_ORGANIZATIONS> T_PRT_ORGANIZATIONS { get; set; }
         public virtual DbSet<T_PRT_REF_DOC_STATUS_TYPE> T_PRT_REF_DOC_STATUS_TYPE { get; set; }
         public virtual DbSet<T_PRT_REF_DOC_TYPE> T_PRT_REF_DOC_TYPE { get; set; }
         public virtual DbSet<T_PRT_REF_SHARE_TYPE> T_PRT_REF_SHARE_TYPE { get; set; }
+        public virtual DbSet<T_PRT_REF_UNITS> T_PRT_REF_UNITS { get; set; }
         public virtual DbSet<T_PRT_SITE_INTERESTS> T_PRT_SITE_INTERESTS { get; set; }
         public virtual DbSet<T_PRT_SITES> T_PRT_SITES { get; set; }
         public virtual DbSet<T_PRT_SYS_EMAIL_LOG> T_PRT_SYS_EMAIL_LOG { get; set; }
-        public virtual DbSet<T_PRT_SYS_LOG> T_PRT_SYS_LOG { get; set; }  
+        public virtual DbSet<T_PRT_SYS_LOG> T_PRT_SYS_LOG { get; set; }
 
+        public virtual DbSet<T_OD_DUMP_ASSESSMENT_CLEANUP> T_OD_DUMP_ASSESSMENT_CLEANUP { get; set; }
+        public virtual DbSet<T_OD_DUMP_ASSESSMENT_CONTENT> T_OD_DUMP_ASSESSMENT_CONTENT { get; set; }
         public virtual DbSet<T_OD_DUMP_ASSESSMENT_DOCS> T_OD_DUMP_ASSESSMENT_DOCS { get; set; }
+        public virtual DbSet<T_OD_DUMP_ASSESSMENT_RESTORE> T_OD_DUMP_ASSESSMENT_RESTORE { get; set; }
         public virtual DbSet<T_OD_DUMP_ASSESSMENTS> T_OD_DUMP_ASSESSMENTS { get; set; }
+        public virtual DbSet<T_OD_REF_CLEANUP_ASSETS> T_OD_REF_CLEANUP_ASSETS { get; set; }
         public virtual DbSet<T_OD_REF_DATA> T_OD_REF_DATA { get; set; }
         public virtual DbSet<T_OD_REF_DATA_CATEGORIES> T_OD_REF_DATA_CATEGORIES { get; set; }
-        public virtual DbSet<T_OD_SITES> T_OD_SITES { get; set; }
+        public virtual DbSet<T_OD_REF_DISPOSAL> T_OD_REF_DISPOSAL { get; set; }
         public virtual DbSet<T_OD_REF_THREAT_FACTORS> T_OD_REF_THREAT_FACTORS { get; set; }
         public virtual DbSet<T_OD_REF_WASTE_TYPE> T_OD_REF_WASTE_TYPE { get; set; }
-        public virtual DbSet<T_OD_DUMP_ASSESSMENT_CONTENT> T_OD_DUMP_ASSESSMENT_CONTENT { get; set; }
-        public virtual DbSet<T_OD_REF_DISPOSAL> T_OD_REF_DISPOSAL { get; set; }
+        public virtual DbSet<T_OD_REF_WASTE_TYPE_CAT> T_OD_REF_WASTE_TYPE_CAT { get; set; }
+        public virtual DbSet<T_OD_REF_WASTE_TYPE_CAT_CLEANUP> T_OD_REF_WASTE_TYPE_CAT_CLEANUP { get; set; }
+        public virtual DbSet<T_OD_REF_WASTE_TYPE_UNITS> T_OD_REF_WASTE_TYPE_UNITS { get; set; }
+        public virtual DbSet<T_OD_SITES> T_OD_SITES { get; set; }
 
         //**************** END TABLES *******************************************************
 
@@ -75,583 +81,488 @@ namespace TribalSvcPortal.Data.Models
             /*************** TABLE COLUMNS START *******************/
             modelBuilder.Entity<T_PRT_APP_SETTINGS>(entity =>
             {
-                entity.HasKey(e => e.SettingIdx);
+                entity.HasKey(e => e.SETTING_IDX);
 
-                entity.Property(e => e.SettingIdx).HasColumnName("SETTING_IDX");
+                entity.Property(e => e.MODIFY_DT).HasColumnType("datetime2(0)");
 
-                entity.Property(e => e.EncryptInd).HasColumnName("ENCRYPT_IND");
+                entity.Property(e => e.MODIFY_USER_ID).HasMaxLength(450);
 
-                entity.Property(e => e.ModifyDt)
-                    .HasColumnName("MODIFY_DT")
-                    .HasColumnType("datetime2(0)");
+                entity.Property(e => e.SETTING_DESC).HasMaxLength(500);
 
-                entity.Property(e => e.ModifyUserId)
-                    .HasColumnName("MODIFY_USER_ID")
-                    .HasMaxLength(450);
-
-                entity.Property(e => e.SettingDesc)
-                    .HasColumnName("SETTING_DESC")
-                    .HasMaxLength(500);
-
-                entity.Property(e => e.SettingName)
+                entity.Property(e => e.SETTING_NAME)
                     .IsRequired()
-                    .HasColumnName("SETTING_NAME")
                     .HasMaxLength(100)
                     .IsUnicode(false);
 
-                entity.Property(e => e.SettingValue)
-                    .HasColumnName("SETTING_VALUE")
-                    .HasMaxLength(200);
+                entity.Property(e => e.SETTING_VALUE).HasMaxLength(200);
             });
 
             modelBuilder.Entity<T_PRT_APP_SETTINGS_CUSTOM>(entity =>
             {
-                entity.HasKey(e => e.SettingCustomIdx);
+                entity.HasKey(e => e.SETTING_CUSTOM_IDX);
 
-                entity.Property(e => e.SettingCustomIdx).HasColumnName("SETTING_CUSTOM_IDX");
+                entity.Property(e => e.ANNOUNCEMENTS).IsUnicode(false);
 
-                entity.Property(e => e.Announcements)
-                    .HasColumnName("ANNOUNCEMENTS")
-                    .IsUnicode(false);
-
-                entity.Property(e => e.TermsAndConditions)
-                    .HasColumnName("TERMS_AND_CONDITIONS")
-                    .IsUnicode(false);
+                entity.Property(e => e.TERMS_AND_CONDITIONS).IsUnicode(false);
             });
 
             modelBuilder.Entity<T_PRT_CLIENT_ROLES>(entity =>
             {
-                entity.HasKey(e => e.ClientRolesIdx);
+                entity.HasKey(e => e.CLIENT_ROLES_IDX);
 
-                entity.Property(e => e.ClientRolesIdx).HasColumnName("CLIENT_ROLES_IDX");
-
-                entity.Property(e => e.ClientId)
+                entity.Property(e => e.CLIENT_ID)
                     .IsRequired()
-                    .HasColumnName("CLIENT_ID")
                     .HasMaxLength(20)
                     .IsUnicode(false);
 
-                entity.Property(e => e.ClientRoleName)
-                    .HasColumnName("CLIENT_ROLE_NAME")
-                    .HasMaxLength(100);
+                entity.Property(e => e.CLIENT_ROLE_NAME).HasMaxLength(100);
 
-                entity.HasOne(d => d.Client)
+                entity.HasOne(d => d.CLIENT_)
                     .WithMany(p => p.T_PRT_CLIENT_ROLES)
-                    .HasForeignKey(d => d.ClientId)
+                    .HasForeignKey(d => d.CLIENT_ID)
                     .HasConstraintName("FK_T_PRT_CLIENT_ROLES_C");
             });
 
             modelBuilder.Entity<T_PRT_CLIENTS>(entity =>
             {
-                entity.HasKey(e => e.ClientId);
+                entity.HasKey(e => e.CLIENT_ID);
 
-                entity.Property(e => e.ClientId)
-                    .HasColumnName("CLIENT_ID")
+                entity.Property(e => e.CLIENT_ID)
                     .HasMaxLength(20)
                     .IsUnicode(false)
                     .ValueGeneratedNever();
 
-                entity.Property(e => e.ClientGrantType)
+                entity.Property(e => e.CLIENT_GRANT_TYPE)
                     .IsRequired()
-                    .HasColumnName("CLIENT_GRANT_TYPE")
                     .HasMaxLength(20)
                     .IsUnicode(false);
 
-                entity.Property(e => e.ClientImage).HasColumnName("CLIENT_IMAGE");
-
-                entity.Property(e => e.ClientLocalInd).HasColumnName("CLIENT_LOCAL_IND");
-
-                entity.Property(e => e.ClientName)
+                entity.Property(e => e.CLIENT_NAME)
                     .IsRequired()
-                    .HasColumnName("CLIENT_NAME")
                     .HasMaxLength(50)
                     .IsUnicode(false);
 
-                entity.Property(e => e.ClientPostLogoutUri)
-                    .HasColumnName("CLIENT_POST_LOGOUT_URI")
+                entity.Property(e => e.CLIENT_POST_LOGOUT_URI)
                     .HasMaxLength(250)
                     .IsUnicode(false);
 
-                entity.Property(e => e.ClientRedirectUri)
-                    .HasColumnName("CLIENT_REDIRECT_URI")
+                entity.Property(e => e.CLIENT_REDIRECT_URI)
                     .HasMaxLength(250)
                     .IsUnicode(false);
 
-                entity.Property(e => e.ClientUrl)
-                    .HasColumnName("CLIENT_URL")
+                entity.Property(e => e.CLIENT_URL)
                     .HasMaxLength(250)
                     .IsUnicode(false);
             });
 
             modelBuilder.Entity<T_PRT_DOCUMENTS>(entity =>
             {
-                entity.HasKey(e => e.DocIdx);
+                entity.HasKey(e => e.DOC_IDX);
 
-                entity.Property(e => e.DocIdx)
-                    .HasColumnName("DOC_IDX")
-                    .HasDefaultValueSql("(newid())");
+                entity.Property(e => e.DOC_IDX).HasDefaultValueSql("(newid())");
 
-                entity.Property(e => e.ActInd).HasColumnName("ACT_IND");
+                entity.Property(e => e.CREATE_DT).HasColumnType("datetime2(0)");
 
-                entity.Property(e => e.CreateDt)
-                    .HasColumnName("CREATE_DT")
-                    .HasColumnType("datetime2(0)");
+                entity.Property(e => e.CREATE_USER_ID).HasMaxLength(450);
 
-                entity.Property(e => e.CreateUserId).HasColumnName("CREATE_USER_ID");
-
-                entity.Property(e => e.DocAuthor)
-                    .HasColumnName("DOC_AUTHOR")
+                entity.Property(e => e.DOC_AUTHOR)
                     .HasMaxLength(100)
                     .IsUnicode(false);
 
-                entity.Property(e => e.DocComment)
-                    .HasColumnName("DOC_COMMENT")
+                entity.Property(e => e.DOC_COMMENT)
                     .HasMaxLength(200)
                     .IsUnicode(false);
 
-                entity.Property(e => e.DocContent).HasColumnName("DOC_CONTENT");
-
-                entity.Property(e => e.DocFileType)
-                    .HasColumnName("DOC_FILE_TYPE")
+                entity.Property(e => e.DOC_FILE_TYPE)
                     .HasMaxLength(75)
                     .IsUnicode(false);
 
-                entity.Property(e => e.DocName)
-                    .HasColumnName("DOC_NAME")
+                entity.Property(e => e.DOC_NAME)
                     .HasMaxLength(100)
                     .IsUnicode(false);
 
-                entity.Property(e => e.DocSize).HasColumnName("DOC_SIZE");
-
-                entity.Property(e => e.DocStatusType)
-                    .HasColumnName("DOC_STATUS_TYPE")
+                entity.Property(e => e.DOC_STATUS_TYPE)
                     .HasMaxLength(10)
                     .IsUnicode(false);
 
-                entity.Property(e => e.DocType)
-                    .HasColumnName("DOC_TYPE")
+                entity.Property(e => e.DOC_TYPE)
                     .HasMaxLength(50)
                     .IsUnicode(false);
 
-                entity.Property(e => e.ModifyDt)
-                    .HasColumnName("MODIFY_DT")
-                    .HasColumnType("datetime2(0)");
+                entity.Property(e => e.MODIFY_DT).HasColumnType("datetime2(0)");
 
-                entity.Property(e => e.ModifyUserId).HasColumnName("MODIFY_USER_ID");
+                entity.Property(e => e.MODIFY_USER_ID).HasMaxLength(450);
 
-                entity.Property(e => e.OrgId)
+                entity.Property(e => e.ORG_ID)
                     .IsRequired()
-                    .HasColumnName("ORG_ID")
                     .HasMaxLength(30)
                     .IsUnicode(false);
 
-                entity.Property(e => e.ShareType)
-                    .HasColumnName("SHARE_TYPE")
+                entity.Property(e => e.SHARE_TYPE)
                     .HasMaxLength(20)
                     .IsUnicode(false);
 
-                entity.HasOne(d => d.DocStatusTypeNavigation)
+                entity.HasOne(d => d.DOC_STATUS_TYPENavigation)
                     .WithMany(p => p.T_PRT_DOCUMENTS)
-                    .HasForeignKey(d => d.DocStatusType)
+                    .HasForeignKey(d => d.DOC_STATUS_TYPE)
                     .HasConstraintName("FK__T_PRT_DOC__DOC_S__33F4B129");
 
-                entity.HasOne(d => d.DocTypeNavigation)
+                entity.HasOne(d => d.DOC_TYPENavigation)
                     .WithMany(p => p.T_PRT_DOCUMENTS)
-                    .HasForeignKey(d => d.DocType)
+                    .HasForeignKey(d => d.DOC_TYPE)
                     .HasConstraintName("FK__T_PRT_DOC__DOC_T__320C68B7");
 
-                entity.HasOne(d => d.Org)
+                entity.HasOne(d => d.ORG_)
                     .WithMany(p => p.T_PRT_DOCUMENTS)
-                    .HasForeignKey(d => d.OrgId)
+                    .HasForeignKey(d => d.ORG_ID)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK__T_PRT_DOC__ORG_I__3118447E");
 
-                entity.HasOne(d => d.ShareTypeNavigation)
+                entity.HasOne(d => d.SHARE_TYPENavigation)
                     .WithMany(p => p.T_PRT_DOCUMENTS)
-                    .HasForeignKey(d => d.ShareType)
+                    .HasForeignKey(d => d.SHARE_TYPE)
                     .HasConstraintName("FK__T_PRT_DOC__SHARE__33008CF0");
             });
 
             modelBuilder.Entity<T_PRT_ORG_CLIENT_ALIAS>(entity =>
             {
-                entity.HasKey(e => new { e.OrgId, e.ClientId });
+                entity.HasKey(e => new { e.ORG_ID, e.CLIENT_ID });
 
-                entity.Property(e => e.OrgId)
-                    .HasColumnName("ORG_ID")
+                entity.Property(e => e.ORG_ID)
                     .HasMaxLength(30)
                     .IsUnicode(false);
 
-                entity.Property(e => e.ClientId)
-                    .HasColumnName("CLIENT_ID")
-                    .HasMaxLength(20);
+                entity.Property(e => e.CLIENT_ID).HasMaxLength(20);
 
-                entity.Property(e => e.OrgClientAlias)
+                entity.Property(e => e.ORG_CLIENT_ALIAS)
                     .IsRequired()
-                    .HasColumnName("ORG_CLIENT_ALIAS")
                     .HasMaxLength(30);
             });
 
+
+            modelBuilder.Entity<T_PRT_ORG_EMAIL_RULE>(entity =>
+            {
+                entity.HasKey(e => new { e.ORG_ID, e.EMAIL_STRING });
+
+                entity.Property(e => e.ORG_ID)
+                    .HasMaxLength(30)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.EMAIL_STRING)
+                    .HasMaxLength(100)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.MODIFY_DT).HasColumnType("datetime2(0)");
+
+                entity.HasOne(d => d.ORG_)
+                    .WithMany(p => p.T_PRT_ORG_EMAIL_RULE)
+                    .HasForeignKey(d => d.ORG_ID)
+                    .HasConstraintName("FK__T_PRT_ORG__ORG_I__2F1AED73");
+            });
+
+
             modelBuilder.Entity<T_PRT_ORG_USER_CLIENT>(entity =>
             {
-                entity.HasKey(e => e.OrgUserClientIdx);
+                entity.HasKey(e => e.ORG_USER_CLIENT_IDX);
 
-                entity.Property(e => e.OrgUserClientIdx).HasColumnName("ORG_USER_CLIENT_IDX");
-
-                entity.Property(e => e.AdminInd).HasColumnName("ADMIN_IND");
-
-                entity.Property(e => e.ClientId)
+                entity.Property(e => e.CLIENT_ID)
                     .IsRequired()
-                    .HasColumnName("CLIENT_ID")
                     .HasMaxLength(20)
                     .IsUnicode(false);
 
-                entity.Property(e => e.CreateDt)
-                    .HasColumnName("CREATE_DT")
-                    .HasColumnType("datetime2(0)");
+                entity.Property(e => e.CREATE_DT).HasColumnType("datetime2(0)");
 
-                entity.Property(e => e.CreateUserId)
-                    .HasColumnName("CREATE_USER_ID")
-                    .HasMaxLength(450);
+                entity.Property(e => e.CREATE_USER_ID).HasMaxLength(450);
 
-                entity.Property(e => e.ModifyDt)
-                    .HasColumnName("MODIFY_DT")
-                    .HasColumnType("datetime2(0)");
+                entity.Property(e => e.MODIFY_DT).HasColumnType("datetime2(0)");
 
-                entity.Property(e => e.ModifyUserId)
-                    .HasColumnName("MODIFY_USER_ID")
-                    .HasMaxLength(450);
+                entity.Property(e => e.MODIFY_USER_ID).HasMaxLength(450);
 
-                entity.Property(e => e.OrgUserIdx).HasColumnName("ORG_USER_IDX");
-
-                entity.Property(e => e.StatusInd)
+                entity.Property(e => e.STATUS_IND)
                     .IsRequired()
-                    .HasColumnName("STATUS_IND")
                     .HasMaxLength(1);
 
-                entity.HasOne(d => d.Client)
+                entity.HasOne(d => d.CLIENT_)
                     .WithMany(p => p.T_PRT_ORG_USER_CLIENT)
-                    .HasForeignKey(d => d.ClientId)
+                    .HasForeignKey(d => d.CLIENT_ID)
                     .HasConstraintName("FK_T_PRT_ORG_USER_CLIENT_ROLES_C");
 
-                entity.HasOne(d => d.OrgUserIdxNavigation)
+                entity.HasOne(d => d.ORG_USER_IDXNavigation)
                     .WithMany(p => p.T_PRT_ORG_USER_CLIENT)
-                    .HasForeignKey(d => d.OrgUserIdx)
+                    .HasForeignKey(d => d.ORG_USER_IDX)
                     .HasConstraintName("FK_T_PRT_ORG_USER_CLIENT_ROLES_U");
             });
 
             modelBuilder.Entity<T_PRT_ORG_USERS>(entity =>
             {
-                entity.HasKey(e => e.OrgUserIdx);
+                entity.HasKey(e => e.ORG_USER_IDX);
 
-                entity.Property(e => e.OrgUserIdx).HasColumnName("ORG_USER_IDX");
+                entity.Property(e => e.CREATE_DT).HasColumnType("datetime2(0)");
 
-                entity.Property(e => e.CreateDt)
-                    .HasColumnName("CREATE_DT")
-                    .HasColumnType("datetime2(0)");
-
-                entity.Property(e => e.CreateUserId)
-                    .HasColumnName("CREATE_USER_ID")
-                    .HasMaxLength(450);
+                entity.Property(e => e.CREATE_USER_ID).HasMaxLength(450);
 
                 entity.Property(e => e.Id)
                     .IsRequired()
                     .HasMaxLength(450);
 
-                entity.Property(e => e.ModifyDt)
-                    .HasColumnName("MODIFY_DT")
-                    .HasColumnType("datetime2(0)");
+                entity.Property(e => e.MODIFY_DT).HasColumnType("datetime2(0)");
 
-                entity.Property(e => e.ModifyUserId)
-                    .HasColumnName("MODIFY_USER_ID")
-                    .HasMaxLength(450);
+                entity.Property(e => e.MODIFY_USER_ID).HasMaxLength(450);
 
-                entity.Property(e => e.OrgAdminInd).HasColumnName("ORG_ADMIN_IND");
-
-                entity.Property(e => e.OrgId)
+                entity.Property(e => e.ORG_ID)
                     .IsRequired()
-                    .HasColumnName("ORG_ID")
                     .HasMaxLength(30)
                     .IsUnicode(false);
 
-                entity.Property(e => e.StatusInd)
+                entity.Property(e => e.STATUS_IND)
                     .IsRequired()
-                    .HasColumnName("STATUS_IND")
                     .HasMaxLength(1);
 
-                entity.HasOne(d => d.Org)
+                entity.HasOne(d => d.ORG_)
                     .WithMany(p => p.T_PRT_ORG_USERS)
-                    .HasForeignKey(d => d.OrgId)
+                    .HasForeignKey(d => d.ORG_ID)
                     .HasConstraintName("FK_T_PRT_ORG_USERS_T");
             });
 
             modelBuilder.Entity<T_PRT_ORGANIZATIONS>(entity =>
             {
-                entity.HasKey(e => e.OrgId);
+                entity.HasKey(e => e.ORG_ID);
 
-                entity.Property(e => e.OrgId)
-                    .HasColumnName("ORG_ID")
+                entity.Property(e => e.ORG_ID)
                     .HasMaxLength(30)
                     .IsUnicode(false)
                     .ValueGeneratedNever();
 
-                entity.Property(e => e.OrgName)
+                entity.Property(e => e.ORG_NAME)
                     .IsRequired()
-                    .HasColumnName("ORG_NAME")
                     .HasMaxLength(100);
             });
 
             modelBuilder.Entity<T_PRT_REF_DOC_STATUS_TYPE>(entity =>
             {
-                entity.HasKey(e => e.DocStatusType);
+                entity.HasKey(e => e.DOC_STATUS_TYPE);
 
-                entity.Property(e => e.DocStatusType)
-                    .HasColumnName("DOC_STATUS_TYPE")
+                entity.Property(e => e.DOC_STATUS_TYPE)
                     .HasMaxLength(10)
                     .IsUnicode(false)
                     .ValueGeneratedNever();
 
-                entity.Property(e => e.ActInd).HasColumnName("ACT_IND");
+                entity.Property(e => e.CREATE_DT).HasColumnType("datetime2(0)");
 
-                entity.Property(e => e.CreateDt)
-                    .HasColumnName("CREATE_DT")
-                    .HasColumnType("datetime2(0)");
+                entity.Property(e => e.CREATE_USER_ID).HasMaxLength(450);
 
-                entity.Property(e => e.CreateUserId)
-                    .HasColumnName("CREATE_USER_ID")
-                    .HasMaxLength(450);
+                entity.Property(e => e.MODIFY_DT).HasColumnType("datetime2(0)");
 
-                entity.Property(e => e.ModifyDt)
-                    .HasColumnName("MODIFY_DT")
-                    .HasColumnType("datetime2(0)");
-
-                entity.Property(e => e.ModifyUserId)
-                    .HasColumnName("MODIFY_USER_ID")
-                    .HasMaxLength(450);
+                entity.Property(e => e.MODIFY_USER_ID).HasMaxLength(450);
             });
 
             modelBuilder.Entity<T_PRT_REF_DOC_TYPE>(entity =>
             {
-                entity.HasKey(e => e.DocType);
+                entity.HasKey(e => e.DOC_TYPE);
 
-                entity.Property(e => e.DocType)
-                    .HasColumnName("DOC_TYPE")
+                entity.Property(e => e.DOC_TYPE)
                     .HasMaxLength(50)
                     .IsUnicode(false)
                     .ValueGeneratedNever();
 
-                entity.Property(e => e.ActInd).HasColumnName("ACT_IND");
+                entity.Property(e => e.CREATE_DT).HasColumnType("datetime2(0)");
 
-                entity.Property(e => e.CreateDt)
-                    .HasColumnName("CREATE_DT")
-                    .HasColumnType("datetime2(0)");
+                entity.Property(e => e.CREATE_USER_ID).HasMaxLength(450);
 
-                entity.Property(e => e.CreateUserId)
-                    .HasColumnName("CREATE_USER_ID")
-                    .HasMaxLength(450);
-
-                entity.Property(e => e.DocTypeDesc)
-                    .HasColumnName("DOC_TYPE_DESC")
+                entity.Property(e => e.DOC_TYPE_DESC)
                     .HasMaxLength(200)
                     .IsUnicode(false);
 
-                entity.Property(e => e.ModifyDt)
-                    .HasColumnName("MODIFY_DT")
-                    .HasColumnType("datetime2(0)");
+                entity.Property(e => e.MODIFY_DT).HasColumnType("datetime2(0)");
 
-                entity.Property(e => e.ModifyUserId)
-                    .HasColumnName("MODIFY_USER_ID")
-                    .HasMaxLength(450);
+                entity.Property(e => e.MODIFY_USER_ID).HasMaxLength(450);
             });
 
             modelBuilder.Entity<T_PRT_REF_SHARE_TYPE>(entity =>
             {
-                entity.HasKey(e => e.ShareType);
+                entity.HasKey(e => e.SHARE_TYPE);
 
-                entity.Property(e => e.ShareType)
-                    .HasColumnName("SHARE_TYPE")
+                entity.Property(e => e.SHARE_TYPE)
                     .HasMaxLength(20)
                     .IsUnicode(false)
                     .ValueGeneratedNever();
 
-                entity.Property(e => e.ActInd)
-                    .HasColumnName("ACT_IND")
+                entity.Property(e => e.ACT_IND)
+                    .IsRequired()
                     .HasDefaultValueSql("((1))");
 
-                entity.Property(e => e.ShareDesc)
+                entity.Property(e => e.SHARE_DESC)
                     .IsRequired()
-                    .HasColumnName("SHARE_DESC")
                     .HasMaxLength(50)
+                    .IsUnicode(false);
+            });
+
+            modelBuilder.Entity<T_PRT_REF_UNITS>(entity =>
+            {
+                entity.HasKey(e => e.UNIT_MSR_IDX);
+
+                entity.Property(e => e.UNIT_MSR_IDX).ValueGeneratedNever();
+
+                entity.Property(e => e.CREATE_DT).HasColumnType("datetime2(0)");
+
+                entity.Property(e => e.CREATE_USER_ID).HasMaxLength(450);
+
+                entity.Property(e => e.MODIFY_DT).HasColumnType("datetime2(0)");
+
+                entity.Property(e => e.MODIFY_USER_ID).HasMaxLength(450);
+
+                entity.Property(e => e.UNIT_CONVERSION).HasColumnType("decimal(18, 5)");
+
+                entity.Property(e => e.UNIT_MSR_CAT)
+                    .HasMaxLength(25)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.UNIT_MSR_CD)
+                    .HasMaxLength(25)
                     .IsUnicode(false);
             });
 
             modelBuilder.Entity<T_PRT_SITE_INTERESTS>(entity =>
             {
-                entity.HasKey(e => e.SiteInterestIdx);
+                entity.HasKey(e => e.SITE_INTEREST_IDX);
 
-                entity.Property(e => e.SiteInterestIdx)
-                    .HasColumnName("SITE_INTEREST_IDX")
-                    .ValueGeneratedNever();
+                entity.Property(e => e.SITE_INTEREST_IDX).ValueGeneratedNever();
 
-                entity.Property(e => e.CreateDt)
-                    .HasColumnName("CREATE_DT")
-                    .HasColumnType("datetime2(0)");
+                entity.Property(e => e.CREATE_DT).HasColumnType("datetime2(0)");
 
-                entity.Property(e => e.CreateUserId)
-                    .HasColumnName("CREATE_USER_ID")
-                    .HasMaxLength(450);
+                entity.Property(e => e.CREATE_USER_ID).HasMaxLength(450);
 
-                entity.Property(e => e.InterestName)
+                entity.Property(e => e.INTEREST_NAME)
                     .IsRequired()
-                    .HasColumnName("INTEREST_NAME")
                     .HasMaxLength(50)
                     .IsUnicode(false);
 
-                entity.Property(e => e.ModifyDt)
-                    .HasColumnName("MODIFY_DT")
-                    .HasColumnType("datetime2(0)");
+                entity.Property(e => e.MODIFY_DT).HasColumnType("datetime2(0)");
 
-                entity.Property(e => e.ModifyUserId)
-                    .HasColumnName("MODIFY_USER_ID")
-                    .HasMaxLength(450);
+                entity.Property(e => e.MODIFY_USER_ID).HasMaxLength(450);
 
-                entity.Property(e => e.SiteIdx).HasColumnName("SITE_IDX");
-
-                entity.HasOne(d => d.SiteIdxNavigation)
+                entity.HasOne(d => d.SITE_IDXNavigation)
                     .WithMany(p => p.T_PRT_SITE_INTERESTS)
-                    .HasForeignKey(d => d.SiteIdx)
+                    .HasForeignKey(d => d.SITE_IDX)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_T_PRT_SITES_INTERESTS_S");
             });
 
             modelBuilder.Entity<T_PRT_SITES>(entity =>
             {
-                entity.HasKey(e => e.SiteIdx);
+                entity.HasKey(e => e.SITE_IDX);
 
-                entity.Property(e => e.SiteIdx)
-                    .HasColumnName("SITE_IDX")
-                    .ValueGeneratedNever();
+                entity.Property(e => e.SITE_IDX).ValueGeneratedNever();
 
-                entity.Property(e => e.CreateDt)
-                    .HasColumnName("CREATE_DT")
-                    .HasColumnType("datetime2(0)");
+                entity.Property(e => e.CREATE_DT).HasColumnType("datetime2(0)");
 
-                entity.Property(e => e.CreateUserId)
-                    .HasColumnName("CREATE_USER_ID")
-                    .HasMaxLength(450);
+                entity.Property(e => e.CREATE_USER_ID).HasMaxLength(450);
 
-                entity.Property(e => e.EpaId)
-                    .HasColumnName("EPA_ID")
+                entity.Property(e => e.EPA_ID)
                     .HasMaxLength(50)
                     .IsUnicode(false);
 
-                entity.Property(e => e.Latitude)
-                    .HasColumnName("LATITUDE")
-                    .HasColumnType("decimal(18, 5)");
+                entity.Property(e => e.LATITUDE).HasColumnType("decimal(18, 5)");
 
-                entity.Property(e => e.Longitude)
-                    .HasColumnName("LONGITUDE")
-                    .HasColumnType("decimal(18, 5)");
+                entity.Property(e => e.LONGITUDE).HasColumnType("decimal(18, 5)");
 
-                entity.Property(e => e.ModifyDt)
-                    .HasColumnName("MODIFY_DT")
-                    .HasColumnType("datetime2(0)");
+                entity.Property(e => e.MODIFY_DT).HasColumnType("datetime2(0)");
 
-                entity.Property(e => e.ModifyUserId)
-                    .HasColumnName("MODIFY_USER_ID")
-                    .HasMaxLength(450);
+                entity.Property(e => e.MODIFY_USER_ID).HasMaxLength(450);
 
-                entity.Property(e => e.OrgId)
+                entity.Property(e => e.ORG_ID)
                     .IsRequired()
-                    .HasColumnName("ORG_ID")
                     .HasMaxLength(30)
                     .IsUnicode(false);
 
-                entity.Property(e => e.SiteAddress)
-                    .HasColumnName("SITE_ADDRESS")
-                    .HasMaxLength(400);
+                entity.Property(e => e.SITE_ADDRESS).HasMaxLength(400);
 
-                entity.Property(e => e.SiteName)
+                entity.Property(e => e.SITE_NAME)
                     .IsRequired()
-                    .HasColumnName("SITE_NAME")
                     .HasMaxLength(100)
                     .IsUnicode(false);
 
-                entity.HasOne(d => d.Org)
+                entity.HasOne(d => d.ORG_)
                     .WithMany(p => p.T_PRT_SITES)
-                    .HasForeignKey(d => d.OrgId)
+                    .HasForeignKey(d => d.ORG_ID)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_T_PRT_SITES_O");
             });
 
             modelBuilder.Entity<T_PRT_SYS_EMAIL_LOG>(entity =>
             {
-                entity.HasKey(e => e.EmailLogId);
+                entity.HasKey(e => e.EMAIL_LOG_ID);
 
-                entity.Property(e => e.EmailLogId).HasColumnName("EMAIL_LOG_ID");
-
-                entity.Property(e => e.EmailType)
-                    .HasColumnName("EMAIL_TYPE")
+                entity.Property(e => e.EMAIL_TYPE)
                     .HasMaxLength(15)
                     .IsUnicode(false);
 
-                entity.Property(e => e.LogCc)
-                    .HasColumnName("LOG_CC")
+                entity.Property(e => e.LOG_CC)
                     .HasMaxLength(200)
                     .IsUnicode(false);
 
-                entity.Property(e => e.LogDt)
-                    .HasColumnName("LOG_DT")
-                    .HasColumnType("datetime2(0)");
+                entity.Property(e => e.LOG_DT).HasColumnType("datetime2(0)");
 
-                entity.Property(e => e.LogFrom)
-                    .HasColumnName("LOG_FROM")
+                entity.Property(e => e.LOG_FROM)
                     .HasMaxLength(200)
                     .IsUnicode(false);
 
-                entity.Property(e => e.LogMsg)
-                    .HasColumnName("LOG_MSG")
+                entity.Property(e => e.LOG_MSG)
                     .HasMaxLength(2000)
                     .IsUnicode(false);
 
-                entity.Property(e => e.LogSubj)
-                    .HasColumnName("LOG_SUBJ")
+                entity.Property(e => e.LOG_SUBJ)
                     .HasMaxLength(200)
                     .IsUnicode(false);
 
-                entity.Property(e => e.LogTo)
-                    .HasColumnName("LOG_TO")
+                entity.Property(e => e.LOG_TO)
                     .HasMaxLength(200)
                     .IsUnicode(false);
             });
 
             modelBuilder.Entity<T_PRT_SYS_LOG>(entity =>
             {
-                entity.HasKey(e => e.SysLogId);
+                entity.HasKey(e => e.SYS_LOG_ID);
 
-                entity.Property(e => e.SysLogId).HasColumnName("SYS_LOG_ID");
+                entity.Property(e => e.LOG_DT).HasColumnType("datetime2(0)");
 
-                entity.Property(e => e.LogDt)
-                    .HasColumnName("LOG_DT")
-                    .HasColumnType("datetime2(0)");
+                entity.Property(e => e.LOG_MSG).HasMaxLength(2000);
 
-                entity.Property(e => e.LogMsg)
-                    .HasColumnName("LOG_MSG")
-                    .HasMaxLength(2000);
-
-                entity.Property(e => e.LogType)
-                    .HasColumnName("LOG_TYPE")
+                entity.Property(e => e.LOG_TYPE)
                     .HasMaxLength(15)
                     .IsUnicode(false);
 
-                entity.Property(e => e.LogUserId)
-                    .HasColumnName("LOG_USER_ID")
-                    .HasMaxLength(450);
+                entity.Property(e => e.LOG_USER_ID).HasMaxLength(450);
             });
 
             /*************** TABLE COLUMNS END   *******************/
 
 
             /*************** OD TABLE COLUMNS START   *******************/
+            modelBuilder.Entity<T_OD_DUMP_ASSESSMENT_CLEANUP>(entity =>
+            {
+                entity.HasKey(e => e.DUMP_ASSESSMENT_CLEANUP_IDX);
+
+                entity.Property(e => e.DUMP_ASSESSMENT_CLEANUP_IDX).HasDefaultValueSql("(newid())");
+
+                entity.Property(e => e.CLEANUP_COST).HasColumnType("decimal(10, 2)");
+
+                entity.Property(e => e.REF_ASSET_NAME)
+                    .IsRequired()
+                    .HasMaxLength(100)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.REF_WASTE_TYPE_CAT)
+                    .IsRequired()
+                    .HasMaxLength(100)
+                    .IsUnicode(false);
+
+                entity.HasOne(d => d.DUMP_ASSESSMENTS_IDXNavigation)
+                    .WithMany(p => p.T_OD_DUMP_ASSESSMENT_CLEANUP)
+                    .HasForeignKey(d => d.DUMP_ASSESSMENTS_IDX)
+                    .HasConstraintName("FK_T_OD_DUMP_ASSESS_CLEAN_A");
+            });
+
             modelBuilder.Entity<T_OD_DUMP_ASSESSMENT_CONTENT>(entity =>
             {
                 entity.HasKey(e => e.DUMP_ASSESSMENTS_CONTENT_IDX);
@@ -667,7 +578,6 @@ namespace TribalSvcPortal.Data.Models
                 entity.HasOne(d => d.DUMP_ASSESSMENTS_IDXNavigation)
                     .WithMany(p => p.T_OD_DUMP_ASSESSMENT_CONTENT)
                     .HasForeignKey(d => d.DUMP_ASSESSMENTS_IDX)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_T_OD_DUMP_ASSESS_CNT_A");
 
                 entity.HasOne(d => d.REF_WASTE_TYPE_IDXNavigation)
@@ -684,8 +594,35 @@ namespace TribalSvcPortal.Data.Models
                 entity.HasOne(d => d.DUMP_ASSESSMENTS_IDXNavigation)
                     .WithMany(p => p.T_OD_DUMP_ASSESSMENT_DOCS)
                     .HasForeignKey(d => d.DUMP_ASSESSMENTS_IDX)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_T_OD_DUMP_ASSESS_DOCS_A");
+            });
+
+            modelBuilder.Entity<T_OD_DUMP_ASSESSMENT_RESTORE>(entity =>
+            {
+                entity.HasKey(e => e.DUMP_ASSESSMENT_RESTORE_IDX);
+
+                entity.Property(e => e.DUMP_ASSESSMENT_RESTORE_IDX).HasDefaultValueSql("(newid())");
+
+                entity.Property(e => e.MODIFY_DT).HasColumnType("datetime2(0)");
+
+                entity.Property(e => e.MODIFY_USER_ID).HasMaxLength(450);
+
+                entity.Property(e => e.RESTORE_ACTIVITY)
+                    .IsRequired()
+                    .HasMaxLength(100)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.RESTORE_CAT)
+                    .IsRequired()
+                    .HasMaxLength(20)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.RESTORE_COST).HasColumnType("decimal(10, 2)");
+
+                entity.HasOne(d => d.DUMP_ASSESSMENTS_IDXNavigation)
+                    .WithMany(p => p.T_OD_DUMP_ASSESSMENT_RESTORE)
+                    .HasForeignKey(d => d.DUMP_ASSESSMENTS_IDX)
+                    .HasConstraintName("FK_T_OD_DUMP_ASSESS_RESTORE_A");
             });
 
             modelBuilder.Entity<T_OD_DUMP_ASSESSMENTS>(entity =>
@@ -765,7 +702,6 @@ namespace TribalSvcPortal.Data.Models
                 entity.HasOne(d => d.SITE_IDXNavigation)
                     .WithMany(p => p.T_OD_DUMP_ASSESSMENTS)
                     .HasForeignKey(d => d.SITE_IDX)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_T_OD_DUMP_ASSESSMENTS_S");
             });
 
@@ -815,7 +751,7 @@ namespace TribalSvcPortal.Data.Models
                     .WithMany(p => p.T_OD_REF_DATA)
                     .HasForeignKey(d => d.REF_DATA_CAT_NAME)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__T_OD_REF___REF_D__4E3E9311");
+                    .HasConstraintName("FK__T_OD_REF___REF_D__13DCE752");
             });
 
             modelBuilder.Entity<T_OD_REF_DATA_CATEGORIES>(entity =>
@@ -873,6 +809,10 @@ namespace TribalSvcPortal.Data.Models
 
                 entity.Property(e => e.REF_WASTE_TYPE_IDX).HasDefaultValueSql("(newid())");
 
+                entity.Property(e => e.DENSITY_LBS_CUYD).HasColumnType("decimal(18, 5)");
+
+                entity.Property(e => e.DENSITY_LBS_UNIT).HasColumnType("decimal(18, 5)");
+
                 entity.Property(e => e.MODIFY_DT).HasColumnType("datetime2(0)");
 
                 entity.Property(e => e.MODIFY_USER_ID).HasMaxLength(450);
@@ -929,14 +869,26 @@ namespace TribalSvcPortal.Data.Models
                 entity.HasOne(d => d.REF_ASSET_NAMENavigation)
                     .WithMany(p => p.T_OD_REF_WASTE_TYPE_CAT_CLEANUP)
                     .HasForeignKey(d => d.REF_ASSET_NAME)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_T_OD_REF_WASTE_TYPE_CAT_CLEANUP_A");
 
                 entity.HasOne(d => d.REF_WASTE_TYPE_CATNavigation)
                     .WithMany(p => p.T_OD_REF_WASTE_TYPE_CAT_CLEANUP)
                     .HasForeignKey(d => d.REF_WASTE_TYPE_CAT)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_T_OD_REF_WASTE_TYPE_CAT_CLEANUP_C");
+            });
+
+            modelBuilder.Entity<T_OD_REF_WASTE_TYPE_UNITS>(entity =>
+            {
+                entity.HasKey(e => new { e.REF_WASTE_TYPE_IDX, e.UNIT_MSR_IDX });
+
+                entity.Property(e => e.MODIFY_DT).HasColumnType("datetime2(0)");
+
+                entity.Property(e => e.MODIFY_USER_ID).HasMaxLength(450);
+
+                entity.HasOne(d => d.REF_WASTE_TYPE_IDXNavigation)
+                    .WithMany(p => p.T_OD_REF_WASTE_TYPE_UNITS)
+                    .HasForeignKey(d => d.REF_WASTE_TYPE_IDX)
+                    .HasConstraintName("FK_T_OD_REF_WASTE_TYPE_UNITS_W");
             });
 
             modelBuilder.Entity<T_OD_SITES>(entity =>

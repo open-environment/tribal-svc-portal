@@ -1,0 +1,212 @@
+﻿@model TribalSvcPortal.ViewModels.OpenDumpViewModels.Cleanup2ViewModel
+
+<div id="tabs" class="tabbable">
+    <ul id="myTab" class="nav nav-tabs tab-blue">
+        <li>
+            <a href="@Url.Action("PreField", "OpenDump", new { id = Model.Assessment.SITE_IDX })">
+                Pre-Field
+            </a>
+        </li>
+        <li>
+            <a href="@Url.Action("AssessmentDetails", "OpenDump", new { id = Model.Assessment.DUMP_ASSESSMENTS_IDX })">
+                Field Assessments
+            </a>
+        </li>
+        <li>
+            <a href="@Url.Action("WasteProfile", "OpenDump", new { id = Model.Assessment.DUMP_ASSESSMENTS_IDX })">
+                Waste Profile/Health Threat
+            </a>
+        </li>
+        <li class="active">
+            <a href="#tab4" data-toggle="tab">
+                Site Cleanup
+            </a>
+        </li>
+    </ul>
+
+    <div class="tab-content">
+        <div class="tab-pane in active" id="tab4">
+            <!-- render the main content -->
+
+            <section class="panel panel-default" style="margin-top:5px;">
+                <div class="panel-heading">
+                    Cleanup Costs
+                    <div class="panel-tools">
+                        <a class="btn btn-xs panel-collapse collapses" href="#">
+                        </a>
+                    </div>
+                </div>
+                <div class="panel-body">
+                    <div class="row form-group">
+                        <div class="col-lg-12">
+                            <div class="table-responsive">
+                                <table class="table table-hover table-striped m-b-none" data-ride="datatables">
+                                    <thead>
+                                        <tr class="thead-inverse">
+                                            <th></th>
+                                            <th>Category</th>
+                                            <th>Dump Total for Cateogry</th>
+                                            <th>Cleanup Resource</th>
+                                            <th>Resources Hourly Rate</th>
+                                            <th>Processing Rate</th>
+                                            <th>Calculated Cost</th>
+                                        </tr>
+                                    </thead>
+                                    <tfoot>
+                                        <tr class="tfoot-inverse">
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td class="text-bold">Total:</td>
+                                            <td class="text-bold"><span id="tot"></span></td>
+                                        </tr>
+                                    </tfoot>
+
+                                    @foreach (var item in Model.AssessmentCleanups)
+                                    {
+                                    <tr>
+                                        <td>
+                                            @Html.HiddenFor(model => item.DUMP_ASSESSMENT_CLEANUP_IDX)
+                                            @Html.HiddenFor(model => item.DUMP_ASSESSMENTS_IDX)
+                                            @Html.HiddenFor(model => item.CLEANUP_COST, new { @class = "subtot" })
+                                            <a href="#modal-form" class="btn btn-rounded btn-xs btn-info modal-it" data-toggle="modal"><i class="glyphicon glyphicon-pencil"></i></a>
+                                            <div class="delete-section" style="display:inline">
+                                                <a class=" btn btn-rounded btn-xs btn-danger delete-link"><i class="glyphicon glyphicon-remove"></i></a>
+                                                <div class="btn btn-rounded btn-xs btn-warning delete-confirm" style="display:none" data-delete-id="@item.DUMP_ASSESSMENT_CLEANUP_IDX" data-delete-p="/OpenDump/Cleanup2Delete" data-success-url="/OpenDump/CleanupRestoration/@item.DUMP_ASSESSMENTS_IDX"><b>Confirm Delete</b></div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(model => item.REF_WASTE_TYPE_CAT)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(model => item.sumCat)
+                                        </td>
+                                        <td>
+                                            @if (item.ASSET_COUNT > 1)
+                                            {
+                                                <text><span class="text-blue text-bold">(@Html.DisplayFor(model => item.ASSET_COUNT)x) </span></text>
+                                            }
+                                            @Html.DisplayFor(model => item.REF_ASSET_NAME)
+                                        </td>
+                                        <td>
+                                            $@Html.DisplayFor(model => item.ASSET_HOURLY_RATE) / @if (item.PER_UNIT_IND == true)
+                                            {<text>unit</text>}
+                                            else
+                                            {<text>hr</text>}
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(model => item.PROCESS_RATE_PER_HR) @Html.DisplayFor(model => item.PROCESS_RATE_UNIT)
+                                        </td>
+                                        <td>
+                                            @string.Format("{0:C}", item.CLEANUP_COST)
+                                        </td>
+                                    </tr>
+                                    }
+
+                                </table>
+                            </div>
+
+                        </div>
+                    </div>
+                    <a href="@Url.Action("Cleanup", "OpenDump", new { id = Model.Assessment.DUMP_ASSESSMENTS_IDX })" class="btn btn-rounded btn-rounded btn-primary">Back</a>
+                </div>
+            </section>
+
+        </div>
+    </div>
+</div>
+
+
+
+<!-- START MODAL FORM  -->
+@*<div class="modal fade" id="modal-form" style="display: none;" aria-hidden="true">
+    <div class="modal-dialog">
+        @using (Html.BeginForm("RestoreAdd", "OpenDump", FormMethod.Post, new { @class = "", @id = "norepostform" }))
+        {
+            @Html.AntiForgeryToken()
+            @Html.HiddenFor(model => model.Assessment.DUMP_ASSESSMENTS_IDX)
+            @Html.HiddenFor(model => model.edit_restore_idx)
+            @Html.HiddenFor(model => model.rESTORE_CAT)
+
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+                    <h3 class="modal-tital">
+                        Add @if (Model.rESTORE_CAT == "Restore")
+                        {<text>Restoration</text> }
+                    else if (Model.rESTORE_CAT == "Surveil")
+                    {
+                        <text>Surveilance</text>} Activity
+                    </h3>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-sm-12 ">
+                            <div class="panel-body">
+                                <div class="row">
+                                    <div class="col-md-9">
+                                        <div class="form-group">
+                                            <label>Restoration Activity</label>
+                                            @Html.TextBoxFor(model => model.newRestoreActivity, new { @class = "form-control", @data_required = "true" })
+                                            @Html.ValidationMessageFor(model => model.newRestoreActivity)
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label>Amount</label>
+                                            @Html.TextBoxFor(model => model.newRestoreAmt, new { @class = "form-control", @data_required = "true" })
+                                            @Html.ValidationMessageFor(model => model.newRestoreAmt)
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="picLoc" type="submit" class="btn btn-sm btn-primary">Save</button>
+                    <button class="btn btn-sm btn-default" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        }
+    </div>
+</div>*@
+<!-- END MODAL FORM -->
+
+@section Scripts {
+    <script src="~/js/confirm_delete.js"></script>
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+
+
+            //display total on page ready
+            CalcTotal();
+
+            function CalcTotal() {
+                var _tot = 0;
+                $(".subtot").each(function () {
+                    _tot += parseFloat(this.value);
+                });
+                $("#tot").text("$ " + _tot.toFixed(2));
+            }
+
+
+
+            //create an event when button is clicked to display modal
+            $(".modal-it").click(function () {
+                $('#edit_restore_idx').val($(this).parent('td').find('#item_DUMP_ASSESSMENT_RESTORE_IDX').val());
+                $('#newRestoreActivity').val($(this).parent('td').find('#item_RESTORE_ACTIVITY').val());
+                $('#newRestoreAmt').val($(this).parent('td').find('#item_RESTORE_COST').val());
+            });
+
+            $(".add-it").click(function () {
+                $('#edit_restore_idx').val(null);
+                $('#newRestoreActivity').val('');
+                $('#newRestoreAmt').val('');
+            });
+        });
+    </script>
+}

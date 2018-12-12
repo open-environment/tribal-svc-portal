@@ -4,8 +4,8 @@
     ViewBag.SubTitle = "Select the parcels covered by this dump.";
 }
 
-<link rel="stylesheet" href="https://js.arcgis.com/3.25/dijit/themes/tundra/tundra.css">
-<link rel="stylesheet" href="https://js.arcgis.com/3.25/esri/css/esri.css">
+<link rel="stylesheet" href="https://js.arcgis.com/3.26/dijit/themes/tundra/tundra.css">
+<link rel="stylesheet" href="https://js.arcgis.com/3.26/esri/css/esri.css">
 @*<link rel="stylesheet" href="https://js.arcgis.com/4.8/esri/css/main.css">*@
 
 <style>
@@ -40,23 +40,28 @@
 
 @section scripts {
     @*<script src="https://js.arcgis.com/4.8/"></script>*@
-    <script src="https://js.arcgis.com/3.25/"></script>
+    <script src="https://js.arcgis.com/3.26/"></script>
 
     <script>
             var map, dialog;
             require([
                 "esri/map",
-                "esri/views/MapView",
                 "esri/layers/FeatureLayer",
+                "esri/symbols/SimpleFillSymbol",
+                "esri/symbols/SimpleLineSymbol",
+                "esri/renderers/SimpleRenderer",
+                "esri/graphic",
+                "esri/lang",
+                "esri/Color",
+                "dojo/number",
+                "dojo/dom-style",
+                "dijit/TooltipDialog",
+                "dijit/popup",
                 "dojo/domReady!"
-
-                ,"esri/symbols/SimpleFillSymbol", "esri/symbols/SimpleLineSymbol",
-                "esri/renderers/SimpleRenderer", "esri/graphic", "esri/lang",
-                "esri/Color", "dojo/number", "dojo/dom-style",
-                "dijit/TooltipDialog", "dijit/popup"
             ], function (
                 Map, FeatureLayer,
-                SimpleFillSymbol, SimpleLineSymbol, SimpleRenderer, Graphic, esriLang,
+                SimpleFillSymbol, SimpleLineSymbol,
+                SimpleRenderer, Graphic, esriLang,
                 Color, number, domStyle,
                 TooltipDialog, dijitPopup
             ) {
@@ -67,22 +72,21 @@
                         slider: false
                     });
 
-                    var oKParcels = new FeatureLayer("http://gisportal.mcn-nsn.gov:6080/arcgis/rest/services/Parcels/CreekCountyParcels/MapServer/0", {
-                        mode: FeatureLayer.MODE_SNAPSHOT,
-                        outFields: ["Parcel_Num", "Address", "Owner", "Acres"]
-                    });
-                    //var oKParcels = new FeatureLayer("https://gisportal.mcn-nsn.gov:6443/arcgis/rest/services/Parcels/CreekCountyParcels/MapServer/0", {
+                    //var oKParcels = new FeatureLayer("http://gisportal.mcn-nsn.gov:6080/arcgis/rest/services/Parcels/CreekCountyParcels/MapServer/0", {
                     //    mode: FeatureLayer.MODE_SNAPSHOT,
                     //    outFields: ["Parcel_Num", "Address", "Owner", "Acres"]
                     //});
 
+                    var oKParcels = new FeatureLayer("https://gisportal.mcn-nsn.gov:6443/arcgis/rest/services/Parcels/CreekCountyParcels/MapServer/0", {
+                        mode: FeatureLayer.MODE_SNAPSHOT,
+                        outFields: ["Parcel_Num", "Address", "Owner", "Acres"]
+                    });
 
-
-                    //var southCarolinaCounties = new FeatureLayer("https://sampleserver1.arcgisonline.com/ArcGIS/rest/services/Demographics/ESRI_Census_USA/MapServer/3", {
-                    //    mode: FeatureLayer.MODE_SNAPSHOT,
-                    //    outFields: ["NAME", "POP2000", "POP2007", "POP00_SQMI", "POP07_SQMI"]
-                    //});
-                    //southCarolinaCounties.setDefinitionExpression("STATE_NAME = 'South Carolina'");
+                    var southCarolinaCounties = new FeatureLayer("https://sampleserver1.arcgisonline.com/ArcGIS/rest/services/Demographics/ESRI_Census_USA/MapServer/3", {
+                        mode: FeatureLayer.MODE_SNAPSHOT,
+                        outFields: ["NAME", "POP2000", "POP2007", "POP00_SQMI", "POP07_SQMI"]
+                    });
+                    southCarolinaCounties.setDefinitionExpression("STATE_NAME = 'South Carolina'");
 
                     var symbol = new SimpleFillSymbol(
                         SimpleFillSymbol.STYLE_SOLID,

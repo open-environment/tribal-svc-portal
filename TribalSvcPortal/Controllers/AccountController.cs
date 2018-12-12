@@ -1,26 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Claims;
-using System.Threading.Tasks;
+﻿using IdentityServer4.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using TribalSvcPortal.Data.Models;
-using TribalSvcPortal.ViewModels.AccountViewModels;
-using TribalSvcPortal.Services;
-using TribalSvcPortal.AppLogic.DataAccessLayer;
-using TribalSvcPortal.AppLogic.BusinessLogicLayer;
-using System.Text.Encodings.Web;
-using Microsoft.EntityFrameworkCore;
-using System.IO;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
+using System;
+using System.Collections.Generic;
+using System.Security.Claims;
+using System.Text.Encodings.Web;
 using System.Threading;
+using System.Threading.Tasks;
+using TribalSvcPortal.AppLogic.BusinessLogicLayer;
+using TribalSvcPortal.AppLogic.DataAccessLayer;
+using TribalSvcPortal.Data.Models;
+using TribalSvcPortal.Services;
+using TribalSvcPortal.ViewModels.AccountViewModels;
 
 namespace TribalSvcPortal.Controllers
 {
@@ -28,26 +25,30 @@ namespace TribalSvcPortal.Controllers
     [Route("[controller]/[action]")]
     public class AccountController : Controller
     {
+        private readonly IIdentityServerInteractionService _interaction;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly IEmailSender _emailSender;
-        private readonly ILogger _logger;       
         private readonly IDbPortal _DbPortal;
         private readonly IMemoryCache _memoryCache;
+        private readonly ILogger _logger;
 
-        public AccountController(UserManager<ApplicationUser> userManager,
+        public AccountController(
+             IIdentityServerInteractionService interaction,
+            UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
             IEmailSender emailSender,
             IDbPortal DbPortal,
             IMemoryCache memoryCache,
-        ILogger<AccountController> logger)
+            ILogger<AccountController> logger)
         {
+            _interaction = interaction;
             _userManager = userManager;
             _signInManager = signInManager;
             _emailSender = emailSender;
-            _logger = logger;
             _DbPortal = DbPortal;
             _memoryCache = memoryCache;
+            _logger = logger;
         }
 
         [TempData]
@@ -82,58 +83,33 @@ namespace TribalSvcPortal.Controllers
                         return View(model);
                     }
                 }
-                // This doesn't count login failures towards account lockout
+
                 // To enable password failures to trigger account lockout, set lockoutOnFailure: true
-                 var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, lockoutOnFailure: false);
+                var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, lockoutOnFailure: true);
 
                 if (result.Succeeded)
                 {
-                    IEnumerable<T_PRT_CLIENTS> UserClientDisplayType ;
-                  
-                    string _UserIDX = user.Id;                  
+                    string CacheKey = "UserMenuData" + user.Id;
+                    _memoryCache.Remove(CacheKey);
 
-                    string CacheKey = "UserMenuData" + _UserIDX;
-
-                    bool isExist = _memoryCache.TryGetValue(CacheKey, out UserClientDisplayType);
-                    if (!isExist)
-                    {
-                        var cts = new CancellationTokenSource();
-
-                        var cacheEntryOptions = new MemoryCacheEntryOptions()                       
-                        .SetPriority(CacheItemPriority.High)
-                        .SetSlidingExpiration(TimeSpan.FromHours(1))
-                        .SetAbsoluteExpiration(TimeSpan.FromHours(1))
-                        .AddExpirationToken(new CancellationChangeToken(cts.Token));
-                     
-                        UserClientDisplayType = _DbPortal.GetT_PRT_ORG_USERS_CLIENT_DistinctClientByUserID(_UserIDX);
-                        _memoryCache.Set(CacheKey, UserClientDisplayType, cacheEntryOptions);
-                        _memoryCache.Set("UserID", _UserIDX, cacheEntryOptions);
-                    }
-                   else
-                    {    
-                        _memoryCache.Remove("UserID");
-                        _memoryCache.Remove(CacheKey);
-
-                        var cts = new CancellationTokenSource();
-
-                        var cacheEntryOptions = new MemoryCacheEntryOptions()
+                    var cts = new CancellationTokenSource();
+                    var cacheEntryOptions = new MemoryCacheEntryOptions()
                         .SetPriority(CacheItemPriority.High)
                         .SetSlidingExpiration(TimeSpan.FromHours(1))
                         .SetAbsoluteExpiration(TimeSpan.FromHours(1))
                         .AddExpirationToken(new CancellationChangeToken(cts.Token));
 
-                        UserClientDisplayType = _DbPortal.GetT_PRT_ORG_USERS_CLIENT_DistinctClientByUserID(_UserIDX);
-                        _memoryCache.Set(CacheKey, UserClientDisplayType, cacheEntryOptions);
-                        _memoryCache.Set("UserID", _UserIDX, cacheEntryOptions);
-                    }
-                  
+                    IEnumerable<T_PRT_CLIENTS> UserClientDisplayType = _DbPortal.GetT_PRT_ORG_USERS_CLIENT_DistinctClientByUserID(user.Id);
+                    _memoryCache.Set(CacheKey, UserClientDisplayType, cacheEntryOptions);
                     _logger.LogInformation("User logged in.");
                     return RedirectToLocal(returnUrl);
                 }
+
                 if (result.RequiresTwoFactor)
                 {
                     return RedirectToAction(nameof(LoginWith2fa), new { returnUrl, model.RememberMe });
                 }
+
                 if (result.IsLockedOut)
                 {
                     _logger.LogWarning("User account locked out.");
@@ -272,7 +248,13 @@ namespace TribalSvcPortal.Controllers
         public IActionResult Register(string returnUrl = null)
         {
             ViewData["ReturnUrl"] = returnUrl;
-            return View();
+            T_PRT_APP_SETTINGS_CUSTOM cust = _DbPortal.GetT_PRT_APP_SETTINGS_CUSTOM();
+            var model = new RegisterViewModel
+            {
+                termsConditions = cust.TERMS_AND_CONDITIONS
+            };
+
+            return View(model);
         }
 
         [HttpPost]
@@ -284,7 +266,7 @@ namespace TribalSvcPortal.Controllers
             ViewData["ReturnUrl"] = returnUrl;
             if (ModelState.IsValid)
             {
-                var user = new ApplicationUser { UserName = model.Email, Email = model.Email };
+                var user = new ApplicationUser { UserName = model.Email, Email = model.Email, FIRST_NAME = model.FirstName, LAST_NAME = model.LastName };
                 var result = await _userManager.CreateAsync(user, model.Password);
                 if (result.Succeeded)
                 {
@@ -293,10 +275,17 @@ namespace TribalSvcPortal.Controllers
                     var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
                     var callbackUrl = Url.EmailConfirmationLink(user.Id, code, Request.Scheme);                 
 
-                    Utils.SendEmail(null, model.Email, null, null, "Confirm your email", $"Please confirm your account by clicking this link: <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>link</a>", null, null, "");
-     
+                    Utils.SendEmail(null, model.Email, null, null, "Confirm your email", $"Please confirm your Tribal Services account by clicking this link: <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>link</a>", null, null, "");
+
                     //Prevent newly registered users from being automatically logged
                     //await _signInManager.SignInAsync(user, isPersistent: false);
+
+                    //associate user with org
+                    List<T_PRT_ORGANIZATIONS> orgs = _DbPortal.GetT_PRT_ORGANIZATIONS_ByEmail(model.Email);
+                    if (orgs != null && orgs.Count == 1)
+                    {
+                        _DbPortal.InsertUpdateT_PRT_ORG_USERS(null, orgs[0].ORG_ID, user.Id, false, "A", user.Id);
+                    }
 
                     _logger.LogInformation("User created a new account with password.");
                     return RedirectToLocal(returnUrl);
@@ -308,25 +297,70 @@ namespace TribalSvcPortal.Controllers
             return View(model);
         }
 
+
+        [AllowAnonymous]
+        public JsonResult LookupAgencyEmail(string email)
+        {
+            List<T_PRT_ORGANIZATIONS> orgs = _DbPortal.GetT_PRT_ORGANIZATIONS_ByEmail(email);
+            if (orgs != null && orgs.Count == 1)
+            {
+                return Json(new
+                {
+                    msg = "Success",
+                    orgid = orgs[0].ORG_ID,
+                    orgname = orgs[0].ORG_NAME
+                });
+            }
+
+            return Json(new { msg = "None" });
+        }
+
+
+        [AllowAnonymous]
+        [HttpGet]
+        public async Task<IActionResult> Logout(string logoutId)
+        {
+            // build a model so the logout page knows what to display
+            var vm = new LogoutViewModel {
+                LogoutId = logoutId,
+                ShowLogoutPrompt = true
+                };
+
+            var user = Request.HttpContext.User;
+
+            if (user == null || user.Identity.IsAuthenticated == false)
+                vm.ShowLogoutPrompt = false;
+            else
+            {
+                var context = await _interaction.GetLogoutContextAsync(logoutId);
+                if (context?.ShowSignoutPrompt == false)
+                    vm.ShowLogoutPrompt = false;
+            }
+
+            if (vm.ShowLogoutPrompt == false)
+            {
+                // if the request for logout was properly authenticated from IdentityServer, then
+                // we don't need to show the prompt and can just log the user out directly.
+                return await Logout();
+            }
+            else
+            {
+                return View(vm);
+            }
+        }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Logout()
         {
+            //remove left menu from memory cache
+            _memoryCache.Remove("UserMenuData" + _userManager.GetUserId(Request.HttpContext.User));
+
+            //log out (delete local authentication cookie)
             await _signInManager.SignOutAsync();
-            string _UserIDX;
-            string CacheKey="";
-            IEnumerable<T_PRT_CLIENTS> UserClientDisplayType;
-            bool isUserExist = _memoryCache.TryGetValue("UserID", out _UserIDX);
-            if (isUserExist)
-            {
-                CacheKey = "UserMenuData" + _UserIDX;
-
-                bool isExist = _memoryCache.TryGetValue(CacheKey, out UserClientDisplayType);
-            }
-            _memoryCache.Remove("UserID");
-            _memoryCache.Remove(CacheKey);
-
             _logger.LogInformation("User logged out.");
+
+            //redirect user to main page
             return RedirectToAction(nameof(HomeController.Index), "Home");
         }
 
@@ -537,7 +571,7 @@ namespace TribalSvcPortal.Controllers
             }
             else
             {
-                return RedirectToAction(nameof(HomeController.Index), "Home");
+                return RedirectToAction(nameof(DashboardController.Index), "Dashboard");
             }
         }
 

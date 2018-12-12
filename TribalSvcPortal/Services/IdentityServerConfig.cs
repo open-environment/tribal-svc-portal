@@ -1,23 +1,24 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using IdentityServer4.Models;
-using System.Security.Claims;
-using IdentityServer4;
-using TribalSvcPortal.Data.Models;
-using IdentityServer4.Services;
-using Microsoft.AspNetCore.Identity;
+﻿using IdentityServer4;
 using IdentityServer4.Extensions;
-using TribalSvcPortal.AppLogic.DataAccessLayer;
+using IdentityServer4.Models;
+using IdentityServer4.Services;
+using IdentityServer4.Stores;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
+using System.Linq;
+using System.Security.Claims;
+using System.Threading.Tasks;
+using TribalSvcPortal.AppLogic.DataAccessLayer;
+using TribalSvcPortal.Data.Models;
 
 namespace TribalSvcPortal
 {
-   internal class Config
+       
+    internal class IdentityServerConfig
     {
-        public static IDbPortal _DbPortal = new DbPortal();      
-
         ////Returns list of Clients
+
         //public static IEnumerable<Client> GetClientsHardCode()
         //{
         //    return new List<Client> {
@@ -55,6 +56,9 @@ namespace TribalSvcPortal
         //    };
         //}
 
+        private static ApplicationDbContext ctx = new ApplicationDbContext(new DbContextOptions<ApplicationDbContext>());
+        public static IDbPortal _DbPortal = new DbPortal(ctx);
+
         public static IEnumerable<Client> GetClients2()
         {
             List<T_PRT_CLIENTS> dbclients = _DbPortal.GetT_PRT_CLIENTS();
@@ -63,9 +67,9 @@ namespace TribalSvcPortal
             foreach (T_PRT_CLIENTS dbclient in dbclients)
             {
                 Client _client = new Client();
-                _client.ClientId = dbclient.ClientId;
-                _client.ClientName = dbclient.ClientName;
-                _client.AllowedGrantTypes = (dbclient.ClientGrantType == "HYBRID" ? GrantTypes.Hybrid : GrantTypes.Implicit);
+                _client.ClientId = dbclient.CLIENT_ID;
+                _client.ClientName = dbclient.CLIENT_NAME;
+                _client.AllowedGrantTypes = (dbclient.CLIENT_GRANT_TYPE == "HYBRID" ? GrantTypes.Hybrid : GrantTypes.Implicit);
                 _client.RequireConsent = false;
                 _client.AllowedScopes = new List<string>
                 {
@@ -73,8 +77,8 @@ namespace TribalSvcPortal
                     IdentityServerConstants.StandardScopes.Profile,
                     IdentityServerConstants.StandardScopes.Email,
                 };
-                _client.RedirectUris = new List<string> { dbclient.ClientRedirectUri };
-                _client.PostLogoutRedirectUris = new List<string> { dbclient.ClientPostLogoutUri };
+                _client.RedirectUris = new List<string> { dbclient.CLIENT_REDIRECT_URI };
+                _client.PostLogoutRedirectUris = new List<string> { dbclient.CLIENT_POST_LOGOUT_URI };
 
                 _clients.Add(_client);
             }
@@ -92,8 +96,10 @@ namespace TribalSvcPortal
                 new IdentityResources.Email()
             };
         }
+
     }
-    public class CustomProfileService : IProfileService
+
+    internal class CustomProfileService : IProfileService
     {
         private readonly IUserClaimsPrincipalFactory<ApplicationUser> _claimsFactory;
         private readonly UserManager<ApplicationUser> _userManager;
@@ -125,7 +131,6 @@ namespace TribalSvcPortal
             {
                 cs.Add(new Claim(claim.CLIENT_ID, claim.ORG_CLIENT_ALIAS + ";" + claim.ADMIN_IND + ";" + claim.STATUS_IND));
             }
-
 
             context.IssuedClaims = cs;
         }

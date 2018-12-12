@@ -1,434 +1,375 @@
-﻿@model TribalSvcPortal.ViewModels.OpenDumpViewModels.OpenDumpViewModel
-@using TribalSvcPortal.ViewModels.OpenDumpViewModels;
-@{
-    ViewBag.SubTitle = "";
-    ViewBag.Title = "";
+﻿@model TribalSvcPortal.ViewModels.OpenDumpViewModels.PreFieldViewModel
 
-}
 <link rel="stylesheet" href="https://js.arcgis.com/3.25/esri/css/esri.css">
 
 <!-- render the main content -->
 <div class="row">
     <div class="col-sm-12">
+        <div id="tabs" class="tabbable">
+            <ul id="myTab" class="nav nav-tabs tab-blue">
+                <li class="active">
+                    <a href="#tab1" data-toggle="tab">
+                        Pre-Field
+                    </a>
+                </li>
+                <li>
+                    <a href="@Url.Action("Assessments", "OpenDump", new { id = Model.TPrtSite.SITE_IDX })">
+                        Field Assessments
+                    </a>
+                </li>
+                @*<li>
+                    <a href="@Url.Action("WasteProfile", "OpenDump")">
+                        Waste Profile/Health Threat
+                    </a>
+                </li>
+                <li>
+                    <a href="@Url.Action("Cleanup", "OpenDump")">
+                        Site Cleanup
+                    </a>
+                </li>*@
+            </ul>
+            <div class="tab-content">
+                <div class="tab-pane in active" id="tab1">
+                    <!-- render the main content -->
+                    @using (Html.BeginForm("PreField", "OpenDump", FormMethod.Post, new { @id = "norepostform", enctype = "multipart/form-data" }))
+                    {
+                        @Html.AntiForgeryToken()
+                        @Html.HiddenFor(model => model.TPrtSite.SITE_IDX)
+                        @Html.HiddenFor(model => model.returnURL)
+                        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                        <div class="row">
+                            <div class="col-sm-12" style="margin-top: 8px;">
+                                <div>
+                                    <label class="col-sm-1 control-label" style="margin-top:8px;">
+                                        Site Name
+                                    </label>
+                                    <div class="col-sm-3">
+                                        @Html.TextBoxFor(model => model.TPrtSite.SITE_NAME, new { @class = "form-control", @placeholder = "", @maxlength = "100", required = "required" })
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="col-sm-1 control-label" style="margin-top:8px;">
+                                        Organization
+                                    </label>
+                                    <div class="col-sm-3">
+                                        @Html.DropDownListFor(model => model.TPrtSite.ORG_ID, Model.OrgList, "", new { @class = "form-control", required = "required" })
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="col-sm-1 control-label" style="margin-top:8px;">
+                                        EPA ID
+                                    </label>
+                                    <div class="col-sm-3">
+                                        @Html.TextBoxFor(model => model.TPrtSite.EPA_ID, new { @class = "form-control", @placeholder = "", @maxlength = "50" })
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <section class="panel panel-default" style="margin-top:5px;">
+                            <div class="panel-heading">
+                                Location
+                                <div class="panel-tools">
+                                    <a class="btn btn-xs panel-collapse collapses" href="#">
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="panel-body">
+                                <div class="row">
+                                    <div class="col-lg-6 col-md-6 col-sm-6" style="border-right: 2px solid black;">
+                                        <div class="row">
+                                            <div class="col-md-4">
+                                                <div class="form-group">
+                                                    <label>Latitude</label>
+                                                    @Html.TextBoxFor(model => model.TPrtSite.LATITUDE, new { @id = "latitude", @class = "form-control", @placeholder = "", @maxlength = "18" })
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="form-group">
+                                                    <label>Longitude</label>
+                                                    @Html.TextBoxFor(model => model.TPrtSite.LONGITUDE, new { @id = "longitude", @class = "form-control", @placeholder = "", @maxlength = "18" })
+                                                </div>
+                                            </div>
+                                            <div class="col-md-2">
+                                                <label>&nbsp;</label>
+                                                <a href="#modal-form" data-toggle="modal" id="btnShow" class="btn btn-primary" >Select on Map</a>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <div class="form-group">
+                                                    <label>Street Address or Road/Intersection</label>
+                                                    @Html.TextAreaFor(model => model.TPrtSite.SITE_ADDRESS, new { @class = "form-control", @placeholder = "", @maxlength = "400" })
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <div class="form-group">
+                                                    <label>Community</label>
+                                                    @Html.DropDownListFor(model => model.TOdSite.COMMUNITY_IDX, Model.CommunityList, "", new { @class = "form-control" })
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <label class="col-sm-12 control-label" style="margin-top:8px;">
+                                                <b><u>Proximity Factors</u></b>
+                                            </label>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label>Site Setting</label>
+                                                    @Html.DropDownListFor(model => model.TOdSite.SITE_SETTING_IDX, Model.SiteSettingsList, "", new { @class = "form-control" })
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label>Distance to Homes</label>
+                                                    @Html.DropDownListFor(model => model.TOdSite.PF_HOMES_DIST, Model.HomesList, "", new { @class = "form-control" })
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label>Vertical Dist. to DW Aquifer</label>
+                                                    @Html.DropDownListFor(model => model.TOdSite.PF_AQUIFER_VERT_DIST, Model.AquiferList, "", new { @class = "form-control" })
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label>Horiz Dist. to SW Bodies</label>
+                                                    @Html.DropDownListFor(model => model.TOdSite.PF_SURF_WATER_HORIZ_DIST, Model.SurfaceWaterList, "", new { @class = "form-control" })
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 col-md-6 col-sm-6" >
+                                        <div class="row" style="background-color:#4F4F4F; padding:6px;">
+                                            <label style="color:white; font-size:11pt;">Auto-populated</label>
+                                        </div>
+                                        <div class="row">
+                                            <label class="col-sm-4 control-label" style="text-align: right;">
+                                                State:
+                                            </label>
+                                            <div class="col-sm-8">
+                                                Test data
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <label class="col-sm-4 control-label" style="text-align: right;">
+                                                Country:
+                                            </label>
+                                            <div class="col-sm-8">
+                                                Test data
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <label class="col-sm-4 control-label" style="text-align: right;">
+                                                ZIP:
+                                            </label>
+                                            <div class="col-sm-8">
+                                                Test data
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <label class="col-sm-4 control-label" style="text-align: right;">
+                                                Section/Twp/Range:
+                                            </label>
+                                            <div class="col-sm-8">
+                                                Test data
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <label class="col-sm-4 control-label" style="text-align: right;">
+                                                Topographic Quadrangle:
+                                            </label>
+                                            <div class="col-sm-8">
+                                                Test data
+                                            </div>
+                                        </div>
+                                        <div class="row" style="background-color:#4F4F4F; padding:6px;">
+                                            <label style="color:white; font-size:11pt;">Parcels</label>
+                                            <button type="button" name="btnAddMore" class="btn btn-primary pull-right btn-xs">Add More</button>
+                                        </div>
 
-        @Html.AntiForgeryToken()
-        @Html.HiddenFor(model => model.oPreFieldViewModel.TPrtSites.SiteIdx)
-        @Html.HiddenFor(model => model.oPreFieldViewModel.selOrg)
-        @Html.HiddenFor(model => model.oPreFieldViewModel.returnURL)
-        @Html.HiddenFor(model => model.oPreFieldViewModel.activeTab)
-        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
-
-        <div id="job_details_div" class="@Html.Raw("col-sm-12"))" style="margin-top:10px;margin-top:10px;">
-            <!-- *********************** START TABS ****************************************** -->
-            <div id="tabs" class="tabbable">
-                <ul id="myTab" class="nav nav-tabs tab-blue">
-                    <li class="@(Model.ActiveTab == OpenDumpTab.Prefield  ? "active" : "")">
-                        <a href="#tab1" data-toggle="tab">
-                            Pre-Field
-                        </a>
-                    </li>
-                    <li class="@(Model.ActiveTab == OpenDumpTab.FieldAssessment  ? "active" : "")">
-                        <a href="#tab2" data-toggle="tab">
-                            Field Assessments
-                        </a>
-                    </li>
-                    <li class="@(Model.ActiveTab == OpenDumpTab.HealthThreat  ? "active" : "")">
-                        <a href="#tab3" data-toggle="tab" id="atab3">
-                            Waste Profile/Health Threat
-                        </a>
-                    </li>
-                    <li class="@(Model.ActiveTab == OpenDumpTab.SiteCleanUp  ? "active" : "")">
-                        <a href="#tab4" data-toggle="tab" id="atab4">
-                            Site Cleanup
-                        </a>
-                    </li>
-                </ul>
-                <div class="tab-content">
-                    <div class="@(Model.ActiveTab == OpenDumpTab.Prefield  ? "tab-pane in active" : "tab-pane")" id="tab1">
-                        @await Component.InvokeAsync("PreField", new { SiteIdx = Model.oPreFieldViewModel.TPrtSites.SiteIdx, returnURL = Model.oPreFieldViewModel.returnURL })
-
-                    </div>
-                    <div class="@(Model.ActiveTab == OpenDumpTab.FieldAssessment  ? "tab-pane in active" : "tab-pane")" id="tab2">
-                        @await Component.InvokeAsync("FieldAssessments", new { SiteIdx = Model.oPreFieldViewModel.TPrtSites.SiteIdx, AssessmentIdx = Model.oFieldAssessmentViewModel.selDumpAssessmentIdx })
-                    </div>
-                    <div class="@(Model.ActiveTab == OpenDumpTab.HealthThreat  ? "tab-pane in active" : "tab-pane")" id="tab3">
-                        @await Component.InvokeAsync("HealthThreat", new { SiteIdx = Model.oPreFieldViewModel.TPrtSites.SiteIdx, AssessmentIdx = Model.oFieldAssessmentViewModel.selDumpAssessmentIdx })
-                    </div>
-                    <div class="@(Model.ActiveTab == OpenDumpTab.SiteCleanUp  ? "tab-pane in active" : "tab-pane")" id="tab4">
-                        @await Component.InvokeAsync("SiteCleanup", new { SiteIdx = Model.oPreFieldViewModel.TPrtSites.SiteIdx, AssessmentIdx = Model.oFieldAssessmentViewModel.selDumpAssessmentIdx })
-                    </div>
-
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+                        <section class="panel panel-default" style="margin-top:5px;">
+                            <div class="panel-heading">
+                                Initial Report
+                                <div class="panel-tools">
+                                    <a class="btn btn-xs panel-collapse collapses" href="#">
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="panel-body">
+                                <div class="row">
+                                    <div class="col-md-3 col-sm-6">
+                                        <div class="form-group">
+                                            <label>Reported By</label>
+                                            @Html.TextBoxFor(model => model.TOdSite.REPORTED_BY, new { @class = "form-control", @placeholder = "", @maxlength = "50" })
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3 col-sm-6">
+                                        <div class="form-group">
+                                            <label>Reported On</label>
+                                            @Html.TextBoxFor(model => model.TOdSite.REPORTED_ON, "{0:MM/dd/yyyy}", new { @id = "date", @class = "form-control datepicker" })
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <button id="btnSave" name="submitButton" disabled type="submit" class="btn btn-eecip">Save</button>
+                                <a href="@Url.Action(Model.returnURL, "OpenDump")" class="btn btn-default">Close</a>
+                            </div>
+                        </div>
+                    }
                 </div>
             </div>
-            <!-- *********************** END TABS ****************************************** -->
+        </div>
+    </div>
+</div>
+
+<!-- map modal  -->
+<div class="modal fade" id="modal-form" style="display: none;" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 style="float: left" class="modal-title">Select Site on Map</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-sm-12 ">
+                        <p>Click on the map to locate the site.</p>
+                        <form role="form">
+                            <div class="panel-body" style="padding: 0px">
+                                    <div id="map_canvas" style="width: 100%; height: 400px;" ></div>
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        Latitude:
+                                        <input id="txtLat1" class="form-control" value="" />
+                                    </div>
+                                    <div class="col-md-3">
+                                        Longitude:
+                                        <input id="txtLong1" class="form-control" value="" />
+                                    </div>
+                                    <div class="col-md-3">
+                                        &nbsp;
+                                        <button id="picLoc" type="submit" class="btn btn-primary form-control" data-dismiss="modal"><strong>Continue</strong></button>
+                                    </div>
+                                    <div class="col-md-3">
+                                            &nbsp;
+                                            <button type="submit" class="btn btn-default form-control" data-dismiss="modal"><strong>Cancel</strong></button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
 
 
-
 @section scripts {
-    <script src="~/js/confirm_delete.js">
-    </script>
-    <style>
-        .disabledAnchor {
-            pointer-events: none !important;
-            cursor: default;
-            color: white;
-        }
-    </style>
+    <script src="~/js/jquery.are-you-sure.js"></script>
     <script type="text/javascript">
-        $(function () {
-            // get date from MyDate input field
-            var dateAssessment = $("#dateAssessment").val();
 
-            // use current date as default, if input is empty
-            if (!dateAssessment) {
-                dateAssessment = new Date();
-
-            }
-            $('#dateAssessment').datepicker({
-                changeMonth: true,
-                changeYear: true,
-                format: "mm-dd-yyyy",
-                language: "tr",
-                autoclose: true,
-                todayBtn: 'linked',
-                dateFormat: 'mm/dd/yy'
-
-            });
-
+        //warn user if leaving unsaved page
+        $('form').areYouSure();
+        $('form').on('dirty.areYouSure', function () {
+            $("#btnSave").prop("disabled", false);
         });
-    </script>
-    <script type="text/javascript">
+        $('form').on('clean.areYouSure', function () {
+            $("#btnSave").prop("disabled", true);
+        });
+
+
         $(document).ready(function () {
 
-            if (@Model.oFieldAssessmentViewModel.AssessmentDropDownList.Count()==1)
-            {
-                $('#atab3').addClass('disabledAnchor');
-                $('#atab4').addClass('disabledAnchor');
-            }
-            else
-            {
-                $('#atab3').removeClass('disabledAnchor');
-                $('#atab4').removeClass('disabledAnchor');
-            }
-
-            $('.descinfo').click(function () {
-                var dad = $(this).parent();
-                dad.find("#divHideOnEdit").hide();
-                dad.find("#divShowOnEdit").show().focus();
-                return false;
-            });
-
-            $('.activity').click(function () {
-                    var dad = $(this).parent();
-                    dad.find("#divPhotoHideOnEdit").hide();
-                    dad.find("#divPhotoShowOnEdit").show().focus();
-                    return false;
-                });
-                // get date from MyDate input field
-                var date = $("#date").val();
-
-                // use current date as default, if input is empty
-                if (!date) {
-                    date = new Date();
-                }
-
-            $('#date').datepicker({
-                    changeMonth: true,
-                changeYear: true,
-                format: "mm-dd-yyyy",
-                language: "tr",
+            // datepicker dropdown
+            $('.datepicker').datepicker({
+                format: "mm/dd/yyyy",
                 autoclose: true,
                 todayBtn: 'linked'
             });
-                // get date from MyDate input field
-                var dateAssessment = $("#dateAssessment").val();
 
-                // use current date as default, if input is empty
-                if (!dateAssessment) {
-                    dateAssessment = new Date();
-
-                }
-            $('#dateAssessment').datepicker({
-                    changeMonth: true,
-                changeYear: true,
-                format: "mm-dd-yyyy",
-                language: "tr",
-                autoclose: true,
-                todayBtn: 'linked',
-                dateFormat: 'mm/dd/yy'
-
+            //pass coordinates to modal
+            $('#btnShow').click(function () {
+                $("#txtLat1").val($("#latitude").val());
+                $("#txtLong1").val($("#longitude").val());
+                LoadMap();
             });
 
+            //update the saved coordinates back to main form
+            $('#picLoc').click(function () {
+                $("#latitude").val($("#txtLat1").val());
+                $("#longitude").val($("#txtLong1").val());
+                $('form').trigger('rescan.areYouSure');
             });
-        //file upload display filename
-        $("input[id='files']").change(function (e) {
-            var $this = $(this);
-            var FileSize = this.files[0].size / 1024 / 1024;
-            if (!this.files[0].type.includes("application"))
-            {
-                $('#files').val('');
-                alert("only files can be uploaded!")
-                e.preventDefault();
-            }
-            else if (FileSize > 20) {
-                $('#files').val('');
-                alert('Files cannot exceed 20 MB');
-            }
-            else {
-                $("#filename1").val($this.val().split('\\').pop());
-            }
         });
-        //file upload display filename
-        $("input[id='filesPhoto']").change(function (e) {
-            var $this = $(this);
-            var FileSize = this.files[0].size / 1024 / 1024;
-            if (!this.files[0].type.includes("image")) {
-                $('#filesPhoto').val('');
-                alert("Only .jpg/.jpeg/.gif/.png files can be uploaded!")
-                e.preventDefault();
-            }
-            else if (FileSize > 20) {
-                $('#filesPhoto').val('');
-                alert('Files cannot exceed 20 MB');
-            }
-            else {
-                $("#filename1").val($this.val().split('\\').pop());
-            }
-        });
-        function GetSubScore(valueIdx, modelx, name) {
-            var Total = 0;
-
-            for (var i = 0; i < modelx.length;i++)
-            {
-                if (valueIdx != "") {
-                    if (valueIdx.toLowerCase() == modelx[i].threaT_FACTOR_IDX) {
-                        $("#label" + modelx[i].threaT_FACTOR_TYPE).text(modelx[i].threaT_FACTOR_SCORE);
-                    }
-                }
-                else
-                {
-                    $("#label" + name).text('');
-                }
-            }
-            $(".labelclass").each(function () {
-                if ($(this)["0"].textContent != "") {
-                    Total = Total + parseInt($(this)["0"].textContent);
-                }
-
-            });
-            $("#HazardFactorScore").val(Total);
-
-            $('#HazardTotalScore').val(Total);
-            if ($('#SizeTotalScore').val() != '' && $('#ContentTotalScore').val() != '' && $('#HazardTotalScore').val() != '') {
-                var totalvalue = parseInt($('#SizeTotalScore').val()) * (parseInt($('#ContentTotalScore').val()) + parseInt($('#HazardTotalScore').val())) * 10;
-                if (totalvalue >= 0 && totalvalue <= 250) {
-                    $('#FinalScore').text("Low");
-                }
-                else if (totalvalue >= 251 && totalvalue <= 400) {
-                    $('#FinalScore').text("Moderate");
-                }
-                else if (totalvalue >= 401 && totalvalue <= 1488) {
-                    $('#FinalScore').text("High");
-                }
-                $('#HealthThreatScore').val(totalvalue);
-
-            }
-        }
-        function GetAssessment(value) {
-
-                var siteIndx = "@Model.oFieldAssessmentViewModel.TPrtSites?.SiteIdx";
-                window.location.href = "/OpenDump/FieldAssessments?AssessmentIdx=" + value + "&SiteIdx=" + siteIndx;
-        }
-        $(".cbk").change(function () {
-            var select = "";
-            var total = 0;
-            var atleastonechecked = false;
-            $("input[type = 'checkbox']").each(function () {
-                if ($(this)["0"].className == "cbk") {
-                    var c = $(this).is(":checked");
-                    if (c) {
-                        var id = $(this)["0"].id;
-                        $("#label" + id).css("display", "block");
-                        total = total + parseInt($("#label" + id)["0"].textContent);
-                        if (total >= 25) {
-                            $('#ContentScore').val(8);
-                        }
-                        else if (total > 10 && total < 25) {
-                            $('#ContentScore').val(4);
-                        }
-                        else if (total <= 10) {
-                            $('#ContentScore').val(1);
-                        }
-                        atleastonechecked = true;
-                    }
-                    else {
-                        var id = $(this)["0"].id;
-                        $("#label" + id).css("display", "none");
-                    }
-                }
-            });
-            if (atleastonechecked == false) {
-                $('#ContentScore').val(0);
-            }
-            var contentvalue = $('#ContentScore').val();
-            $('#ContentTotalScore').val(contentvalue);
-            if ($('#SizeTotalScore').val() != '' && $('#ContentTotalScore').val() != '' && $('#HazardTotalScore').val() != '') {
-                var totalvalue = parseInt($('#SizeTotalScore').val()) * (parseInt($('#ContentTotalScore').val()) + parseInt($('#HazardTotalScore').val())) * 10;
-                if (totalvalue >= 0 && totalvalue <= 250) {
-                    $('#FinalScore').text("Low");
-                }
-                else if (totalvalue >= 251 && totalvalue <= 400) {
-                    $('#FinalScore').text("Moderate");
-                }
-                else if (totalvalue >= 401 && totalvalue <= 1488) {
-                    $('#FinalScore').text("High");
-                }
-                $('#HealthThreatScore').val(totalvalue);
-
-            }
-        });
-
-        $("#acres").change(function (e) {
-
-            var num = parseFloat($(this).val());
-            if (num > 5) {
-                $('#SizeScore').val(3);
-            }
-            else if (num >= 0.5 && num <= 5)
-            {
-                $('#SizeScore').val(2);
-            }
-            else if (num < 0.5) {
-                $('#SizeScore').val(1);
-            }
-            $(this).val(num.toFixed(2));
-            var sizevalue = $('#SizeScore').val();
-            $('#SizeTotalScore').val(sizevalue);
-            if ($('#SizeTotalScore').val() != '' && $('#ContentTotalScore').val() != '' && $('#HazardTotalScore').val() != '')
-            {
-                var totalvalue = parseInt($('#SizeTotalScore').val()) * (parseInt($('#ContentTotalScore').val()) + parseInt($('#HazardTotalScore').val())) * 10;
-                if (totalvalue >= 0 && totalvalue <= 250) {
-                    $('#FinalScore').text("Low");
-                }
-                else if (totalvalue >= 251 && totalvalue <= 400) {
-                    $('#FinalScore').text("Moderate");
-                }
-                else if (totalvalue >= 401 && totalvalue <= 1488)  {
-                    $('#FinalScore').text("High");
-                 }
-                $('#HealthThreatScore').val(totalvalue);
-
-             }
-        });
-        $("#volume").change(function (e) {
-
-            var num = parseFloat($(this).val());
-            $(this).val(num.toFixed(2));
-        });
-        $("#wasteamount").change(function (e) {
-
-            var num = parseFloat($(this).val());
-            $(this).val(num.toFixed(2));
-        });
-         function GetHealthThreat(value) {
-                var siteIndx = "@Model.oFieldAssessmentViewModel.TPrtSites?.SiteIdx";
-             window.location.href = "/OpenDump/HealthThreat?AssessmentIdx=" + value + "&SiteIdx=" + siteIndx;
-
-        }
-        function GetSiteCleanup(value)
-        {
-             var siteIndx = "@Model.oFieldAssessmentViewModel.TPrtSites?.SiteIdx";
-            window.location.href = "/OpenDump/SiteCleanup?AssessmentIdx=" + value + "&SiteIdx=" + siteIndx;
-        }
     </script>
-    <script src="https://js.arcgis.com/3.25/"></script>
-    @if (Model.oPreFieldViewModel.TPrtSites != null)
-    {
-        <script type="text/javascript">
 
-            LoadMap(JSON.parse('@Html.Raw(Json.Serialize(@Model.oPreFieldViewModel.TPrtSites))'));
-            function LoadMap(searchList)
+    <script src="https://js.arcgis.com/3.25/"></script>
+    @if (Model.TPrtSite != null)
+    {
+    <script type="text/javascript">
+
+            function LoadMap()
             {
-                var map, tb;
+                var map;
 
                 require(["esri/map",
-                    "esri/InfoTemplate",
                     "esri/geometry/Point",
-                    "esri/toolbars/draw",
                     "esri/symbols/SimpleMarkerSymbol",
-                    "esri/symbols/SimpleLineSymbol",
-                    "esri/symbols/PictureFillSymbol",
-                    "esri/symbols/CartographicLineSymbol",
                     "esri/graphic",
-                    "esri/layers/GraphicsLayer",
-                    "esri/graphicsUtils",
-                    "esri/Color", "dojo/dom", "dojo/on", "dojo/domReady!"
+                    "esri/Color", "dojo/domReady!"
                 ],
-
-                    function (
-                        Map, InfoTemplate,
+                    function (Map,
                         Point,
-                        Draw,
-                        SimpleMarkerSymbol, SimpleLineSymbol,
-                        PictureFillSymbol, CartographicLineSymbol,
-                        Graphic, GraphicsLayer, graphicsUtils,
-                        Color, dom, on
+                        SimpleMarkerSymbol,
+                        Graphic,
+                        Color
                     ) {
                         map = new Map(document.getElementById("map_canvas"), {
-                            basemap: "gray",
-                            center: [-42.1737, 69.6354],
-                            zoom: 2
+                            basemap: "topo",
+                            center: [36.14520, -95.96826],
+                            zoom: 9
                         });
 
+                        var s = new SimpleMarkerSymbol().setStyle(SimpleMarkerSymbol.STYLE_CIRCLE).setColor(new Color([255, 0, 0, 2]));
 
-                map.on("load", initOperationalLayer);
-                        function initOperationalLayer() {
-
-                            var s = new SimpleMarkerSymbol().setStyle(SimpleMarkerSymbol.STYLE_SQUARE).setColor(new Color([255, 0, 0, 2]));
-                            var latitude = searchList.latitude;
-                            var longitude = searchList.longitude;
-                            var p = new Point(searchList.longitude, searchList.latitude);
-                            var i = { x: searchList.longitude, y: searchList.latitude };
-                            map.graphics.clear();
-                            map.graphics.add(new Graphic(p, s));
-                            if (latitude != null && longitude != null) {
-                            map.infoWindow.setTitle("Coordinates");
-                                map.infoWindow.setContent(
-                                    "Latitude: " + latitude +
-                                    "<br>Longitude:" + longitude
-                                );
-                                map.infoWindow.show(p, i);
-                            }
-                            map.centerAndZoom(p, 2);
-                        }
+                        map.on("load", showMap);
                         map.on("click", addPoint);
+
+                        function showMap() {
+                            map.graphics.clear();
+                            if ($("#longitude").val() != 0 && $("#latitude").val() != 0) {
+                                var p = new Point($("#longitude").val(), $("#latitude").val());
+                                map.graphics.add(new Graphic(p, s));
+                                map.centerAndZoom(p, 9);
+                            }
+                        }
+
+                        //when map is clicked, add or move point on map and (re)populate pop modal textboxes
                         function addPoint(evt) {
-                            var s = new SimpleMarkerSymbol().setStyle(SimpleMarkerSymbol.STYLE_SQUARE).setColor(new Color([255, 0, 0, 2]));
-                            var latitude = evt.mapPoint.getLatitude();
-                            var longitude = evt.mapPoint.getLongitude();
                             map.graphics.clear();
                             map.graphics.add(new Graphic(evt.mapPoint, s));
-                            map.infoWindow.setTitle("Coordinates");
-                            map.infoWindow.setContent(
-                                "Latitude: " + latitude.toFixed(5) +
-                                "<br>Longitude:" + longitude.toFixed(5)
-                            );
-                            map.infoWindow.show(evt.mapPoint, map.getInfoWindowAnchor(evt.screenPoint));
-
-                            document.getElementById("latitude").value = latitude.toFixed(5);
-                            document.getElementById("longitude").value = longitude.toFixed(5);
-
+                            $("#txtLat1").val(evt.mapPoint.getLatitude().toFixed(5));
+                            $("#txtLong1").val(evt.mapPoint.getLongitude().toFixed(5));
                         }
-                        $('#myModal').on('show.bs.modal', function (event) {
-                            $("#map_canvas").css("width", "100%");
-                        });
 
-             });
-
+                    });
             }
-        </script>
+    </script>
     }
 }

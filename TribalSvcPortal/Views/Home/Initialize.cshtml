@@ -4,39 +4,34 @@
     ViewData["SubTitle"] = "Use this page to create the initial portal administrator account.";
 }
 
-<section class="panel panel-default">
-    <header class="panel-heading font-bold">User Details</header>
-    <div class="panel-body">
 
-        @using (Html.BeginForm())
-        {
-            @Html.AntiForgeryToken()
-            @Html.ValidationSummary(true)
+<div class="form-group">
+    <div class="col-md-12">
+        <section class="panel panel-default">
+            <header class="panel-heading font-bold">User Details</header>
+            <div class="panel-body">
 
-            <div class="row">
-                <div class="col-md-6">
-                    <div class="form-group">
-                        <label>Email</label>
-                        @Html.TextBoxFor(model => model.Email, new { @class = "form-control", @placeholder = "Email" })
-                        @Html.ValidationMessageFor(model => model.Email)
+                @using (Html.BeginForm())
+                {
+                    @Html.AntiForgeryToken()
+                    @Html.ValidationSummary(true)
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Email</label>
+                                @Html.TextBoxFor(model => model.Email, new { @class = "form-control", @placeholder = "Email" })
+                                @Html.ValidationMessageFor(model => model.Email)
+                            </div>
+                        </div>
                     </div>
-                </div>
+
+                    <p>
+                        <button type="submit" class="btn btn-sm btn-primary">Initialize</button>
+                    </p>
+                }
+
             </div>
-
-            <p>
-                <button type="submit" class="btn btn-sm btn-primary">Initialize</button>
-            </p>
-
-        }
-
+        </section>
     </div>
-</section>
-
-
-
-
-
-
-
-
-
+</div>
