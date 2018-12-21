@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using TribalSvcPortal.AppLogic.DataAccessLayer;
@@ -35,6 +36,7 @@ namespace TribalSvcPortal.Controllers
 
 
         //******************************* ROLES **********************************************************
+        [Authorize(Roles = "PortalAdmin")]
         public IActionResult RoleList()
         {           
             var roles = _roleManager.Roles.ToList();
@@ -43,9 +45,31 @@ namespace TribalSvcPortal.Controllers
 
 
         [Authorize(Roles = "PortalAdmin")]
-        public IActionResult RoleEdit()
+        public async Task<IActionResult> RoleEdit(string id)
         {
-            return View();
+            IdentityRole _role = await _roleManager.FindByIdAsync(id);
+
+            //users with the assigned role
+            var RolesInUser = _DbPortal.GetT_PRT_USERS_BelongingToRole(id);
+
+            //all users
+            var allUsers = _userManager.Users.ToList();
+
+            var model = new RoleEditViewModel {
+                T_PRT_ROLES = _role,
+                Users_In_Role = RolesInUser.Select(x => new SelectListItem
+                {
+                    Value = x.Id,
+                    Text = x.Email
+                }),
+                Users_Not_In_Role = allUsers.Except(RolesInUser).OrderBy(a => a.Email).Select(x => new SelectListItem
+                {
+                    Value = x.Id,
+                    Text = x.Email
+                })
+            };
+
+            return View(model);
         }
 
 
@@ -86,7 +110,6 @@ namespace TribalSvcPortal.Controllers
                 })
             };
 
-            var users = await _userManager.FindByIdAsync(id);
             return View(model);
         }
 
@@ -150,12 +173,12 @@ namespace TribalSvcPortal.Controllers
 
         //******************************* ORG USERS **********************************************************
         [HttpPost]
-        public IActionResult OrgUserEdit(string uidx, string org_id, string AdminInd, string StatusInd)
+        public IActionResult OrgUserEdit(int? edit_oRG_USER_IDX, string uidx, string org_id, string AccessLevel, string StatusInd)
         {
             if (ModelState.IsValid)
             {             
 
-                int newID = _DbPortal.InsertUpdateT_PRT_ORG_USERS(null, org_id, uidx, (AdminInd == "A" ? true : false), StatusInd, User.Identity.Name);
+                int newID = _DbPortal.InsertUpdateT_PRT_ORG_USERS(edit_oRG_USER_IDX, org_id, uidx, AccessLevel, StatusInd, User.Identity.Name);
 
                 if (newID == 0)
                     TempData["Error"] = "Unable to add user to organization.";
@@ -257,7 +280,7 @@ namespace TribalSvcPortal.Controllers
 
             }
             else
-                TempData["Error"] = "No rights to edit this Organization.";
+                TempData["Error"] = "You must have admin rights to edit this Organization.";
 
             return RedirectToAction("OrgEdit", new { id = org.ORG_ID });
 
@@ -356,24 +379,24 @@ namespace TribalSvcPortal.Controllers
                 Announcements = custSettings.ANNOUNCEMENTS
             };
             return View(model);
-    }
-
-    [HttpPost, ValidateAntiForgeryToken]
-    public ActionResult Settings(SettingsViewModel model)
-    {
-        if (ModelState.IsValid)
-        {
-           string UserID = _userManager.GetUserId(User);
-
-            int SuccID = _DbPortal.InsertUpdateT_PRT_APP_SETTING(model.edit_app_setting.SETTING_IDX, model.edit_app_setting.SETTING_NAME, model.edit_app_setting.SETTING_VALUE, false, null, UserID);
-            if (SuccID > 0)
-                TempData["Success"] = "Data Saved.";
-            else
-                TempData["Error"] = "Data Not Saved.";
         }
 
-        return RedirectToAction("Settings");
-    }
+        [HttpPost, ValidateAntiForgeryToken]
+        public ActionResult Settings(SettingsViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+               string UserID = _userManager.GetUserId(User);
+
+                int SuccID = _DbPortal.InsertUpdateT_PRT_APP_SETTING(model.edit_app_setting.SETTING_IDX, model.edit_app_setting.SETTING_NAME, model.edit_app_setting.SETTING_VALUE, false, null, UserID);
+                if (SuccID > 0)
+                    TempData["Success"] = "Data Saved.";
+                else
+                    TempData["Error"] = "Data Not Saved.";
+            }
+
+            return RedirectToAction("Settings");
+        }
 
         [HttpPost, ValidateAntiForgeryToken]
         public ActionResult CustomSettings(SettingsViewModel model)
@@ -403,6 +426,38 @@ namespace TribalSvcPortal.Controllers
             }
 
             return RedirectToAction("Settings");
+        }
+
+
+        //************************************ SYS LOG  ***************************************
+        public ActionResult EmailConfig()
+        {
+            var model = new EmailConfigViewModel
+            {
+            };
+            return View(model);
+        }
+
+
+        //************************************ SYS LOG  ***************************************
+        public ActionResult SysLog()
+        {
+            var model = new SysLogViewModel
+            {
+                T_PRT_SYS_LOGs = _DbPortal.GetT_PRT_SYS_LOG()
+            };
+            return View(model);
+        }
+
+
+        //************************************ EMAIL LOG  ***************************************
+        public ActionResult EmailLog()
+        {
+            var model = new EmailLogViewModel
+            {
+                T_PRT_SYS_EMAIL_LOGs = _DbPortal.GetT_PRT_SYS_EMAIL_LOG()
+            };
+            return View(model);
         }
 
     }

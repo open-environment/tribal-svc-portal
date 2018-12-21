@@ -6,17 +6,17 @@
 <section class="panel panel-default">
     <div class="table-responsive">
         <table class="table table-striped m-b-none" data-ride="datatables">
-            <thead>
+            <thead class="thead-inverse">
                 <tr>
-                    <th>Role ID</th>
-                    <th>Role Name</th>
+                    <th></th>
+                    <th>Role</th>
                 </tr>
             </thead>
             @foreach (var item in Model)
             {
             <tr>
                 <td>
-                    <a href="@Url.Action("RoleEdit","Admin", new { id=item.Id })" class="btn btn-rounded btn-xs btn-info"><i class="glyphicon glyphicon-pencil"></i></a>
+                    <a href="@Url.Action("RoleEdit","Admin", new { id=item.Id })" class="btn btn-rounded btn-xs btn-info">Users with Role</a>
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.Name)

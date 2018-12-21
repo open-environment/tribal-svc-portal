@@ -91,7 +91,10 @@
                             }
                         </td>
                         <td>
-                            @Html.DisplayFor(modelItem => item.COST_TOTAL_AMT)
+                            @if (item.COST_TOTAL_AMT != null)
+                            {
+                                <text>$ </text> @Html.DisplayFor(modelItem => item.COST_TOTAL_AMT)
+                            }
                         </td>
                     </tr>
                     }

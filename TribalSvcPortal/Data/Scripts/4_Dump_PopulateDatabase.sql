@@ -1,4 +1,9 @@
-﻿--******REF DOC TYPES
+﻿--******ROLE
+INSERT INTO [T_PRT_ROLES] ([Id], ConcurrencyStamp, [Name],[NormalizedName],ROLE_DESC) 
+  VALUES ('843c4cd3-4cd3-843c-d6ea-d6ea843ccbcd', '843c4cd3-4cd3-843c-d6ea-d6ea843ccbcd','OpenDumpAdmin','OPENDUMPADMIN','Global administration role for the Open Dump Module, spanning all organizations.');
+
+
+--******REF DOC TYPES
 INSERT INTO T_PRT_REF_DOC_TYPE (DOC_TYPE, DOC_TYPE_DESC, ACT_IND,CREATE_DT) VALUES ('Open Dump-Assess File', 'Files associated with an Open Dump Assessment', 1, GetDate());
 INSERT INTO T_PRT_REF_DOC_TYPE (DOC_TYPE, DOC_TYPE_DESC, ACT_IND,CREATE_DT) VALUES ('Open Dump-Assess Photo', 'Photos associated with an Open Dump Assessment', 1, GetDate());
 

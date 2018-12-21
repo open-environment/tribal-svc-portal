@@ -66,7 +66,7 @@
             </a>
         </li>
         <li class="pull-right">
-            <a href="@Url.Action("PreField", "OpenDump", new { selOrg = Model.selOrg, returnURL = "Search" })" class="btn btn-rounded "
+            <a href="@Url.Action("PreField", "OpenDump", new { returnURL = "Search" })" class="btn btn-rounded "
                style="color: #fff;background-color: #6AB43E;border-color: #6AB43E;border-radius: 4px !important;"><i class="glyphicon glyphicon-plus"></i> Add New</a>
         </li>
     </ul>
@@ -81,7 +81,7 @@
                             <th style="min-width:70px"></th>
                             @if (Model.ddl_Org.Count() > 1)
                             {
-                            <th>Organization</th>
+                                <th>Organization</th>
                             }
                             <th>Site Name</th>
                             <th>Site Address</th>
@@ -89,6 +89,7 @@
                             <th>Reported On</th>
                             <th>Last Assessed</th>
                             <th>Health Threat</th>
+                            <th>Cleanup Estimate</th>
                         </tr>
                     </thead>
                     @if (Model.searchResults != null)
@@ -122,9 +123,9 @@
                             @Html.DisplayFor(modelItem => item.ReportedOn)
                         </td>
                         <td>
-                            @if (item.LAST_ASSESSED != DateTime.MinValue)
+                            @if (item.LastAssessment != null && item.LastAssessment.ASSESSMENT_DT != DateTime.MinValue)
                             {
-                                @Html.DisplayFor(modelItem => item.LAST_ASSESSED)
+                                @Html.DisplayFor(modelItem => item.LastAssessment.ASSESSMENT_DT)
                             }
                         </td>
                         <td>
@@ -142,6 +143,12 @@
                                 {
                                     <span class="label label-success">Low @Html.DisplayFor(modelItem => item.HEALTH_THREAT_SCORE)</span>
                                 }
+                            }
+                        </td>
+                        <td>
+                            @if (item.EST_CLEANUP_COSTS != null)
+                            {
+                                <text>$ </text> @Html.DisplayFor(modelItem => item.EST_CLEANUP_COSTS)
                             }
                         </td>
                     </tr>

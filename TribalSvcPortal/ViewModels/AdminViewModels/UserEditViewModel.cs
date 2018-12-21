@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using System;
 using System.Collections.Generic;
 using TribalSvcPortal.AppLogic.DataAccessLayer;
 using TribalSvcPortal.Data.Models;
@@ -14,6 +15,7 @@ namespace TribalSvcPortal.ViewModels.AdminViewModels
         public IEnumerable<string> Role_Not_In_User_Selected { get; set; }
         public List<UserOrgDisplayType> UserOrgs { get; set; }
         public IEnumerable<SelectListItem> ddl_Orgs { get; set; }
+        public int? edit_oRG_USER_IDX { get; set; }
     }
 
 

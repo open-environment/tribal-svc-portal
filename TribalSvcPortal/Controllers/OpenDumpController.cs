@@ -9,6 +9,8 @@ using TribalSvcPortal.Data.Models;
 using TribalSvcPortal.ViewModels.OpenDumpViewModels;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
+using System.Collections.Generic;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace TribalSvcPortal.Controllers
 {
@@ -61,6 +63,22 @@ namespace TribalSvcPortal.Controllers
             return Json("Unable to delete");
         }
 
+        [HttpGet]
+        public ActionResult AssessmentList(Guid? id)
+        {
+            string _UserIDX = _userManager.GetUserId(User);
+
+            var model = new AssessmentsViewModel
+            {
+                SiteIDX = null,
+                SiteName = null,
+                OrgName = null,
+                T_OD_DUMP_ASSESSMENTS = _DbOpenDump.getT_OD_DUMP_ASSESSMENTS_ByUser(_UserIDX)
+            };
+            return View(model);
+
+        }
+
         #endregion
 
 
@@ -73,8 +91,7 @@ namespace TribalSvcPortal.Controllers
             //TODO add security
 
             var model = new PreFieldViewModel {
-                SiteSettingsList = _DbOpenDump.get_ddl_T_OD_REF_DATA_by_category("Site Setting"),
-                CommunityList = _DbOpenDump.get_ddl_T_OD_REF_DATA_by_category("Community"),
+                SiteSettingsList = _DbOpenDump.get_ddl_T_OD_REF_DATA_by_category("Site Setting", null),
                 AquiferList = _DbOpenDump.get_ddl_OD_REF_THREAT_FACTORS_by_type("Aquifer"),
                 SurfaceWaterList = _DbOpenDump.get_ddl_OD_REF_THREAT_FACTORS_by_type("Surface Water"),
                 HomesList = _DbOpenDump.get_ddl_OD_REF_THREAT_FACTORS_by_type("Homes"),
@@ -82,9 +99,12 @@ namespace TribalSvcPortal.Controllers
                 returnURL = returnURL ?? "Search"
             };
 
+            //update case
             if (id != null) {
                 model.TPrtSite = _DbPortal.GetT_PRT_SITES_BySITEIDX((Guid)id);
                 model.TOdSite = _DbOpenDump.getT_OD_SITES_BySITEIDX((Guid)id);
+
+                model.CommunityList = _DbOpenDump.get_ddl_T_OD_REF_DATA_by_category("Community", model.TPrtSite.ORG_ID);
 
                 //fail if site ID provided but not found
                 if (model.TOdSite == null)
@@ -101,6 +121,12 @@ namespace TribalSvcPortal.Controllers
                 //if one org, then prepopulate it in the list
                 if (model.OrgList.Count() == 1)
                     model.TPrtSite.ORG_ID = model.OrgList.First().Value;
+
+                //community dropdown list
+                if (model.OrgList.Count() == 1)
+                    model.CommunityList = _DbOpenDump.get_ddl_T_OD_REF_DATA_by_category("Community", model.OrgList.ToList()[0].Value);
+                else
+                    model.CommunityList = Enumerable.Empty<SelectListItem>();
             }
 
             return View(model);
@@ -122,15 +148,26 @@ namespace TribalSvcPortal.Controllers
                 if (newSiteID != null)
                 {
                     TempData["Success"] = "Update successful.";
-                    return RedirectToAction("PreField", "OpenDump", new { SiteIdx = newSiteID, returnURL = model.returnURL });
+                    return RedirectToAction("PreField", "OpenDump", new { id = newSiteID, returnURL = model.returnURL });
                 }
             }
 
             //error if got this far
             TempData["Error"] = "Error updating data.";
-            return RedirectToAction("PreField", "OpenDump", new { SiteIdx = newSiteID, returnURL = model.returnURL });
+            return RedirectToAction("PreField", "OpenDump", new { id = newSiteID, returnURL = model.returnURL });
         }
 
+        [HttpGet]
+        public JsonResult GetCommunityDDL(string orgID)
+        {
+            IEnumerable<SelectListItem> refdata = _DbOpenDump.get_ddl_T_OD_REF_DATA_by_category("Community", orgID);
+
+            if (refdata !=  null && refdata.Count() > 0)
+                return Json(new { data = refdata });
+            else
+                return Json(new { data = "" });
+
+        }
         #endregion
 
 
@@ -198,7 +235,7 @@ namespace TribalSvcPortal.Controllers
             //string _UserIDX = _userManager.GetUserId(User);
 
             var model = new AssessmentDetailViewModel {
-                ddl_AssessmentTypeList = _DbOpenDump.get_ddl_T_OD_REF_DATA_by_category("Assessment Type")
+                ddl_AssessmentTypeList = _DbOpenDump.get_ddl_T_OD_REF_DATA_by_category("Assessment Type", null)
             };
 
             //update case
@@ -436,7 +473,18 @@ namespace TribalSvcPortal.Controllers
             };
             return View(model);
         }
-        
+
+        public ActionResult CleanupDisposal(Guid? id, string Cat)
+        {
+            var model = new CleanupDisposalViewModel
+            {
+                Assessment = _DbOpenDump.getT_OD_DUMP_ASSESSMENTS_ByDumpAssessmentIDX((Guid)id),
+            };
+            return View(model);
+        }
+
+
+
         [HttpPost, ValidateAntiForgeryToken]
         public ActionResult RestoreAdd(CleanupRestorationViewModel model)
         {
@@ -625,11 +673,23 @@ namespace TribalSvcPortal.Controllers
 
 
 
+        #region REF DATA CONTROLLERS **********************************************************************
 
-        public IActionResult RefData()
+        public IActionResult RefData(string selTag)
         {
-            return View();
+            var model = new RefDataViewModel();
+            model.ddl_ref_cats = _DbOpenDump.get_ddl_T_OD_REF_DATA_CATEGORIES();
+
+            if (selTag != null)
+            {
+                model.sel_ref_cat = selTag;
+                model.TOdRefData = _DbOpenDump.get_T_OD_REF_DATA_by_category(selTag);
+            }
+            return View(model);
         }
+
+        #endregion
+
 
         [AllowAnonymous]
         public IActionResult DumpParcels()

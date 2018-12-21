@@ -6,10 +6,11 @@
     "inputFiles": [
       "wwwroot/css/fonts.css",
       "wwwroot/fonts/clip-style.css",
-      "wwwroot/css/site.css",
       "wwwroot/css/main.css",
       "wwwroot/css/main-responsive.css",
-      "wwwroot/css/theme_dark.css"
+      "wwwroot/css/theme_dark.css",
+      "wwwroot/css/toastr.css",
+      "wwwroot/css/site.css"
     ]
   },
   {

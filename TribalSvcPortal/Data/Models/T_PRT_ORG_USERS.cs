@@ -13,7 +13,7 @@ namespace TribalSvcPortal.Data.Models
         public int ORG_USER_IDX { get; set; }
         public string ORG_ID { get; set; }
         public string Id { get; set; }
-        public bool ORG_ADMIN_IND { get; set; }
+        public string ACCESS_LEVEL { get; set; }
         public string STATUS_IND { get; set; }
         public string CREATE_USER_ID { get; set; }
         public DateTime? CREATE_DT { get; set; }

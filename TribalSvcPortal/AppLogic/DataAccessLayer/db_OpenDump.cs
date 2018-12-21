@@ -21,8 +21,10 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
         public decimal? Longitude { get; set; }
 
         [DisplayFormat(DataFormatString = "{0:d}")]
-        public DateTime? LAST_ASSESSED { get; set; }
+
+        public T_OD_DUMP_ASSESSMENTS LastAssessment { get; set; }
         public int? HEALTH_THREAT_SCORE { get; set; }
+        public decimal? EST_CLEANUP_COSTS { get; set; }
     }
 
     public class RefThreatFactor
@@ -75,6 +77,20 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
         public decimal? sumCat { get; set; }
     }
 
+
+    public class AssessmentSummaryDisplayType
+    {
+        public Guid DUMP_ASSESSMENTS_IDX { get; set; }
+        public DateTime ASSESSMENT_DT { get; set; }
+        public string ASSESSED_BY { get; set; }
+        public string ASSESSMENT_NOTES { get; set; }
+        public int? HEALTH_THREAT_SCORE { get; set; }
+        public decimal? COST_TOTAL_AMT { get; set; }
+        public string ORG_NAME { get; set; }
+        public string SITE_NAME { get; set; }
+
+    }
+
     public interface IDbOpenDump
     {
         //************** T_OD_SITES **********************************
@@ -84,7 +100,8 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
 
         //************** T_OD_DUMP_ASSESSMENTS **********************************
         T_OD_DUMP_ASSESSMENTS getT_OD_DUMP_ASSESSMENTS_ByDumpAssessmentIDX(Guid DumpAssessmentIDX);
-        List<T_OD_DUMP_ASSESSMENTS> getT_OD_DUMP_ASSESSMENTS_BySITEIDX(Guid Siteidx);
+        List<AssessmentSummaryDisplayType> getT_OD_DUMP_ASSESSMENTS_BySITEIDX(Guid Siteidx);
+        List<AssessmentSummaryDisplayType> getT_OD_DUMP_ASSESSMENTS_ByUser(string UserID);
         IEnumerable<SelectListItem> get_ddl_T_OD_DUMP_ASSESSMENTS_by_BySITEIDX(Guid? Siteidx);
         int deleteT_OD_DumpAssessment(Guid DumpAssessmentIDX);
         Guid? InsertUpdateT_OD_DumpAssessment(Guid dUMPASSESSMENTS_IDX, Guid? sITE_IDX, DateTime? aSSESSMENT_DT, string aSSESSED_BY, Guid? ASSESSMENT_TYPE_IDX, bool? ACTIVE_SITE_IND, string SITE_DESCRIPTION,
@@ -117,7 +134,10 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
         int DeleteT_OD_DUMP_ASSESSMENT_RESTORE(Guid dUMP_ASSESSMENT_RESTORE_IDX);
 
         //************** T_OD_REF_DATA **************************************************
-        IEnumerable<SelectListItem> get_ddl_T_OD_REF_DATA_by_category(string cat_name);
+        IEnumerable<SelectListItem> get_ddl_T_OD_REF_DATA_by_category(string cat_name, string org_id);
+        List<T_OD_REF_DATA> get_T_OD_REF_DATA_by_category(string cat_name);
+        List<SelectListItem> get_ddl_T_OD_REF_DATA_CATEGORIES();
+
 
         //************** T_OD_REF_THREAT_FACTORS ****************************************
         List<T_OD_REF_THREAT_FACTORS> getT_OD_REF_THREAT_FACTORS();
@@ -183,15 +203,20 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
                             ReportedOn = e.REPORTED_ON,
                             Latitude = d.LATITUDE,
                             Longitude = d.LONGITUDE,
-                            LAST_ASSESSED = (from v1 in ctx.T_OD_DUMP_ASSESSMENTS
+                            LastAssessment = (from v1 in ctx.T_OD_DUMP_ASSESSMENTS
                                              where v1.SITE_IDX == d.SITE_IDX
                                              orderby v1.ASSESSMENT_DT descending
-                                             select v1.ASSESSMENT_DT).FirstOrDefault(),
+                                             select v1).FirstOrDefault(),
                             HEALTH_THREAT_SCORE = (from v1 in ctx.T_OD_DUMP_ASSESSMENTS
                                                    where v1.SITE_IDX == d.SITE_IDX
                                                    && v1.HEALTH_THREAT_SCORE != null
                                                    orderby v1.ASSESSMENT_DT descending
-                                                   select v1.HEALTH_THREAT_SCORE).FirstOrDefault()
+                                                   select v1.HEALTH_THREAT_SCORE).FirstOrDefault(),
+                            EST_CLEANUP_COSTS = (from v1 in ctx.T_OD_DUMP_ASSESSMENTS
+                                                   where v1.SITE_IDX == d.SITE_IDX
+                                                   && v1.COST_TOTAL_AMT != null
+                                                   orderby v1.ASSESSMENT_DT descending
+                                                   select v1.COST_TOTAL_AMT).FirstOrDefault()
                         }).ToList();
             }
             catch (Exception ex)
@@ -257,14 +282,24 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             }
         }
 
-        public List<T_OD_DUMP_ASSESSMENTS> getT_OD_DUMP_ASSESSMENTS_BySITEIDX(Guid Siteidx)
+        public List<AssessmentSummaryDisplayType> getT_OD_DUMP_ASSESSMENTS_BySITEIDX(Guid Siteidx)
         {
             try
             {
                 return (from a in ctx.T_OD_DUMP_ASSESSMENTS
                         where a.SITE_IDX == Siteidx
                         orderby a.ASSESSMENT_DT descending
-                        select a).ToList();
+                        select new AssessmentSummaryDisplayType
+                        {
+                            DUMP_ASSESSMENTS_IDX = a.DUMP_ASSESSMENTS_IDX,
+                            ASSESSMENT_DT = a.ASSESSMENT_DT,
+                            ASSESSED_BY = a.ASSESSED_BY,
+                            ASSESSMENT_NOTES = a.ASSESSMENT_NOTES,
+                            HEALTH_THREAT_SCORE = a.HEALTH_THREAT_SCORE,
+                            COST_TOTAL_AMT = a.COST_TOTAL_AMT,
+                            ORG_NAME = null,
+                            SITE_NAME = null
+                        }).ToList();
             }
             catch (Exception ex)
             {
@@ -272,6 +307,35 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
                 return null;
             }
         }
+
+        public List<AssessmentSummaryDisplayType> getT_OD_DUMP_ASSESSMENTS_ByUser(string UserID)
+        {
+            try
+            {
+                return (from a in ctx.T_OD_DUMP_ASSESSMENTS
+                        join b in ctx.T_PRT_SITES on a.SITE_IDX equals b.SITE_IDX
+                        join c in ctx.T_PRT_ORG_USERS on b.ORG_ID equals c.ORG_ID
+                        where c.Id == UserID
+                        orderby a.ASSESSMENT_DT descending
+                        select new AssessmentSummaryDisplayType {
+                            DUMP_ASSESSMENTS_IDX= a.DUMP_ASSESSMENTS_IDX,
+                            ASSESSMENT_DT = a.ASSESSMENT_DT,
+                            ASSESSED_BY = a.ASSESSED_BY,
+                            ASSESSMENT_NOTES = a.ASSESSMENT_NOTES,
+                            HEALTH_THREAT_SCORE = a.HEALTH_THREAT_SCORE,
+                            COST_TOTAL_AMT = a.COST_TOTAL_AMT,
+                            ORG_NAME = c.ORG_ID,
+                            SITE_NAME = b.SITE_NAME
+                        }).ToList();
+            }
+            catch (Exception ex)
+            {
+                log.LogEFException(ex);
+                return null;
+            }
+        }
+
+
 
         public IEnumerable<SelectListItem> get_ddl_T_OD_DUMP_ASSESSMENTS_by_BySITEIDX(Guid? Siteidx)
         {
@@ -807,18 +871,54 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
 
 
         //************** T_OD_REF_DATA **********************************
-        public IEnumerable<SelectListItem> get_ddl_T_OD_REF_DATA_by_category(string cat_name)
+        public IEnumerable<SelectListItem> get_ddl_T_OD_REF_DATA_by_category(string cat_name, string org_id)
         {
             try
             {
                 return (from a in ctx.T_OD_REF_DATA
                            where a.REF_DATA_CAT_NAME == cat_name
+                           && (org_id == null ? a.ORG_ID == null : a.ORG_ID == org_id)
                            orderby a.REF_DATA_VAL
                            select new SelectListItem
                            {
                                Value = a.REF_DATA_IDX.ToString(),
                                Text = a.REF_DATA_VAL
                            }).ToList();
+            }
+            catch (Exception ex)
+            {
+                log.LogEFException(ex);
+                return null;
+            }
+        }
+
+        public List<T_OD_REF_DATA> get_T_OD_REF_DATA_by_category(string cat_name)
+        {
+            try
+            {
+                return (from a in ctx.T_OD_REF_DATA
+                        where a.REF_DATA_CAT_NAME == cat_name
+                        orderby a.REF_DATA_VAL
+                        select a).ToList();
+            }
+            catch (Exception ex)
+            {
+                log.LogEFException(ex);
+                return null;
+            }
+        }
+
+        public List<SelectListItem> get_ddl_T_OD_REF_DATA_CATEGORIES()
+        {
+            try
+            {
+                return (from a in ctx.T_OD_REF_DATA_CATEGORIES
+                        orderby a.REF_DATA_CAT_NAME
+                        select new SelectListItem
+                        {
+                            Value = a.REF_DATA_CAT_NAME,
+                            Text = a.REF_DATA_CAT_NAME
+                        }).ToList();
             }
             catch (Exception ex)
             {

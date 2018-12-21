@@ -49,6 +49,7 @@
                             <div class="form-group">
                                 <label>Users Not In Role</label>
                                 @Html.ListBoxFor(model => model.Users_Not_In_Role_Selected, Model.Users_Not_In_Role, new { @class = "form-control", size = 10 })
+                                @Html.ValidationMessageFor(model => model.Users_Not_In_Role_Selected)
                             </div>
                         </div>
                         <div class="col-sm-2">

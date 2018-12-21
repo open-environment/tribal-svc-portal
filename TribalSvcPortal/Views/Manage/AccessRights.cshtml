@@ -1,0 +1,161 @@
+﻿@model AccessRightsViewModel
+@{
+    ViewData["SubTitle"] = "Your Access Rights";
+    ViewData.AddActivePage(ManageNavPages.AccessRights);
+}
+
+@if (Model != null && Model.Roles != null && Model.Roles.Count>0)
+{
+    <div class="row">
+        <div class="col-md-12">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    Global Access
+                </div>
+                <div class="panel-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped m-b-none" data-ride="datatables">
+                            <thead class="thead-inverse">
+                                <tr>
+                                    <th>Role</th>
+                                </tr>
+                            </thead>
+                            @foreach (var item in Model.Roles)
+                            {
+                                <tr>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item)
+                                    </td>
+                                </tr>
+                            }
+                        </table>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+}
+<div class="row">
+    <div class="col-md-12">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                Organization-Specific Access
+            </div>
+            <div class="panel-body">
+                <div class="table-responsive">
+                    <table class="table table-striped m-b-none" data-ride="datatables">
+                        <thead class="thead-inverse">
+                            <tr>
+                                <th>Organization</th>
+                                <th>Access Level</th>
+                                <th>Status</th>
+                                <th>Program Areas Access Rights</th>
+                            </tr>
+                        </thead>
+                        @if (Model != null && Model.AccessRights != null)
+                        {
+                            foreach (var item in Model.AccessRights)
+                            {
+                                <tr>
+                                    <td style="vertical-align:top;">
+                                        @Html.DisplayFor(modelItem => item.ORG_NAME)
+                                    </td>
+                                    <td style="vertical-align:top;">
+                                        @if (item.ACCESS_LEVEL == "A")
+                                        {
+                                            <span class="label label-success"> Admin</span>
+                                        }
+                                        else if (item.ACCESS_LEVEL == "U")
+                                        {
+                                            <span class="label label-beige"> User</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="label label-warning"> Public</span>
+                                        }
+                                    </td>
+                                    <td style="vertical-align:top;">
+                                        @if (item.STATUS_IND == "A")
+                                        {
+                                            <span class="label label-success"> Active</span>
+                                        }
+                                        else if (item.STATUS_IND == "P")
+                                        {
+                                            <span class="label label-warning"> Pending</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="label label-danger"> Rejected</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <table class="table table-striped table-bordered" data-ride="datatables">
+                                            <thead class="thead-default">
+                                                <tr>
+                                                    <th>Program Area</th>
+                                                    <th>Access Level</th>
+                                                    <th>Status</th>
+                                                </tr>
+                                            </thead>
+                                            @foreach (var Client in item.OrgUserClientDisplay)
+                                            {
+                                                <tr>
+                                                    <td>
+                                                        @Html.DisplayFor(modelSubItem => Client.CLIENT_ID)
+                                                    </td>
+                                                    <td>
+                                                        @if (Client.ORG_USER_CLIENT_IDX == null)
+                                                        {
+                                                            <span class="label label-danger"> None</span>
+                                                        }
+                                                        else if (Client.ADMIN_IND == true)
+                                                        {
+                                                            <span class="label label-success"> Admin</span>
+                                                        }
+                                                        else
+                                                        {
+                                                            <span class="label label-beige"> User</span>
+                                                        }
+                                                    </td>
+                                                    <td>
+                                                        @if (Client.STATUS_IND == null)
+                                                        {
+                                                            @using (Html.BeginForm("AccessRightsRequest", "Manage", FormMethod.Post, new { @class = "" }))
+                                                            {
+                                                                @Html.AntiForgeryToken()
+                                                                @Html.ValidationSummary(true)
+                                                                @Html.HiddenFor(modelSubItem => Client.CLIENT_ID)
+                                                                @Html.HiddenFor(modelItem => item.ORG_USER_IDX)
+                                                                <button id="btnReqAccess" type="submit" class="btn btn-yellow">Request Access</button>
+                                                            }
+                                                        }
+                                                        else if (Client.STATUS_IND == "A")
+                                                        {
+                                                            <span class="label label-success"> Active</span>
+                                                        }
+                                                        else if (Client.STATUS_IND == "P")
+                                                        {
+                                                            <span class="label label-warning"> Pending</span>
+                                                        }
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </table>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </table>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+}

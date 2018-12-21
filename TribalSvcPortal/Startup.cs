@@ -7,6 +7,10 @@ using Microsoft.Extensions.DependencyInjection;
 using TribalSvcPortal.Services;
 using TribalSvcPortal.Data.Models;
 using TribalSvcPortal.AppLogic.DataAccessLayer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using System.Security.Cryptography.X509Certificates;
+using System.Security.Cryptography;
 
 namespace TribalSvcPortal
 {
@@ -52,15 +56,20 @@ namespace TribalSvcPortal
 
             //configure identity server with in-memory stores, keys, clients and scopes
             services.AddIdentityServer()
-                .AddDeveloperSigningCredential(true)  //adds a demo signing certificate
-                .AddInMemoryIdentityResources(IdentityServerConfig.GetIdentityResources()) 
+
+                 //.AddSigningCredential(
+                 //    new SigningCredentials(
+                 //        new SymmetricSecurityKey(
+                 //            Encoding.UTF8.GetBytes(Configuration["SigningSecurityKey"])),
+                 //            SecurityAlgorithms.RsaSha256Signature))
+                 .AddDeveloperSigningCredential(true)  //adds a demo signing certificate
+                //.AddSigningCredential(CreateRsaSecurityKey(Configuration["SigningSecurityKey"]))
+                .AddInMemoryIdentityResources(IdentityServerConfig.GetIdentityResources())
                 .AddInMemoryClients(IdentityServerConfig.GetClients2())
                 .AddAspNetIdentity<ApplicationUser>()
                 .AddProfileService<CustomProfileService>();
 
-            // requires
-            // using Microsoft.AspNetCore.Identity.UI.Services;
-            // using WebPWrecover.Services;
+
             services.AddSingleton<IEmailSender, EmailSender>();
             services.Configure<AuthMessageSenderOptions>(Configuration);
         }
@@ -93,5 +102,25 @@ namespace TribalSvcPortal
                     template: "{controller=Home}/{action=Index}/{id?}");
             });
         }
+
+
+        public static RsaSecurityKey CreateRsaSecurityKey(string key)
+        {
+            var rSA = RSA.Create();
+            RsaSecurityKey rsaSecurityKey;
+            if (rSA is RSACryptoServiceProvider)
+            {
+                rSA.Dispose();
+                rsaSecurityKey = new RsaSecurityKey(new RSACng(2048).ExportParameters(includePrivateParameters: true));
+            }
+            else
+            {
+                rSA.KeySize = 2048;
+                rsaSecurityKey = new RsaSecurityKey(rSA);
+            }
+            rsaSecurityKey.KeyId = key;
+            return rsaSecurityKey;
+        }
+
     }
 }

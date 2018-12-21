@@ -1,1 +1,42 @@
-﻿
+﻿@model TribalSvcPortal.ViewModels.AdminViewModels.SysLogViewModel
+@{
+    ViewData["Title"] = "System Log";
+    ViewData["SubTitle"] = "View all system logging / error messages for troubleshooting purposes.";
+}
+
+<section class="panel panel-default">
+    <div class="table-responsive">
+
+        <table class="table table-striped m-b-none" data-ride="datatables">
+            <thead class="thead-inverse">
+                <tr>
+                    <th>Log Date</th>
+                    <th>User</th>
+                    <th>Log Type</th>
+                    <th>Log Message</th>
+                </tr>
+            </thead>
+
+            @foreach (var item in Model.T_PRT_SYS_LOGs)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.LOG_DT)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.LOG_USER_ID)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.LOG_TYPE)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.LOG_MSG)
+                    </td>
+                </tr>
+            }
+
+        </table>
+
+    </div>
+
+</section>

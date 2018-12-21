@@ -1,298 +1,291 @@
-﻿@{
+﻿@model TribalSvcPortal.ViewModels.HomeViewModels.HomeViewModel
+@{
     ViewData["Title"] = "Tribal Services Portal";
-    ViewData["HideTitle"] = true;
+    ViewData["HideTitle"] = !User.Identity.IsAuthenticated;
 }
-@*<section class="wrapper">
-    <div class="container">
-        <div class="row" style="min-height:180px;">
-            <div class="col-sm-12 center">
-                <h2 style="color:#199C98;padding-bottom:40px;">Welcome to the Tribal Services Portal</h2>
-                <a class="btn btn-success btn-lg" href="@Url.Action("Login","Account", new { ReturnUrl = ViewBag.ReturnUrl })" style="margin-right:30px;"><i class="clip-arrow-right"></i> Log In</a>
-                <a class="btn btn-primary  btn-lg" href="@Url.Action("Register","Account")"><i class="clip-arrow-right"></i> Register</a>
-            </div>
-        </div>
-    </div>
-</section>*@
-<section id="home" class="divider" >
-    <div class="item bg-img-cover" data-bg-img="images/bg/bg9.jpg" style="background-image: url(&quot;images/bg3.jpg&quot;); height:250px;object-fit: cover;width: 100%;"></div>
-</section>
 
 @if (!User.Identity.IsAuthenticated)
 {
-    <section class="wrapper ">
-        <section class="z-index-1" data-margin-top="-80px" style="margin-top: -80px;">
-            <div class="container pt-0 pb-0">
-                <div class="row">
-                    <div class="col-md-12 call-to-action-parent">
-                        <div class="call-to-action bg-theme-colored border-radius-5px p-30">
-                            <div class="col-md-9">
-                                <h3 class="text-white mt-15">Welcome to the Tribal Services Portal. Create an account for personalized preferences</h3>
-                            </div>
-                            <div class="col-md-3">
-                                <a class="btn btn-lg btn-dark-beige" href="@Url.Action("Login", "Account", new { ReturnUrl = ViewBag.ReturnUrl })" style="margin-right:20px; border-width: 4px; color:#fff;  border-color: #fff; border-radius: 20px;"><i class="clip-arrow-right"></i> Log In</a>
-                                <a class="btn btn-lg btn-dark-beige" href="@Url.Action("Register", "Account")" style="border-width: 4px; color:#fff;  border-color: #fff; border-radius: 20px;"><i class="clip-arrow-right"></i> Register</a>
-                            </div>
-                        </div>
+    <section id="home">
+        <div class="item bg-img-cover"></div>
+    </section>
+    <section class="wrapper z-index-1" style="margin-top: -80px;">
+        <div class="container mlr-100">
+            <div class="row">
+                <div class="call-to-action bg-theme-colored p-30">
+                    <div class="col-md-9">
+                        <h3 class="text-white mt-10" style="font-size: 20px;">Welcome to the Tribal Services Portal. Create an account for personalized preferences</h3>
+                    </div>
+                    <div class="col-md-3" style="min-width:300px;">
+                        <a class="btn btn-lg btn-dark-beige" href="@Url.Action("Login", "Account", new { ReturnUrl = ViewBag.ReturnUrl })" style="margin-right:20px; border-width: 4px; color:#fff;  border-color: #fff; border-radius: 20px;"><i class="clip-arrow-right"></i> Log In</a>
+                        <a class="btn btn-lg btn-dark-beige" href="@Url.Action("Register", "Account")" style="border-width: 4px; color:#fff;  border-color: #fff; border-radius: 20px;"><i class="clip-arrow-right"></i> Register</a>
                     </div>
                 </div>
             </div>
-        </section>
+        </div>
     </section>
+}
+
+@if (!string.IsNullOrEmpty(Model.Announcement))
+{
+    <div class="alert alert-block alert-info fade in">
+        <button data-dismiss="alert" class="close" type="button">×</button>
+        @Html.Raw(Model.Announcement)
+        @*@Html.Raw(HttpUtility.HtmlDecode(Model.Announcement))*@
+    </div>
+}
+
+@if (User.Identity.IsAuthenticated)
+{
+    if (Model.WarnNoClientInd)
+    {
+        <div class="alert alert-block alert-warning fade in">
+            <button data-dismiss="alert" class="close" type="button">
+                ×
+            </button>
+            <h4 class="alert-heading"><i class="fa fa-exclamation-triangle"></i> Let's Get Started!</h4>
+            <p>
+                It looks like you haven't been added to any Program Areas for your tribe yet. Click below to view the available Program Areas and request access.
+            </p>
+            <p>
+                <a href="@Url.Action("AccessRights", "Manage")" class="btn btn-yellow">Manage Your Access Rights</a>
+            </p>
+        </div>
+    }
 }
 
 <section class="wrapper ">
     <div class="container mlr-20">
-        <div class="section-content">
-            <div class="row">
-                <div class="col-xs-12 col-sm-6 col-md-4 pb-sm-20">
-                    <h3 class="line-bottom mt-0">Explore <span class="text-theme-colored">Open Data</span></h3>
-                    
-                    <div id="bx1" class="bxslider bx-nav-top" data-nav="true">
-                        <div class="item">
-                            <div class="image-box-thum">
-                                <img src="~/images/maps.jpg" alt="Maps data">
-                            </div>
-                            <div class="image-box-details pt-20 pb-sm-20">
-                                <p class="lead mb-15"><span class="text-theme-colored">Environmental Maps</span> to visualize tribal data</p>
-                                <p class="desc mb-10">Includes locations of open dumps, water quality monitoring stations, tribal land status, and more...</p>
-                                <a href="@Url.Action("Maps", "Home", new { id = Model.selOrg })" class="btn btn-sm btn-theme-colored mt-10">Explore</a>
-                            </div>
+        <div class="row">
+            <div class="col-xs-12 col-sm-6 col-md-4 pb-sm-20">
+                <h3 class="line-bottom mt-0">Explore <span class="text-theme-colored">Open Data</span></h3>
+
+                <div id="bx1" class="bxslider bx-nav-top" data-nav="true">
+                    <div class="item">
+                        <div class="image-box-thum">
+                            <img src="~/images/maps.jpg" alt="Maps data">
                         </div>
-                        <div class="item">
-                            <div class="image-box-thum">
-                                <img src="~/images/api.png" alt="API data">
-                            </div>
-                            <div class="image-box-details pt-20 pb-sm-20">
-                                <p class="lead mb-15"><span class="text-theme-colored">Data APIs</span> for developers</p>
-                                <p class="desc mb-10">Find data, tools, and resources to conduct research, develop applications, and more...</p>
-                                <a href="@Url.Action("api", "Home", new { id = Model.selOrg })" class="btn btn-sm btn-theme-colored mt-10">Explore</a>
-                            </div>
+                        <div class="image-box-details pt-20 pb-sm-20">
+                            <p class="lead mb-15"><span class="text-theme-colored">Environmental Maps</span> to visualize tribal data</p>
+                            <p class="desc mb-10">Includes locations of open dumps, water quality monitoring stations, tribal land status, and more...</p>
+                            <a href="@Url.Action("Maps", "Home", new { id = Model.selOrg })" class="btn btn-sm btn-theme-colored mt-10">Explore</a>
                         </div>
                     </div>
+                    <div class="item">
+                        <div class="image-box-thum">
+                            <img src="~/images/api.png" alt="API data">
+                        </div>
+                        <div class="image-box-details pt-20 pb-sm-20">
+                            <p class="lead mb-15"><span class="text-theme-colored">Data APIs</span> for developers</p>
+                            <p class="desc mb-10">Find data, tools, and resources to conduct research, develop applications, and more...</p>
+                            <a href="@Url.Action("api", "Home", new { id = Model.selOrg })" class="btn btn-sm btn-theme-colored mt-10">Explore</a>
+                        </div>
+                    </div>
+                </div>
 
 
-                </div>
-                <div class="col-xs-12 col-sm-6 col-md-4 pb-sm-20">
-                    <h3 class="line-bottom mt-0">Available <span class="text-theme-colored">Services</span></h3>
-                    <div id="bx2" class="bxslider bx-nav-top" data-nav="true">
-                        <div class="item" style="visibility:hidden;">
-                            <div class="campaign bg-silver-light mb-30">
-                                <div class="thumb">
-                                    <img src="http://placehold.it/360x210" alt="" class="img-fullwidth">
-                                    <div class="campaign-overlay"></div>
-                                </div>
-                                <div class="campaign-details clearfix p-15 pt-10 pb-10">
-                                    <h5 class="text-theme-colored font-weight-500 mb-0">Subtitle place here</h5>
-                                    <h4 class="font-weight-700 mt-0"><a href="#">Campaign 1 Title Here</a></h4>
-                                    <p>Lorem ipsum dolor sit amet, consect adipisicing elit. Praesent quossit <a class="text-theme-colored ml-5" href="#"> →</a></p>
-                                    <div class="campaign-bottom border-top clearfix mt-20">
-                                        <ul class="list-inline font-weight-600 pull-left flip11 pr-0 mt-10">
-                                            <li class="text-gray-lightgray"><i class="fa fa-heart mr-10"></i>256</li>
-                                            <li class="text-gray-lightgray"><i class="fa fa-share-alt mr-10"></i>75</li>
-                                        </ul>
-                                        <a class="btn btn-xs btn-theme-colored font-weight-600 font-11 pull-right flip11 mt-10" href="page-donate.html">Donate Now</a>
-                                    </div>
+            </div>
+            <div class="col-xs-12 col-sm-6 col-md-4 pb-sm-20">
+                <h3 class="line-bottom mt-0">Available <span class="text-theme-colored">Services</span></h3>
+                <div id="bx2" class="bxslider bx-nav-top" data-nav="true">
+                    <div class="item" style="visibility:hidden;">
+                        <div class="campaign bg-silver-light mb-30">
+                            <div class="thumb">
+                                <img src="~/images/opendump.jpg" alt="" class="img-fullwidth">
+                                <div class="campaign-overlay"></div>
+                            </div>
+                            <div class="campaign-details clearfix p-15 pt-10 pb-10">
+                                <h4 class="event-title font-weight-700 mt-0"><a href="#">Report an Open Dump Site</a></h4>
+                                <p>Citizens can use this site to notify your Tribal Environmental Program of local dump sites. <a class="text-theme-colored ml-5" href="#"> →</a></p>
+                                <div class="campaign-bottom border-top clearfix mt-20">
+                                    <a class="btn btn-xs btn-theme-colored font-weight-600 font-11 pull-right flip11 mt-10" href="@Url.Action("Services", "Home")">Report a Dump</a>
                                 </div>
                             </div>
                         </div>
-                        <div class="item" style="visibility:hidden;">
-                            <div class="campaign bg-silver-light maxwidth500 mb-30">
-                                <div class="thumb">
-                                    <img src="http://placehold.it/360x210" alt="" class="img-fullwidth">
-                                    <div class="campaign-overlay"></div>
-                                </div>
-                                <div class="campaign-details clearfix p-15 pt-10 pb-10">
-                                    <h5 class="text-theme-colored font-weight-500 mb-0">Subtitle place here</h5>
-                                    <h4 class="font-weight-700 mt-0"><a href="#">Campaign Title Here</a></h4>
-                                    <p>Lorem ipsum dolor sit amet, consect adipisicing elit. Praesent quossit <a class="text-theme-colored ml-5" href="#"> →</a></p>
-                                    <div class="campaign-bottom border-top clearfix mt-20">
-                                        <ul class="list-inline font-weight-600 pull-left flip11 pr-0 mt-10">
-                                            <li class="text-gray-lightgray"><i class="fa fa-heart mr-10"></i>256</li>
-                                            <li class="text-gray-lightgray"><i class="fa fa-share-alt mr-10"></i>75</li>
-                                        </ul>
-                                        <a class="btn btn-xs btn-theme-colored font-weight-600 font-11 pull-right flip11 mt-10" href="page-donate.html">Donate Now</a>
-                                    </div>
+                    </div>
+                    <div class="item" style="visibility:hidden;">
+                        <div class="campaign bg-silver-light maxwidth500 mb-30">
+                            <div class="thumb">
+                                <img src="~/images/arborcare.jpg" alt="" class="img-fullwidth">
+                                <div class="campaign-overlay"></div>
+                            </div>
+                            <div class="campaign-details clearfix p-15 pt-10 pb-10">
+                                <h4 class="event-title font-weight-700 mt-0"><a href="#">Residential Tree Service</a></h4>
+                                <p>Tribal citizens can make a request online for residential tree removal and pruning services <a class="text-theme-colored ml-5" href="#"> →</a></p>
+                                <div class="campaign-bottom border-top clearfix mt-20">
+                                    <a class="btn btn-xs btn-theme-colored font-weight-600 font-11 pull-right flip11 mt-10" href="@Url.Action("Services", "Home")">Request Service</a>
                                 </div>
                             </div>
                         </div>
-                        <div class="item" style="visibility:hidden;">
-                            <div class="campaign bg-silver-light maxwidth500 mb-30">
-                                <div class="thumb">
-                                    <img src="http://placehold.it/360x210" alt="" class="img-fullwidth">
-                                    <div class="campaign-overlay"></div>
-                                </div>
-                                <div class="campaign-details clearfix p-15 pt-10 pb-10">
-                                    <h5 class="text-theme-colored font-weight-500 mb-0">Subtitle place here</h5>
-                                    <h4 class="font-weight-700 mt-0"><a href="#">Campaign Title Here</a></h4>
-                                    <p>Lorem ipsum dolor sit amet, consect adipisicing elit. Praesent quossit <a class="text-theme-colored ml-5" href="#"> →</a></p>
-                                    <div class="campaign-bottom border-top clearfix mt-20">
-                                        <ul class="list-inline font-weight-600 pull-left flip11 pr-0 mt-10">
-                                            <li class="text-gray-lightgray"><i class="fa fa-heart mr-10"></i>256</li>
-                                            <li class="text-gray-lightgray"><i class="fa fa-share-alt mr-10"></i>75</li>
-                                        </ul>
-                                        <a class="btn btn-xs btn-theme-colored font-weight-600 font-11 pull-right flip11 mt-10" href="page-donate.html">Donate Now</a>
-                                    </div>
+                    </div>
+                    <div class="item" style="visibility:hidden;">
+                        <div class="campaign bg-silver-light maxwidth500 mb-30">
+                            <div class="thumb">
+                                <img src="~/images/driveway.jpg" alt="" class="img-fullwidth">
+                                <div class="campaign-overlay"></div>
+                            </div>
+                            <div class="campaign-details clearfix p-15 pt-10 pb-10">
+                                <h4 class="event-title font-weight-700 mt-0"><a href="#">Tribal Driveways</a></h4>
+                                <p>Tribal citizens can make a request online for repair or replacement of accessible driveways <a class="text-theme-colored ml-5" href="#"> →</a></p>
+                                <div class="campaign-bottom border-top clearfix mt-20">
+                                    <a class="btn btn-xs btn-theme-colored font-weight-600 font-11 pull-right flip11 mt-10" href="@Url.Action("Services", "Home")">Request Service</a>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="col-xs-12 col-sm-12 col-md-4 pb-sm-20">
-                    <h3 class="line-bottom mt-0">Upcoming <span class="text-theme-colored">Events</span></h3>
-                    <div id="bx3" class="bxslider bx-nav-top" data-count="3">
-                        <div class="event media mt-0 mb-20 no-bg no-border">
-                            <div class="event-date media-left text-center flip11 bg-theme-colored p-15 pt-20">
-                                <ul>
-                                    <li class="font-24 text-white font-weight-600 border-bottom pb-10">28</li>
-                                    <li class="font-18 text-white text-uppercase">Feb</li>
-                                </ul>
-                            </div>
-                            <div class="media-body pl-20">
-                                <div class="event-content pull-left">
-                                    <h4 class="event-title media-heading font-weight-700 mb-0"><a href="#">Checotah Trash-Off Day</a></h4>
-                                    <span class="inline-block text-gray-darkgray mr-10 font-11"><i class="clip-clock-2 mr-5 text-theme-colored"></i> at 5.00 pm - 7.30 pm</span>
-                                    <span class="text-gray-darkgray font-11"><i class="clip-map mr-5"></i> Okmulgee, OK</span>
-                                    <p class="mt-5">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Commod</p>
-                                </div>
-                            </div>
+            </div>
+            <div class="col-xs-12 col-sm-12 col-md-4 pb-sm-20">
+                <h3 class="line-bottom mt-0">Upcoming <span class="text-theme-colored">Events</span></h3>
+                <div id="bx3" class="bxslider bx-nav-top" data-count="3">
+                    <div class="event media mt-0 mb-20 no-bg no-border">
+                        <div class="event-date media-left text-center flip11 bg-theme-colored p-15 pt-20">
+                            <ul>
+                                <li class="font-24 text-white font-weight-600 border-bottom pb-10">28</li>
+                                <li class="font-18 text-white text-uppercase">Feb</li>
+                            </ul>
                         </div>
-                        <div class="event media mt-0 mb-20 no-bg no-border">
-                            <div class="event-date media-left text-center flip11 bg-theme-colored p-15 pt-20">
-                                <ul>
-                                    <li class="font-24 text-white font-weight-600 border-bottom pb-10">28</li>
-                                    <li class="font-18 text-white text-uppercase">Feb</li>
-                                </ul>
-                            </div>
-                            <div class="media-body pl-20">
-                                <div class="event-content pull-left">
-                                    <h4 class="event-title media-heading font-weight-700 mb-0"><a href="#">Annual Earth Day Event</a></h4>
-                                    <span class="inline-block text-gray-darkgray mr-10 font-11"><i class="clip-clock-2 mr-5 text-theme-colored"></i> at 5.00 pm - 7.30 pm</span>
-                                    <span class="text-gray-darkgray font-11"><i class="clip-map mr-5"></i> Okmulgee, OK</span>
-                                    <p class="mt-5">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Commod</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="event media mt-0 mb-20 no-bg no-border">
-                            <div class="event-date media-left text-center flip11 bg-theme-colored p-15 pt-20">
-                                <ul>
-                                    <li class="font-24 text-white font-weight-600 border-bottom pb-10">28</li>
-                                    <li class="font-18 text-white text-uppercase">Feb</li>
-                                </ul>
-                            </div>
-                            <div class="media-body pl-20">
-                                <div class="event-content pull-left">
-                                    <h4 class="event-title media-heading font-weight-700 mb-0"><a href="#">Gear up for giving3</a></h4>
-                                    <span class="inline-block text-gray-darkgray mr-10 font-11"><i class="clip-clock-2 mr-5 text-theme-colored"></i> at 5.00 pm - 7.30 pm</span>
-                                    <span class="text-gray-darkgray font-11"><i class="clip-map mr-5"></i> Okmulgee, OK</span>
-                                    <p class="mt-5">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Commod</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="event media mt-0 mb-20 no-bg no-border">
-                            <div class="event-date media-left text-center flip11 bg-theme-colored p-15">
-                                <ul>
-                                    <li class="font-24 text-white font-weight-600 border-bottom pb-10">28</li>
-                                    <li class="font-18 text-white text-uppercase">Feb</li>
-                                </ul>
-                            </div>
-                            <div class="media-body pl-20">
-                                <div class="event-content pull-left">
-                                    <h4 class="event-title media-heading font-weight-700 mb-0"><a href="#">Gear up for giving4</a></h4>
-                                    <span class="inline-block text-gray-darkgray mr-10 font-11"><i class="clip-clock-2 mr-5 text-theme-colored"></i> at 5.00 pm - 7.30 pm</span>
-                                    <span class="text-gray-darkgray font-11"><i class="clip-map mr-5"></i> 25 Newyork City</span>
-                                    <p class="mt-5">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Commod</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="event media mt-0 mb-20 no-bg no-border">
-                            <div class="event-date media-left text-center flip11 bg-theme-colored p-15">
-                                <ul>
-                                    <li class="font-24 text-white font-weight-600 border-bottom pb-10">28</li>
-                                    <li class="font-18 text-white text-uppercase">Feb</li>
-                                </ul>
-                            </div>
-                            <div class="media-body pl-20">
-                                <div class="event-content pull-left flip11">
-                                    <h4 class="event-title media-heading font-weight-700 mb-0"><a href="#">Gear up for giving5</a></h4>
-                                    <span class="inline-block text-gray-darkgray mr-10 font-11"><i class="clip-clock-2 mr-5 text-theme-colored"></i> at 5.00 pm - 7.30 pm</span>
-                                    <span class="text-gray-darkgray font-11"><i class="clip-map mr-5"></i> 25 Newyork City</span>
-                                    <p class="mt-5">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Commod</p>
-                                </div>
+                        <div class="media-body pl-20">
+                            <div class="event-content pull-left">
+                                <h4 class="event-title media-heading font-weight-700 mb-0"><a href="#">Checotah Trash-Off Day</a></h4>
+                                <span class="inline-block text-gray-darkgray mr-10 font-11"><i class="clip-clock-2 mr-5 text-theme-colored"></i> 5:00 pm - 7:30 pm</span>
+                                <span class="text-gray-darkgray font-11"><i class="clip-map mr-5"></i> Okmulgee, OK</span>
+                                <p class="mt-5">Residents are being asked to help clean up during the spring Checotah Trash-Off event.</p>
                             </div>
                         </div>
                     </div>
-                    <a class="text-theme-colored font-weight-600 inline-block mt-15" href="#">more events →</a>
+                    <div class="event media mt-0 mb-20 no-bg no-border">
+                        <div class="event-date media-left text-center flip11 bg-theme-colored p-15 pt-20">
+                            <ul>
+                                <li class="font-24 text-white font-weight-600 border-bottom pb-10">22</li>
+                                <li class="font-18 text-white text-uppercase">Apr</li>
+                            </ul>
+                        </div>
+                        <div class="media-body pl-20">
+                            <div class="event-content pull-left">
+                                <h4 class="event-title media-heading font-weight-700 mb-0"><a href="#">Annual Earth Day Event</a></h4>
+                                <span class="inline-block text-gray-darkgray mr-10 font-11"><i class="clip-clock-2 mr-5 text-theme-colored"></i> 2:00 pm - 4:00 pm</span>
+                                <span class="text-gray-darkgray font-11"><i class="clip-map mr-5"></i> Okmulgee, OK</span>
+                                <p class="mt-5">Join us for this annual traditional event</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="event media mt-0 mb-20 no-bg no-border">
+                        <div class="event-date media-left text-center flip11 bg-theme-colored p-15 pt-20">
+                            <ul>
+                                <li class="font-24 text-white font-weight-600 border-bottom pb-10">15</li>
+                                <li class="font-18 text-white text-uppercase">May</li>
+                            </ul>
+                        </div>
+                        <div class="media-body pl-20">
+                            <div class="event-content pull-left">
+                                <h4 class="event-title media-heading font-weight-700 mb-0"><a href="#">Kickapoo Cleanup Day</a></h4>
+                                <span class="inline-block text-gray-darkgray mr-10 font-11"><i class="clip-clock-2 mr-5 text-theme-colored"></i> 5:00 pm - 7:30 pm</span>
+                                <span class="text-gray-darkgray font-11"><i class="clip-map mr-5"></i> McLoud, OK</span>
+                                <p class="mt-5">Join us for this annual traditional event</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="event media mt-0 mb-20 no-bg no-border">
+                        <div class="event-date media-left text-center flip11 bg-theme-colored p-15">
+                            <ul>
+                                <li class="font-24 text-white font-weight-600 border-bottom pb-10">24</li>
+                                <li class="font-18 text-white text-uppercase">Sep</li>
+                            </ul>
+                        </div>
+                        <div class="media-body pl-20">
+                            <div class="event-content pull-left">
+                                <h4 class="event-title media-heading font-weight-700 mb-0"><a href="#">Seminole Nation Days</a></h4>
+                                <span class="inline-block text-gray-darkgray mr-10 font-11"><i class="clip-clock-2 mr-5 text-theme-colored"></i> 5.00 pm - 7.30 pm</span>
+                                <span class="text-gray-darkgray font-11"><i class="clip-map mr-5"></i> Seminole, OK</span>
+                                <p class="mt-5">Join us for this annual traditional event</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="event media mt-0 mb-20 no-bg no-border">
+                        <div class="event-date media-left text-center flip11 bg-theme-colored p-15">
+                            <ul>
+                                <li class="font-24 text-white font-weight-600 border-bottom pb-10">28</li>
+                                <li class="font-18 text-white text-uppercase">Feb</li>
+                            </ul>
+                        </div>
+                        <div class="media-body pl-20">
+                            <div class="event-content pull-left flip11">
+                                <h4 class="event-title media-heading font-weight-700 mb-0"><a href="#">Gear up for giving</a></h4>
+                                <span class="inline-block text-gray-darkgray mr-10 font-11"><i class="clip-clock-2 mr-5 text-theme-colored"></i> 5:00 pm - 7:30 pm</span>
+                                <span class="text-gray-darkgray font-11"><i class="clip-map mr-5"></i> Semniole, OK</span>
+                                <p class="mt-5">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Commod</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
+                <a class="text-theme-colored font-weight-600 inline-block mt-15" href="#">more events →</a>
             </div>
         </div>
     </div>
 </section>
 
 
-<section class="wrapper wrapper-grey " >
-    <div class="container" style="padding-left:50px !important; padding-right:50px !important;">
+<section class="wrapper wrapper-grey">
+    <div class="container mlr-20">
         <div class="row">
             <div class="col-md-12">
                 <h2 style="color:#6AB43E" class="center">What It Is</h2>
             </div>
         </div>
         <div class="row">
-            <div class="col-md-1"></div>
-            <div class="col-md-7">
-                <p>&nbsp;</p>
+            <div class="col-lg-offset-1 col-md-7">
                 <p class="" style="font-size:16px; padding-top:20px; padding-bottom:20px;">
-                    The Tribal Services Portal is an <strong>online community</strong> and <strong>living project inventory</strong> for E-Enterprise State and Tribal participant members across the US.
+                    The <strong>Tribal Services Portal</strong> is an web platform for environmental data and services, serving multiple tribal organizations in Oklahoma.
                 </p>
                 <p class="" style="font-size:16px; padding-top:20px; padding-bottom:20px;">
-                    The inventory has a broad focus, including <strong>IT, process improvement, and advanced monitoring</strong>, along with traditional topics such as <strong>Exchange Network Nodes and dataflows</strong>.
+                    The Portal centralizes environmental services, available data, and visualizations into one location, and provides single-sign-on across these services.
                 </p>
             </div>
             <div class="col-sm-3">
-                Image
+                <img src="http://placehold.it/360x210" alt="" class="img-fullwidth">
             </div>
-            <div class="col-md-1"></div>
         </div>
     </div>
 </section>
 
 
 <section class="wrapper">
-    <div class="container" style="padding-left:50px !important; padding-right:50px !important;">
+    <div class="container mlr-20">
         <div class="row">
             <div class="col-md-12" style="padding-bottom:35px;">
                 <h2 style="color:#6AB43E" class="center">Participating Tribes</h2>
             </div>
         </div>
-        <div class="col-sm-6 col-md-4">
-            <div class="core-box">
-                <div class="heading">
-                    <i class="clip-question circle-icon"></i>
-                    <h2 style="color:#6AB43E">Muscogee Creek Nation</h2>
+
+        <div class="row text-center">
+            <div class="col-sm-3 ">
+                <div style="border-bottom: 1px solid #eee;">
+                    <img src="~/images/seal_mcn.png">
+                    <h4 style="color:#6AB43E">Muscogee (Creek) Nation</h4>
                 </div>
             </div>
-        </div>
-        <div class="col-sm-6 col-md-4">
-            <div class="core-box">
-                <div class="heading">
-                    <i class="clip-book circle-icon"></i>
-                    <h2 style="color:#6AB43E">Enter Information</h2>
-                </div>
-                <div class="content">
-                    Seminole Nation
+            <div class="col-sm-3 ">
+                <div style="border-bottom: 1px solid #eee;">
+                    <img src="~/images/seal_seminole.png">
+                    <h4 style="color:#6AB43E">Seminole Nation</h4>
                 </div>
             </div>
-        </div>
-        <div class="col-sm-6 col-md-4">
-            <div class="core-box">
-                <div class="heading">
-                    <i class="clip-search circle-icon"></i>
-                    <h2 style="color:#6AB43E">Advanced Search</h2>
-                </div>
-                <div class="content">
-                    Kickapoo Tribe of Oklahoma
+            <div class="col-sm-3 ">
+                <div style="border-bottom: 1px solid #eee;">
+                    <img src="~/images/seal_kickapoo.png">
+                    <h4 style="color:#6AB43E">Kickapoo Tribe of Oklahoma</h4>
                 </div>
             </div>
+            <div class="col-sm-3 ">
+                <div style="border-bottom: 1px solid #eee;">
+                    <img src="~/images/seal_pot.png">
+                    <h4 style="color:#6AB43E">Citizen Potawatomi Nation</h4>
+                </div>
+            </div>
+
         </div>
+
     </div>
 </section>
 

@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Text.Encodings.Web;
 using System.Threading.Tasks;
+using TribalSvcPortal.AppLogic.DataAccessLayer;
 using TribalSvcPortal.Data.Models;
 using TribalSvcPortal.Services;
 using TribalSvcPortal.ViewModels.ManageViewModels;
@@ -23,6 +24,7 @@ namespace TribalSvcPortal.Controllers
         private readonly IEmailSender _emailSender;
         private readonly ILogger _logger;
         private readonly UrlEncoder _urlEncoder;
+        private readonly IDbPortal _DbPortal;
 
         private const string AuthenticatorUriFormat = "otpauth://totp/{0}:{1}?secret={2}&issuer={0}&digits=6";
         private const string RecoveryCodesKey = nameof(RecoveryCodesKey);
@@ -32,13 +34,15 @@ namespace TribalSvcPortal.Controllers
           SignInManager<ApplicationUser> signInManager,
           IEmailSender emailSender,
           ILogger<ManageController> logger,
-          UrlEncoder urlEncoder)
+          UrlEncoder urlEncoder, 
+          IDbPortal DbPortal)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _emailSender = emailSender;
             _logger = logger;
             _urlEncoder = urlEncoder;
+            _DbPortal = DbPortal;
         }
 
         [TempData]
@@ -175,6 +179,39 @@ namespace TribalSvcPortal.Controllers
 
             return RedirectToAction(nameof(ChangePassword));
         }
+
+        [HttpGet]
+        public async Task<IActionResult> AccessRights()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            var _roles = await _userManager.GetRolesAsync(user);
+
+            if (user == null)
+            {
+                throw new ApplicationException($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
+            }
+
+
+            var model = new AccessRightsViewModel
+            {
+                AccessRights = _DbPortal.GetT_PRT_ORG_USERS_ByUserID_WithClientList(user.Id),
+                Clients = _DbPortal.GetT_PRT_CLIENTS(),
+                Roles = _roles.ToList()
+            };
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult AccessRightsRequest(string Client_CLIENT_ID)
+        {
+            //int SuccID = _DbPortal.InsertUpdateT_PRT_ORG_USERS_CLIENT(null, null, Client_CLIENT_ID, false, "R", null);
+
+            TempData["Error"] = "Feature not yet available.";
+            return RedirectToAction(nameof(AccessRights));
+        }
+
 
         [HttpGet]
         public async Task<IActionResult> SetPassword()

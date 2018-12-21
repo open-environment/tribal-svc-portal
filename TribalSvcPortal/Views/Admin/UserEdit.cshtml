@@ -127,27 +127,48 @@
                 {
                     <tr>
                         <td>
-                            <a href="@Url.Action("OrgUserClients", "Admin", new { id = item.ORG_USER_IDX })" class="btn btn-rounded btn-xs btn-info"><i class="glyphicon glyphicon-pencil"></i> Clients</a>
+                            @Html.HiddenFor(model => item.ORG_USER_IDX)
+                            @Html.HiddenFor(model => item.ORG_ID)
+                            @Html.HiddenFor(model => item.ACCESS_LEVEL)
+                            @Html.HiddenFor(model => item.STATUS_IND)
+
+                            <a href="#modal-form" class="btn btn-rounded btn-xs btn-info modal-it" data-toggle="modal"><i class="glyphicon glyphicon-pencil"></i></a>
                             <div class="delete-section" style="display:inline">
                                 <a class=" btn btn-rounded btn-xs btn-danger delete-link"><i class="glyphicon glyphicon-remove"></i></a>
                                 <div class="btn btn-rounded btn-xs btn-warning delete-confirm" style="display:none" data-delete-id="@item.ORG_USER_IDX" data-delete-id2="@Model.appUser.Id" data-delete-p="/Admin/OrgUserDelete"><b>Confirm Delete</b></div>
                             </div>
+                            <a href="@Url.Action("OrgUserClients", "Admin", new { id = item.ORG_USER_IDX })" class="btn btn-rounded btn-xs btn-beige">Edit Clients</a>
                         </td>
                         <td>
                             @Html.DisplayFor(modelItem => item.ORG_NAME)
                         </td>
                         <td>
-                            @if (item.ORG_ADMIN_IND == true)
+                            @if (item.ACCESS_LEVEL == "A")
                             {
                                 <span class="label label-success"> Admin</span>
                             }
-                            else
+                            else if (item.ACCESS_LEVEL == "U")
                             {
                                 <span class="label label-beige"> User</span>
                             }
+                            else
+                            {
+                                <span class="label label-warning"> Public</span>
+                            }
                         </td>
                         <td>
-                            @Html.DisplayFor(modelItem => item.STATUS_IND)
+                            @if (item.STATUS_IND == "A")
+                            {
+                                <span class="label label-success"> Active</span>
+                            }
+                            else if (item.STATUS_IND == "P")
+                            {
+                                <span class="label label-warning"> Pending</span>
+                            }
+                            else
+                            {
+                                <span class="label label-danger"> Rejected</span>
+                            }
                         </td>
                     </tr>
                 }
@@ -174,6 +195,8 @@
                         @using (Html.BeginForm("OrgUserEdit", "Admin", FormMethod.Post, new { @id = "norepostform" }))
                         {
                             @Html.AntiForgeryToken()
+
+                            @Html.Hidden("edit_oRG_USER_IDX", Model.edit_oRG_USER_IDX)
                             @Html.Hidden("uidx", Model.appUser.Id)
 
                             <div class="panel-body" style="padding: 0px">
@@ -189,8 +212,9 @@
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             Access Level:
-                                            @Html.DropDownList("AdminInd", new List<SelectListItem>
+                                            @Html.DropDownList("AccessLevel", new List<SelectListItem>
                                            {
+                                               new SelectListItem{ Text="Public", Value = "P" },
                                                new SelectListItem{ Text="User", Value = "U" },
                                                new SelectListItem{ Text="Admin", Value = "A" }
                                            }, new { @class = "form-control" })
@@ -227,4 +251,24 @@
 
 @section scripts {
     <script src="~/js/confirm_delete.js"></script>
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            
+            //create an event when button is clicked to display modal
+            $(".modal-it").click(function () {
+                $('#edit_oRG_USER_IDX').val($(this).parent('td').find('#item_ORG_USER_IDX').val());
+                $('#org_id').val($(this).parent('td').find('#item_ORG_ID').val());
+                $('#AccessLevel').val($(this).parent('td').find('#item_ACCESS_LEVEL').val());
+                $('#StatusInd').val($(this).parent('td').find('#item_STATUS_IND').val());
+            });
+
+            $(".add-it").click(function () {
+                $('#edit_oRG_USER_IDX').val(null);
+                $('#org_id').val(null);
+                $('#AccessLevel').val('');
+                $('#StatusInd').val('');
+            });
+        });
+    </script>
 }

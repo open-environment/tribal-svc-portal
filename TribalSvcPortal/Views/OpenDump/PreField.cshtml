@@ -18,15 +18,15 @@
                     </a>
                 </li>
                 @*<li>
-                    <a href="@Url.Action("WasteProfile", "OpenDump")">
-                        Waste Profile/Health Threat
-                    </a>
-                </li>
-                <li>
-                    <a href="@Url.Action("Cleanup", "OpenDump")">
-                        Site Cleanup
-                    </a>
-                </li>*@
+                        <a href="@Url.Action("WasteProfile", "OpenDump")">
+                            Waste Profile/Health Threat
+                        </a>
+                    </li>
+                    <li>
+                        <a href="@Url.Action("Cleanup", "OpenDump")">
+                            Site Cleanup
+                        </a>
+                    </li>*@
             </ul>
             <div class="tab-content">
                 <div class="tab-pane in active" id="tab1">
@@ -45,6 +45,7 @@
                                     </label>
                                     <div class="col-sm-3">
                                         @Html.TextBoxFor(model => model.TPrtSite.SITE_NAME, new { @class = "form-control", @placeholder = "", @maxlength = "100", required = "required" })
+                                        @Html.ValidationMessageFor(model => model.TPrtSite.SITE_NAME, "", new { @class = "text-danger" })
                                     </div>
                                 </div>
                                 <div>
@@ -52,7 +53,7 @@
                                         Organization
                                     </label>
                                     <div class="col-sm-3">
-                                        @Html.DropDownListFor(model => model.TPrtSite.ORG_ID, Model.OrgList, "", new { @class = "form-control", required = "required" })
+                                        @Html.DropDownListFor(model => model.TPrtSite.ORG_ID, Model.OrgList, new { @class = "form-control", required = "required" })
                                     </div>
                                 </div>
                                 <div>
@@ -91,7 +92,7 @@
                                             </div>
                                             <div class="col-md-2">
                                                 <label>&nbsp;</label>
-                                                <a href="#modal-form" data-toggle="modal" id="btnShow" class="btn btn-primary" >Select on Map</a>
+                                                <a href="#modal-form" data-toggle="modal" id="btnShow" class="btn btn-primary">Select on Map</a>
                                             </div>
                                         </div>
                                         <div class="row">
@@ -144,7 +145,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="col-lg-6 col-md-6 col-sm-6" >
+                                    <div class="col-lg-6 col-md-6 col-sm-6">
                                         <div class="row" style="background-color:#4F4F4F; padding:6px;">
                                             <label style="color:white; font-size:11pt;">Auto-populated</label>
                                         </div>
@@ -251,7 +252,7 @@
                         <p>Click on the map to locate the site.</p>
                         <form role="form">
                             <div class="panel-body" style="padding: 0px">
-                                    <div id="map_canvas" style="width: 100%; height: 400px;" ></div>
+                                <div id="map_canvas" style="width: 100%; height: 400px;"></div>
                                 <div class="row">
                                     <div class="col-md-3">
                                         Latitude:
@@ -266,8 +267,8 @@
                                         <button id="picLoc" type="submit" class="btn btn-primary form-control" data-dismiss="modal"><strong>Continue</strong></button>
                                     </div>
                                     <div class="col-md-3">
-                                            &nbsp;
-                                            <button type="submit" class="btn btn-default form-control" data-dismiss="modal"><strong>Cancel</strong></button>
+                                        &nbsp;
+                                        <button type="submit" class="btn btn-default form-control" data-dismiss="modal"><strong>Cancel</strong></button>
                                     </div>
                                 </div>
                             </div>
@@ -281,6 +282,7 @@
 
 
 @section scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
     <script src="~/js/jquery.are-you-sure.js"></script>
     <script type="text/javascript">
 
@@ -316,16 +318,37 @@
                 $("#longitude").val($("#txtLong1").val());
                 $('form').trigger('rescan.areYouSure');
             });
+
+            //repopulate community drop-down based on change of Organization
+            $("#TPrtSite_ORG_ID").on("change", function () {
+                console.log('f');
+                showValue($(this).val());
+            });
+
         });
+
+
+        //repopulate community drop-down based on change of Organization
+        function showValue(val)
+        {
+            console.log('g');
+            console.log(val);
+            $.getJSON('@Url.Action("GetCommunityDDL", "OpenDump")' + "?orgID=" + val, function (result) {
+                $("#TOdSite_COMMUNITY_IDX").html(""); // makes select null before filling process
+                var data = result.data;
+                for (var i = 0; i < data.length; i++) {
+                    $("#TOdSite_COMMUNITY_IDX").append("<option value='" + data[i].value +"'>" + data[i].text + "</option>")
+                }
+            })
+        }
     </script>
 
     <script src="https://js.arcgis.com/3.25/"></script>
     @if (Model.TPrtSite != null)
     {
-    <script type="text/javascript">
+        <script type="text/javascript">
 
-            function LoadMap()
-            {
+            function LoadMap() {
                 var map;
 
                 require(["esri/map",
@@ -370,6 +393,6 @@
 
                     });
             }
-    </script>
+        </script>
     }
 }

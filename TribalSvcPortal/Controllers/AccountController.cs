@@ -99,8 +99,8 @@ namespace TribalSvcPortal.Controllers
                         .SetAbsoluteExpiration(TimeSpan.FromHours(1))
                         .AddExpirationToken(new CancellationChangeToken(cts.Token));
 
-                    IEnumerable<T_PRT_CLIENTS> UserClientDisplayType = _DbPortal.GetT_PRT_ORG_USERS_CLIENT_DistinctClientByUserID(user.Id);
-                    _memoryCache.Set(CacheKey, UserClientDisplayType, cacheEntryOptions);
+                    IEnumerable<T_PRT_CLIENTS> _clients = _DbPortal.GetT_PRT_ORG_USERS_CLIENT_DistinctClientByUserID(user.Id);
+                    _memoryCache.Set(CacheKey, _clients, cacheEntryOptions);
                     _logger.LogInformation("User logged in.");
                     return RedirectToLocal(returnUrl);
                 }
@@ -280,11 +280,11 @@ namespace TribalSvcPortal.Controllers
                     //Prevent newly registered users from being automatically logged
                     //await _signInManager.SignInAsync(user, isPersistent: false);
 
-                    //associate user with org
+                    //if email is associated with an organization, then associate user with org
                     List<T_PRT_ORGANIZATIONS> orgs = _DbPortal.GetT_PRT_ORGANIZATIONS_ByEmail(model.Email);
                     if (orgs != null && orgs.Count == 1)
                     {
-                        _DbPortal.InsertUpdateT_PRT_ORG_USERS(null, orgs[0].ORG_ID, user.Id, false, "A", user.Id);
+                        _DbPortal.InsertUpdateT_PRT_ORG_USERS(null, orgs[0].ORG_ID, user.Id, "U", "A", user.Id);
                     }
 
                     _logger.LogInformation("User created a new account with password.");
@@ -571,7 +571,7 @@ namespace TribalSvcPortal.Controllers
             }
             else
             {
-                return RedirectToAction(nameof(DashboardController.Index), "Dashboard");
+                return RedirectToAction(nameof(HomeController.Index), "Home");
             }
         }
 

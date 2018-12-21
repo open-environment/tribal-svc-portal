@@ -14,7 +14,7 @@ namespace TribalSvcPortal.Views.Manage
         public static string Index => "Index";
 
         public static string ChangePassword => "ChangePassword";
-
+        public static string AccessRights => "AccessRights";
         public static string ExternalLogins => "ExternalLogins";
 
         public static string TwoFactorAuthentication => "TwoFactorAuthentication";
@@ -22,6 +22,8 @@ namespace TribalSvcPortal.Views.Manage
         public static string IndexNavClass(ViewContext viewContext) => PageNavClass(viewContext, Index);
 
         public static string ChangePasswordNavClass(ViewContext viewContext) => PageNavClass(viewContext, ChangePassword);
+
+        public static string AccessRightsNavClass(ViewContext viewContext) => PageNavClass(viewContext, AccessRights);
 
         public static string ExternalLoginsNavClass(ViewContext viewContext) => PageNavClass(viewContext, ExternalLogins);
 

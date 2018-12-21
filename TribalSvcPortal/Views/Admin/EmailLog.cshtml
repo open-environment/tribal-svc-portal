@@ -1,1 +1,46 @@
-﻿
+﻿@model TribalSvcPortal.ViewModels.AdminViewModels.EmailLogViewModel
+@{
+    ViewData["Title"] = "Email Log";
+    ViewData["SubTitle"] = "View all emails sent by the Portal.";
+}
+
+<section class="panel panel-default">
+    <div class="table-responsive">
+        <table class="table table-striped m-b-none" data-ride="datatables">
+            <thead class="thead-inverse">
+                <tr>
+                    <th>Log Date</th>
+                    <th>From</th>
+                    <th>To</th>
+                    <th>Cc</th>
+                    <th>Subject</th>
+                    <th>Email Type</th>
+                </tr>
+            </thead>
+
+            @foreach (var item in Model.T_PRT_SYS_EMAIL_LOGs)
+            {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.LOG_DT)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.LOG_FROM)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.LOG_TO)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.LOG_CC)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.LOG_SUBJ)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.EMAIL_TYPE)
+                </td>
+            </tr>
+            }
+        </table>
+    </div>
+</section>

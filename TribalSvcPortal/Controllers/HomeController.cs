@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text.Encodings.Web;
 using System.Threading.Tasks;
@@ -30,9 +31,32 @@ namespace TribalSvcPortal.Controllers
 
         public IActionResult Index(string id)
         {
-            var model = new HomeViewModel {
-                selOrg = id
+            string _UserIDX = _userManager.GetUserId(User);
+
+            //initialize model
+            var model = new HomeViewModel
+            {
+                selOrg = id,
+                WarnNoClientInd = false,
+                Announcement = _DbPortal.GetT_PRT_APP_SETTINGS_CUSTOM().ANNOUNCEMENTS
             };
+
+            //if agency user doesn't have access to any clients yet, display warning
+            if (_UserIDX != null)
+            {
+                List<UserOrgDisplayType> _userOrgs = _DbPortal.GetT_PRT_ORG_USERS_ByUserID(_UserIDX);
+                if (_userOrgs != null && _userOrgs.Count == 1 && _userOrgs[0].ACCESS_LEVEL == "U")
+                {
+                    List<OrgUserClientDisplayType> _orgUserClients = _DbPortal.GetT_PRT_ORG_USERS_CLIENT_ByOrgUserID(_userOrgs[0].ORG_USER_IDX??0);
+                    if (_orgUserClients == null || _orgUserClients.Count == 0)
+                    {
+                        model.WarnNoClientInd = true;
+                    }
+                }
+            }
+
+
+
 
             return View(model);
         }
@@ -48,6 +72,25 @@ namespace TribalSvcPortal.Controllers
         }
 
         public IActionResult api(string id)
+        {
+            var model = new HomeViewModel
+            {
+                selOrg = id
+            };
+
+            return View(model);
+        }
+
+        public IActionResult Services(string id)
+        {
+            var model = new ServiceViewModel
+            {
+            };
+
+            return View(model);
+        }
+
+        public IActionResult Events(string id)
         {
             var model = new HomeViewModel
             {
@@ -112,7 +155,7 @@ namespace TribalSvcPortal.Controllers
                     UserName = model.Email,
                     Email = model.Email
                 };
-                Task<IdentityResult> chkUser = _userManager.CreateAsync(user, "changeme1");
+                Task<IdentityResult> chkUser = _userManager.CreateAsync(user, model.Password);
                 chkUser.Wait();
 
                 if (chkUser.Result.Succeeded)
@@ -127,9 +170,9 @@ namespace TribalSvcPortal.Controllers
                     bool emailSucc = Utils.SendEmail(null, model.Email, null, null, "Confirm your email", $"Please confirm your account by clicking this link: <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>link</a>", null, null, "");
 
                     if (emailSucc)
-                        TempData["Success"] = "User created with password 'changeme1'";
+                        TempData["Success"] = "User created and verification email sent";
                     else
-                        TempData["Error"] = "User created with password 'changeme1' but verification email failed.";
+                        TempData["Error"] = "User created but verification email failed.";
                 }
             }
             else

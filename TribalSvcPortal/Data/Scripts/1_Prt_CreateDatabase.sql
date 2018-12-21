@@ -247,7 +247,7 @@ CREATE TABLE [T_PRT_ORG_USERS] (
 	[ORG_USER_IDX] int IDENTITY NOT NULL,
 	[ORG_ID] varchar(30) NOT NULL,
 	[Id] nvarchar(450) NOT NULL,
-	[ORG_ADMIN_IND] bit NOT NULL,
+	[ACCESS_LEVEL] nvarchar(1) NOT NULL,
 	[STATUS_IND] nvarchar(1) NOT NULL,
 	[CREATE_USER_ID] nvarchar(450) NULL,
 	[CREATE_DT] datetime2(0) NULL,

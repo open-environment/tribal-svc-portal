@@ -12,17 +12,18 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
 {
     public class UserOrgDisplayType
     {
-        public int ORG_USER_IDX { get; set; }
+        public int? ORG_USER_IDX { get; set; }
         public string ORG_ID { get; set; }
-        public bool? ORG_ADMIN_IND { get; set; }
+        public string ACCESS_LEVEL { get; set; }
         public string STATUS_IND { get; set; }
         public string ORG_NAME { get; set; }
+        public List<OrgUserClientShortDisplayType> OrgUserClientDisplay { get; set; }
     }
 
     public class OrgUserClientDisplayType
     {
         public int ORG_USER_CLIENT_IDX { get; set; }
-        public int ORG_USER_IDX { get; set; }
+        public int? ORG_USER_IDX { get; set; }
         public string CLIENT_ID { get; set; }
         public bool ADMIN_IND { get; set; }
         public string STATUS_IND { get; set; }
@@ -30,6 +31,15 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
         public string UserID { get; set; }
         public string UserName { get; set; }
         public string ORG_CLIENT_ALIAS { get; set; }
+    }
+
+    public class OrgUserClientShortDisplayType
+    {
+        public string CLIENT_ID { get; set; }
+        public int? ORG_USER_CLIENT_IDX { get; set; }
+        public int? ORG_USER_IDX { get; set; }
+        public bool? ADMIN_IND { get; set; }
+        public string STATUS_IND { get; set; }
     }
 
     public interface IDbPortal
@@ -62,7 +72,8 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
         //******************************T_PRT_ORG_USERS***********************************************
         T_PRT_ORG_USERS GetT_PRT_ORG_USERS_ByOrgUserID(int id);
         List<UserOrgDisplayType> GetT_PRT_ORG_USERS_ByUserID(string id);
-        int InsertUpdateT_PRT_ORG_USERS(int? oRG_USER_IDX, string oRG_ID, string _Id, bool? oRG_ADMIN_IND, string sTATUS_IND, string cREATE_USER);
+        List<UserOrgDisplayType> GetT_PRT_ORG_USERS_ByUserID_WithClientList(string UserId);
+        int InsertUpdateT_PRT_ORG_USERS(int? oRG_USER_IDX, string oRG_ID, string _Id, string aCCESS_LEVEL, string sTATUS_IND, string cREATE_USER);
         int DeleteT_PRT_ORG_USERS(int id);
         bool IsUserAnOrgAdmin(string UserID, string OrgID);
 
@@ -71,16 +82,19 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
         List<OrgUserClientDisplayType> GetT_PRT_ORG_USERS_CLIENT_ByOrgUserID(int _OrgUserIDX);
         List<OrgUserClientDisplayType> GetT_PRT_ORG_USERS_CLIENT_ByUserID(string _UserIDX);
         IEnumerable<T_PRT_CLIENTS> GetT_PRT_ORG_USERS_CLIENT_DistinctClientByUserID(string UserID);
-        IEnumerable<T_PRT_CLIENTS> GetDistinct_USERS_CLIENT_ByUserID(string _UserIDX);
         IEnumerable<SelectListItem> get_ddl_T_PRT_ORG_USERS_CLIENT_ByUserIDandClient(string UserIDX, string ClientID);
         int InsertUpdateT_PRT_ORG_USERS_CLIENT(int? oRG_USER_CLIENT_IDX, int? oRG_USER_IDX, string cLIENT_ID, bool? aDMIN_IND, string sTATUS_IND, string cREATE_USER);
         int DeleteT_PRT_ORG_USER_CLIENT(int id);
 
         //**************************** T_PRT_ROLES ***********************************************
         IEnumerable<IdentityRole> GetT_PRT_ROLES_BelongingToUser(string UserID);
+        IEnumerable<ApplicationUser> GetT_PRT_USERS_BelongingToRole(string RoleID);
 
         //*****************SYS_LOG**********************************
-        T_PRT_SYS_LOG GetT_PRT_SYS_LOG();
+        List<T_PRT_SYS_LOG> GetT_PRT_SYS_LOG();
+
+        //*****************SYS_EMAIL_LOG**********************************
+        List<T_PRT_SYS_EMAIL_LOG> GetT_PRT_SYS_EMAIL_LOG();
 
         //**************************** T_PRT_SITES ***********************************************
         Guid? InsertUpdateT_PRT_SITES(Guid? sITE_IDX, string oRG_ID, string sITE_NAME, string ePA_ID, decimal? lATITUDE, decimal? lONGITUDE, string sITE_ADDRESS, string UserIDX);
@@ -453,7 +467,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
                            {
                                ORG_USER_IDX = a.ORG_USER_IDX,
                                ORG_ID = b.ORG_ID,
-                               ORG_ADMIN_IND = a.ORG_ADMIN_IND,
+                               ACCESS_LEVEL = a.ACCESS_LEVEL,
                                STATUS_IND = a.STATUS_IND,
                                ORG_NAME = b.ORG_NAME
                            }).ToList();
@@ -467,7 +481,71 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             }
         }
 
-        public int InsertUpdateT_PRT_ORG_USERS(int? oRG_USER_IDX, string oRG_ID, string _Id, bool? oRG_ADMIN_IND, string sTATUS_IND, string cREATE_USER)
+        public List<UserOrgDisplayType> GetT_PRT_ORG_USERS_ByUserID_WithClientList(string UserId)
+        {
+            try
+            {
+                var xxx = (from a in ctx.T_PRT_ORG_USERS
+                           join b in ctx.T_PRT_ORGANIZATIONS on a.ORG_ID equals b.ORG_ID
+                           where a.Id == UserId
+                           orderby b.ORG_NAME
+                           select new UserOrgDisplayType
+                           {
+                               ORG_USER_IDX = a.ORG_USER_IDX,
+                               ORG_ID = b.ORG_ID,
+                               ACCESS_LEVEL = a.ACCESS_LEVEL,
+                               STATUS_IND = a.STATUS_IND,
+                               ORG_NAME = b.ORG_NAME//,
+                               //OrgUserClientDisplay = (
+                               //from aa in ctx.T_PRT_CLIENTS 
+                               //join bb in ctx.T_PRT_ORG_USER_CLIENT.Where(o => o.ORG_USER_IDX  == a.ORG_USER_IDX) on aa.CLIENT_ID equals bb.CLIENT_ID
+                               ////join bb in ctx.T_PRT_ORG_USER_CLIENT.Where(o => o.ORG_USER_IDX == (a.ORG_USER_IDX == null ? 0 : 1)) on new { aa.CLIENT_ID } equals new { bb.CLIENT_ID }
+                               //into sr from x in sr.DefaultIfEmpty()  //left join
+                               // select new OrgUserClientShortDisplayType
+                               // {
+                               //     CLIENT_ID = aa.CLIENT_ID,
+                               //     ORG_USER_CLIENT_IDX = x.ORG_USER_CLIENT_IDX,
+                               //     ORG_USER_IDX = x.ORG_USER_IDX,
+                               //     ADMIN_IND = x.ADMIN_IND,
+                               //     STATUS_IND = x.STATUS_IND
+                               // }).ToList()
+
+
+                           }).ToList();
+
+                for (int i = 0; i < xxx.Count; i++)
+                {
+                    var entryToProcess = xxx[i];
+
+                    int? OrgUserIDX = entryToProcess.ORG_USER_IDX;
+
+                    entryToProcess.OrgUserClientDisplay = (from aa in ctx.T_PRT_CLIENTS
+                                                           join bb in ctx.T_PRT_ORG_USER_CLIENT.Where(o => o.ORG_USER_IDX == OrgUserIDX) on aa.CLIENT_ID equals bb.CLIENT_ID
+                                                           into sr
+                                                           from x in sr.DefaultIfEmpty()  //left join
+                                                           select new OrgUserClientShortDisplayType
+                                                           {
+                                                               CLIENT_ID = aa.CLIENT_ID,
+                                                               ORG_USER_CLIENT_IDX = x.ORG_USER_CLIENT_IDX,
+                                                               ORG_USER_IDX = x.ORG_USER_IDX,
+                                                               ADMIN_IND = x.ADMIN_IND,
+                                                               STATUS_IND = x.STATUS_IND
+                                                           }).ToList();
+
+                    xxx[i].OrgUserClientDisplay = entryToProcess.OrgUserClientDisplay;
+                }
+
+
+                return xxx;
+            }
+            catch (Exception ex)
+            {
+                log.LogEFException(ex);
+                return null;
+            }
+        }
+
+        public int InsertUpdateT_PRT_ORG_USERS(int? oRG_USER_IDX, string oRG_ID, string _Id, string aCCESS_LEVEL, string sTATUS_IND, string cREATE_USER)
         {
 
             try
@@ -506,7 +584,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
 
                 if (oRG_ID != null) e.ORG_ID = oRG_ID;
                 if (_Id != null) e.Id = _Id;
-                if (oRG_ADMIN_IND != null) e.ORG_ADMIN_IND = oRG_ADMIN_IND ?? false;
+                if (aCCESS_LEVEL != null) e.ACCESS_LEVEL = aCCESS_LEVEL;
                 if (sTATUS_IND != null) e.STATUS_IND = sTATUS_IND;
 
                 if (insInd)
@@ -544,10 +622,15 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
         {
             try
             {
-                return (from a in ctx.T_PRT_ORG_USERS
-                        where a.Id == UserID
-                        && a.ORG_ID == OrgID
-                        select a).FirstOrDefault()?.ORG_ADMIN_IND ?? false;
+                var xxx = (from a in ctx.T_PRT_ORG_USERS
+                           where a.Id == UserID
+                           && a.ORG_ID == OrgID
+                           select a).FirstOrDefault();
+
+                if (xxx != null && xxx.ACCESS_LEVEL == "A")
+                    return true;
+                else
+                    return false;
             }
             catch (Exception ex)
             {
@@ -593,11 +676,11 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             try
             {
                 var xxx = (from a in ctx.T_PRT_ORG_USER_CLIENT
-                            join b in ctx.T_PRT_ORG_USERS on a.ORG_USER_IDX equals b.ORG_USER_IDX
+                           join b in ctx.T_PRT_ORG_USERS on a.ORG_USER_IDX equals b.ORG_USER_IDX
                            join c in ctx.T_PRT_ORG_CLIENT_ALIAS on new { a.CLIENT_ID, b.ORG_ID } equals new { c.CLIENT_ID, c.ORG_ID }
-                            where b.Id == _UserIDX
-                            select new OrgUserClientDisplayType
-                            {
+                           where b.Id == _UserIDX
+                           select new OrgUserClientDisplayType
+                           {
                                 ORG_USER_CLIENT_IDX = a.ORG_USER_CLIENT_IDX,
                                 ORG_USER_IDX = a.ORG_USER_IDX,
                                 CLIENT_ID = a.CLIENT_ID,
@@ -607,7 +690,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
                                 UserID = b.Id,
                                 UserName = b.Id,
                                 ORG_CLIENT_ALIAS = c.ORG_CLIENT_ALIAS
-                            }).ToList();
+                           }).ToList();
 
                 return xxx;
             }
@@ -618,6 +701,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             }
         }
 
+        //Retrieve Clients the User has access to (filter out currently PENDING or REJECTED)
         public IEnumerable<T_PRT_CLIENTS> GetT_PRT_ORG_USERS_CLIENT_DistinctClientByUserID(string UserID)
         {
             try
@@ -626,6 +710,8 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
                            join b in ctx.T_PRT_ORG_USERS on a.ORG_USER_IDX equals b.ORG_USER_IDX
                            join c in ctx.T_PRT_CLIENTS on a.CLIENT_ID equals c.CLIENT_ID
                            where b.Id == UserID
+                           && b.STATUS_IND == "A"
+                           && a.STATUS_IND == "A"
                            orderby a.CLIENT_ID
                            select c).ToList().Distinct();
 
@@ -638,25 +724,6 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             }
         }
 
-        public IEnumerable<T_PRT_CLIENTS> GetDistinct_USERS_CLIENT_ByUserID(string _UserIDX)
-        {
-            try
-            {
-                var xxx = (from a in ctx.T_PRT_ORG_USER_CLIENT
-                           join b in ctx.T_PRT_ORG_USERS on a.ORG_USER_IDX equals b.ORG_USER_IDX
-                           join c in ctx.T_PRT_ORG_CLIENT_ALIAS on new { a.CLIENT_ID, b.ORG_ID } equals new { c.CLIENT_ID, c.ORG_ID }
-                           join d in ctx.T_PRT_CLIENTS on a.CLIENT_ID equals d.CLIENT_ID
-                           where b.Id == _UserIDX
-                           select d).ToList().Distinct();
-
-                return xxx;
-            }
-            catch (Exception ex)
-            {
-                log.LogEFException(ex);
-                return null;
-            }
-        }
 
         public IEnumerable<SelectListItem> get_ddl_T_PRT_ORG_USERS_CLIENT_ByUserIDandClient(string UserIDX, string ClientID)
         {
@@ -776,11 +843,53 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             }
         }
 
+        public IEnumerable<ApplicationUser> GetT_PRT_USERS_BelongingToRole(string RoleID)
+        {
+            try
+            {
+                return (from u in ctx.Users
+                        join ur in ctx.UserRoles on u.Id equals ur.RoleId
+                        where ur.RoleId == RoleID
+                        select u).ToList();
+            }
+            catch (Exception ex)
+            {
+                log.LogEFException(ex);
+                return null;
+            }
+        }
+
 
         //*****************SYS_LOG**********************************
-        public T_PRT_SYS_LOG GetT_PRT_SYS_LOG()
+        public List<T_PRT_SYS_LOG> GetT_PRT_SYS_LOG()
         {
-            return null;
+            try
+            {
+                return (from a in ctx.T_PRT_SYS_LOG
+                        orderby a.LOG_DT descending
+                        select a).Take(1000).ToList();
+            }
+            catch (Exception ex)
+            {
+                log.LogEFException(ex);
+                return null;
+            }
+        }
+
+        //*****************SYS_EMAIL_LOG**********************************
+        public List<T_PRT_SYS_EMAIL_LOG> GetT_PRT_SYS_EMAIL_LOG()
+        {
+            try
+            {
+                return (from a in ctx.T_PRT_SYS_EMAIL_LOG
+                        orderby a.LOG_DT descending
+                        select a).Take(1000).ToList();
+            }
+            catch (Exception ex)
+            {
+                log.LogEFException(ex);
+                return null;
+            }
         }
 
 
