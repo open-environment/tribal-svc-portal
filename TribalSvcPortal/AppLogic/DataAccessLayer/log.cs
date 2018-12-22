@@ -2,6 +2,7 @@
 using TribalSvcPortal.AppLogic.BusinessLogicLayer;
 using TribalSvcPortal.Data.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Hosting;
 
 namespace TribalSvcPortal.AppLogic.DataAccessLayer
 {

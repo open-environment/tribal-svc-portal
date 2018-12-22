@@ -56,18 +56,11 @@ namespace TribalSvcPortal
 
             //configure identity server with in-memory stores, keys, clients and scopes
             services.AddIdentityServer()
-
-                 //.AddSigningCredential(
-                 //    new SigningCredentials(
-                 //        new SymmetricSecurityKey(
-                 //            Encoding.UTF8.GetBytes(Configuration["SigningSecurityKey"])),
-                 //            SecurityAlgorithms.RsaSha256Signature))
-                 .AddDeveloperSigningCredential(true)  //adds a demo signing certificate
-                //.AddSigningCredential(CreateRsaSecurityKey(Configuration["SigningSecurityKey"]))
-                .AddInMemoryIdentityResources(IdentityServerConfig.GetIdentityResources())
-                .AddInMemoryClients(IdentityServerConfig.GetClients2())
-                .AddAspNetIdentity<ApplicationUser>()
-                .AddProfileService<CustomProfileService>();
+                 .AddSigningCredential(CreateRsaSecurityKey(Configuration["SigningSecurityKey"]))
+                 .AddInMemoryIdentityResources(IdentityServerConfig.GetIdentityResources())
+                 .AddInMemoryClients(IdentityServerConfig.GetClients2())
+                 .AddAspNetIdentity<ApplicationUser>()
+                 .AddProfileService<CustomProfileService>();
 
 
             services.AddSingleton<IEmailSender, EmailSender>();

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;  //add each time
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;  //add each time
 using Microsoft.Extensions.Configuration;  //add each time
 using System.IO; //add each time
+using Microsoft.AspNetCore.Hosting;
 
 namespace TribalSvcPortal.Data.Models
 {
@@ -59,6 +60,7 @@ namespace TribalSvcPortal.Data.Models
                 var config = new ConfigurationBuilder()
                     .SetBasePath(Directory.GetCurrentDirectory())
                     .AddJsonFile("appsettings.json")
+//                    .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true, reloadOnChange: true)
                     .Build();
                 optionsBuilder.UseSqlServer(config.GetConnectionString("DefaultConnection"));
             }
