@@ -204,12 +204,26 @@ namespace TribalSvcPortal.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult AccessRightsRequest(string Client_CLIENT_ID)
+        public JsonResult AccessRightsRequest(int? orgUser, string client)
         {
-            //int SuccID = _DbPortal.InsertUpdateT_PRT_ORG_USERS_CLIENT(null, null, Client_CLIENT_ID, false, "R", null);
+            string _UserIDX = _userManager.GetUserId(User);
 
-            TempData["Error"] = "Feature not yet available.";
-            return RedirectToAction(nameof(AccessRights));
+             int SuccID = _DbPortal.InsertUpdateT_PRT_ORG_USERS_CLIENT(null, orgUser, client, false, "R", _UserIDX);
+
+            //return response
+            if (SuccID > 0)
+            {
+                //send email
+
+
+                return Json(new
+                {
+                    msg = "Success",
+                    redirectUrl = Url.Action("AccessRights", "Manage")
+                });
+            }
+            else
+                return Json(new { msg = "Unable to request access." });
         }
 
 
