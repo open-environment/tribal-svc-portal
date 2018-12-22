@@ -22,7 +22,7 @@ namespace TribalSvcPortal
                         config.AddJsonFile("appsettings.json", true, true)
                             .AddJsonFile($"appsettings.{hostingContext.HostingEnvironment.EnvironmentName}.json", true,
                                 true);
-                        if (hostingEnvironment.IsDevelopment() || hostingEnvironment.IsEnvironment("LocalDevelopment"))
+                        if (hostingEnvironment.IsDevelopment())
                         {
                             var assembly = Assembly.Load(new AssemblyName(hostingEnvironment.ApplicationName));
                             if (assembly != null)
