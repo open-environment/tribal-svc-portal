@@ -18,10 +18,12 @@ namespace TribalSvcPortal
                 .ConfigureAppConfiguration(
                     (hostingContext, config) => {
                         var hostingEnvironment = hostingContext.HostingEnvironment;
+
                         config.SetBasePath(Directory.GetCurrentDirectory());
+
                         config.AddJsonFile("appsettings.json", true, true)
-                            .AddJsonFile($"appsettings.{hostingContext.HostingEnvironment.EnvironmentName}.json", true,
-                                true);
+                            .AddJsonFile($"appsettings.{hostingContext.HostingEnvironment.EnvironmentName}.json", true, true);
+
                         if (hostingEnvironment.IsDevelopment())
                         {
                             var assembly = Assembly.Load(new AssemblyName(hostingEnvironment.ApplicationName));

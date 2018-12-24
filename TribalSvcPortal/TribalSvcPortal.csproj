@@ -12,6 +12,10 @@
     <Compile Remove="Data\Models\T_PRT_USERS.cs" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Remove="Docs\OpenDumpSurveyForm.pdf" />
+  </ItemGroup>
+
 
   <ItemGroup>
     <PackageReference Include="BuildBundlerMinifier" Version="2.8.391" />
@@ -36,6 +40,12 @@
   <ItemGroup>
     <Folder Include="wwwroot\fonts\" />
     <Folder Include="wwwroot\images\bxslider\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Update="wwwroot\files\OpenDumpSurveyForm.pdf">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
 </Project>

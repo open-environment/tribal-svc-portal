@@ -11,9 +11,16 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using iTextSharp.text.pdf;
 
 namespace TribalSvcPortal.Controllers
 {
+    public class RptDisplayType
+    {
+        public byte[] rptContent { get; set; }
+        public string rptName { get; set; }
+    }
+
     [Authorize]
     public class OpenDumpController : Controller
     {
@@ -213,21 +220,227 @@ namespace TribalSvcPortal.Controllers
 
         public IActionResult IHSReport(Guid? id)
         {
+            var _rpt = GenRpt(id.ConvertOrDefault<Guid>());
+            byte[] rptData = _rpt.rptContent;
 
-            dynamic data = _DbOpenDump.getT_OD_DUMP_ASSESSMENTS_ByDumpAssessmentIDX(id.ConvertOrDefault<Guid>());
-
-            var rpt = new PDFReportGen(_hostingEnvironment);
-            byte[] pdf = rpt.CreatePDFReport("rpt_OpenDumpSurvey.xml", data);
-            if (pdf != null)
+            if (rptData != null)
             {
-                var content = new System.IO.MemoryStream(pdf);
-                return File(pdf, "application/pdf", "report.pdf");
+                var content = new System.IO.MemoryStream(rptData);
+                return File(rptData, "application/pdf", _rpt.rptName + ".pdf");
             }
             else
             {
+                //if got this far, it failed
                 TempData["Error"] = "Unable to generate document.";
                 return RedirectToAction("Search", new { selStr = "", selOrg = "" });
             }
+        }
+
+
+        internal RptDisplayType GenRpt(Guid AssessId)
+        {
+            T_OD_DUMP_ASSESSMENTS _assess = _DbOpenDump.getT_OD_DUMP_ASSESSMENTS_ByDumpAssessmentIDX_wNav(AssessId);
+            if (_assess != null)
+            {
+                T_PRT_SITES _site = _DbPortal.GetT_PRT_SITES_BySITEIDX(_assess.SITE_IDX);
+                if (_site != null)
+                {
+                    T_OD_SITES _odsite = _DbOpenDump.getT_OD_SITES_BySITEIDX(_assess.SITE_IDX);
+
+                    T_PRT_ORGANIZATIONS _org = _DbPortal.GetT_PRT_ORGANIZATIONS_ByOrgID(_site.ORG_ID);
+                    if (_org != null)
+                    {
+                        using (MemoryStream ms = new MemoryStream())
+                        {
+                            // create a new PDF reader based on the PDF template document  
+                            PdfReader pdfReader = new PdfReader(Path.Combine(_hostingEnvironment.WebRootPath, "files", "OpenDumpSurveyForm.pdf"));
+
+                            //stamper and memorystream
+                            PdfStamper pdfStamper = new PdfStamper(pdfReader, ms);
+
+                            //change file metadata
+                            var info = pdfReader.Info;
+                            info["Producer"] = "Open Environment Software";
+                            info["Title"] = "Open Dump Survey Form";
+                            pdfStamper.MoreInfo = info;
+
+                            //fill in form data
+                            pdfStamper.AcroFields.SetField("Site Name", _site.SITE_NAME);
+                            pdfStamper.AcroFields.SetField("Community", _odsite.COMMUNITY_IDXNavigation?.REF_DATA_VAL);
+                            pdfStamper.AcroFields.SetField("Tribe", _org.ORG_NAME);
+                            //pdfStamper.AcroFields.SetField("Site Status", "Active");  //"Inactive"
+                            pdfStamper.AcroFields.SetField("Latitude N", _site.LATITUDE.ToString());
+                            pdfStamper.AcroFields.SetField("Longitude W", _site.LONGITUDE.ToString());
+
+                            //pdfStamper.AcroFields.SetField("Land Status", "");
+                            pdfStamper.AcroFields.SetField("Survey Date", _assess.ASSESSMENT_DT.ToShortDateString());
+                            //pdfStamper.AcroFields.SetField("Date Site Was Cleaned or Closed", "");
+                            //pdfStamper.AcroFields.SetField("Cleaned or Closed Date", "");
+                            pdfStamper.AcroFields.SetField("Condition of Open Dump Site", "Surface Waste");  //hard coded
+
+                            pdfStamper.AcroFields.SetField("Surface Area - # of Acres", _assess.AREA_ACRES.ToString());
+                            pdfStamper.AcroFields.SetField("Surface Volume - Yd3", _assess.VOLUME_CU_YD.ToString());
+
+
+                            //hazard factors
+                            List<AssessmentContentTypeDisplay> _conts = _DbOpenDump.getT_OD_DUMP_ASSESSMENT_CONTENT_ByDumpAssessmentIDX(_assess.DUMP_ASSESSMENTS_IDX);
+                            if (_conts != null)
+                            {
+                                foreach (AssessmentContentTypeDisplay _cont in _conts)
+                                {
+                                    if (_cont.REF_WASTE_TYPE_NAME == "Abandoned automobiles")
+                                        pdfStamper.AcroFields.SetField("Autos", "Yes");
+                                    if (_cont.REF_WASTE_TYPE_NAME == "Abandoned trailers")
+                                        pdfStamper.AcroFields.SetField("Trailers", "Yes");
+                                    if (_cont.REF_WASTE_TYPE_NAME == "Animal carcasses")
+                                        pdfStamper.AcroFields.SetField("Animal", "Yes");
+                                    if (_cont.REF_WASTE_TYPE_NAME == "Appliances/white goods")
+                                        pdfStamper.AcroFields.SetField("Appliances/White goods", "Yes");
+                                    if (_cont.REF_WASTE_TYPE_NAME == "Construction and demolition wastes")
+                                        pdfStamper.AcroFields.SetField("Construction/Demo", "Yes");
+                                    if (_cont.REF_WASTE_TYPE_NAME == "Drums/containers of unknowns/pesticide containers")
+                                        pdfStamper.AcroFields.SetField("Drums/Containers Unknown/Pesticide", "Yes");
+                                    if (_cont.REF_WASTE_TYPE_NAME == "Electronics")
+                                        pdfStamper.AcroFields.SetField("Electronics", "Yes");
+                                    if (_cont.REF_WASTE_TYPE_NAME == "Fluorescent light bulbs")
+                                        pdfStamper.AcroFields.SetField("Fluorescent lights", "Yes");
+                                    if (_cont.REF_WASTE_TYPE_NAME == "Furniture")
+                                        pdfStamper.AcroFields.SetField("Furniture", "Yes");
+                                    if (_cont.REF_WASTE_TYPE_NAME == "Lead acid batteries")
+                                        pdfStamper.AcroFields.SetField("Lead acid batteries", "Yes");
+                                    if (_cont.REF_WASTE_TYPE_NAME == "Medical wastes")
+                                        pdfStamper.AcroFields.SetField("Medical", "Yes");
+                                    if (_cont.REF_WASTE_TYPE_NAME == "Meth-lab wastes")
+                                        pdfStamper.AcroFields.SetField("Meth-lab", "Yes");
+                                    if (_cont.REF_WASTE_TYPE_NAME == "Municipal solid waste")
+                                        pdfStamper.AcroFields.SetField("Municipal solid", "Yes");
+                                    if (_cont.REF_WASTE_TYPE_NAME == "Scrap tires")
+                                        pdfStamper.AcroFields.SetField("Tires", "Yes");
+                                    if (_cont.REF_WASTE_TYPE_NAME == "Sewage sludge/septic-tank pumpings")
+                                        pdfStamper.AcroFields.SetField("Sewage sludge/septic", "Yes");
+                                    if (_cont.REF_WASTE_TYPE_NAME == "Suspected asbestos or lead containing materials")
+                                        pdfStamper.AcroFields.SetField("Suspect asbestos or lead", "Yes");
+                                    if (_cont.REF_WASTE_TYPE_NAME == "Suspected RCRA Subtitle C hazardous wastes (treated wood, paints, solvents)")
+                                        pdfStamper.AcroFields.SetField("Suspect RCRA Sub. C Hazwaste", "Yes");
+                                    if (_cont.REF_WASTE_TYPE_NAME == "Waste oils/oily wastes")
+                                        pdfStamper.AcroFields.SetField("Oil/Oily", "Yes");
+                                    if (_cont.REF_WASTE_TYPE_NAME == "Yard/green wastes")
+                                        pdfStamper.AcroFields.SetField("Yard/Green waste", "Yes");
+                                }
+                            }
+
+
+                            //rainfall
+                            if (_assess.HF_RAINFALLNavigation?.THREAT_FACTOR_NAME == "Low (<10 in/yr)")
+                                pdfStamper.AcroFields.SetField("Rainfall", "Low");
+                            else if (_assess.HF_RAINFALLNavigation?.THREAT_FACTOR_NAME == "Medium (10-25 in/yr)")
+                                pdfStamper.AcroFields.SetField("Rainfall", "Medium");
+                            else if (_assess.HF_RAINFALLNavigation?.THREAT_FACTOR_NAME == "High (>25 in/yr)")
+                                pdfStamper.AcroFields.SetField("Rainfall", "High");
+
+                            //drainage
+                            if (_assess.HF_DRAINAGENavigation?.THREAT_FACTOR_NAME == "Site drainage protects ground or surface water")
+                                pdfStamper.AcroFields.SetField("Drainage and Leachate Potential", "Protected");
+                            else if (_assess.HF_DRAINAGENavigation?.THREAT_FACTOR_NAME == "Limited ponding, drainage effects are largely neutral")
+                                pdfStamper.AcroFields.SetField("Drainage and Leachate Potential", "Neutral/Limited");
+                            else if (_assess.HF_DRAINAGENavigation?.THREAT_FACTOR_NAME == "Site drainage increases ground or surface water contamination")
+                                pdfStamper.AcroFields.SetField("Drainage and Leachate Potential", "Increased");
+
+                            //flooding
+                            if (_assess.HF_FLOODINGNavigation?.THREAT_FACTOR_NAME == "No potential for flooding")
+                                pdfStamper.AcroFields.SetField("Flood Potential", "None");
+                            else if (_assess.HF_FLOODINGNavigation?.THREAT_FACTOR_NAME == "Debris movement from flooding unlikely")
+                                pdfStamper.AcroFields.SetField("Flood Potential", "Unlikely");
+                            else if (_assess.HF_FLOODINGNavigation?.THREAT_FACTOR_NAME == "Debris movement from flooding likely")
+                                pdfStamper.AcroFields.SetField("Flood Potential", "Likely");
+
+                            //burning
+                            if (_assess.HF_BURNINGNavigation?.THREAT_FACTOR_NAME == "Burning does not occur")
+                                pdfStamper.AcroFields.SetField("Frequency of Burning", "None");
+                            else if (_assess.HF_BURNINGNavigation?.THREAT_FACTOR_NAME == "Burning less frequently than weekly")
+                                pdfStamper.AcroFields.SetField("Frequency of Burning", "Less than weekly");
+                            else if (_assess.HF_BURNINGNavigation?.THREAT_FACTOR_NAME == "Burning more frequently than weekly")
+                                pdfStamper.AcroFields.SetField("Frequency of Burning", "More than weekly");
+
+                            //fencing
+                            if (_assess.HF_FENCINGNavigation?.THREAT_FACTOR_NAME == "Fenced In")
+                                pdfStamper.AcroFields.SetField("Fenced Site?", "Yes");
+                            else if (_assess.HF_FENCINGNavigation?.THREAT_FACTOR_NAME == "Not Fenced In")
+                                pdfStamper.AcroFields.SetField("Fenced Site?", "No");
+
+                            //controlled access
+                            if (_assess.HF_ACCESS_CONTROLNavigation?.THREAT_FACTOR_NAME == "Effectively controlled access")
+                                pdfStamper.AcroFields.SetField("Controlled Access?", "Effective");
+                            else if (_assess.HF_ACCESS_CONTROLNavigation?.THREAT_FACTOR_NAME == "Ineffective controls or poorly restricted access")
+                                pdfStamper.AcroFields.SetField("Controlled Access?", "Ineffective");
+                            else if (_assess.HF_ACCESS_CONTROLNavigation?.THREAT_FACTOR_NAME == "Unrestricted access")
+                                pdfStamper.AcroFields.SetField("Controlled Access?", "Unrestricted");
+
+
+                            //public concern
+                            if (_assess.HF_PUBLIC_CONCERNNavigation?.THREAT_FACTOR_NAME == "No concern voiced")
+                                pdfStamper.AcroFields.SetField("Public Concern", "None");
+                            else if (_assess.HF_PUBLIC_CONCERNNavigation?.THREAT_FACTOR_NAME == "Little concern voiced by the public")
+                                pdfStamper.AcroFields.SetField("Public Concern", "Little");
+                            else if (_assess.HF_PUBLIC_CONCERNNavigation?.THREAT_FACTOR_NAME == "Concern frequently voiced by the public")
+                                pdfStamper.AcroFields.SetField("Public Concern", "Frequent");
+
+
+                            
+                            //vert distance
+                            if (_odsite.PF_AQUIFER_VERT_DISTNavigation?.THREAT_FACTOR_NAME == "Greater than 600 feet")
+                                pdfStamper.AcroFields.SetField("Vertical Dist. to Aquifer", "+600 ft.");
+                            else if (_odsite.PF_AQUIFER_VERT_DISTNavigation?.THREAT_FACTOR_NAME == "51-599 feet")
+                                pdfStamper.AcroFields.SetField("Vertical Dist. to Aquifer", "51-599 ft.");
+                            else if (_odsite.PF_AQUIFER_VERT_DISTNavigation?.THREAT_FACTOR_NAME == "Less than 50 feet")
+                                pdfStamper.AcroFields.SetField("Vertical Dist. to Aquifer", "-50 ft.");
+
+
+                            //horiz distance
+                            if (_odsite.PF_SURF_WATER_HORIZ_DISTNavigation?.THREAT_FACTOR_NAME == "Greater than 1,000 feet")
+                                pdfStamper.AcroFields.SetField("Horizontal Distance to Surface Water", "+1000 ft.");
+                            else if (_odsite.PF_SURF_WATER_HORIZ_DISTNavigation?.THREAT_FACTOR_NAME == "51-1,000 feet")
+                                pdfStamper.AcroFields.SetField("Horizontal Distance to Surface Water", "51-1000 ft,");
+                            else if (_odsite.PF_SURF_WATER_HORIZ_DISTNavigation?.THREAT_FACTOR_NAME == "Less than 50 feet")
+                                pdfStamper.AcroFields.SetField("Horizontal Distance to Surface Water", "-50 ft.");
+
+                            //distance homes
+                            if (_odsite.PF_HOMES_DISTNavigation?.THREAT_FACTOR_NAME == "Greater than 5,000 feet")
+                                pdfStamper.AcroFields.SetField("Distance to Homes", "+5000 ft.");
+                            else if (_odsite.PF_HOMES_DISTNavigation?.THREAT_FACTOR_NAME == "1,000-5,000 feet")
+                                pdfStamper.AcroFields.SetField("Distance to Homes", "1000-5000 ft.");
+                            else if (_odsite.PF_HOMES_DISTNavigation?.THREAT_FACTOR_NAME == "Less than 1,000 feet")
+                                pdfStamper.AcroFields.SetField("Distance to Homes", "-1000 ft.");
+
+
+                            pdfStamper.AcroFields.SetField("General Description", _assess.SITE_DESCRIPTION);
+                            pdfStamper.AcroFields.SetField("Comments", _assess.ASSESSMENT_NOTES);
+                            pdfStamper.AcroFields.SetField("Surveyor Contact Information", _assess.ASSESSED_BY + ", " + _org.ORG_NAME);
+
+
+                            // flatten the form to remove editting options, set it to false  
+                            // to leave the form open to subsequent manual edits  
+                            pdfStamper.FormFlattening = false;
+
+                            // close the pdf  
+                            pdfStamper.Close();
+
+                            //return value
+                            var _rpt = new RptDisplayType
+                            {
+                                rptContent = ms.ToArray(),
+                                rptName = _site.SITE_NAME + "_" + _assess.ASSESSMENT_DT.ToShortDateString()
+                            };
+                            foreach (var c in Path.GetInvalidFileNameChars()) { _rpt.rptName = _rpt.rptName.Replace(c, '-'); }
+                            return _rpt;
+                        }
+
+                    }
+
+                }
+            } 
+
+            return null;
         }
 
         public ActionResult AssessmentDetails(Guid? id, Guid? SiteIdx)

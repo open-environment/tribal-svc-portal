@@ -5,6 +5,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using TribalSvcPortal.Data.Models;
 using TribalSvcPortal.AppLogic.BusinessLogicLayer;
+using Microsoft.EntityFrameworkCore;
 
 namespace TribalSvcPortal.AppLogic.DataAccessLayer
 {
@@ -100,6 +101,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
 
         //************** T_OD_DUMP_ASSESSMENTS **********************************
         T_OD_DUMP_ASSESSMENTS getT_OD_DUMP_ASSESSMENTS_ByDumpAssessmentIDX(Guid DumpAssessmentIDX);
+        T_OD_DUMP_ASSESSMENTS getT_OD_DUMP_ASSESSMENTS_ByDumpAssessmentIDX_wNav(Guid DumpAssessmentIDX);
         List<AssessmentSummaryDisplayType> getT_OD_DUMP_ASSESSMENTS_BySITEIDX(Guid Siteidx);
         List<AssessmentSummaryDisplayType> getT_OD_DUMP_ASSESSMENTS_ByUser(string UserID);
         IEnumerable<SelectListItem> get_ddl_T_OD_DUMP_ASSESSMENTS_by_BySITEIDX(Guid? Siteidx);
@@ -170,7 +172,11 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             try
             {
                 return (from a in ctx.T_OD_SITES
-                        where a.SITE_IDX == Siteidx
+                        .Where(s => s.SITE_IDX == Siteidx)
+                        .Include(s => s.COMMUNITY_IDXNavigation)
+                        .Include(s => s.PF_AQUIFER_VERT_DISTNavigation)
+                        .Include(s => s.PF_HOMES_DISTNavigation)
+                        .Include(s => s.PF_SURF_WATER_HORIZ_DISTNavigation)
                         select a).FirstOrDefault();
             }
             catch (Exception ex)
@@ -271,9 +277,33 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
         {
             try
             {
-                return (from a in ctx.T_OD_DUMP_ASSESSMENTS
-                        where a.DUMP_ASSESSMENTS_IDX == DumpAssessmentIDX
-                        select a).FirstOrDefault();
+                return ctx.T_OD_DUMP_ASSESSMENTS
+                    .Where(s => s.DUMP_ASSESSMENTS_IDX == DumpAssessmentIDX)
+                    .FirstOrDefault();
+            }
+            catch (Exception ex)
+            {
+                log.LogEFException(ex);
+                return null;
+            }
+        }
+
+        public T_OD_DUMP_ASSESSMENTS getT_OD_DUMP_ASSESSMENTS_ByDumpAssessmentIDX_wNav(Guid DumpAssessmentIDX)
+        {
+            try
+            {
+                var xxx = ctx.T_OD_DUMP_ASSESSMENTS
+                    .Where(s => s.DUMP_ASSESSMENTS_IDX == DumpAssessmentIDX)
+                    .Include(s => s.HF_ACCESS_CONTROLNavigation)
+                    .Include(s => s.HF_BURNINGNavigation)
+                    .Include(s => s.HF_DRAINAGENavigation)
+                    .Include(s => s.HF_FENCINGNavigation)
+                    .Include(s => s.HF_FLOODINGNavigation)
+                    .Include(s => s.HF_RAINFALLNavigation)
+                    .Include(s => s.HF_PUBLIC_CONCERNNavigation)
+                    .FirstOrDefault();
+
+                return xxx;
             }
             catch (Exception ex)
             {
@@ -334,9 +364,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
                 return null;
             }
         }
-
-
-
+               
         public IEnumerable<SelectListItem> get_ddl_T_OD_DUMP_ASSESSMENTS_by_BySITEIDX(Guid? Siteidx)
         {
             try

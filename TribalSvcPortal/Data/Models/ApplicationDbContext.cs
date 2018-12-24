@@ -60,7 +60,7 @@ namespace TribalSvcPortal.Data.Models
                 var config = new ConfigurationBuilder()
                     .SetBasePath(Directory.GetCurrentDirectory())
                     .AddJsonFile("appsettings.json")
-//                    .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true, reloadOnChange: true)
+                    //                    .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true, reloadOnChange: true)
                     .Build();
                 optionsBuilder.UseSqlServer(config.GetConnectionString("DefaultConnection"));
             }

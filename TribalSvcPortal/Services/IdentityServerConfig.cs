@@ -17,46 +17,15 @@ namespace TribalSvcPortal
        
     internal class IdentityServerConfig
     {
-        ////Returns list of Clients
-
-        //public static IEnumerable<Client> GetClientsHardCode()
+        //private readonly IDbPortal _DbPortal;
+        //public IdentityServerConfig(IDbPortal DbPortal)
         //{
-        //    return new List<Client> {
-
-        //        //Emergency Hound Client
-        //        new Client {
-        //            ClientId = "emergency_hound",
-        //            ClientName = "Emergency Hound Web",
-        //            AllowedGrantTypes = GrantTypes.Implicit,
-        //            RequireConsent = false,
-        //            AllowedScopes = new List<string>
-        //            {
-        //                IdentityServerConstants.StandardScopes.OpenId,
-        //                IdentityServerConstants.StandardScopes.Profile,
-        //                IdentityServerConstants.StandardScopes.Email,
-        //            },
-        //            RedirectUris = new List<string> {"http://localhost:1244/signinoidc"},
-        //            PostLogoutRedirectUris = new List<string> { "http://localhost:1244/signoutcallbackoidc" }
-        //        },
-        //        //Open Waters Client
-        //        new Client {
-        //            ClientId = "open_waters",
-        //            ClientName = "Open Waters",
-        //            AllowedGrantTypes = GrantTypes.Implicit,
-        //            RequireConsent = false,
-        //            AllowedScopes = new List<string>
-        //            {
-        //                IdentityServerConstants.StandardScopes.OpenId,
-        //                IdentityServerConstants.StandardScopes.Profile,
-        //                IdentityServerConstants.StandardScopes.Email,
-        //            },
-        //            RedirectUris = new List<string> {"http://localhost:59412/signinoidc"},
-        //            PostLogoutRedirectUris = new List<string> { "http://localhost:59412/signoutcallbackoidc" }
-        //        }
-        //    };
+        //    _DbPortal = DbPortal;
         //}
 
-        private static ApplicationDbContext ctx = new ApplicationDbContext(new DbContextOptions<ApplicationDbContext>());
+        //Returns list of Clients
+
+        private static readonly ApplicationDbContext ctx = new ApplicationDbContext(new DbContextOptions<ApplicationDbContext>());
         public static IDbPortal _DbPortal = new DbPortal(ctx);
 
         public static IEnumerable<Client> GetClients2()
@@ -86,6 +55,32 @@ namespace TribalSvcPortal
             return _clients;
         }
 
+        //public IEnumerable<Client> GetClients3()
+        //{
+        //    List<T_PRT_CLIENTS> dbclients = _DbPortal.GetT_PRT_CLIENTS();
+
+        //    List<Client> _clients = new List<Client>();
+        //    foreach (T_PRT_CLIENTS dbclient in dbclients)
+        //    {
+        //        Client _client = new Client();
+        //        _client.ClientId = dbclient.CLIENT_ID;
+        //        _client.ClientName = dbclient.CLIENT_NAME;
+        //        _client.AllowedGrantTypes = (dbclient.CLIENT_GRANT_TYPE == "HYBRID" ? GrantTypes.Hybrid : GrantTypes.Implicit);
+        //        _client.RequireConsent = false;
+        //        _client.AllowedScopes = new List<string>
+        //        {
+        //            IdentityServerConstants.StandardScopes.OpenId,
+        //            IdentityServerConstants.StandardScopes.Profile,
+        //            IdentityServerConstants.StandardScopes.Email,
+        //        };
+        //        _client.RedirectUris = new List<string> { dbclient.CLIENT_REDIRECT_URI };
+        //        _client.PostLogoutRedirectUris = new List<string> { dbclient.CLIENT_POST_LOGOUT_URI };
+
+        //        _clients.Add(_client);
+        //    }
+
+        //    return _clients;
+        //}
 
         //Returns list of IdentityResources
         public static IEnumerable<IdentityResource> GetIdentityResources()
@@ -115,7 +110,6 @@ namespace TribalSvcPortal
         }
 
 
-        // not virtual or abstract, therefore not overridable
         public async Task GetProfileDataAsync(ProfileDataRequestContext context)
         {
             var sub = context.Subject.GetSubjectId();
@@ -134,7 +128,9 @@ namespace TribalSvcPortal
 
             context.IssuedClaims = cs;
         }
-       public async Task IsActiveAsync(IsActiveContext context)
+
+
+        public async Task IsActiveAsync(IsActiveContext context)
         {
             var sub = context.Subject.GetSubjectId();
             var user = await _userManager.FindByIdAsync(sub);
