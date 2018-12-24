@@ -18,15 +18,17 @@ namespace TribalSvcPortal.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IDbPortal _DbPortal;
-
+        private readonly IUtils _utils;
         public HomeController(
             UserManager<ApplicationUser> userManager,
             RoleManager<IdentityRole> roleManager,
-            IDbPortal DbPortal)
+            IDbPortal DbPortal, 
+            IUtils utils)
         {
             _userManager = userManager;
             _roleManager = roleManager;
             _DbPortal = DbPortal;
+            _utils = utils ?? throw new System.ArgumentNullException(nameof(utils));
         }
 
         public IActionResult Index(string id)
@@ -167,7 +169,7 @@ namespace TribalSvcPortal.Controllers
                     //send confirmation email
                     string code = _userManager.GenerateEmailConfirmationTokenAsync(user).Result;
                     var callbackUrl = Url.EmailConfirmationLink(user.Id, code, Request.Scheme);
-                    bool emailSucc = Utils.SendEmail(null, model.Email, null, null, "Confirm your email", $"Please confirm your account by clicking this link: <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>link</a>", null, null, "");
+                    bool emailSucc = _utils.SendEmail(null, model.Email, null, null, "Confirm your email", $"Please confirm your account by clicking this link: <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>link</a>", null, null, "");
 
                     if (emailSucc)
                         TempData["Success"] = "User created and verification email sent";

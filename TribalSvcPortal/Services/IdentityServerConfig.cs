@@ -5,6 +5,7 @@ using IdentityServer4.Services;
 using IdentityServer4.Stores;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
@@ -17,19 +18,10 @@ namespace TribalSvcPortal
        
     internal class IdentityServerConfig
     {
-        //private readonly IDbPortal _DbPortal;
-        //public IdentityServerConfig(IDbPortal DbPortal)
-        //{
-        //    _DbPortal = DbPortal;
-        //}
-
-        //Returns list of Clients
-
-        private static readonly ApplicationDbContext ctx = new ApplicationDbContext(new DbContextOptions<ApplicationDbContext>());
-        public static IDbPortal _DbPortal = new DbPortal(ctx);
-
-        public static IEnumerable<Client> GetClients2()
+        public static IEnumerable<Client> GetClients2(IConfiguration config, Ilog log)
         {
+            var _DbPortal = new DbPortal(new ApplicationDbContext(new DbContextOptions<ApplicationDbContext>(), config),log);
+
             List<T_PRT_CLIENTS> dbclients = _DbPortal.GetT_PRT_CLIENTS();
 
             List<Client> _clients = new List<Client>();
@@ -54,33 +46,6 @@ namespace TribalSvcPortal
 
             return _clients;
         }
-
-        //public IEnumerable<Client> GetClients3()
-        //{
-        //    List<T_PRT_CLIENTS> dbclients = _DbPortal.GetT_PRT_CLIENTS();
-
-        //    List<Client> _clients = new List<Client>();
-        //    foreach (T_PRT_CLIENTS dbclient in dbclients)
-        //    {
-        //        Client _client = new Client();
-        //        _client.ClientId = dbclient.CLIENT_ID;
-        //        _client.ClientName = dbclient.CLIENT_NAME;
-        //        _client.AllowedGrantTypes = (dbclient.CLIENT_GRANT_TYPE == "HYBRID" ? GrantTypes.Hybrid : GrantTypes.Implicit);
-        //        _client.RequireConsent = false;
-        //        _client.AllowedScopes = new List<string>
-        //        {
-        //            IdentityServerConstants.StandardScopes.OpenId,
-        //            IdentityServerConstants.StandardScopes.Profile,
-        //            IdentityServerConstants.StandardScopes.Email,
-        //        };
-        //        _client.RedirectUris = new List<string> { dbclient.CLIENT_REDIRECT_URI };
-        //        _client.PostLogoutRedirectUris = new List<string> { dbclient.CLIENT_POST_LOGOUT_URI };
-
-        //        _clients.Add(_client);
-        //    }
-
-        //    return _clients;
-        //}
 
         //Returns list of IdentityResources
         public static IEnumerable<IdentityResource> GetIdentityResources()

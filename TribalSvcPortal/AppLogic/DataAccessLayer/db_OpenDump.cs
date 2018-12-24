@@ -11,6 +11,11 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
 {
     public class OpenDumpSiteListDisplay
     {
+        private readonly Ilog _log;
+        public OpenDumpSiteListDisplay(Ilog log) {
+            _log = log ?? throw new ArgumentNullException(nameof(log));
+        }
+
         public string OrgName { get; set; }
         public Guid Site_Idx { get; set; }
         public string SiteName { get; set; }
@@ -160,9 +165,12 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
     public class DbOpenDump : IDbOpenDump
     {
         private readonly ApplicationDbContext ctx;
-        public DbOpenDump(ApplicationDbContext _context)
+        private readonly Ilog _log;
+        
+        public DbOpenDump(ApplicationDbContext _context, Ilog log)
         {
             ctx = _context;
+            _log = log ?? throw new ArgumentNullException(nameof(log));        
         }
 
 
@@ -181,7 +189,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             }
             catch (Exception ex)
             {
-                log.LogEFException(ex);
+                _log.LogEFException(ex);
                 return null;
             }
         }
@@ -199,7 +207,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
                         && (searchStr == null || (d.SITE_NAME.ToUpper().Contains(searchStr.ToUpper())
                            || d.SITE_ADDRESS.ToUpper().Contains(searchStr.ToUpper()) ))
                         orderby b.ORG_NAME, d.SITE_NAME
-                        select new OpenDumpSiteListDisplay
+                        select new OpenDumpSiteListDisplay(_log)
                         {
                             OrgName = b.ORG_NAME,
                             Site_Idx = d.SITE_IDX,
@@ -227,7 +235,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             }
             catch (Exception ex)
             {
-                log.LogEFException(ex);
+                _log.LogEFException(ex);
                 return null;
             }
         }
@@ -266,7 +274,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             }
             catch (Exception ex)
             {
-                log.LogEFException(ex);
+                _log.LogEFException(ex);
                 return null;
             }
         }
@@ -307,7 +315,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             }
             catch (Exception ex)
             {
-                log.LogEFException(ex);
+                _log.LogEFException(ex);
                 return null;
             }
         }
@@ -333,7 +341,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             }
             catch (Exception ex)
             {
-                log.LogEFException(ex);
+                _log.LogEFException(ex);
                 return null;
             }
         }
@@ -360,7 +368,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             }
             catch (Exception ex)
             {
-                log.LogEFException(ex);
+                _log.LogEFException(ex);
                 return null;
             }
         }
@@ -381,7 +389,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             }
             catch (Exception ex)
             {
-                log.LogEFException(ex);
+                _log.LogEFException(ex);
                 return null;
             }
         }
@@ -398,7 +406,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             }
             catch (Exception ex)
             {
-                log.LogEFException(ex);
+                _log.LogEFException(ex);
                 return 0;
             }
         }
@@ -459,7 +467,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             }
             catch (Exception ex)
             {
-                log.LogEFException(ex);
+                _log.LogEFException(ex);
                 return null;
             }
 
@@ -485,7 +493,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             }
             catch (Exception ex)
             {
-                log.LogEFException(ex);
+                _log.LogEFException(ex);
                 return null;
             }
         }
@@ -520,7 +528,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             }
             catch (Exception ex)
             {
-                log.LogEFException(ex);
+                _log.LogEFException(ex);
                 return null;
             }
         }
@@ -573,7 +581,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             }
             catch (Exception ex)
             {
-                log.LogEFException(ex);
+                _log.LogEFException(ex);
                 return null;
             }
 
@@ -595,7 +603,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             }
             catch (Exception ex)
             {
-                log.LogEFException(ex);
+                _log.LogEFException(ex);
                 return null;
             }
         }
@@ -632,7 +640,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             }
             catch (Exception ex)
             {
-                log.LogEFException(ex);
+                _log.LogEFException(ex);
                 return null;
             }
 
@@ -650,7 +658,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             }
             catch (Exception ex)
             {
-                log.LogEFException(ex);
+                _log.LogEFException(ex);
                 return null;
             }
 
@@ -668,7 +676,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             }
             catch (Exception ex)
             {
-                log.LogEFException(ex);
+                _log.LogEFException(ex);
                 return null;
             }
         }
@@ -717,7 +725,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             }
             catch (Exception ex)
             {
-                log.LogEFException(ex);
+                _log.LogEFException(ex);
                 return null;
             }
 
@@ -756,7 +764,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             }
             catch (Exception ex)
             {
-                log.LogEFException(ex);
+                _log.LogEFException(ex);
                 return null;
             }
         }
@@ -773,7 +781,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             }
             catch (Exception ex)
             {
-                log.LogEFException(ex);
+                _log.LogEFException(ex);
                 return 0;
             }
         }
@@ -792,7 +800,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             }
             catch (Exception ex)
             {
-                log.LogEFException(ex);
+                _log.LogEFException(ex);
                 return null;
             }
         }
@@ -810,7 +818,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             }
             catch (Exception ex)
             {
-                log.LogEFException(ex);
+                _log.LogEFException(ex);
                 return null;
             }
         }
@@ -828,7 +836,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             }
             catch (Exception ex)
             {
-                log.LogEFException(ex);
+                _log.LogEFException(ex);
                 return 0;
             }
         }
@@ -874,7 +882,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             }
             catch (Exception ex)
             {
-                log.LogEFException(ex);
+                _log.LogEFException(ex);
                 return null;
             }
 
@@ -892,7 +900,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             }
             catch (Exception ex)
             {
-                log.LogEFException(ex);
+                _log.LogEFException(ex);
                 return 0;
             }
         }
@@ -915,7 +923,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             }
             catch (Exception ex)
             {
-                log.LogEFException(ex);
+                _log.LogEFException(ex);
                 return null;
             }
         }
@@ -931,7 +939,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             }
             catch (Exception ex)
             {
-                log.LogEFException(ex);
+                _log.LogEFException(ex);
                 return null;
             }
         }
@@ -950,7 +958,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             }
             catch (Exception ex)
             {
-                log.LogEFException(ex);
+                _log.LogEFException(ex);
                 return null;
             }
         }
@@ -967,7 +975,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             }
             catch (Exception ex)
             {
-                log.LogEFException(ex);
+                _log.LogEFException(ex);
                 return null;
             }
         }
@@ -989,7 +997,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             }
             catch (Exception ex)
             {
-                log.LogEFException(ex);
+                _log.LogEFException(ex);
                 return null;
             }
         }
@@ -1004,7 +1012,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             }
             catch (Exception ex)
             {
-                log.LogEFException(ex);
+                _log.LogEFException(ex);
                 return null;
             }
         }
@@ -1027,7 +1035,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             }
             catch (Exception ex)
             {
-                log.LogEFException(ex);
+                _log.LogEFException(ex);
                 return null;
             }
         }
@@ -1047,7 +1055,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             }
             catch (Exception ex)
             {
-                log.LogEFException(ex);
+                _log.LogEFException(ex);
                 return null;
             }
         }
@@ -1084,7 +1092,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             }
             catch (Exception ex)
             {
-                log.LogEFException(ex);
+                _log.LogEFException(ex);
                 return 0;
             }
 

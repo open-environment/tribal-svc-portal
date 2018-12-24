@@ -31,7 +31,8 @@ namespace TribalSvcPortal.Controllers
         private readonly IEmailSender _emailSender;
         private readonly IDbPortal _DbPortal;
         private readonly IMemoryCache _memoryCache;
-        private readonly ILogger _logger;
+        private readonly ILogger<AccountController> _logger;
+        private readonly IUtils _utils;
 
         public AccountController(
              IIdentityServerInteractionService interaction,
@@ -40,7 +41,7 @@ namespace TribalSvcPortal.Controllers
             IEmailSender emailSender,
             IDbPortal DbPortal,
             IMemoryCache memoryCache,
-            ILogger<AccountController> logger)
+            ILogger<AccountController> logger, IUtils utils)
         {
             _interaction = interaction;
             _userManager = userManager;
@@ -49,6 +50,7 @@ namespace TribalSvcPortal.Controllers
             _DbPortal = DbPortal;
             _memoryCache = memoryCache;
             _logger = logger;
+            _utils = utils  ?? throw new ArgumentNullException(nameof(utils)); ;
         }
 
         [TempData]
@@ -273,9 +275,9 @@ namespace TribalSvcPortal.Controllers
                     _logger.LogInformation("User created a new account with password.");
 
                     var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-                    var callbackUrl = Url.EmailConfirmationLink(user.Id, code, Request.Scheme);                 
+                    var callbackUrl = Url.EmailConfirmationLink(user.Id, code, Request.Scheme);
 
-                    Utils.SendEmail(null, model.Email, null, null, "Confirm your email", $"Please confirm your Tribal Services account by clicking this link: <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>link</a>", null, null, "");
+                    _utils.SendEmail(null, model.Email, null, null, "Confirm your email", $"Please confirm your Tribal Services account by clicking this link: <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>link</a>", null, null, "");
 
                     //Prevent newly registered users from being automatically logged
                     //await _signInManager.SignInAsync(user, isPersistent: false);
@@ -487,7 +489,7 @@ namespace TribalSvcPortal.Controllers
                 var callbackUrl = Url.ResetPasswordCallbackLink(user.Id, code, Request.Scheme);
                 //await _emailSender.SendEmailAsync(model.Email, "Reset Password",
                 //   $"Please reset your password by clicking here: <a href='{callbackUrl}'>link</a>", null);
-                Utils.SendEmail(null, model.Email, null, null, "Reset Password", $"Please reset your password by clicking here: <a href='{callbackUrl}'>link</a>", null, null, "");
+                _utils.SendEmail(null, model.Email, null, null, "Reset Password", $"Please reset your password by clicking here: <a href='{callbackUrl}'>link</a>", null, null, "");
 
                 return RedirectToAction(nameof(ForgotPasswordConfirmation));
             }
