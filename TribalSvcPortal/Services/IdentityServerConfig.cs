@@ -56,12 +56,12 @@ namespace TribalSvcPortal
         //    };
         //}
 
-        private static ApplicationDbContext ctx = new ApplicationDbContext(new DbContextOptions<ApplicationDbContext>());
-        public static IDbPortal _DbPortal = new DbPortal(ctx);
 
-        public static IEnumerable<Client> GetClients2()
+        public static IEnumerable<Client> GetClients2(string connectionString, Ilog log)
         {
-            List<T_PRT_CLIENTS> dbclients = _DbPortal.GetT_PRT_CLIENTS();
+        var _DbPortal = new DbPortal(new ApplicationDbContext(new DbContextOptions<ApplicationDbContext>(), connectionString),log);
+
+        List<T_PRT_CLIENTS> dbclients = _DbPortal.GetT_PRT_CLIENTS();
 
             List<Client> _clients = new List<Client>();
             foreach (T_PRT_CLIENTS dbclient in dbclients)

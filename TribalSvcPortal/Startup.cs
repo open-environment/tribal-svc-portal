@@ -11,6 +11,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using System.Security.Cryptography.X509Certificates;
 using System.Security.Cryptography;
+    using TribalSvcPortal.AppLogic.BusinessLogicLayer;
 
 namespace TribalSvcPortal
 {
@@ -53,12 +54,14 @@ namespace TribalSvcPortal
             services.AddTransient<IEmailSender, EmailSender>();
             services.AddScoped<IDbPortal, DbPortal>();
             services.AddScoped<IDbOpenDump, DbOpenDump>();
+            services.AddScoped<IUtils, Utils>();
+            services.AddScoped<Ilog, log>();
 
             //configure identity server with in-memory stores, keys, clients and scopes
             services.AddIdentityServer()
                  .AddSigningCredential(CreateRsaSecurityKey(Configuration["SigningSecurityKey"]))
                  .AddInMemoryIdentityResources(IdentityServerConfig.GetIdentityResources())
-                 .AddInMemoryClients(IdentityServerConfig.GetClients2())
+                 .AddInMemoryClients(IdentityServerConfig.GetClients2(Configuration["DefaultConnection"], new log(Configuration)))
                  .AddAspNetIdentity<ApplicationUser>()
                  .AddProfileService<CustomProfileService>();
 

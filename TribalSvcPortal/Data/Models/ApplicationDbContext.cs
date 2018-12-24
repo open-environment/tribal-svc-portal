@@ -9,9 +9,11 @@ namespace TribalSvcPortal.Data.Models
 {
     public partial class ApplicationDbContext : IdentityDbContext<ApplicationUser>  //modify each time
     {
-        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) 
+        private readonly string _connectionString;
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options, string connectionString) 
             : base(options) //add each time
         {
+            _connectionString=connectionString ?? throw new System.ArgumentNullException(nameof(connectionString));
         }
 
         //*************** TABLES GO HERE **************************************************
@@ -57,12 +59,7 @@ namespace TribalSvcPortal.Data.Models
         {
             if (!optionsBuilder.IsConfigured) //add each time
             {
-                var config = new ConfigurationBuilder()
-                    .SetBasePath(Directory.GetCurrentDirectory())
-                    .AddJsonFile("appsettings.json")
-//                    .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true, reloadOnChange: true)
-                    .Build();
-                optionsBuilder.UseSqlServer(config.GetConnectionString("DefaultConnection"));
+                optionsBuilder.UseSqlServer(_connectionString);
             }
         }
 

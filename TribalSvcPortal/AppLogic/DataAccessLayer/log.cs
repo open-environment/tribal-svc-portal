@@ -2,17 +2,18 @@
 using TribalSvcPortal.AppLogic.BusinessLogicLayer;
 using TribalSvcPortal.Data.Models;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
 
 namespace TribalSvcPortal.AppLogic.DataAccessLayer
 {
-    public static class log
-    {
-        private static readonly DbContextOptions<ApplicationDbContext> _contextOptions = new DbContextOptions<ApplicationDbContext>();
-        private static ApplicationDbContext _context = new ApplicationDbContext(_contextOptions);
+    public class log : Ilog {
+        private readonly ApplicationDbContext _context;
+        public log(IConfiguration config) {
+          var  c_config = config ?? throw new ArgumentNullException(nameof(config));
+            _context = new ApplicationDbContext(new DbContextOptions<ApplicationDbContext>(), c_config["DefaultConnection"]);
+        }
        
-
-        public static int InsertT_PRT_SYS_LOG(string logType, string logMsg)
+        public int InsertT_PRT_SYS_LOG(string logType, string logMsg)
         {
             try
             {
@@ -36,7 +37,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
         /// General purpose logging of any Entity Framework methods to database
         /// </summary>
         /// <param name="ex">Exception to log</param>
-        public static void LogEFException(Exception ex)
+        public void LogEFException(Exception ex)
         {
 
             string err = "";

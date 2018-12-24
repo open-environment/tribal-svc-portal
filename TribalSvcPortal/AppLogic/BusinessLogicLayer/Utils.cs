@@ -7,13 +7,30 @@ using System.IO;
 using System.Linq;
 using TribalSvcPortal.AppLogic.DataAccessLayer;
 using TribalSvcPortal.Data.Models;
+using Microsoft.Extensions.Configuration;
 
 namespace TribalSvcPortal.AppLogic.BusinessLogicLayer
 {
-    public static class Utils
-    {
-        private static readonly DbContextOptions<ApplicationDbContext> _contextOptions = new DbContextOptions<ApplicationDbContext>();       
-        private static ApplicationDbContext _context = new ApplicationDbContext(_contextOptions);
+
+    public static class UtilsExtentions {
+
+        /// <summary>
+        ///  Converts to another datatype or returns default value
+        /// </summary>
+        public static T ConvertOrDefault<T>(this object value)
+        {
+            T result = default(T);
+            Utils.TryConvert<T>(value, out result);
+            return result;
+        }
+
+
+        public static TResult GetPropertyValue<TResult>(this object t, string propertyName)
+        {
+            object val = t.GetType().GetProperties().Single(pi => pi.Name == propertyName).GetValue(t, null);
+            return (TResult)val;
+        }
+
 
         /// <summary>
         ///  Better than built-in SubString by handling cases where string is too short
@@ -28,10 +45,22 @@ namespace TribalSvcPortal.AppLogic.BusinessLogicLayer
 
             return str.Substring(index, length);
         }
-
-        public static bool SendEmail(string from, string to, List<string> cc, List<string> bcc, string subj, string body, byte[] attach, string attachFileName, string bodyHTML = null)
+    }
+    public class Utils : IUtils {
+        ApplicationDbContext _context;
+        private readonly Ilog _log;
+        public Utils(IConfiguration config, Ilog log)
         {
-            IDbPortal _DbPortal = new DbPortal(_context);
+            var c_config = config ?? throw new ArgumentNullException(nameof(config));
+            _context = new ApplicationDbContext(new DbContextOptions<ApplicationDbContext>(), c_config["DefaultConnection"]);
+            _log = log ?? throw new ArgumentNullException(nameof(log));
+        }
+              
+
+
+        public  bool SendEmail(string from, string to, List<string> cc, List<string> bcc, string subj, string body, byte[] attach, string attachFileName, string bodyHTML = null)
+        {
+            IDbPortal _DbPortal = new DbPortal(_context, _log);
 
             try
             {
@@ -99,7 +128,7 @@ namespace TribalSvcPortal.AppLogic.BusinessLogicLayer
 
                 return true;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 //if (ex.InnerException != null)
                 //    log.LogEFException(ex);
@@ -149,22 +178,6 @@ namespace TribalSvcPortal.AppLogic.BusinessLogicLayer
             return true;
         }
 
-        /// <summary>
-        ///  Converts to another datatype or returns default value
-        /// </summary>
-        public static T ConvertOrDefault<T>(this object value)
-        {
-            T result = default(T);
-            TryConvert<T>(value, out result);
-            return result;
-        }
-
-
-        public static TResult GetPropertyValue<TResult>(this object t, string propertyName)
-        {
-            object val = t.GetType().GetProperties().Single(pi => pi.Name == propertyName).GetValue(t, null);
-            return (TResult)val;
-        }
 
         public static string GetSafeHtml(string html, bool useXssSantiser = false)
         {
