@@ -18,51 +18,11 @@ namespace TribalSvcPortal
        
     internal class IdentityServerConfig
     {
-        ////Returns list of Clients
-
-        //public static IEnumerable<Client> GetClientsHardCode()
-        //{
-        //    return new List<Client> {
-
-        //        //Emergency Hound Client
-        //        new Client {
-        //            ClientId = "emergency_hound",
-        //            ClientName = "Emergency Hound Web",
-        //            AllowedGrantTypes = GrantTypes.Implicit,
-        //            RequireConsent = false,
-        //            AllowedScopes = new List<string>
-        //            {
-        //                IdentityServerConstants.StandardScopes.OpenId,
-        //                IdentityServerConstants.StandardScopes.Profile,
-        //                IdentityServerConstants.StandardScopes.Email,
-        //            },
-        //            RedirectUris = new List<string> {"http://localhost:1244/signinoidc"},
-        //            PostLogoutRedirectUris = new List<string> { "http://localhost:1244/signoutcallbackoidc" }
-        //        },
-        //        //Open Waters Client
-        //        new Client {
-        //            ClientId = "open_waters",
-        //            ClientName = "Open Waters",
-        //            AllowedGrantTypes = GrantTypes.Implicit,
-        //            RequireConsent = false,
-        //            AllowedScopes = new List<string>
-        //            {
-        //                IdentityServerConstants.StandardScopes.OpenId,
-        //                IdentityServerConstants.StandardScopes.Profile,
-        //                IdentityServerConstants.StandardScopes.Email,
-        //            },
-        //            RedirectUris = new List<string> {"http://localhost:59412/signinoidc"},
-        //            PostLogoutRedirectUris = new List<string> { "http://localhost:59412/signoutcallbackoidc" }
-        //        }
-        //    };
-        //}
-
-
         public static IEnumerable<Client> GetClients2(IConfiguration config, Ilog log)
         {
-        var _DbPortal = new DbPortal(new ApplicationDbContext(new DbContextOptions<ApplicationDbContext>(), config),log);
+            var _DbPortal = new DbPortal(new ApplicationDbContext(new DbContextOptions<ApplicationDbContext>(), config),log);
 
-        List<T_PRT_CLIENTS> dbclients = _DbPortal.GetT_PRT_CLIENTS();
+            List<T_PRT_CLIENTS> dbclients = _DbPortal.GetT_PRT_CLIENTS();
 
             List<Client> _clients = new List<Client>();
             foreach (T_PRT_CLIENTS dbclient in dbclients)
@@ -86,7 +46,6 @@ namespace TribalSvcPortal
 
             return _clients;
         }
-
 
         //Returns list of IdentityResources
         public static IEnumerable<IdentityResource> GetIdentityResources()
@@ -116,7 +75,6 @@ namespace TribalSvcPortal
         }
 
 
-        // not virtual or abstract, therefore not overridable
         public async Task GetProfileDataAsync(ProfileDataRequestContext context)
         {
             var sub = context.Subject.GetSubjectId();
@@ -135,7 +93,9 @@ namespace TribalSvcPortal
 
             context.IssuedClaims = cs;
         }
-       public async Task IsActiveAsync(IsActiveContext context)
+
+
+        public async Task IsActiveAsync(IsActiveContext context)
         {
             var sub = context.Subject.GetSubjectId();
             var user = await _userManager.FindByIdAsync(sub);

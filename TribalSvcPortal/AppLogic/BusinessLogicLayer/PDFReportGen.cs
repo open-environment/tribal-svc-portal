@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using iTextSharp.text;
@@ -19,6 +21,39 @@ namespace TribalSvcPortal.AppLogic.BusinessLogicLayer
             _hostingEnvironment = env;
         }
 
+        internal byte[] MergePDFReport(string rptTemplatePDF, dynamic data)
+        {
+            using (MemoryStream ms = new MemoryStream())
+            {
+                // create a new PDF reader based on the PDF template document  
+                PdfReader pdfReader = new PdfReader(Path.Combine(_hostingEnvironment.ContentRootPath, "Docs", "OpenDumpSurveyForm.pdf"));
+                
+                //stamper and memorystream
+                PdfStamper pdfStamper = new PdfStamper(pdfReader, ms);
+
+                pdfStamper.AcroFields.SetField("Site Name", data.GetType().GetProperty("SITE_IDX").GetValue(data, null));
+                pdfStamper.AcroFields.SetField("Community", data.GetType().GetProperty("SITE_IDX").GetValue(data, null));
+                pdfStamper.AcroFields.SetField("Tribe", data.GetType().GetProperty("SITE_IDX").GetValue(data, null));
+                pdfStamper.AcroFields.SetField("Site Status", "Active");  //"Inactive"
+                pdfStamper.AcroFields.SetField("Latitude N", "111");  //"Inactive"
+                pdfStamper.AcroFields.SetField("Longitude W", "222");  //"Inactive"
+
+                // flatten the form to remove editting options, set it to false  
+                // to leave the form open to subsequent manual edits  
+                pdfStamper.FormFlattening = false;
+
+                foreach (var formField in pdfStamper.AcroFields.Fields)
+                {
+                    string dd = formField.Key;
+                    //var merge_data = data.GetType().GetProperty("SITE_IDX").GetValue(data, null);
+                }
+
+                // close the pdf  
+                pdfStamper.Close();
+
+                return ms.ToArray();
+            }
+        }
 
         internal byte[] CreatePDFReport(string rptTemplateXML, dynamic data)
         {

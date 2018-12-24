@@ -34,6 +34,7 @@ namespace TribalSvcPortal
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(dbConnecctionString));
 
+
             //Add ASP.NET Identity and configure its settings
             services.AddIdentity<ApplicationUser, IdentityRole>(x =>
             {
@@ -51,12 +52,14 @@ namespace TribalSvcPortal
             //cache memory of the left menu
             services.AddMemoryCache();
 
+
             // Add application services.
             services.AddTransient<IEmailSender, EmailSender>();
             services.AddScoped<IDbPortal, DbPortal>();
             services.AddScoped<IDbOpenDump, DbOpenDump>();
             services.AddScoped<IUtils, Utils>();
             services.AddScoped<Ilog, log>();
+
 
             //configure identity server with in-memory stores, keys, clients and scopes
             services.AddIdentityServer()
