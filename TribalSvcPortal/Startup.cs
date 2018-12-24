@@ -30,8 +30,9 @@ namespace TribalSvcPortal
         public void ConfigureServices(IServiceCollection services)
         {
             //Add database connection
+            var dbConnecctionString = Configuration.GetConnectionString("DefaultConnection");
             services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+                options.UseSqlServer(dbConnecctionString));
 
             //Add ASP.NET Identity and configure its settings
             services.AddIdentity<ApplicationUser, IdentityRole>(x =>
@@ -61,7 +62,7 @@ namespace TribalSvcPortal
             services.AddIdentityServer()
                  .AddSigningCredential(CreateRsaSecurityKey(Configuration["SigningSecurityKey"]))
                  .AddInMemoryIdentityResources(IdentityServerConfig.GetIdentityResources())
-                 .AddInMemoryClients(IdentityServerConfig.GetClients2(Configuration["DefaultConnection"], new log(Configuration)))
+                 .AddInMemoryClients(IdentityServerConfig.GetClients2(Configuration, new log(Configuration)))
                  .AddAspNetIdentity<ApplicationUser>()
                  .AddProfileService<CustomProfileService>();
 

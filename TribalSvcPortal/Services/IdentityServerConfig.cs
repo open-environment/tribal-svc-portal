@@ -5,6 +5,7 @@ using IdentityServer4.Services;
 using IdentityServer4.Stores;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
@@ -57,9 +58,9 @@ namespace TribalSvcPortal
         //}
 
 
-        public static IEnumerable<Client> GetClients2(string connectionString, Ilog log)
+        public static IEnumerable<Client> GetClients2(IConfiguration config, Ilog log)
         {
-        var _DbPortal = new DbPortal(new ApplicationDbContext(new DbContextOptions<ApplicationDbContext>(), connectionString),log);
+        var _DbPortal = new DbPortal(new ApplicationDbContext(new DbContextOptions<ApplicationDbContext>(), config),log);
 
         List<T_PRT_CLIENTS> dbclients = _DbPortal.GetT_PRT_CLIENTS();
 

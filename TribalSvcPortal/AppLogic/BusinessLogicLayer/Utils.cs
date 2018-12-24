@@ -52,7 +52,7 @@ namespace TribalSvcPortal.AppLogic.BusinessLogicLayer
         public Utils(IConfiguration config, Ilog log)
         {
             var c_config = config ?? throw new ArgumentNullException(nameof(config));
-            _context = new ApplicationDbContext(new DbContextOptions<ApplicationDbContext>(), c_config["DefaultConnection"]);
+            _context = new ApplicationDbContext(new DbContextOptions<ApplicationDbContext>(), c_config);
             _log = log ?? throw new ArgumentNullException(nameof(log));
         }
               

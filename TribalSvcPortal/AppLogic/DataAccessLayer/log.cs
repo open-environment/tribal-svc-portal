@@ -10,7 +10,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
         private readonly ApplicationDbContext _context;
         public log(IConfiguration config) {
           var  c_config = config ?? throw new ArgumentNullException(nameof(config));
-            _context = new ApplicationDbContext(new DbContextOptions<ApplicationDbContext>(), c_config["DefaultConnection"]);
+            _context = new ApplicationDbContext(new DbContextOptions<ApplicationDbContext>(), c_config);
         }
        
         public int InsertT_PRT_SYS_LOG(string logType, string logMsg)
