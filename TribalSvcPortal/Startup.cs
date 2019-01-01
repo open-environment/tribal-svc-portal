@@ -47,14 +47,15 @@ namespace TribalSvcPortal
             .AddEntityFrameworkStores<ApplicationDbContext>()
             .AddDefaultTokenProviders();
 
+            //configure the web application to use MVC
             services.AddMvc();
 
             //cache memory of the left menu
             services.AddMemoryCache();
 
 
-            // Add application services.
-            services.AddTransient<IEmailSender, EmailSender>();
+            // Add application services
+            //services.AddTransient<IEmailSender, EmailSender>();
             services.AddScoped<IDbPortal, DbPortal>();
             services.AddScoped<IDbOpenDump, DbOpenDump>();
             services.AddScoped<IUtils, Utils>();
@@ -63,11 +64,11 @@ namespace TribalSvcPortal
 
             //configure identity server with in-memory stores, keys, clients and scopes
             services.AddIdentityServer()
-                 .AddSigningCredential(CreateRsaSecurityKey(Configuration["SigningSecurityKey"]))
-                 .AddInMemoryIdentityResources(IdentityServerConfig.GetIdentityResources())
-                 .AddInMemoryClients(IdentityServerConfig.GetClients2(Configuration, new log(Configuration)))
-                 .AddAspNetIdentity<ApplicationUser>()
-                 .AddProfileService<CustomProfileService>();
+                .AddSigningCredential(CreateRsaSecurityKey(Configuration["SigningSecurityKey"]))
+                .AddInMemoryIdentityResources(IdentityServerConfig.GetIdentityResources())
+                .AddInMemoryClients(IdentityServerConfig.GetClients2(Configuration, new log(Configuration)))
+                .AddAspNetIdentity<ApplicationUser>()
+                .AddProfileService<CustomProfileService>();
 
 
             services.AddSingleton<IEmailSender, EmailSender>();

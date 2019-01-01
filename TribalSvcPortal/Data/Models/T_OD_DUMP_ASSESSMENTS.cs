@@ -18,7 +18,8 @@ namespace TribalSvcPortal.Data.Models
         public DateTime ASSESSMENT_DT { get; set; }
         public string ASSESSED_BY { get; set; }
         public Guid? ASSESSMENT_TYPE_IDX { get; set; }
-        public bool ACTIVE_SITE_IND { get; set; }
+        public string CURRENT_SITE_STATUS { get; set; }
+        public DateTime? CLEANED_CLOSED_DT { get; set; }
         public decimal? AREA_ACRES { get; set; }
         public decimal? VOLUME_CU_YD { get; set; }
         public Guid? HF_RAINFALL { get; set; }

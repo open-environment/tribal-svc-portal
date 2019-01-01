@@ -43,13 +43,15 @@ namespace TribalSvcPortal.Controllers
 
 
         #region SEARCH PAGE CONTROLLERS **********************************************************************
-        public ActionResult Search(string selStr, string selOrg)
+        public ActionResult Search(string selStr, string selOrg, string selStatus, string tab)
         {
             string _UserIDX = _userManager.GetUserId(User);
 
             SearchViewModel model = new SearchViewModel {
+                tab = tab ?? "1",
                 ddl_Org = _DbPortal.get_ddl_T_PRT_ORG_USERS_CLIENT_ByUserIDandClient(_UserIDX, "open_dump"),
-                searchResults = _DbOpenDump.getT_OD_SITES_ListBySearch(_UserIDX, selStr, selOrg)
+                ddl_Status = _DbOpenDump.get_ddl_T_OD_SITE_STATUS(),
+                searchResults = _DbOpenDump.getT_OD_SITES_ListBySearch(_UserIDX, selStr, selOrg, selStatus)
             };
 
             model.selOrg = selOrg ?? (model.ddl_Org.Count() == 1 ? model.ddl_Org.ToList()[0].Value : null);
@@ -103,6 +105,7 @@ namespace TribalSvcPortal.Controllers
                 SurfaceWaterList = _DbOpenDump.get_ddl_OD_REF_THREAT_FACTORS_by_type("Surface Water"),
                 HomesList = _DbOpenDump.get_ddl_OD_REF_THREAT_FACTORS_by_type("Homes"),
                 OrgList = _DbPortal.get_ddl_T_PRT_ORG_USERS_CLIENT_ByUserIDandClient(_UserIDX, "open_dump"),
+                ddl_LandStatus = _DbPortal.get_ddl_T_PRT_LAND_STATUS(),
                 returnURL = returnURL ?? "Search"
             };
 
@@ -145,12 +148,12 @@ namespace TribalSvcPortal.Controllers
             string _UserIDX = _userManager.GetUserId(User);
 
             Guid? newSiteID = _DbPortal.InsertUpdateT_PRT_SITES(model.TPrtSite.SITE_IDX, model.TPrtSite.ORG_ID, model.TPrtSite.SITE_NAME ?? "",
-                    model.TPrtSite.EPA_ID ?? "", model.TPrtSite.LATITUDE, model.TPrtSite.LONGITUDE, model.TPrtSite.SITE_ADDRESS ?? "", _UserIDX);
+                    model.TPrtSite.EPA_ID ?? "", model.TPrtSite.LATITUDE, model.TPrtSite.LONGITUDE, model.TPrtSite.SITE_ADDRESS ?? "", _UserIDX, model.TPrtSite.LAND_STATUS);
 
             if (newSiteID != null)
             {
                 newSiteID = _DbOpenDump.InsertUpdateT_OD_SITES((Guid)newSiteID, model.TOdSite.REPORTED_BY, model.TOdSite.REPORTED_ON, model.TOdSite.COMMUNITY_IDX, model.TOdSite.SITE_SETTING_IDX,
-                    model.TOdSite.PF_AQUIFER_VERT_DIST, model.TOdSite.PF_SURF_WATER_HORIZ_DIST, model.TOdSite.PF_HOMES_DIST);
+                    model.TOdSite.PF_AQUIFER_VERT_DIST, model.TOdSite.PF_SURF_WATER_HORIZ_DIST, model.TOdSite.PF_HOMES_DIST, null);
 
                 if (newSiteID != null)
                 {
@@ -235,8 +238,7 @@ namespace TribalSvcPortal.Controllers
                 return RedirectToAction("Search", new { selStr = "", selOrg = "" });
             }
         }
-
-
+        
         internal RptDisplayType GenRpt(Guid AssessId)
         {
             T_OD_DUMP_ASSESSMENTS _assess = _DbOpenDump.getT_OD_DUMP_ASSESSMENTS_ByDumpAssessmentIDX_wNav(AssessId);
@@ -265,21 +267,32 @@ namespace TribalSvcPortal.Controllers
                             pdfStamper.MoreInfo = info;
 
                             //fill in form data
-                            pdfStamper.AcroFields.SetField("Site Name", _site.SITE_NAME);
-                            pdfStamper.AcroFields.SetField("Community", _odsite.COMMUNITY_IDXNavigation?.REF_DATA_VAL);
+                            pdfStamper.AcroFields.SetField("Site Name", _site.SITE_NAME ?? "");
+                            pdfStamper.AcroFields.SetField("Community", _odsite.COMMUNITY_IDXNavigation?.REF_DATA_VAL ?? "");
                             pdfStamper.AcroFields.SetField("Tribe", _org.ORG_NAME);
-                            //pdfStamper.AcroFields.SetField("Site Status", "Active");  //"Inactive"
-                            pdfStamper.AcroFields.SetField("Latitude N", _site.LATITUDE.ToString());
-                            pdfStamper.AcroFields.SetField("Longitude W", _site.LONGITUDE.ToString());
 
-                            //pdfStamper.AcroFields.SetField("Land Status", "");
-                            pdfStamper.AcroFields.SetField("Survey Date", _assess.ASSESSMENT_DT.ToShortDateString());
-                            //pdfStamper.AcroFields.SetField("Date Site Was Cleaned or Closed", "");
-                            //pdfStamper.AcroFields.SetField("Cleaned or Closed Date", "");
+                            if (_assess.CURRENT_SITE_STATUS == "Active")
+                                pdfStamper.AcroFields.SetField("Site Status", "Active");
+                            else if (_assess.CURRENT_SITE_STATUS == "Inactive - Cleaned Up" || _assess.CURRENT_SITE_STATUS == "Inactive - Closed")
+                                pdfStamper.AcroFields.SetField("Site Status", "Inactive");
+
+                            pdfStamper.AcroFields.SetField("Latitude N", _site.LATITUDE.ToString() ?? "");
+                            pdfStamper.AcroFields.SetField("Longitude W", _site.LONGITUDE.ToString() ?? "");
+                            pdfStamper.AcroFields.SetField("Land Status", _site.LAND_STATUS ?? "");
+                            pdfStamper.AcroFields.SetField("Survey Date", _assess.ASSESSMENT_DT.ToShortDateString() ?? "");
+
+                            if (_assess.CURRENT_SITE_STATUS == "Inactive - Cleaned Up")
+                                pdfStamper.AcroFields.SetField("Date Site Was Cleaned or Closed", "Cleaned");
+                            if (_assess.CURRENT_SITE_STATUS == "Inactive - Closed")
+                                pdfStamper.AcroFields.SetField("Date Site Was Cleaned or Closed", "Closed");
+
+                            if (_assess.CURRENT_SITE_STATUS == "Inactive - Cleaned Up" || _assess.CURRENT_SITE_STATUS == "Inactive - Closed")
+                                if (_assess.CLEANED_CLOSED_DT != null)
+                                    pdfStamper.AcroFields.SetField("Cleaned or Closed Date", _assess.CLEANED_CLOSED_DT.ConvertOrDefault<DateTime>().ToShortDateString() ?? "");
+
                             pdfStamper.AcroFields.SetField("Condition of Open Dump Site", "Surface Waste");  //hard coded
-
-                            pdfStamper.AcroFields.SetField("Surface Area - # of Acres", _assess.AREA_ACRES.ToString());
-                            pdfStamper.AcroFields.SetField("Surface Volume - Yd3", _assess.VOLUME_CU_YD.ToString());
+                            pdfStamper.AcroFields.SetField("Surface Area - # of Acres", _assess.AREA_ACRES.ToString() ?? "");
+                            pdfStamper.AcroFields.SetField("Surface Volume - Yd3", _assess.VOLUME_CU_YD.ToString() ?? "");
 
 
                             //hazard factors
@@ -413,9 +426,9 @@ namespace TribalSvcPortal.Controllers
                                 pdfStamper.AcroFields.SetField("Distance to Homes", "-1000 ft.");
 
 
-                            pdfStamper.AcroFields.SetField("General Description", _assess.SITE_DESCRIPTION);
-                            pdfStamper.AcroFields.SetField("Comments", _assess.ASSESSMENT_NOTES);
-                            pdfStamper.AcroFields.SetField("Surveyor Contact Information", _assess.ASSESSED_BY + ", " + _org.ORG_NAME);
+                            pdfStamper.AcroFields.SetField("General Description", _assess.SITE_DESCRIPTION ?? "");
+                            pdfStamper.AcroFields.SetField("Comments", _assess.ASSESSMENT_NOTES ?? "");
+                            pdfStamper.AcroFields.SetField("Surveyor Contact Information", (_assess.ASSESSED_BY ?? "") + ", " + _org.ORG_NAME);
 
 
                             // flatten the form to remove editting options, set it to false  
@@ -448,7 +461,8 @@ namespace TribalSvcPortal.Controllers
             //string _UserIDX = _userManager.GetUserId(User);
 
             var model = new AssessmentDetailViewModel {
-                ddl_AssessmentTypeList = _DbOpenDump.get_ddl_T_OD_REF_DATA_by_category("Assessment Type", null)
+                ddl_AssessmentTypeList = _DbOpenDump.get_ddl_T_OD_REF_DATA_by_category("Assessment Type", null),
+                ddl_SiteStatus = _DbOpenDump.get_ddl_T_OD_SITE_STATUS()
             };
 
             //update case
@@ -479,7 +493,7 @@ namespace TribalSvcPortal.Controllers
                 }
             }
 
-            //populate other stuffs
+            //populate list of assessments for dropdown
             model.ddl_Assessments = _DbOpenDump.get_ddl_T_OD_DUMP_ASSESSMENTS_by_BySITEIDX(model.Assessment.SITE_IDX);
 
             //fail if no assessment found or created
@@ -505,8 +519,8 @@ namespace TribalSvcPortal.Controllers
 
 
                 Guid? SuccIDX = _DbOpenDump.InsertUpdateT_OD_DumpAssessment(a.DUMP_ASSESSMENTS_IDX, a.SITE_IDX, a.ASSESSMENT_DT, a.ASSESSED_BY,
-                    a.ASSESSMENT_TYPE_IDX, a.ACTIVE_SITE_IND, a.SITE_DESCRIPTION, a.ASSESSMENT_NOTES, null, null, null, null, null, null, null, null, null, null,
-                    null, null, null, null, null, null);
+                    a.ASSESSMENT_TYPE_IDX, a.CURRENT_SITE_STATUS, a.SITE_DESCRIPTION, a.ASSESSMENT_NOTES, null, null, null, null, null, null, null, null, null, null,
+                    null, null, null, null, null, null, a.CLEANED_CLOSED_DT);
 
                 if (SuccIDX != null) {
 
@@ -587,9 +601,9 @@ namespace TribalSvcPortal.Controllers
             if (model != null && model.Assessment != null)
             {
                 var a = model.Assessment;
-                Guid? DUMP_ASSESSMENTS_IDX = _DbOpenDump.InsertUpdateT_OD_DumpAssessment(a.DUMP_ASSESSMENTS_IDX, null, null, null, null, true, null, null, a.AREA_ACRES, 
+                Guid? DUMP_ASSESSMENTS_IDX = _DbOpenDump.InsertUpdateT_OD_DumpAssessment(a.DUMP_ASSESSMENTS_IDX, null, null, null, null, null, null, null, a.AREA_ACRES, 
                     a.VOLUME_CU_YD, a.HF_RAINFALL, a.HF_DRAINAGE, a.HF_FLOODING, a.HF_BURNING, a.HF_FENCING, a.HF_ACCESS_CONTROL, a.HF_PUBLIC_CONCERN, a.HEALTH_THREAT_SCORE,
-                    null, null, null, null, null, null);
+                    null, null, null, null, null, null, null);
 
                 foreach (SelectedWasteTypeDisplay oNew in model.ContentCheckBoxList)
                 {
@@ -711,7 +725,7 @@ namespace TribalSvcPortal.Controllers
                         null, null, null, null, null, null, null, null, 
                         model.rESTORE_CAT == "Restore" ? _DbOpenDump.getT_OD_DUMP_ASSESSMENT_RESTORE_Sum_by_AssessIDX(model.Assessment.DUMP_ASSESSMENTS_IDX, "Restore") : null,
                         model.rESTORE_CAT == "Surveil" ? _DbOpenDump.getT_OD_DUMP_ASSESSMENT_RESTORE_Sum_by_AssessIDX(model.Assessment.DUMP_ASSESSMENTS_IDX, "Surveil") : null,
-                        null);
+                        null, null);
 
                     TempData["Success"] = "Update successful.";
                 }
@@ -738,7 +752,7 @@ namespace TribalSvcPortal.Controllers
                         null, null, null, null, null, null, null, null,
                         r.RESTORE_CAT == "Restore" ? _DbOpenDump.getT_OD_DUMP_ASSESSMENT_RESTORE_Sum_by_AssessIDX(r.DUMP_ASSESSMENTS_IDX, "Restore") : null,
                         r.RESTORE_CAT == "Surveil" ? _DbOpenDump.getT_OD_DUMP_ASSESSMENT_RESTORE_Sum_by_AssessIDX(r.DUMP_ASSESSMENTS_IDX, "Surveil") : null,
-                        null);
+                        null, null);
 
                     return Json("Success");
                 }

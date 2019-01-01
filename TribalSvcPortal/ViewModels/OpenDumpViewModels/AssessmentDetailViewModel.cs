@@ -12,9 +12,8 @@ namespace TribalSvcPortal.ViewModels.OpenDumpViewModels
         public string OrgName { get; set; }
         public IEnumerable<SelectListItem> ddl_Assessments { get; set; }  //used for changing assessments only
         public T_OD_DUMP_ASSESSMENTS Assessment { get; set; }
-
-        //******* T1 **************
         public IEnumerable<SelectListItem> ddl_AssessmentTypeList { get; set; }
+        public IEnumerable<SelectListItem> ddl_SiteStatus  { get; set; }
 
 
         [DisplayName("Upload Photo")]

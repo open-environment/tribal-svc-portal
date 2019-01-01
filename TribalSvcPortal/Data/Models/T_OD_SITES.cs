@@ -18,6 +18,7 @@ namespace TribalSvcPortal.Data.Models
         public Guid? PF_AQUIFER_VERT_DIST { get; set; }
         public Guid? PF_SURF_WATER_HORIZ_DIST { get; set; }
         public Guid? PF_HOMES_DIST { get; set; }
+        public string CURRENT_SITE_STATUS { get; set; }
 
         public T_OD_REF_DATA COMMUNITY_IDXNavigation { get; set; }
         public T_OD_REF_THREAT_FACTORS PF_AQUIFER_VERT_DISTNavigation { get; set; }

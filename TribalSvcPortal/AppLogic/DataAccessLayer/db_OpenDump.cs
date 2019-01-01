@@ -25,6 +25,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
         public DateTime? ReportedOn { get; set; }
         public decimal? Latitude { get; set; }
         public decimal? Longitude { get; set; }
+        public string CurrentSiteStatus { get; set; }
 
         [DisplayFormat(DataFormatString = "{0:d}")]
 
@@ -94,6 +95,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
         public decimal? COST_TOTAL_AMT { get; set; }
         public string ORG_NAME { get; set; }
         public string SITE_NAME { get; set; }
+        public string CURRENT_SITE_STATUS { get; set; }
 
     }
 
@@ -101,8 +103,9 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
     {
         //************** T_OD_SITES **********************************
         T_OD_SITES getT_OD_SITES_BySITEIDX(Guid Siteidx);
-        List<OpenDumpSiteListDisplay> getT_OD_SITES_ListBySearch(string id, string searchStr, string selOrg);
-        Guid? InsertUpdateT_OD_SITES(Guid sITE_IDX, string rEPORTED_BY, DateTime? rEPORTED_ON, Guid? cOMMUNITY_IDX, Guid? sITE_SETTING_IDX, Guid? pF_AQUIFER_VERT_DIST, Guid? pF_SURF_WATER_HORIZ_DIST, Guid? pF_HOMES_DIST);
+        List<OpenDumpSiteListDisplay> getT_OD_SITES_ListBySearch(string id, string searchStr, string selOrg, string selStatus);
+        Guid? InsertUpdateT_OD_SITES(Guid sITE_IDX, string rEPORTED_BY, DateTime? rEPORTED_ON, Guid? cOMMUNITY_IDX, Guid? sITE_SETTING_IDX, Guid? pF_AQUIFER_VERT_DIST, Guid? pF_SURF_WATER_HORIZ_DIST, Guid? pF_HOMES_DIST, string cURRENT_SITE_STATUS);
+        string UpdateT_OD_SITES_Status(Guid sITE_IDX);
 
         //************** T_OD_DUMP_ASSESSMENTS **********************************
         T_OD_DUMP_ASSESSMENTS getT_OD_DUMP_ASSESSMENTS_ByDumpAssessmentIDX(Guid DumpAssessmentIDX);
@@ -111,10 +114,11 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
         List<AssessmentSummaryDisplayType> getT_OD_DUMP_ASSESSMENTS_ByUser(string UserID);
         IEnumerable<SelectListItem> get_ddl_T_OD_DUMP_ASSESSMENTS_by_BySITEIDX(Guid? Siteidx);
         int deleteT_OD_DumpAssessment(Guid DumpAssessmentIDX);
-        Guid? InsertUpdateT_OD_DumpAssessment(Guid dUMPASSESSMENTS_IDX, Guid? sITE_IDX, DateTime? aSSESSMENT_DT, string aSSESSED_BY, Guid? ASSESSMENT_TYPE_IDX, bool? ACTIVE_SITE_IND, string SITE_DESCRIPTION,
+        Guid? InsertUpdateT_OD_DumpAssessment(Guid dUMPASSESSMENTS_IDX, Guid? sITE_IDX, DateTime? aSSESSMENT_DT, string aSSESSED_BY, Guid? ASSESSMENT_TYPE_IDX, string cURRENT_SITE_STATUS, string SITE_DESCRIPTION,
                                                         string ASSESSMENT_NOTES, decimal? aREA_ACRES, decimal? vOLUMN_CU_YD, Guid? hF_RAINFALL, Guid? hF_DRAINAGE, Guid? hF_FLOODING, Guid? hF_BURNING, Guid? hF_FENCING,
                                                         Guid? hF_ACCESS_CONTROL, Guid? hF_PUBLIC_CONCERN, int? hEALTH_THREAT_SCORE, decimal? cOST_CLEANUP_AMT, decimal? cOST_TRANSPORT_AMT, decimal? cOST_DISPOSAL_AMT,
-                                                        decimal? cOST_RESTORE_AMT, decimal? cOST_SURVEIL_AMT, decimal? cOST_TOTAL_AMT);
+                                                        decimal? cOST_RESTORE_AMT, decimal? cOST_SURVEIL_AMT, decimal? cOST_TOTAL_AMT, DateTime? cLEANED_CLOSED_DT);
+        IEnumerable<SelectListItem> get_ddl_T_OD_SITE_STATUS();
 
         //************** T_OD_DUMP_ASSESSMENT_CONTENT **********************************
         List<SelectedWasteTypeDisplay> getT_OD_DUMP_ASSESSMENT_CONTENT_by_AssessIDX(Guid? AssessmentIdx);
@@ -194,7 +198,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             }
         }
 
-        public List<OpenDumpSiteListDisplay> getT_OD_SITES_ListBySearch(string id, string searchStr, string selOrg)
+        public List<OpenDumpSiteListDisplay> getT_OD_SITES_ListBySearch(string id, string searchStr, string selOrg, string selStatus)
         {
             try
             {
@@ -204,6 +208,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
                         join e in ctx.T_OD_SITES on d.SITE_IDX equals e.SITE_IDX
                         where a.Id == id
                         && (selOrg == null || a.ORG_ID == selOrg)
+                        && (selStatus == null || e.CURRENT_SITE_STATUS == selStatus)
                         && (searchStr == null || (d.SITE_NAME.ToUpper().Contains(searchStr.ToUpper())
                            || d.SITE_ADDRESS.ToUpper().Contains(searchStr.ToUpper()) ))
                         orderby b.ORG_NAME, d.SITE_NAME
@@ -213,6 +218,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
                             Site_Idx = d.SITE_IDX,
                             SiteName = d.SITE_NAME,
                             SiteAddress = d.SITE_ADDRESS,
+                            CurrentSiteStatus = e.CURRENT_SITE_STATUS,
                             ReportedBy = e.REPORTED_BY,
                             ReportedOn = e.REPORTED_ON,
                             Latitude = d.LATITUDE,
@@ -241,7 +247,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
         }
 
         public Guid? InsertUpdateT_OD_SITES(Guid sITE_IDX, string rEPORTED_BY, DateTime? rEPORTED_ON, Guid? cOMMUNITY_IDX, Guid? sITE_SETTING_IDX, Guid? pF_AQUIFER_VERT_DIST,
-    Guid? pF_SURF_WATER_HORIZ_DIST, Guid? pF_HOMES_DIST)
+    Guid? pF_SURF_WATER_HORIZ_DIST, Guid? pF_HOMES_DIST, string cURRENT_SITE_STATUS)
         {
             try
             {
@@ -266,11 +272,41 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
                 if (pF_AQUIFER_VERT_DIST != null) e.PF_AQUIFER_VERT_DIST = pF_AQUIFER_VERT_DIST;
                 if (pF_SURF_WATER_HORIZ_DIST != null) e.PF_SURF_WATER_HORIZ_DIST = pF_SURF_WATER_HORIZ_DIST;
                 if (pF_HOMES_DIST != null) e.PF_HOMES_DIST = pF_HOMES_DIST;
+                if (cURRENT_SITE_STATUS != null) e.CURRENT_SITE_STATUS = cURRENT_SITE_STATUS;
 
                 if (insInd)
                     ctx.T_OD_SITES.Add(e);
                 ctx.SaveChanges();
                 return e.SITE_IDX;
+            }
+            catch (Exception ex)
+            {
+                _log.LogEFException(ex);
+                return null;
+            }
+        }
+
+        public string UpdateT_OD_SITES_Status(Guid sITE_IDX)
+        {
+            try
+            {
+                T_OD_DUMP_ASSESSMENTS lastAssessment = ctx.T_OD_DUMP_ASSESSMENTS
+                                .Where(c => c.SITE_IDX == sITE_IDX)
+                                .OrderByDescending(t => t.ASSESSMENT_DT)
+                                .FirstOrDefault();
+
+                string _lastSiteStatus = null;
+
+                if (lastAssessment != null && lastAssessment.ASSESSMENT_DT != null)
+                    _lastSiteStatus = lastAssessment.CURRENT_SITE_STATUS;
+
+                T_OD_SITES e = (from c in ctx.T_OD_SITES
+                                where c.SITE_IDX == sITE_IDX
+                                select c).FirstOrDefault();
+
+                e.CURRENT_SITE_STATUS = _lastSiteStatus;
+                ctx.SaveChanges();
+                return _lastSiteStatus;
             }
             catch (Exception ex)
             {
@@ -291,7 +327,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             }
             catch (Exception ex)
             {
-                log.LogEFException(ex);
+                _log.LogEFException(ex);
                 return null;
             }
         }
@@ -336,7 +372,8 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
                             HEALTH_THREAT_SCORE = a.HEALTH_THREAT_SCORE,
                             COST_TOTAL_AMT = a.COST_TOTAL_AMT,
                             ORG_NAME = null,
-                            SITE_NAME = null
+                            SITE_NAME = null,
+                            CURRENT_SITE_STATUS = a.CURRENT_SITE_STATUS
                         }).ToList();
             }
             catch (Exception ex)
@@ -363,7 +400,8 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
                             HEALTH_THREAT_SCORE = a.HEALTH_THREAT_SCORE,
                             COST_TOTAL_AMT = a.COST_TOTAL_AMT,
                             ORG_NAME = c.ORG_ID,
-                            SITE_NAME = b.SITE_NAME
+                            SITE_NAME = b.SITE_NAME,
+                            CURRENT_SITE_STATUS = a.CURRENT_SITE_STATUS
                         }).ToList();
             }
             catch (Exception ex)
@@ -402,6 +440,10 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
                 ctx.Entry(tda).State = Microsoft.EntityFrameworkCore.EntityState.Deleted;
                 ctx.SaveChanges();
 
+                //then update site status
+                UpdateT_OD_SITES_Status(tda.SITE_IDX);
+
+
                 return 1;
             }
             catch (Exception ex)
@@ -411,10 +453,10 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             }
         }
 
-        public Guid? InsertUpdateT_OD_DumpAssessment(Guid dUMPASSESSMENTS_IDX, Guid? sITE_IDX, DateTime? aSSESSMENT_DT, string aSSESSED_BY, Guid? ASSESSMENT_TYPE_IDX, bool? ACTIVE_SITE_IND, string SITE_DESCRIPTION,
+        public Guid? InsertUpdateT_OD_DumpAssessment(Guid dUMPASSESSMENTS_IDX, Guid? sITE_IDX, DateTime? aSSESSMENT_DT, string aSSESSED_BY, Guid? ASSESSMENT_TYPE_IDX, string cURRENT_SITE_STATUS, string SITE_DESCRIPTION,
                                                         string ASSESSMENT_NOTES, decimal? aREA_ACRES, decimal? vOLUMN_CU_YD, Guid? hF_RAINFALL, Guid? hF_DRAINAGE, Guid? hF_FLOODING, Guid? hF_BURNING, Guid? hF_FENCING, 
                                                         Guid? hF_ACCESS_CONTROL, Guid? hF_PUBLIC_CONCERN, int? hEALTH_THREAT_SCORE, decimal? cOST_CLEANUP_AMT, decimal? cOST_TRANSPORT_AMT, decimal? cOST_DISPOSAL_AMT, 
-                                                        decimal? cOST_RESTORE_AMT, decimal? cOST_SURVEIL_AMT, decimal? cOST_TOTAL_AMT)
+                                                        decimal? cOST_RESTORE_AMT, decimal? cOST_SURVEIL_AMT, decimal? cOST_TOTAL_AMT, DateTime? cLEANED_CLOSED_DT)
         {
             try
             {
@@ -436,7 +478,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
                 if (aSSESSMENT_DT != null) e.ASSESSMENT_DT = (DateTime)aSSESSMENT_DT;
                 if (aSSESSED_BY != null) e.ASSESSED_BY = aSSESSED_BY;
                 if (ASSESSMENT_TYPE_IDX != null) e.ASSESSMENT_TYPE_IDX = ASSESSMENT_TYPE_IDX;
-                if (ACTIVE_SITE_IND != null) e.ACTIVE_SITE_IND = (bool)ACTIVE_SITE_IND;
+                if (cURRENT_SITE_STATUS != null) e.CURRENT_SITE_STATUS = cURRENT_SITE_STATUS;
                 if (SITE_DESCRIPTION != null) e.SITE_DESCRIPTION = SITE_DESCRIPTION;
                 if (ASSESSMENT_NOTES != null) e.ASSESSMENT_NOTES = ASSESSMENT_NOTES;
                 if (aREA_ACRES != null) e.AREA_ACRES = aREA_ACRES;
@@ -458,11 +500,17 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
                     e.COST_TOTAL_AMT = cOST_TOTAL_AMT;
                 else if (cOST_CLEANUP_AMT != null || cOST_TRANSPORT_AMT != null || cOST_DISPOSAL_AMT != null || cOST_RESTORE_AMT != null || cOST_SURVEIL_AMT != null)
                     e.COST_TOTAL_AMT = (e.COST_CLEANUP_AMT??0) + (e.COST_TRANSPORT_AMT??0) + (e.COST_DISPOSAL_AMT??0) + (e.COST_RESTORE_AMT??0) + (e.COST_SURVEIL_AMT??0);
+                if (cLEANED_CLOSED_DT != null) e.CLEANED_CLOSED_DT = cLEANED_CLOSED_DT;
 
                 if (insInd)
                     ctx.T_OD_DUMP_ASSESSMENTS.Add(e);
 
                 ctx.SaveChanges();
+
+                //if site status changed, then update site table
+                if (cURRENT_SITE_STATUS != null)
+                    UpdateT_OD_SITES_Status(e.SITE_IDX);
+
                 return e.DUMP_ASSESSMENTS_IDX;
             }
             catch (Exception ex)
@@ -473,6 +521,16 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
 
         }
 
+        public IEnumerable<SelectListItem> get_ddl_T_OD_SITE_STATUS()
+        {
+            List<SelectListItem> ddl_SiteStatus = new List<SelectListItem>();
+
+            ddl_SiteStatus.Add(new SelectListItem() { Value = "Active", Text = "Active" });
+            ddl_SiteStatus.Add(new SelectListItem() { Value = "Inactive - Cleaned Up", Text = "Inactive - Cleaned Up" });
+            ddl_SiteStatus.Add(new SelectListItem() { Value = "Inactive - Closed", Text = "Inactive - Closed" });
+
+            return ddl_SiteStatus;
+        }
 
 
         //************** T_OD_DUMP_ASSESSMENT_CONTENT **********************************
@@ -1086,7 +1144,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
                 decimal? totCost = getT_OD_DUMP_ASSESSMENT_CLEANUP_Sum_by_AssessIDX(DumpAssessmentIDX);
 
                 InsertUpdateT_OD_DumpAssessment(DumpAssessmentIDX, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
-                    null, null, totCost, null, null, null, null, null);
+                    null, null, totCost, null, null, null, null, null, null);
 
                 return 1;
             }

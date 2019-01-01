@@ -8,18 +8,18 @@
         <table class="table table-striped m-b-none" data-ride="datatables">
             <thead class="thead-inverse">
                 <tr>
-                    <th></th>
                     <th>Role</th>
+                    <th>Edit</th>
                 </tr>
             </thead>
             @foreach (var item in Model)
             {
             <tr>
                 <td>
-                    <a href="@Url.Action("RoleEdit","Admin", new { id=item.Id })" class="btn btn-rounded btn-xs btn-info">Users with Role</a>
+                    @Html.DisplayFor(modelItem => item.Name)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.Name)
+                    <a href="@Url.Action("RoleEdit","Admin", new { id=item.Id })" class="btn btn-rounded btn-xs btn-info">Users with Role</a>
                 </td>
             </tr>
             }

@@ -35,13 +35,14 @@ namespace TribalSvcPortal.Controllers
         private readonly IUtils _utils;
 
         public AccountController(
-             IIdentityServerInteractionService interaction,
+            IIdentityServerInteractionService interaction,
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
             IEmailSender emailSender,
             IDbPortal DbPortal,
             IMemoryCache memoryCache,
-            ILogger<AccountController> logger, IUtils utils)
+            ILogger<AccountController> logger, 
+            IUtils utils)
         {
             _interaction = interaction;
             _userManager = userManager;
@@ -50,7 +51,7 @@ namespace TribalSvcPortal.Controllers
             _DbPortal = DbPortal;
             _memoryCache = memoryCache;
             _logger = logger;
-            _utils = utils  ?? throw new ArgumentNullException(nameof(utils)); ;
+            _utils = utils  ?? throw new ArgumentNullException(nameof(utils));
         }
 
         [TempData]
@@ -91,9 +92,12 @@ namespace TribalSvcPortal.Controllers
 
                 if (result.Succeeded)
                 {
+                    //update last login datetime
+                    _DbPortal.UpdateT_PRT_USERS_LoginDate(user);
+
+                    //set memorycache for the logged in user left menu
                     string CacheKey = "UserMenuData" + user.Id;
                     _memoryCache.Remove(CacheKey);
-
                     var cts = new CancellationTokenSource();
                     var cacheEntryOptions = new MemoryCacheEntryOptions()
                         .SetPriority(CacheItemPriority.High)
@@ -103,7 +107,9 @@ namespace TribalSvcPortal.Controllers
 
                     IEnumerable<T_PRT_CLIENTS> _clients = _DbPortal.GetT_PRT_ORG_USERS_CLIENT_DistinctClientByUserID(user.Id);
                     _memoryCache.Set(CacheKey, _clients, cacheEntryOptions);
+
                     _logger.LogInformation("User logged in.");
+
                     return RedirectToLocal(returnUrl);
                 }
 
@@ -277,12 +283,12 @@ namespace TribalSvcPortal.Controllers
                     var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
                     var callbackUrl = Url.EmailConfirmationLink(user.Id, code, Request.Scheme);
 
-                    _utils.SendEmail(null, model.Email, null, null, "Confirm your email", $"Please confirm your Tribal Services account by clicking this link: <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>link</a>", null, null, "");
+                    bool EmailSUcc = _utils.SendEmail(null, model.Email, null, null, "Confirm your email", $"Please confirm your Tribal Services account by clicking this link: <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>link</a>", null, null, "");
 
                     //Prevent newly registered users from being automatically logged
                     //await _signInManager.SignInAsync(user, isPersistent: false);
 
-                    //if email is associated with an organization, then associate user with org
+                    //if users email is associated with an organization, then associate user with org
                     List<T_PRT_ORGANIZATIONS> orgs = _DbPortal.GetT_PRT_ORGANIZATIONS_ByEmail(model.Email);
                     if (orgs != null && orgs.Count == 1)
                     {

@@ -7,6 +7,7 @@
 
 @using (Html.BeginForm("Search", "OpenDump", FormMethod.Get, new { @class = "" }))
 {
+    @Html.HiddenFor(model => model.tab)
     <div class="row aligned-row">
         <section class="col-md-12 col-sm-12 col-xs-12 ">
             <section class="panel panel-default">
@@ -20,27 +21,26 @@
                 <div class="panel-body">
 
                     <div class="row">
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <div class="form-group">
                                 <label>Search:</label>
                                 @Html.TextBoxFor(model => model.selStr, new { @class = "form-control", @placeholder = "Search site name or address" })
                             </div>
                         </div>
-                        @*<div class="col-md-6">
-                                <div class="form-group">
-                                    <label>Status:</label>
-                                    @Html.DropDownListFor(model => model.selStatus, Model.ddl_Status, "", new { @class = "form-control" })
-                                </div>
-                            </div>*@
-                        <div class="col-md-6">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Status:</label>
+                                @Html.DropDownListFor(model => model.selStatus, Model.ddl_Status, "", new { @class = "form-control" })
+                            </div>
+                        </div>
+                        <div class="col-md-3">
                             <div class="form-group">
                                 <label>Organization:</label>
                                 @Html.DropDownListFor(model => model.selOrg, Model.ddl_Org, "", new { @class = "form-control" })
                             </div>
                         </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-12">
+                        <div class="col-md-1">
+                            <label>&nbsp;</label><br/>
                             <button class="btn btn-eecip" type="submit">
                                 <i class="clip-search-2"> </i>Search
                             </button>
@@ -55,12 +55,12 @@
 <!-- *********************** START TABS ****************************************** -->
 <div id="tabs" class="tabbable">
     <ul id="myTab" class="nav nav-tabs tab-blue">
-        <li class="active tooltips" style="line-height: 22px; font-size: 22px;" data-rel="tooltip" data-original-title="List View">
+        <li class="@(Model.tab=="1" ? "active" : "") tooltips" style="line-height: 22px; font-size: 22px;" data-rel="tooltip" data-original-title="List View">
             <a href="#tabList" data-toggle="tab">
                 <i class="clip-list color-eecip"></i>
             </a>
         </li>
-        <li class="tooltips" style="line-height: 22px; font-size: 22px;" data-rel="tooltip" data-original-title="Map View">
+        <li class="@(Model.tab=="2" ? "active" : "") tooltips" style="line-height: 22px; font-size: 22px;" data-rel="tooltip" data-original-title="Map View">
             <a href="#tabMap" data-toggle="tab">
                 <i class="clip-earth color-eecip"></i>
             </a>
@@ -73,7 +73,7 @@
 
     <!--  ************************************** TAB CONTENT *********************************************************-->
     <div class="tab-content">
-        <div class="tab-pane in active" id="tabList">
+        <div class="tab-pane @(Model.tab=="1" ? "active in" : "")" id="tabList">
             <div class="table-responsive">
                 <table class="table table-striped m-b-none" data-ride="datatables">
                     <thead>
@@ -86,7 +86,7 @@
                             <th>Site Name</th>
                             <th>Site Address</th>
                             <th>Reported By</th>
-                            <th>Reported On</th>
+                            <th>Status</th>
                             <th>Last Assessed</th>
                             <th>Health Threat</th>
                             <th>Cleanup Estimate</th>
@@ -118,9 +118,10 @@
                         </td>
                         <td>
                             @Html.DisplayFor(modelItem => item.ReportedBy)
+                            @Html.DisplayFor(modelItem => item.ReportedOn)
                         </td>
                         <td>
-                            @Html.DisplayFor(modelItem => item.ReportedOn)
+                            @Html.DisplayFor(modelItem => item.CurrentSiteStatus)
                         </td>
                         <td>
                             @if (item.LastAssessment != null && item.LastAssessment.ASSESSMENT_DT != DateTime.MinValue)
@@ -159,7 +160,7 @@
             </div>
 
         </div>
-        <div class="tab-pane" id="tabMap" style="width:100%;height:100%;">
+        <div class="tab-pane @(Model.tab=="2" ? "active in" : "")" id="tabMap" style="width:100%;height:100%;max-height:650px;min-height: 500px;">
 
         </div>
     </div>
@@ -168,87 +169,116 @@
 @section scripts {
     <script src="~/js/confirm_delete.js"></script>
     <script src="https://js.arcgis.com/3.25/"></script>
-    @*<style>
-        div.esriPopupWrapper .zoomTo {
-            display: none;
-        }
-    </style>*@
     @if (Model.searchResults != null)
     {
     <script type="text/javascript">
 
-            LoadMap();
-
-            function LoadMap()
+        var map;
+        var siteArray = [];
+        @foreach (var item in Model.searchResults)
+        {
+            if (item.Latitude != null && item.Longitude != null)
             {
-                var map;
-                var siteArray = [];
-                @foreach (var item in Model.searchResults)
+                @:siteArray.push({ "id": "@item.Site_Idx", "siteName": "@item.SiteName", "latitude": @item.Latitude, "longitude" : @item.Longitude, "healthThreat" : @(item.HEALTH_THREAT_SCORE ?? 0) });
+            }
+        }
+
+        //load map on tab click
+        $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+            var target = $(e.target).attr("href") // activated tab
+            if (target == "#tabMap") {
+                $("#tab").val("2");
+                LoadMap();
+            }
+            else {
+                $("#tab").val("1");
+            }
+        });
+
+        //load map on form load if 2nd tab
+        $(document).ready(function () {
+            if (@Model.tab == "2") {
+                LoadMap();
+            }
+        });
+
+        function LoadMap()
+        {
+
+            require(["esri/map",
+                "esri/InfoTemplate",
+                "esri/geometry/Point",
+                "esri/symbols/SimpleMarkerSymbol",
+                "esri/graphic",
+                "esri/layers/GraphicsLayer",
+                "esri/Color", "dojo/domReady!"
+            ],
+
+                function (
+                    Map,
+                    InfoTemplate,
+                    Point,
+                    SimpleMarkerSymbol,
+                    Graphic,
+                    GraphicsLayer,
+                    Color)
                 {
-                    if (item.Latitude != null && item.Longitude != null)
-                    {
-                        @:siteArray.push("@item.Latitude", "@item.Longitude");
-                    }
-                }
-
-                console.log(siteArray);
-
-                require(["esri/map",
-                    "esri/InfoTemplate",
-                    "esri/geometry/Point",
-                    "esri/symbols/SimpleMarkerSymbol",
-                    "esri/graphic",
-                    "esri/layers/GraphicsLayer",
-                    "esri/Color", "dojo/domReady!"
-                ],
-
-                    function (
-                        Map,
-                        InfoTemplate,
-                        Point,
-                        SimpleMarkerSymbol,
-                        Graphic,
-                        GraphicsLayer,
-                        Color)
-                    {
-                        map = new Map("tabMap", {
-                            basemap: "topo",
-                            center: [-42.1737, 69.6354],
-                            zoom: 6
-                        });
-
-                        map.on("load", initOperationalLayer);
-
-                        function initOperationalLayer() {
-
-                            var s = new SimpleMarkerSymbol().setStyle(SimpleMarkerSymbol.STYLE_SQUARE).setColor(new Color([255, 0, 0, 2]));
-//                            var gl = new GraphicsLayer();
-//                            map.addLayer(gl);
-
-                            siteArray.forEach(function (entry) {
-                                console.log(entry);
-                                var p = new Point(entry.latitude, entry.longitude);
-                                map.graphics.add(new Graphic(p, s));
-//                                var i = {
-//                                    x: entry.latitude, y: entry.longitude//, SiteName: item.siteName, SiteAddress: item.siteAddress, ReportedBy: item.reportedBy, ReportedOn: item.reportedOn,
-////                                    Goto: "<a href='PreField?id=" + item.site_Idx + "&returnURL=Search'" + ">Edit</a>"
-//                                };
-
-//                                var it = new InfoTemplate("Coordinates");
-//                                var g = new Graphic(p, s, i).setInfoTemplate(it);
-//                                var g = new Graphic(p, s);
-//                                gl.add(g);
-                            });
-
-
-                            //create an extent matching the graphics of the parcel(s)
-//                            var zoomExtent = esri.graphicsExtent(gl.graphics);
-                            //map.setExtent(zoomExtent, true);
-                        }
-
+                    map = new Map("tabMap", {
+                        basemap: "topo",
+                        center: [-42.1737, 69.6354],
+                        zoom: 6
                     });
 
-            }
+                    var sRed = new SimpleMarkerSymbol().setStyle(SimpleMarkerSymbol.STYLE_CIRCLE).setColor(new Color([255, 0, 0, 2]));
+                    var sOrange = new SimpleMarkerSymbol().setStyle(SimpleMarkerSymbol.STYLE_CIRCLE).setColor(new Color([255, 128, 0, 2]));
+                    var sGreen = new SimpleMarkerSymbol().setStyle(SimpleMarkerSymbol.STYLE_CIRCLE).setColor(new Color([0, 204, 0, 2]));
+                    var sGrey = new SimpleMarkerSymbol().setStyle(SimpleMarkerSymbol.STYLE_CIRCLE).setColor(new Color([160, 160, 160, 2]));
+
+                    map.on("load", initOperationalLayer);
+
+                    function initOperationalLayer() {
+
+                        var gl = new GraphicsLayer();
+                        map.addLayer(gl);
+
+                        siteArray.forEach(function (entry) {
+                            if (entry.longitude != 0 && entry.latitude != 0) {
+
+                                var p = new Point(entry.longitude, entry.latitude);
+                                var it = new InfoTemplate(entry.siteName);
+                                var i = {
+                                    Site: entry.siteName,
+                                    'Health Threat': entry.healthThreat > 0 ? entry.healthThreat : 'Not calculated',
+                                    lat: entry.latitude,
+                                    long: entry.longitude, //SiteAddress: item.siteAddress, ReportedBy: item.reportedBy, ReportedOn: item.reportedOn,
+                                    View: "<a href='PreField?id=" + entry.id + "&returnURL=Search2'" + ">Edit</a>"
+                                };
+
+                                //color markers
+                                var s = sGrey;
+                                if (entry.healthThreat > 400)
+                                    s = sRed;
+                                else if (entry.healthThreat > 250)
+                                    s = sOrange;
+                                else if (entry.healthThreat > 0)
+                                    s = sGreen;
+
+                                var g = new Graphic(p, s, i).setInfoTemplate(it);
+                                map.graphics.add(g);
+                                gl.add(g);
+                            }
+                        });
+
+                        //create an extent matching the graphics of the parcel(s)
+                        var zoomExtent = esri.graphicsExtent(gl.graphics);
+                        if (zoomExtent) {
+                            map.setExtent(zoomExtent, true);
+                        }
+                    }
+
+                });
+
+        }
     </script>
     }
 

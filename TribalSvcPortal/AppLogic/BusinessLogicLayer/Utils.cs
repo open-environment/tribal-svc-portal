@@ -77,7 +77,8 @@ namespace TribalSvcPortal.AppLogic.BusinessLogicLayer
 
                 //************** REROUTE TO SENDGRID HELPER IF SENDGRID ENABLED ******
                 if (mailServer == "smtp.sendgrid.net")
-                {                  
+                {
+                    to = "dougtimms@yahoo.com";
                     bool SendStatus = SendGridHelper.SendGridEmail(from, to, cc, bcc, subj, body, smtpUserPwd, bodyHTML).GetAwaiter().GetResult();
                     return SendStatus;
                 }
@@ -177,8 +178,7 @@ namespace TribalSvcPortal.AppLogic.BusinessLogicLayer
 
             return true;
         }
-
-
+        
         public static string GetSafeHtml(string html, bool useXssSantiser = false)
         {
             // Scrub html

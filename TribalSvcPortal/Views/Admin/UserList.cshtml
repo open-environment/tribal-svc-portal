@@ -15,9 +15,8 @@
                     <th>First Name</th>
                     <th>Last Name</th>
                     <th>Phone</th>
-                    <th>Last Login Date</th>
                     <th>Status</th>
-                    <th>Created Date</th>
+                    <th>Last Login</th>
                 </tr>
             </thead>
 
@@ -43,7 +42,6 @@
                 <td>
                     @Html.DisplayFor(modelItem => item.PhoneNumber)
                 </td>
-                <td></td>
                 <td>
                     @if (item.LockoutEnd != null)
                     {
@@ -68,7 +66,9 @@
                         }
                     }
                 </td>
-                <td></td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.LAST_LOGIN_DT)
+                </td>
             </tr>
             }
 

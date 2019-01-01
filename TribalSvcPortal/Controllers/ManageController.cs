@@ -4,10 +4,12 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.Encodings.Web;
 using System.Threading.Tasks;
+using TribalSvcPortal.AppLogic.BusinessLogicLayer;
 using TribalSvcPortal.AppLogic.DataAccessLayer;
 using TribalSvcPortal.Data.Models;
 using TribalSvcPortal.Services;
@@ -20,29 +22,35 @@ namespace TribalSvcPortal.Controllers
     public class ManageController : Controller
     {
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly IEmailSender _emailSender;
         private readonly ILogger _logger;
         private readonly UrlEncoder _urlEncoder;
         private readonly IDbPortal _DbPortal;
+        private readonly IUtils _utils;
 
         private const string AuthenticatorUriFormat = "otpauth://totp/{0}:{1}?secret={2}&issuer={0}&digits=6";
         private const string RecoveryCodesKey = nameof(RecoveryCodesKey);
 
         public ManageController(
           UserManager<ApplicationUser> userManager,
+          RoleManager<IdentityRole> roleManager,
           SignInManager<ApplicationUser> signInManager,
           IEmailSender emailSender,
           ILogger<ManageController> logger,
           UrlEncoder urlEncoder, 
-          IDbPortal DbPortal)
+          IDbPortal DbPortal,
+          IUtils utils)
         {
             _userManager = userManager;
+            _roleManager = roleManager;
             _signInManager = signInManager;
             _emailSender = emailSender;
             _logger = logger;
             _urlEncoder = urlEncoder;
             _DbPortal = DbPortal;
+            _utils = utils ?? throw new ArgumentNullException(nameof(utils));
         }
 
         [TempData]
@@ -207,23 +215,62 @@ namespace TribalSvcPortal.Controllers
         public JsonResult AccessRightsRequest(int? orgUser, string client)
         {
             string _UserIDX = _userManager.GetUserId(User);
+            string _UserName = _userManager.GetUserName(User);
 
-             int SuccID = _DbPortal.InsertUpdateT_PRT_ORG_USERS_CLIENT(null, orgUser, client, false, "R", _UserIDX);
-
-            //return response
-            if (SuccID > 0)
+            T_PRT_ORG_USERS _ou = _DbPortal.GetT_PRT_ORG_USERS_ByOrgUserID(orgUser ?? -1);
+            if (_ou != null)
             {
-                //send email
+                int SuccID = _DbPortal.InsertUpdateT_PRT_ORG_USERS_CLIENT(null, orgUser, client, false, "R", _UserIDX);
 
-
-                return Json(new
+                //return response
+                if (SuccID > 0)
                 {
-                    msg = "Success",
-                    redirectUrl = Url.Action("AccessRights", "Manage")
-                });
+                    //send email
+                    List<string> _emailRecipients = new List<string>();
+
+                    //**************first try to send to org / client admins
+                    List<OrgUserClientDisplayType> _orgUserClientAdmins = _DbPortal.GetT_PRT_ORG_USERS_CLIENT_ByOrgIDandClientID(_ou.ORG_ID, client, true);
+                    if (_orgUserClientAdmins != null && _orgUserClientAdmins.Count > 0)
+                    {
+                        foreach (OrgUserClientDisplayType _orgUserClientAdmin in _orgUserClientAdmins)
+                        {
+                            ApplicationUser _u = _userManager.FindByIdAsync(_orgUserClientAdmin.UserID).Result;
+                            if (_u != null)
+                                _emailRecipients.Add(_u.Email);
+                        }
+                    }
+
+                    //**************if none found, then send to org admins
+
+                    //**************finally send to portal admins
+                    if (_emailRecipients.Count == 0)
+                    {
+                        IdentityRole _r = _roleManager.FindByNameAsync("PortalAdmin").Result;
+
+                        IEnumerable<ApplicationUser> _us = _DbPortal.GetT_PRT_USERS_BelongingToRole(_r.Id);
+                        if (_us != null)
+                        {
+                            foreach (ApplicationUser _u in _us)
+                                _emailRecipients.Add(_u.Email);
+                        }
+                    }
+
+
+
+                    foreach (string _emailRecipient in _emailRecipients)
+                        _utils.SendEmail(null, _emailRecipient, null, null, "Tribal Portal - Access Request", $"The following user: { _UserName }' is requesting access to the {client} module for the {_ou.ORG_ID} organization in the Tribal Services Portal. Please log in to grant or deny access rights.", null, null, "");
+
+
+                    return Json(new
+                    {
+                        msg = "Success",
+                        redirectUrl = Url.Action("AccessRights", "Manage")
+                    });
+                }
             }
-            else
-                return Json(new { msg = "Unable to request access." });
+
+            //if got this far, it failed
+            return Json(new { msg = "Unable to request access." });
         }
 
 

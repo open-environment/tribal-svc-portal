@@ -461,6 +461,8 @@ namespace TribalSvcPortal.Data.Models
                     .HasMaxLength(50)
                     .IsUnicode(false);
 
+                entity.Property(e => e.LAND_STATUS).HasMaxLength(30);
+
                 entity.Property(e => e.LATITUDE).HasColumnType("decimal(18, 5)");
 
                 entity.Property(e => e.LONGITUDE).HasColumnType("decimal(18, 5)");
@@ -651,6 +653,8 @@ namespace TribalSvcPortal.Data.Models
                 entity.Property(e => e.CREATE_DT).HasColumnType("datetime2(0)");
 
                 entity.Property(e => e.CREATE_USER_ID).HasMaxLength(450);
+
+                entity.Property(e => e.CURRENT_SITE_STATUS).HasMaxLength(30);
 
                 entity.Property(e => e.MODIFY_DT).HasColumnType("datetime2(0)");
 
@@ -895,6 +899,8 @@ namespace TribalSvcPortal.Data.Models
                 entity.HasKey(e => e.SITE_IDX);
 
                 entity.Property(e => e.SITE_IDX).ValueGeneratedNever();
+
+                entity.Property(e => e.CURRENT_SITE_STATUS).HasMaxLength(30);
 
                 entity.Property(e => e.REPORTED_BY)
                     .HasMaxLength(50)

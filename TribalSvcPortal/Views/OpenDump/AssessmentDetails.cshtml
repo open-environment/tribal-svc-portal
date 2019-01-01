@@ -91,21 +91,28 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-md-4">
+                                <div class="col-md-3">
                                     <div class="form-group">
                                         <label>Assessed By</label>
                                         @Html.TextBoxFor(model => model.Assessment.ASSESSED_BY, new { @class = "form-control", @placeholder = "", @maxlength = "450" })
                                     </div>
                                 </div>
-                                <div class="col-md-3">
+                                <div class="col-md-2">
                                     <div class="form-group">
                                         <label>Assessment Type</label>
                                         @Html.DropDownListFor(model => model.Assessment.ASSESSMENT_TYPE_IDX, Model.ddl_AssessmentTypeList, "", new { @class = "form-control" })
                                     </div>
                                 </div>
-                                <div class="col-md-2" style="margin-top:22px;">
+                                <div class="col-md-2">
                                     <div class="form-group">
-                                        @Html.CheckBoxFor(model => model.Assessment.ACTIVE_SITE_IND, new { @checked = "checked" })<label>Active Site</label>
+                                        <label>Site Status</label>
+                                        @Html.DropDownListFor(model => model.Assessment.CURRENT_SITE_STATUS, Model.ddl_SiteStatus, new { @class = "form-control" })
+                                    </div>
+                                </div>
+                                <div class="col-md-2">
+                                    <div class="form-group">
+                                        <label>Cleaned/Closed Date</label>
+                                        @Html.TextBoxFor(model => model.Assessment.CLEANED_CLOSED_DT, "{0:MM/dd/yyyy}", new { @id = "dateClosed", @class = "form-control datepicker" })
                                     </div>
                                 </div>
                             </div>
@@ -370,7 +377,7 @@
             $('.datepicker').datepicker({
                 format: "mm/dd/yyyy",
                 autoclose: true,
-                todayBtn: 'linked'
+               // todayBtn: 'linked'
             });
 
         });

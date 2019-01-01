@@ -10,6 +10,7 @@ namespace TribalSvcPortal.ViewModels.OpenDumpViewModels
         public T_OD_SITES TOdSite { get; set; }
         public IEnumerable<SelectListItem> SiteSettingsList { get; set; }
         public IEnumerable<SelectListItem> CommunityList { get; set; }
+        public IEnumerable<SelectListItem> ddl_LandStatus { get; set; }
         public IEnumerable<SelectListItem> AquiferList { get; set; }
         public IEnumerable<SelectListItem> SurfaceWaterList { get; set; }
         public IEnumerable<SelectListItem> HomesList { get; set; }

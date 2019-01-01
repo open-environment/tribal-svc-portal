@@ -122,7 +122,7 @@
                                                     <td>
                                                         @if (Client.STATUS_IND == null)
                                                         {
-                                                            <button id="btnReqAccess" type="submit" class="btn btn-yellow" data-client="@Client.CLIENT_ID" data-orguser="@item.ORG_USER_IDX">Request Access</button>
+                                                            <button id="btnReqAccess" type="submit" class="btn btn-yellow btnReqAccess" data-client="@Client.CLIENT_ID" data-orguser="@item.ORG_USER_IDX">Request Access</button>
                                                         }
                                                         else if (Client.STATUS_IND == "A")
                                                         {
@@ -161,7 +161,9 @@
 
 
             //upvoting event handling
-            $("#btnReqAccess").on('click', function (e) {
+            $(".btnReqAccess").on('click', function (e) {
+
+                console.log('a');
                 e.preventDefault();
 
                 var _client = $(this).attr('data-client');

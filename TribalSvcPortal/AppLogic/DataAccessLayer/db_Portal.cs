@@ -81,6 +81,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
         //******************************T_PRT_ORG_USERS_CLIENT***********************************************
         List<OrgUserClientDisplayType> GetT_PRT_ORG_USERS_CLIENT_ByOrgUserID(int _OrgUserIDX);
         List<OrgUserClientDisplayType> GetT_PRT_ORG_USERS_CLIENT_ByUserID(string _UserIDX);
+        List<OrgUserClientDisplayType> GetT_PRT_ORG_USERS_CLIENT_ByOrgIDandClientID(string _orgID, string _clientID, bool AdminOnlyInd);
         IEnumerable<T_PRT_CLIENTS> GetT_PRT_ORG_USERS_CLIENT_DistinctClientByUserID(string UserID);
         IEnumerable<SelectListItem> get_ddl_T_PRT_ORG_USERS_CLIENT_ByUserIDandClient(string UserIDX, string ClientID);
         int InsertUpdateT_PRT_ORG_USERS_CLIENT(int? oRG_USER_CLIENT_IDX, int? oRG_USER_IDX, string cLIENT_ID, bool? aDMIN_IND, string sTATUS_IND, string cREATE_USER);
@@ -90,6 +91,9 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
         IEnumerable<IdentityRole> GetT_PRT_ROLES_BelongingToUser(string UserID);
         IEnumerable<ApplicationUser> GetT_PRT_USERS_BelongingToRole(string RoleID);
 
+        //**************************** T_PRT_USERS ***********************************************
+        int UpdateT_PRT_USERS_LoginDate(ApplicationUser user);
+
         //*****************SYS_LOG**********************************
         List<T_PRT_SYS_LOG> GetT_PRT_SYS_LOG();
 
@@ -97,9 +101,10 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
         List<T_PRT_SYS_EMAIL_LOG> GetT_PRT_SYS_EMAIL_LOG();
 
         //**************************** T_PRT_SITES ***********************************************
-        Guid? InsertUpdateT_PRT_SITES(Guid? sITE_IDX, string oRG_ID, string sITE_NAME, string ePA_ID, decimal? lATITUDE, decimal? lONGITUDE, string sITE_ADDRESS, string UserIDX);
+        Guid? InsertUpdateT_PRT_SITES(Guid? sITE_IDX, string oRG_ID, string sITE_NAME, string ePA_ID, decimal? lATITUDE, decimal? lONGITUDE, string sITE_ADDRESS, string UserIDX, string lAND_STATUS);
         T_PRT_SITES GetT_PRT_SITES_BySITEIDX(Guid Siteidx);
         int DeleteT_PRT_SITES(Guid sITE_IDX);
+        IEnumerable<SelectListItem> get_ddl_T_PRT_LAND_STATUS();
 
         //**************************** T_PRT_DOCUMENTS ***********************************************
         Guid? InsertUpdateT_PRT_DOCUMENTS(Guid? dOC_IDX, string oRG_ID, byte[] dOC_CONTENT, string dOC_NAME, string dOC_TYPE, string dOC_FILE_TYPE, int? dOC_SIZE, string dOC_COMMENT,
@@ -112,13 +117,13 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
     {
         private readonly ApplicationDbContext ctx;
         private readonly Ilog _log;
-        public DbPortal(ApplicationDbContext _context,Ilog log)
+        public DbPortal(ApplicationDbContext _context, Ilog log)
         {
             ctx = _context;
             _log = log ?? throw new ArgumentNullException(nameof(log));
         }
 
-        //*****************APP SETTINGS**********************************
+        //*****************APP_SETTINGS**********************************
         public string GetT_PRT_APP_SETTING(string settingName)
         {
             try
@@ -185,7 +190,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
         }
 
 
-        //*****************APP SETTINGS CUSTOM**********************************
+        //*****************APP_SETTINGS_CUSTOM**********************************
         public T_PRT_APP_SETTINGS_CUSTOM GetT_PRT_APP_SETTINGS_CUSTOM()
         {
             try
@@ -233,7 +238,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
         }
 
 
-        //**************************** T_PRT_CLIENTS ***********************************************
+        //**************************** CLIENTS ***********************************************
         public List<T_PRT_CLIENTS> GetT_PRT_CLIENTS()
         {
             try
@@ -302,7 +307,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
 
 
 
-        //******************************T_PRT_ORGANIZATIONS***********************************************
+        //******************************ORGANIZATIONS***********************************************
         public List<T_PRT_ORGANIZATIONS> GetT_PRT_ORGANIZATIONS()
         {
             try
@@ -385,7 +390,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
 
 
 
-        //******************************T_PRT_ORG_EMAIL_RULE***********************************************
+        //******************************ORG_EMAIL_RULE***********************************************
         public List<T_PRT_ORG_EMAIL_RULE> GetT_PRT_ORG_EMAIL_RULE_ByOrgID(string OrgID)
         {
             try
@@ -441,7 +446,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
 
 
 
-        //******************************T_PRT_ORG_USERS***********************************************
+        //******************************ORG_USERS***********************************************
         public T_PRT_ORG_USERS GetT_PRT_ORG_USERS_ByOrgUserID(int id)
         {
             try
@@ -642,7 +647,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
         }
 
 
-        //******************************T_PRT_ORG_USER_CLIENT***********************************************
+        //******************************ORG_USER_CLIENT***********************************************
         public List<OrgUserClientDisplayType> GetT_PRT_ORG_USERS_CLIENT_ByOrgUserID(int _OrgUserIDX)
         {
             try
@@ -703,6 +708,38 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             }
         }
 
+        public List<OrgUserClientDisplayType> GetT_PRT_ORG_USERS_CLIENT_ByOrgIDandClientID(string _orgID, string _clientID, bool AdminOnlyInd)
+        {
+            try
+            {
+                var xxx = (from a in ctx.T_PRT_ORG_USER_CLIENT
+                           join b in ctx.T_PRT_ORG_USERS on a.ORG_USER_IDX equals b.ORG_USER_IDX
+                           join c in ctx.T_PRT_ORG_CLIENT_ALIAS on new { a.CLIENT_ID, b.ORG_ID } equals new { c.CLIENT_ID, c.ORG_ID }
+                           where a.CLIENT_ID == _clientID
+                           && b.ORG_ID == _orgID
+                           && (AdminOnlyInd == true ? a.ADMIN_IND == true : true)
+                           select new OrgUserClientDisplayType
+                           {
+                               ORG_USER_CLIENT_IDX = a.ORG_USER_CLIENT_IDX,
+                               ORG_USER_IDX = a.ORG_USER_IDX,
+                               CLIENT_ID = a.CLIENT_ID,
+                               ADMIN_IND = a.ADMIN_IND,
+                               STATUS_IND = a.STATUS_IND,
+                               ORG_ID = b.ORG_ID,
+                               UserID = b.Id,
+                               UserName = b.Id,
+                               ORG_CLIENT_ALIAS = c.ORG_CLIENT_ALIAS
+                           }).ToList();
+
+                return xxx;
+            }
+            catch (Exception ex)
+            {
+                _log.LogEFException(ex);
+                return null;
+            }
+        }
+
         //Retrieve Clients the User has access to (filter out currently PENDING or REJECTED)
         public IEnumerable<T_PRT_CLIENTS> GetT_PRT_ORG_USERS_CLIENT_DistinctClientByUserID(string UserID)
         {
@@ -725,7 +762,6 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
                 return null;
             }
         }
-
 
         public IEnumerable<SelectListItem> get_ddl_T_PRT_ORG_USERS_CLIENT_ByUserIDandClient(string UserIDX, string ClientID)
         {
@@ -850,7 +886,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             try
             {
                 return (from u in ctx.Users
-                        join ur in ctx.UserRoles on u.Id equals ur.RoleId
+                        join ur in ctx.UserRoles on u.Id equals ur.UserId
                         where ur.RoleId == RoleID
                         select u).ToList();
             }
@@ -858,6 +894,22 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             {
                 _log.LogEFException(ex);
                 return null;
+            }
+        }
+
+        //*****************USERS**********************************
+        public int UpdateT_PRT_USERS_LoginDate(ApplicationUser user)
+        {
+            try
+            {
+                user.LAST_LOGIN_DT = System.DateTime.Now;
+                ctx.SaveChanges();
+                return 1;
+            }
+            catch (Exception ex)
+            {
+                _log.LogEFException(ex);
+                return 0;
             }
         }
 
@@ -896,7 +948,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
 
 
         //*****************SITES *************************************
-        public Guid? InsertUpdateT_PRT_SITES(Guid? sITE_IDX, string oRG_ID, string sITE_NAME, string ePA_ID, decimal? lATITUDE, decimal? lONGITUDE, string sITE_ADDRESS, string UserIDX)
+        public Guid? InsertUpdateT_PRT_SITES(Guid? sITE_IDX, string oRG_ID, string sITE_NAME, string ePA_ID, decimal? lATITUDE, decimal? lONGITUDE, string sITE_ADDRESS, string UserIDX, string lAND_STATUS)
         {
             try
             {
@@ -927,7 +979,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
                 if (lATITUDE != null) e.LATITUDE = lATITUDE;
                 if (lONGITUDE != null) e.LONGITUDE = lONGITUDE;
                 if (sITE_ADDRESS != null) e.SITE_ADDRESS = sITE_ADDRESS;
-
+                if (lAND_STATUS != null) e.LAND_STATUS = lAND_STATUS;
 
                 if (insInd)
                     ctx.T_PRT_SITES.Add(e);
@@ -972,6 +1024,19 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
                 _log.LogEFException(ex);
                 return 0;
             }
+        }
+
+        public IEnumerable<SelectListItem> get_ddl_T_PRT_LAND_STATUS()
+        {
+            List<SelectListItem> ddl_LandStatus = new List<SelectListItem>();
+
+            ddl_LandStatus.Add(new SelectListItem() { Value = "Private", Text = "Private" });
+            ddl_LandStatus.Add(new SelectListItem() { Value = "Trust", Text = "Trust" });
+            ddl_LandStatus.Add(new SelectListItem() { Value = "Tribal Trust", Text = "Tribal Trust" });
+            ddl_LandStatus.Add(new SelectListItem() { Value = "Allotted", Text = "Allotted" });
+            ddl_LandStatus.Add(new SelectListItem() { Value = "Fee", Text = "Fee" });
+
+            return ddl_LandStatus;
         }
 
 

@@ -8,11 +8,12 @@
     <table class="table table-hover table-striped m-b-none" data-ride="datatables">
         <thead>
             <tr class="thead-inverse">
-                <th style="min-width:70px">
+                <th style="min-width:100px">
                 </th>
                 <th>Organization</th>
                 <th>Site</th>
                 <th>Date of Assessment</th>
+                <th>Site Status</th>
                 <th>Assessed by</th>
                 <th>Observation/Notes</th>
                 <th>Health Threat</th>
@@ -43,6 +44,9 @@
             </td>
             <td>
                 @Convert.ToDateTime(item.ASSESSMENT_DT).ToString("MM/dd/yyyy")
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.CURRENT_SITE_STATUS)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.ASSESSED_BY)

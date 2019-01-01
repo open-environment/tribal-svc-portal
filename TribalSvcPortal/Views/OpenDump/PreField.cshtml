@@ -18,15 +18,20 @@
                     </a>
                 </li>
                 @*<li>
-                        <a href="@Url.Action("WasteProfile", "OpenDump")">
-                            Waste Profile/Health Threat
-                        </a>
-                    </li>
-                    <li>
-                        <a href="@Url.Action("Cleanup", "OpenDump")">
-                            Site Cleanup
-                        </a>
-                    </li>*@
+            <a href="@Url.Action("WasteProfile", "OpenDump")">
+                Waste Profile/Health Threat
+            </a>
+        </li>
+        <li>
+            <a href="@Url.Action("Cleanup", "OpenDump")">
+                Site Cleanup
+            </a>
+        </li>*@
+                <li>
+                    <a href="@Url.Action("CleanupAct", "OpenDump", new { id = Model.TPrtSite.SITE_IDX })">
+                        Cleanup Projects
+                    </a>
+                </li>
             </ul>
             <div class="tab-content">
                 <div class="tab-pane in active" id="tab1">
@@ -104,10 +109,16 @@
                                             </div>
                                         </div>
                                         <div class="row">
-                                            <div class="col-md-12">
+                                            <div class="col-md-6">
                                                 <div class="form-group">
                                                     <label>Community</label>
                                                     @Html.DropDownListFor(model => model.TOdSite.COMMUNITY_IDX, Model.CommunityList, "", new { @class = "form-control" })
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label>Land Status</label>
+                                                    @Html.DropDownListFor(model => model.TPrtSite.LAND_STATUS, Model.ddl_LandStatus, "", new { @class = "form-control" })
                                                 </div>
                                             </div>
                                         </div>
@@ -226,7 +237,14 @@
                         <div class="row">
                             <div class="col-md-12">
                                 <button id="btnSave" name="submitButton" disabled type="submit" class="btn btn-eecip">Save</button>
-                                <a href="@Url.Action(Model.returnURL, "OpenDump")" class="btn btn-default">Close</a>
+                                @if (Model.returnURL == "Search2")
+                                {
+                                    <a href="@Url.Action("Search", "OpenDump", new { tab = "2" })" class="btn btn-default">Back</a>
+                                }
+                                else
+                                {
+                                    <a href="@Url.Action(Model.returnURL, "OpenDump")" class="btn btn-default">Back</a>
+                                }
                             </div>
                         </div>
                     }
@@ -264,11 +282,11 @@
                                     </div>
                                     <div class="col-md-3">
                                         &nbsp;
-                                        <button id="picLoc" type="submit" class="btn btn-primary form-control" data-dismiss="modal"><strong>Continue</strong></button>
+                                        <button id="picLoc" type="submit" class="btn btn-eecip form-control" data-dismiss="modal">Continue</button>
                                     </div>
                                     <div class="col-md-3">
                                         &nbsp;
-                                        <button type="submit" class="btn btn-default form-control" data-dismiss="modal"><strong>Cancel</strong></button>
+                                        <button type="submit" class="btn btn-eecip form-control" data-dismiss="modal">Cancel</button>
                                     </div>
                                 </div>
                             </div>
@@ -321,7 +339,6 @@
 
             //repopulate community drop-down based on change of Organization
             $("#TPrtSite_ORG_ID").on("change", function () {
-                console.log('f');
                 showValue($(this).val());
             });
 
@@ -331,8 +348,6 @@
         //repopulate community drop-down based on change of Organization
         function showValue(val)
         {
-            console.log('g');
-            console.log(val);
             $.getJSON('@Url.Action("GetCommunityDDL", "OpenDump")' + "?orgID=" + val, function (result) {
                 $("#TOdSite_COMMUNITY_IDX").html(""); // makes select null before filling process
                 var data = result.data;
@@ -363,12 +378,11 @@
                         Graphic,
                         Color
                     ) {
-                        map = new Map(document.getElementById("map_canvas"), {
-                            basemap: "topo",
-                            center: [36.14520, -95.96826],
-                            zoom: 9
+                        map = new Map("map_canvas", {
+                            basemap: "topo"
                         });
 
+                        //define marker style 
                         var s = new SimpleMarkerSymbol().setStyle(SimpleMarkerSymbol.STYLE_CIRCLE).setColor(new Color([255, 0, 0, 2]));
 
                         map.on("load", showMap);
@@ -376,9 +390,14 @@
 
                         function showMap() {
                             map.graphics.clear();
+
                             if ($("#longitude").val() != 0 && $("#latitude").val() != 0) {
                                 var p = new Point($("#longitude").val(), $("#latitude").val());
                                 map.graphics.add(new Graphic(p, s));
+                                map.centerAndZoom(p, 9);
+                            }
+                            else {
+                                var p = new Point(-95.96826, 36.14520);
                                 map.centerAndZoom(p, 9);
                             }
                         }

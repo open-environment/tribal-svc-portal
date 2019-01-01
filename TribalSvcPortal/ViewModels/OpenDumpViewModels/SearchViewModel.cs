@@ -14,6 +14,7 @@ namespace TribalSvcPortal.ViewModels.OpenDumpViewModels
         public string selStr { get; set; }
         public string selStatus { get; set; }
         public string selOrg { get; set; }
+        public string tab { get; set; }
         public IEnumerable<SelectListItem> ddl_Status { get; set; }
         public IEnumerable<SelectListItem> ddl_Org { get; set; }
         public List<OpenDumpSiteListDisplay> searchResults { get; set; }      

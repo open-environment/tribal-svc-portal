@@ -73,6 +73,38 @@ namespace TribalSvcPortal.Controllers
         }
 
 
+        [Authorize(Roles = "PortalAdmin")]
+        [HttpPost, ValidateAntiForgeryToken]
+        public async Task<ActionResult> RoleEdit(RoleEditViewModel model, string submitButton)
+        {
+
+            IdentityRole _role = await _roleManager.FindByIdAsync(model.T_PRT_ROLES.Id);
+            if (_role != null)
+            {
+                IdentityResult SuccID = new IdentityResult();
+
+                // ADDING ROLE TO USER
+                if (submitButton == "Add")
+                {
+                    foreach (string u in model.Users_Not_In_Role_Selected)
+                        SuccID = await _userManager.AddToRoleAsync(_userManager.FindByIdAsync(u).Result, _role.Name);
+                }
+                // REMOVE ROLE FROM USER
+                else if (submitButton == "Remove")
+                {
+                    foreach (string u in model.Users_In_Role_Selected)
+                        SuccID = await _userManager.RemoveFromRoleAsync(_userManager.FindByIdAsync(u).Result, _role.Name);
+                }
+
+
+                if (SuccID.Succeeded)
+                    TempData["Success"] = "Update successful.";
+            }
+
+            return RedirectToAction("RoleEdit", new { id = model.T_PRT_ROLES.Id });
+        }
+
+
         //******************************* USERS **********************************************************
         public IActionResult UserList()
         {           
