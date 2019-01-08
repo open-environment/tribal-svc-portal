@@ -17,19 +17,9 @@
                         Field Assessments
                     </a>
                 </li>
-                @*<li>
-            <a href="@Url.Action("WasteProfile", "OpenDump")">
-                Waste Profile/Health Threat
-            </a>
-        </li>
-        <li>
-            <a href="@Url.Action("Cleanup", "OpenDump")">
-                Site Cleanup
-            </a>
-        </li>*@
                 <li>
                     <a href="@Url.Action("CleanupAct", "OpenDump", new { id = Model.TPrtSite.SITE_IDX })">
-                        Cleanup Projects
+                        Actual Cleanup
                     </a>
                 </li>
             </ul>

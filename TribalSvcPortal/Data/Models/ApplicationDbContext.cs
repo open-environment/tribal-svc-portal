@@ -29,6 +29,7 @@ namespace TribalSvcPortal.Data.Models
         public virtual DbSet<T_PRT_ORGANIZATIONS> T_PRT_ORGANIZATIONS { get; set; }
         public virtual DbSet<T_PRT_REF_DOC_STATUS_TYPE> T_PRT_REF_DOC_STATUS_TYPE { get; set; }
         public virtual DbSet<T_PRT_REF_DOC_TYPE> T_PRT_REF_DOC_TYPE { get; set; }
+        public virtual DbSet<T_PRT_REF_EMAIL_TEMPLATE> T_PRT_REF_EMAIL_TEMPLATE { get; set; }
         public virtual DbSet<T_PRT_REF_SHARE_TYPE> T_PRT_REF_SHARE_TYPE { get; set; }
         public virtual DbSet<T_PRT_REF_UNITS> T_PRT_REF_UNITS { get; set; }
         public virtual DbSet<T_PRT_SITE_INTERESTS> T_PRT_SITE_INTERESTS { get; set; }
@@ -375,6 +376,31 @@ namespace TribalSvcPortal.Data.Models
                 entity.Property(e => e.MODIFY_DT).HasColumnType("datetime2(0)");
 
                 entity.Property(e => e.MODIFY_USER_ID).HasMaxLength(450);
+            });
+
+            modelBuilder.Entity<T_PRT_REF_EMAIL_TEMPLATE>(entity =>
+            {
+                entity.HasKey(e => e.EMAIL_TEMPLATE_ID);
+
+                entity.Property(e => e.EMAIL_TEMPLATE_NAME)
+                    .IsRequired()
+                    .HasMaxLength(60)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.EMAIL_TEMPLATE_DESC)
+                    .IsRequired()
+                    .HasMaxLength(1000)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.MODIFY_DT).HasColumnType("datetime2(0)");
+
+                entity.Property(e => e.MODIFY_USER_ID).HasMaxLength(450);
+
+                entity.Property(e => e.MSG).IsUnicode(false);
+
+                entity.Property(e => e.SUBJ)
+                    .HasMaxLength(200)
+                    .IsUnicode(false);
             });
 
             modelBuilder.Entity<T_PRT_REF_SHARE_TYPE>(entity =>

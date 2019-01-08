@@ -3,3 +3,61 @@
     ViewData["Title"] = "Email Template Configuration";
     ViewData["SubTitle"] = "Configure the email templates used to send out emails.";
 }
+
+<!-- render the top dropdown -->
+@using (Html.BeginForm("EmailConfig", "Admin", FormMethod.Get, new { @class = "form-horizontal" }))
+{
+    <div class="form-group">
+        <label class="col-sm-2 control-label">
+            Email Template:
+        </label>
+        <div class="col-sm-6">
+            @Html.DropDownListFor(model => model.selTemplate, Model.ddl_EmailTemplate, "", new { @class = "form-control", @onchange = "document.location.href = '/Admin/EmailConfig?id=' + this.options[this.selectedIndex].value;" })
+        </div>
+    </div>
+}
+
+@if (Model != null && Model.selEmailTemplate != null)
+{
+
+<!-- START: MAIN CONTENT -->
+<section class="panel panel-default">
+    <header class="panel-heading">Email Template Details</header>
+    <div class="panel-body">
+
+        <div class="alert alert-block alert-warning">
+            <strong>Email Purpose: </strong>@Model.selEmailTemplate.EMAIL_TEMPLATE_DESC
+        </div>
+
+        @using (Html.BeginForm("EmailConfig", "Admin", FormMethod.Post))
+        {
+            @Html.AntiForgeryToken()
+            @Html.ValidationSummary(true)
+
+            @Html.HiddenFor(model => model.selEmailTemplate.EMAIL_TEMPLATE_ID)
+
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <label>Subject</label>
+                        @Html.TextBoxFor(model => model.selEmailTemplate.SUBJ, new { @class = "form-control" })
+                        @Html.ValidationMessageFor(model => model.selEmailTemplate.SUBJ)
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <label>Message Body</label>
+                        @Html.TextAreaFor(model => model.selEmailTemplate.MSG, new { @class = "form-control" })
+                        @Html.ValidationMessageFor(model => model.selEmailTemplate.MSG)
+                    </div>
+                </div>
+            </div>
+            <p>
+                <button type="submit" class="btn btn-eecip">Save</button>
+            </p>
+        }
+    </div>
+</section>
+}

@@ -42,6 +42,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
         public string STATUS_IND { get; set; }
     }
 
+
     public interface IDbPortal
     {
         //*****************APP SETTINGS**********************************
@@ -111,6 +112,12 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
         string dOC_AUTHOR, string sHARE_TYPE, string dOC_STATUS_TYPE, string UserID);
         T_PRT_DOCUMENTS GetT_PRT_DOCUMENTS_ByID(Guid DocIDX);
         int DeleteT_PRT_DOCUMENTS(Guid DocIDX);
+
+        //**************************** T_PRT_REF_EMAIL_TEMPLATE ***********************************************
+        List<SelectListItem> get_ddl_T_PRT_REF_EMAIL_TEMPLATE();
+        T_PRT_REF_EMAIL_TEMPLATE GetT_PRT_REF_EMAIL_TEMPLATE_ByID(int id);
+        T_PRT_REF_EMAIL_TEMPLATE GetT_PRT_REF_EMAIL_TEMPLATE_ByName(string name);
+        int InsertUpdateT_PRT_REF_EMAIL_TEMPLATE(int? eMAIL_TEMPLATE_ID, string sUBJ, string mSG, string UserID);
     }
 
     public class DbPortal : IDbPortal
@@ -1133,6 +1140,109 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             }
 
         }
+
+        //*******************************EMAIL TEMPLATE *********************************************
+        public List<T_PRT_REF_EMAIL_TEMPLATE> GetT_PRT_REF_EMAIL_TEMPLATE()
+        {
+            try
+            {
+                return (from a in ctx.T_PRT_REF_EMAIL_TEMPLATE
+                        select a).ToList();
+            }
+            catch (Exception ex)
+            {
+                _log.LogEFException(ex);
+                return null;
+            }
+        }
+
+        public T_PRT_REF_EMAIL_TEMPLATE GetT_PRT_REF_EMAIL_TEMPLATE_ByID(int id)
+        {
+            try
+            {
+                return (from a in ctx.T_PRT_REF_EMAIL_TEMPLATE
+                        where a.EMAIL_TEMPLATE_ID == id
+                        select a).FirstOrDefault();
+            }
+            catch (Exception ex)
+            {
+                _log.LogEFException(ex);
+                return null;
+            }
+        }
+
+        public T_PRT_REF_EMAIL_TEMPLATE GetT_PRT_REF_EMAIL_TEMPLATE_ByName(string name)
+        {
+            try
+            {
+                return (from a in ctx.T_PRT_REF_EMAIL_TEMPLATE
+                        where a.EMAIL_TEMPLATE_NAME == name
+                        select a).FirstOrDefault();
+            }
+            catch (Exception ex)
+            {
+                _log.LogEFException(ex);
+                return null;
+            }
+        }
+
+        public List<SelectListItem> get_ddl_T_PRT_REF_EMAIL_TEMPLATE()
+        {
+            try
+            {
+                return (from a in ctx.T_PRT_REF_EMAIL_TEMPLATE
+                        orderby a.EMAIL_TEMPLATE_NAME
+                        select new SelectListItem
+                        {
+                            Value = a.EMAIL_TEMPLATE_ID.ToString(),
+                            Text = a.EMAIL_TEMPLATE_NAME
+                        }).ToList();
+            }
+            catch (Exception ex)
+            {
+                _log.LogEFException(ex);
+                return null;
+            }
+        }
+
+        public int InsertUpdateT_PRT_REF_EMAIL_TEMPLATE(int? eMAIL_TEMPLATE_ID, string sUBJ, string mSG, string UserID)
+        {
+
+            try
+            {
+                Boolean insInd = false;
+
+                T_PRT_REF_EMAIL_TEMPLATE e = (from c in ctx.T_PRT_REF_EMAIL_TEMPLATE
+                                              where c.EMAIL_TEMPLATE_ID == eMAIL_TEMPLATE_ID
+                                              select c).FirstOrDefault();
+
+                //insert case
+                if (e == null)
+                {
+                    insInd = true;
+                    e = new T_PRT_REF_EMAIL_TEMPLATE();
+                }
+
+                e.MODIFY_DT = System.DateTime.UtcNow;
+                e.MODIFY_USER_ID = UserID;
+
+                if (sUBJ != null) e.SUBJ = sUBJ;
+                if (mSG != null) e.MSG = mSG;
+
+                if (insInd)
+                    ctx.T_PRT_REF_EMAIL_TEMPLATE.Add(e);
+
+                ctx.SaveChanges();
+                return e.EMAIL_TEMPLATE_ID;
+            }
+            catch (Exception ex)
+            {
+                _log.LogEFException(ex);
+                return 0;
+            }
+
+        }
+
 
     }
 }

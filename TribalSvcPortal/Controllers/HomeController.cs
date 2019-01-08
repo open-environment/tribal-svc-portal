@@ -10,6 +10,7 @@ using TribalSvcPortal.AppLogic.DataAccessLayer;
 using TribalSvcPortal.Data.Models;
 using TribalSvcPortal.ViewModels;
 using TribalSvcPortal.ViewModels.HomeViewModels;
+using TribalSvcPortal.Services;
 
 namespace TribalSvcPortal.Controllers
 {
@@ -18,17 +19,18 @@ namespace TribalSvcPortal.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IDbPortal _DbPortal;
-        private readonly IUtils _utils;
+        private readonly IEmailSender _emailSender;
+
         public HomeController(
             UserManager<ApplicationUser> userManager,
             RoleManager<IdentityRole> roleManager,
-            IDbPortal DbPortal, 
-            IUtils utils)
+            IDbPortal DbPortal,
+            IEmailSender emailSender)
         {
             _userManager = userManager;
             _roleManager = roleManager;
             _DbPortal = DbPortal;
-            _utils = utils ?? throw new System.ArgumentNullException(nameof(utils));
+            _emailSender = emailSender;
         }
 
         public IActionResult Index(string id)
@@ -167,9 +169,9 @@ namespace TribalSvcPortal.Controllers
                     result1.Wait();
 
                     //send confirmation email
-                    string code = _userManager.GenerateEmailConfirmationTokenAsync(user).Result;
+                    var code = _userManager.GenerateEmailConfirmationTokenAsync(user).Result;
                     var callbackUrl = Url.EmailConfirmationLink(user.Id, code, Request.Scheme);
-                    bool emailSucc = _utils.SendEmail(null, model.Email, null, null, "Confirm your email", $"Please confirm your account by clicking this link: <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>link</a>", null, null, "");
+                    bool emailSucc = _emailSender.SendEmail(null, model.Email, null, null, null, null, "EMAIL_CONFIRM", "callbackUrl", callbackUrl);
 
                     if (emailSucc)
                         TempData["Success"] = "User created and verification email sent";

@@ -27,6 +27,7 @@ namespace TribalSvcPortal.Data.Models
         public virtual DbSet<T_PRT_ORGANIZATIONS> T_PRT_ORGANIZATIONS { get; set; }
         public virtual DbSet<T_PRT_REF_DOC_STATUS_TYPE> T_PRT_REF_DOC_STATUS_TYPE { get; set; }
         public virtual DbSet<T_PRT_REF_DOC_TYPE> T_PRT_REF_DOC_TYPE { get; set; }
+        public virtual DbSet<T_PRT_REF_EMAIL_TEMPLATE> T_PRT_REF_EMAIL_TEMPLATE { get; set; }
         public virtual DbSet<T_PRT_REF_SHARE_TYPE> T_PRT_REF_SHARE_TYPE { get; set; }
         public virtual DbSet<T_PRT_REF_UNITS> T_PRT_REF_UNITS { get; set; }
         public virtual DbSet<T_PRT_SITE_INTERESTS> T_PRT_SITE_INTERESTS { get; set; }
@@ -171,23 +172,23 @@ namespace TribalSvcPortal.Data.Models
                 entity.HasOne(d => d.DOC_STATUS_TYPENavigation)
                     .WithMany(p => p.T_PRT_DOCUMENTS)
                     .HasForeignKey(d => d.DOC_STATUS_TYPE)
-                    .HasConstraintName("FK__T_PRT_DOC__DOC_S__5FF32EF8");
+                    .HasConstraintName("FK__T_PRT_DOC__DOC_S__7B663F43");
 
                 entity.HasOne(d => d.DOC_TYPENavigation)
                     .WithMany(p => p.T_PRT_DOCUMENTS)
                     .HasForeignKey(d => d.DOC_TYPE)
-                    .HasConstraintName("FK__T_PRT_DOC__DOC_T__5E0AE686");
+                    .HasConstraintName("FK__T_PRT_DOC__DOC_T__797DF6D1");
 
                 entity.HasOne(d => d.ORG_)
                     .WithMany(p => p.T_PRT_DOCUMENTS)
                     .HasForeignKey(d => d.ORG_ID)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__T_PRT_DOC__ORG_I__5D16C24D");
+                    .HasConstraintName("FK__T_PRT_DOC__ORG_I__7889D298");
 
                 entity.HasOne(d => d.SHARE_TYPENavigation)
                     .WithMany(p => p.T_PRT_DOCUMENTS)
                     .HasForeignKey(d => d.SHARE_TYPE)
-                    .HasConstraintName("FK__T_PRT_DOC__SHARE__5EFF0ABF");
+                    .HasConstraintName("FK__T_PRT_DOC__SHARE__7A721B0A");
             });
 
             modelBuilder.Entity<T_PRT_ORG_CLIENT_ALIAS>(entity =>
@@ -222,7 +223,7 @@ namespace TribalSvcPortal.Data.Models
                 entity.HasOne(d => d.ORG_)
                     .WithMany(p => p.T_PRT_ORG_EMAIL_RULE)
                     .HasForeignKey(d => d.ORG_ID)
-                    .HasConstraintName("FK__T_PRT_ORG__ORG_I__2F1AED73");
+                    .HasConstraintName("FK__T_PRT_ORG__ORG_I__5DD5DC5C");
             });
 
             modelBuilder.Entity<T_PRT_ORG_USER_CLIENT>(entity =>
@@ -260,6 +261,10 @@ namespace TribalSvcPortal.Data.Models
             modelBuilder.Entity<T_PRT_ORG_USERS>(entity =>
             {
                 entity.HasKey(e => e.ORG_USER_IDX);
+
+                entity.Property(e => e.ACCESS_LEVEL)
+                    .IsRequired()
+                    .HasMaxLength(1);
 
                 entity.Property(e => e.CREATE_DT).HasColumnType("datetime2(0)");
 
@@ -340,6 +345,26 @@ namespace TribalSvcPortal.Data.Models
                 entity.Property(e => e.MODIFY_DT).HasColumnType("datetime2(0)");
 
                 entity.Property(e => e.MODIFY_USER_ID).HasMaxLength(450);
+            });
+
+            modelBuilder.Entity<T_PRT_REF_EMAIL_TEMPLATE>(entity =>
+            {
+                entity.HasKey(e => e.EMAIL_TEMPLATE_ID);
+
+                entity.Property(e => e.EMAIL_TEMPLATE_NAME)
+                    .IsRequired()
+                    .HasMaxLength(60)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.MODIFY_DT).HasColumnType("datetime2(0)");
+
+                entity.Property(e => e.MODIFY_USER_ID).HasMaxLength(450);
+
+                entity.Property(e => e.MSG).IsUnicode(false);
+
+                entity.Property(e => e.SUBJ)
+                    .HasMaxLength(200)
+                    .IsUnicode(false);
             });
 
             modelBuilder.Entity<T_PRT_REF_SHARE_TYPE>(entity =>
@@ -424,6 +449,10 @@ namespace TribalSvcPortal.Data.Models
 
                 entity.Property(e => e.EPA_ID)
                     .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.LAND_STATUS)
+                    .HasMaxLength(30)
                     .IsUnicode(false);
 
                 entity.Property(e => e.LATITUDE).HasColumnType("decimal(18, 5)");

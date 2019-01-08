@@ -1,9 +1,12 @@
 ﻿@{
-    ViewData["Title"] = "Confirm email";
+    ViewData["Title"] = "Email Successfully Verified";
+    Layout = "~/Views/Shared/_LayoutLogin.cshtml";
 }
 
-<div>
-    <p>
-        Thank you for confirming your email.
-    </p>
+<div class="panel-body wrapper-lg">
+    <h4>
+        Thank you for verifying your email.
+    </h4>
+    <a class="btn btn-eecip" href="@Url.Action("Login", "Account")" >Log In</a>
+
 </div>

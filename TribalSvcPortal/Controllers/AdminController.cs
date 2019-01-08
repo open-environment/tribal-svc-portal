@@ -401,6 +401,7 @@ namespace TribalSvcPortal.Controllers
 
 
         //************************************ SETTINGS ***************************************
+        [Authorize(Roles = "PortalAdmin")]
         public ActionResult Settings()
         {
             T_PRT_APP_SETTINGS_CUSTOM custSettings = _DbPortal.GetT_PRT_APP_SETTINGS_CUSTOM();
@@ -414,6 +415,7 @@ namespace TribalSvcPortal.Controllers
         }
 
         [HttpPost, ValidateAntiForgeryToken]
+        [Authorize(Roles = "PortalAdmin")]
         public ActionResult Settings(SettingsViewModel model)
         {
             if (ModelState.IsValid)
@@ -431,6 +433,7 @@ namespace TribalSvcPortal.Controllers
         }
 
         [HttpPost, ValidateAntiForgeryToken]
+        [Authorize(Roles = "PortalAdmin")]
         public ActionResult CustomSettings(SettingsViewModel model)
         {
             if (ModelState.IsValid)
@@ -446,6 +449,7 @@ namespace TribalSvcPortal.Controllers
         }
 
         [HttpPost, ValidateAntiForgeryToken]
+        [Authorize(Roles = "PortalAdmin")]
         public ActionResult CustomSettingsAnnounce(SettingsViewModel model)
         {
             if (ModelState.IsValid)
@@ -461,17 +465,41 @@ namespace TribalSvcPortal.Controllers
         }
 
 
-        //************************************ SYS LOG  ***************************************
-        public ActionResult EmailConfig()
+        //************************************ EMAIL CONFIG  ***************************************
+        [Authorize(Roles = "PortalAdmin")]
+        public ActionResult EmailConfig(int? id)
         {
-            var model = new EmailConfigViewModel
+            var model = new EmailConfigViewModel();
+            model.ddl_EmailTemplate = _DbPortal.get_ddl_T_PRT_REF_EMAIL_TEMPLATE();
+            if (id != null)
             {
-            };
+                model.selTemplate = id;
+                model.selEmailTemplate = _DbPortal.GetT_PRT_REF_EMAIL_TEMPLATE_ByID(id ?? 0);
+            }
             return View(model);
         }
 
 
+        [HttpPost, ValidateAntiForgeryToken]
+        [Authorize(Roles = "PortalAdmin")]
+        public ActionResult EmailConfig(EmailConfigViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                string UserID = _userManager.GetUserId(User);
+
+                int SuccID = _DbPortal.InsertUpdateT_PRT_REF_EMAIL_TEMPLATE(model.selEmailTemplate.EMAIL_TEMPLATE_ID, model.selEmailTemplate.SUBJ, model.selEmailTemplate.MSG, UserID);
+                if (SuccID > 0)
+                    TempData["Success"] = "Data Saved.";
+                else
+                    TempData["Error"] = "Data Not Saved.";
+            }
+
+            return RedirectToAction("EmailConfig", new { id = model.selEmailTemplate.EMAIL_TEMPLATE_ID });
+        }
+
         //************************************ SYS LOG  ***************************************
+        [Authorize(Roles = "PortalAdmin")]
         public ActionResult SysLog()
         {
             var model = new SysLogViewModel
@@ -483,6 +511,7 @@ namespace TribalSvcPortal.Controllers
 
 
         //************************************ EMAIL LOG  ***************************************
+        [Authorize(Roles = "PortalAdmin")]
         public ActionResult EmailLog()
         {
             var model = new EmailLogViewModel
@@ -491,6 +520,8 @@ namespace TribalSvcPortal.Controllers
             };
             return View(model);
         }
+
+
 
     }
 

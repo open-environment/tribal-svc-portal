@@ -28,7 +28,6 @@ namespace TribalSvcPortal.Controllers
         private readonly ILogger _logger;
         private readonly UrlEncoder _urlEncoder;
         private readonly IDbPortal _DbPortal;
-        private readonly IUtils _utils;
 
         private const string AuthenticatorUriFormat = "otpauth://totp/{0}:{1}?secret={2}&issuer={0}&digits=6";
         private const string RecoveryCodesKey = nameof(RecoveryCodesKey);
@@ -40,8 +39,7 @@ namespace TribalSvcPortal.Controllers
           IEmailSender emailSender,
           ILogger<ManageController> logger,
           UrlEncoder urlEncoder, 
-          IDbPortal DbPortal,
-          IUtils utils)
+          IDbPortal DbPortal)
         {
             _userManager = userManager;
             _roleManager = roleManager;
@@ -50,7 +48,6 @@ namespace TribalSvcPortal.Controllers
             _logger = logger;
             _urlEncoder = urlEncoder;
             _DbPortal = DbPortal;
-            _utils = utils ?? throw new ArgumentNullException(nameof(utils));
         }
 
         [TempData]
@@ -121,9 +118,7 @@ namespace TribalSvcPortal.Controllers
         public async Task<IActionResult> SendVerificationEmail(IndexViewModel model)
         {
             if (!ModelState.IsValid)
-            {
                 return View(model);
-            }
 
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
@@ -133,8 +128,7 @@ namespace TribalSvcPortal.Controllers
 
             var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
             var callbackUrl = Url.EmailConfirmationLink(user.Id, code, Request.Scheme);
-            var email = user.Email;
-            await _emailSender.SendEmailConfirmationAsync(email, callbackUrl, null);
+            bool emailSucc = _emailSender.SendEmail(null, model.Email, null, null, null, null, "EMAIL_CONFIRM", "callbackUrl", callbackUrl);
 
             StatusMessage = "Verification email sent. Please check your email.";
             return RedirectToAction(nameof(Index));
@@ -256,9 +250,16 @@ namespace TribalSvcPortal.Controllers
                     }
 
 
+                    //construct email parameters
+                    List<emailParam> emailParams = new List<emailParam>()
+                    {
+                        new emailParam() { PARAM_NAME = "userName", PARAM_VAL = _UserName },
+                        new emailParam() { PARAM_NAME = "client", PARAM_VAL = client },
+                        new emailParam() { PARAM_NAME = "orgID", PARAM_VAL = _ou.ORG_ID }
+                    };
 
                     foreach (string _emailRecipient in _emailRecipients)
-                        _utils.SendEmail(null, _emailRecipient, null, null, "Tribal Portal - Access Request", $"The following user: { _UserName }' is requesting access to the {client} module for the {_ou.ORG_ID} organization in the Tribal Services Portal. Please log in to grant or deny access rights.", null, null, "");
+                        _emailSender.SendEmail(null, _emailRecipient, null, null, null, null, "ACCESS_REQUEST", emailParams);
 
 
                     return Json(new

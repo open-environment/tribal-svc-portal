@@ -1,9 +1,19 @@
 ﻿<script type="text/javascript">
-    $(function() {
+    $(function () {
+
+        var timeout = 5000;
+        @if (TempData["toastrTimeout"] != null)
+        {
+            <text>
+            timeout = 0;
+            </text>
+        }
+
         // use toastr to display the alerts
         toastr.options = {
             "closeButton": true,
-            "positionClass": "toast-top-right"
+            "positionClass": "toast-top-right",
+            "timeOut" : timeout
         }
 
         @if (TempData["Error"] != null)

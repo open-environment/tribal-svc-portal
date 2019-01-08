@@ -3,6 +3,7 @@
 /***************************************************************** */
 /*
 	USE [TRIBAL_SVC_PORTAL];
+	drop table [T_PRT_REF_EMAIL_TEMPLATE];
 	drop table [T_PRT_USER_ROLES];
 	drop table [T_PRT_ROLE_CLAIMS];
 	drop table [T_PRT_USER_CLAIMS];
@@ -36,7 +37,7 @@
 
 
 --BUILD SCAFFOLDING script (Open Packages Manager (under tools) and run this command:)
-Scaffold-DbContext -UseDatabaseNames "Server=.\SQLEXPRESS;Database=TRIBAL_SVC_PORTAL;Trusted_Connection=True;" Microsoft.EntityFrameworkCore.SqlServer -OutputDir Data/Models -t T_PRT_APP_SETTINGS, T_PRT_APP_SETTINGS_CUSTOM, T_PRT_CLIENT_ROLES, T_PRT_CLIENTS, T_PRT_DOCUMENTS, T_PRT_ORG_CLIENT_ALIAS, T_PRT_ORG_USER_CLIENT, T_PRT_ORG_EMAIL_RULE, T_PRT_ORG_USERS, T_PRT_ORGANIZATIONS, T_PRT_REF_DOC_STATUS_TYPE, T_PRT_REF_DOC_TYPE, T_PRT_REF_SHARE_TYPE, T_PRT_REF_UNITS, T_PRT_SITES, T_PRT_SITE_INTERESTS, T_PRT_SYS_EMAIL_LOG, T_PRT_SYS_LOG -f -Context "ApplicationDbContextTemp"
+Scaffold-DbContext -UseDatabaseNames "Server=.\SQLEXPRESS;Database=TRIBAL_SVC_PORTAL;Trusted_Connection=True;" Microsoft.EntityFrameworkCore.SqlServer -OutputDir Data/Models -t T_PRT_APP_SETTINGS, T_PRT_APP_SETTINGS_CUSTOM, T_PRT_CLIENT_ROLES, T_PRT_CLIENTS, T_PRT_DOCUMENTS, T_PRT_ORG_CLIENT_ALIAS, T_PRT_ORG_USER_CLIENT, T_PRT_ORG_EMAIL_RULE, T_PRT_ORG_USERS, T_PRT_ORGANIZATIONS, T_PRT_REF_DOC_STATUS_TYPE, T_PRT_REF_DOC_TYPE, T_PRT_REF_SHARE_TYPE, T_PRT_REF_UNITS, T_PRT_SITES, T_PRT_SITE_INTERESTS, T_PRT_SYS_EMAIL_LOG, T_PRT_SYS_LOG, T_PRT_REF_EMAIL_TEMPLATE -f -Context "ApplicationDbContextTemp"
 */
 
 /***************************************************************** */
@@ -439,6 +440,20 @@ CREATE TABLE [dbo].[T_PRT_SYS_EMAIL_LOG](
 	[LOG_MSG] [varchar](2000) NULL,
 	[EMAIL_TYPE] [varchar](15) NULL,
  CONSTRAINT [PK_T_PRT_SYS_EMAIL_LOG] PRIMARY KEY CLUSTERED  ([EMAIL_LOG_ID] ASC)
+) ON [PRIMARY]
+
+GO
+
+
+CREATE TABLE [dbo].[T_PRT_REF_EMAIL_TEMPLATE](
+	[EMAIL_TEMPLATE_ID] [int] IDENTITY(1,1) NOT NULL,
+	[EMAIL_TEMPLATE_NAME] [varchar](60) NOT NULL,
+	[EMAIL_TEMPLATE_DESC] [varchar](1000) NOT NULL,
+	[SUBJ] [varchar](200) NULL,
+	[MSG] [varchar](max) NULL,
+	[MODIFY_USER_ID] nvarchar(450) NULL,
+	[MODIFY_DT] datetime2(0) NULL,
+ CONSTRAINT [PK_T_PRT_REF_EMAIL_TEMPLATE] PRIMARY KEY CLUSTERED  ([EMAIL_TEMPLATE_ID] ASC)
 ) ON [PRIMARY]
 
 GO

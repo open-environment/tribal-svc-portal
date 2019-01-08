@@ -8,10 +8,7 @@ using TribalSvcPortal.Services;
 using TribalSvcPortal.Data.Models;
 using TribalSvcPortal.AppLogic.DataAccessLayer;
 using Microsoft.IdentityModel.Tokens;
-using System.Text;
-using System.Security.Cryptography.X509Certificates;
 using System.Security.Cryptography;
-    using TribalSvcPortal.AppLogic.BusinessLogicLayer;
 
 namespace TribalSvcPortal
 {
@@ -55,10 +52,9 @@ namespace TribalSvcPortal
 
 
             // Add application services
-            //services.AddTransient<IEmailSender, EmailSender>();
             services.AddScoped<IDbPortal, DbPortal>();
             services.AddScoped<IDbOpenDump, DbOpenDump>();
-            services.AddScoped<IUtils, Utils>();
+            services.AddScoped<IEmailSender, EmailSender>();
             services.AddScoped<Ilog, log>();
 
 
@@ -70,9 +66,6 @@ namespace TribalSvcPortal
                 .AddAspNetIdentity<ApplicationUser>()
                 .AddProfileService<CustomProfileService>();
 
-
-            services.AddSingleton<IEmailSender, EmailSender>();
-            services.Configure<AuthMessageSenderOptions>(Configuration);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

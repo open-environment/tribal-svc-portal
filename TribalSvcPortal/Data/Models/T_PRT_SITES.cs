@@ -17,11 +17,11 @@ namespace TribalSvcPortal.Data.Models
         public decimal? LATITUDE { get; set; }
         public decimal? LONGITUDE { get; set; }
         public string SITE_ADDRESS { get; set; }
-        public string LAND_STATUS { get; set; }
         public string CREATE_USER_ID { get; set; }
         public DateTime? CREATE_DT { get; set; }
         public string MODIFY_USER_ID { get; set; }
         public DateTime? MODIFY_DT { get; set; }
+        public string LAND_STATUS { get; set; }
 
         public T_PRT_ORGANIZATIONS ORG_ { get; set; }
         public ICollection<T_PRT_SITE_INTERESTS> T_PRT_SITE_INTERESTS { get; set; }

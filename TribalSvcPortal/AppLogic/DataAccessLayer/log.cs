@@ -9,10 +9,35 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
     public class log : Ilog {
         private readonly ApplicationDbContext _context;
         public log(IConfiguration config) {
-          var  c_config = config ?? throw new ArgumentNullException(nameof(config));
+            var  c_config = config ?? throw new ArgumentNullException(nameof(config));
             _context = new ApplicationDbContext(new DbContextOptions<ApplicationDbContext>(), c_config);
         }
-       
+
+
+        public int InsertT_PRT_SYS_EMAIL_LOG(string from, string to, string cc, string subj, string msg, string logType)
+        {
+            try
+            {
+                T_PRT_SYS_EMAIL_LOG e = new T_PRT_SYS_EMAIL_LOG
+                {
+                    LOG_DT = System.DateTime.Now,
+                    LOG_FROM = from,
+                    LOG_TO = to,
+                    LOG_CC =cc,
+                    LOG_SUBJ = subj,
+                    LOG_MSG = msg,
+                    EMAIL_TYPE = logType
+                };
+                _context.T_PRT_SYS_EMAIL_LOG.Add(e);
+                _context.SaveChanges();
+                return e.EMAIL_LOG_ID;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         public int InsertT_PRT_SYS_LOG(string logType, string logMsg)
         {
             try
@@ -39,7 +64,6 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
         /// <param name="ex">Exception to log</param>
         public void LogEFException(Exception ex)
         {
-
             string err = "";
             //if (ex is DbEntityValidationException)
             //{

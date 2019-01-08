@@ -61,7 +61,6 @@ INSERT INTO [T_PRT_ORGANIZATIONS] ([ORG_ID], [ORG_NAME]) values ('TONKAWA','Tonk
 INSERT INTO [T_PRT_ORGANIZATIONS] ([ORG_ID], [ORG_NAME]) values ('WDEP','Wichita Department of Environmental Programs');
 
 
-
 INSERT INTO [T_PRT_ORG_CLIENT_ALIAS]([ORG_ID], [CLIENT_ID], [ORG_CLIENT_ALIAS]) values ('CHOCNAT','open_waters','CHOCNATWQX');
 INSERT INTO [T_PRT_ORG_CLIENT_ALIAS]([ORG_ID], [CLIENT_ID], [ORG_CLIENT_ALIAS]) values ('KIOWA','open_waters','KIOWA_WQX');
 INSERT INTO [T_PRT_ORG_CLIENT_ALIAS]([ORG_ID], [CLIENT_ID], [ORG_CLIENT_ALIAS]) values ('MCNCREEK','open_waters','MCNCREEK_WQX');
@@ -94,24 +93,30 @@ INSERT INTO [T_PRT_ORG_EMAIL_RULE]([ORG_ID],[EMAIL_STRING]) values ('SFNOES','sa
 INSERT INTO [T_PRT_ORG_EMAIL_RULE]([ORG_ID],[EMAIL_STRING]) values ('SNEPO','sno-nsn.gov');
 
 
---****************T_REF_SHARE_TYPE ************************************************************************************
+--****************T_PRT_REF_SHARE_TYPE ************************************************************************************
 INSERT INTO T_PRT_REF_SHARE_TYPE (SHARE_TYPE,SHARE_DESC,ACT_IND) values ('Jurisdiction', 'Only allow users of same jurisdiction to view', 1);
 INSERT INTO T_PRT_REF_SHARE_TYPE (SHARE_TYPE,SHARE_DESC,ACT_IND) values ('All Jurisdictions', 'Share with all jurisdictions', 1);
 INSERT INTO T_PRT_REF_SHARE_TYPE (SHARE_TYPE,SHARE_DESC,ACT_IND) values ('Public', 'Share with the Public', 1);
 
---****************T_REF_DOC_TYPE ************************************************************************************
+--****************T_PRT_REF_DOC_TYPE ************************************************************************************
 INSERT INTO T_PRT_REF_DOC_TYPE (DOC_TYPE,DOC_TYPE_DESC,ACT_IND,CREATE_DT) VALUES ('SOP', 'SOP', 1, GetDate());
 INSERT INTO T_PRT_REF_DOC_TYPE (DOC_TYPE,DOC_TYPE_DESC,ACT_IND,CREATE_DT) VALUES ('Users Manual', 'Users Manual', 1, GetDate());
 INSERT INTO T_PRT_REF_DOC_TYPE (DOC_TYPE,DOC_TYPE_DESC,ACT_IND,CREATE_DT) VALUES ('Report', 'Report', 1, GetDate());
 INSERT INTO T_PRT_REF_DOC_TYPE (DOC_TYPE,DOC_TYPE_DESC,ACT_IND,CREATE_DT) VALUES ('Assessment', 'Assessment', 1, GetDate());
 
---****************T_REF_DOC_STATUS_TYPE ************************************************************************************
+--****************T_PRT_REF_DOC_STATUS_TYPE ************************************************************************************
 INSERT INTO T_PRT_REF_DOC_STATUS_TYPE (DOC_STATUS_TYPE,ACT_IND) VALUES ('Current', 1);
 INSERT INTO T_PRT_REF_DOC_STATUS_TYPE (DOC_STATUS_TYPE,ACT_IND) VALUES ('Archive', 1);
 INSERT INTO T_PRT_REF_DOC_STATUS_TYPE (DOC_STATUS_TYPE,ACT_IND) VALUES ('Historical', 1);
 
 
---****************T_REF_UNITS ************************************************************************************
+--****************T_PRT_REF_UNITS ************************************************************************************
 INSERT INTO T_PRT_REF_UNITS (UNIT_MSR_CD,UNIT_MSR_CAT, STD_UNIT_IND, UNIT_CONVERSION) VALUES ('units', 'units',1,0);
 INSERT INTO T_PRT_REF_UNITS (UNIT_MSR_CD,UNIT_MSR_CAT, STD_UNIT_IND, UNIT_CONVERSION) VALUES ('cu-yds', 'volume',1,0);
 INSERT INTO T_PRT_REF_UNITS (UNIT_MSR_CD,UNIT_MSR_CAT, STD_UNIT_IND, UNIT_CONVERSION) VALUES ('tons', 'weight',1,0);
+
+
+--****************T_PRT_REF_EMAIL_TEMPLATE ************************************************************************************
+INSERT INTO T_PRT_REF_EMAIL_TEMPLATE ([EMAIL_TEMPLATE_NAME],[EMAIL_TEMPLATE_DESC], [SUBJ], [MSG]) VALUES ('EMAIL_CONFIRM','Sent to users to allow them to confirm their email address as part of activating their account.','Tribal Portal - Verify Your Email','Please verify your Tribal Portal account by clicking this link: <a href=''{callbackUrl}''>Verify Account</a>');
+INSERT INTO T_PRT_REF_EMAIL_TEMPLATE ([EMAIL_TEMPLATE_NAME],[EMAIL_TEMPLATE_DESC], [SUBJ], [MSG]) VALUES ('RESET_PASSWORD','Reset a user''s password','Tribal Portal - Reset Password','Please reset your Tribal Portal password by clicking here: <a href=''{callbackUrl}''>Reset Password</a>');
+INSERT INTO T_PRT_REF_EMAIL_TEMPLATE ([EMAIL_TEMPLATE_NAME],[EMAIL_TEMPLATE_DESC], [SUBJ], [MSG]) VALUES ('ACCESS_REQUEST','Request additional access rights to Tribal Portal','Tribal Portal - Access Request','The following user: {userName} is requesting access to the {client} module for the {orgID} organization in the Tribal Services Portal. Please log in to grant or deny access rights.');
