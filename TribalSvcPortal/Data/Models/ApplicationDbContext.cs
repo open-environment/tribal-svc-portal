@@ -37,11 +37,14 @@ namespace TribalSvcPortal.Data.Models
         public virtual DbSet<T_PRT_SYS_EMAIL_LOG> T_PRT_SYS_EMAIL_LOG { get; set; }
         public virtual DbSet<T_PRT_SYS_LOG> T_PRT_SYS_LOG { get; set; }
 
-        public virtual DbSet<T_OD_DUMP_ASSESSMENT_CLEANUP> T_OD_DUMP_ASSESSMENT_CLEANUP { get; set; }
-        public virtual DbSet<T_OD_DUMP_ASSESSMENT_CONTENT> T_OD_DUMP_ASSESSMENT_CONTENT { get; set; }
-        public virtual DbSet<T_OD_DUMP_ASSESSMENT_DOCS> T_OD_DUMP_ASSESSMENT_DOCS { get; set; }
-        public virtual DbSet<T_OD_DUMP_ASSESSMENT_RESTORE> T_OD_DUMP_ASSESSMENT_RESTORE { get; set; }
-        public virtual DbSet<T_OD_DUMP_ASSESSMENTS> T_OD_DUMP_ASSESSMENTS { get; set; }
+
+        public virtual DbSet<T_OD_ASSESSMENT_CONTENT> T_OD_ASSESSMENT_CONTENT { get; set; }
+        public virtual DbSet<T_OD_ASSESSMENT_DOCS> T_OD_ASSESSMENT_DOCS { get; set; }
+        public virtual DbSet<T_OD_ASSESSMENTS> T_OD_ASSESSMENTS { get; set; }
+        public virtual DbSet<T_OD_CLEANUP_ACTIVITIES> T_OD_CLEANUP_ACTIVITIES { get; set; }
+        public virtual DbSet<T_OD_CLEANUP_CLEANUP_DTL> T_OD_CLEANUP_CLEANUP_DTL { get; set; }
+        public virtual DbSet<T_OD_CLEANUP_DOCS> T_OD_CLEANUP_DOCS { get; set; }
+        public virtual DbSet<T_OD_CLEANUP_PROJECT> T_OD_CLEANUP_PROJECT { get; set; }
         public virtual DbSet<T_OD_REF_CLEANUP_ASSETS> T_OD_REF_CLEANUP_ASSETS { get; set; }
         public virtual DbSet<T_OD_REF_DATA> T_OD_REF_DATA { get; set; }
         public virtual DbSet<T_OD_REF_DATA_CATEGORIES> T_OD_REF_DATA_CATEGORIES { get; set; }
@@ -565,12 +568,167 @@ namespace TribalSvcPortal.Data.Models
             /*************** TABLE COLUMNS END   *******************/
 
 
-            /*************** OD TABLE COLUMNS START   *******************/
-            modelBuilder.Entity<T_OD_DUMP_ASSESSMENT_CLEANUP>(entity =>
-            {
-                entity.HasKey(e => e.DUMP_ASSESSMENT_CLEANUP_IDX);
 
-                entity.Property(e => e.DUMP_ASSESSMENT_CLEANUP_IDX).HasDefaultValueSql("(newid())");
+
+            /*************** OD TABLE COLUMNS START   *******************/
+            modelBuilder.Entity<T_OD_ASSESSMENT_CONTENT>(entity =>
+            {
+                entity.HasKey(e => e.ASSESSMENT_CONTENT_IDX);
+
+                entity.Property(e => e.ASSESSMENT_CONTENT_IDX).HasDefaultValueSql("(newid())");
+
+                entity.Property(e => e.WASTE_AMT).HasColumnType("decimal(10, 2)");
+
+                entity.Property(e => e.WASTE_DISPOSAL_DIST)
+                    .HasMaxLength(4)
+                    .IsUnicode(false);
+
+                entity.HasOne(d => d.ASSESSMENT_IDXNavigation)
+                    .WithMany(p => p.T_OD_ASSESSMENT_CONTENT)
+                    .HasForeignKey(d => d.ASSESSMENT_IDX)
+                    .HasConstraintName("FK_T_OD_ASSESS_CNT_A");
+
+                entity.HasOne(d => d.REF_WASTE_TYPE_IDXNavigation)
+                    .WithMany(p => p.T_OD_ASSESSMENT_CONTENT)
+                    .HasForeignKey(d => d.REF_WASTE_TYPE_IDX)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_OD_ASSESS_CNT_D");
+            });
+
+            modelBuilder.Entity<T_OD_ASSESSMENT_DOCS>(entity =>
+            {
+                entity.HasKey(e => e.DOC_IDX);
+
+                entity.Property(e => e.DOC_IDX).ValueGeneratedNever();
+
+                entity.HasOne(d => d.ASSESSMENT_IDXNavigation)
+                    .WithMany(p => p.T_OD_ASSESSMENT_DOCS)
+                    .HasForeignKey(d => d.ASSESSMENT_IDX)
+                    .HasConstraintName("FK_T_OD_ASSESSMENT_DOCS_A");
+
+            });
+
+            modelBuilder.Entity<T_OD_ASSESSMENTS>(entity =>
+            {
+                entity.HasKey(e => e.ASSESSMENT_IDX);
+
+                entity.Property(e => e.ASSESSMENT_IDX).HasDefaultValueSql("(newid())");
+
+                entity.Property(e => e.AREA_ACRES).HasColumnType("decimal(8, 2)");
+
+                entity.Property(e => e.ASSESSED_BY).HasMaxLength(100);
+
+                entity.Property(e => e.ASSESSMENT_DT).HasColumnType("datetime2(0)");
+
+                entity.Property(e => e.CLEANED_CLOSED_DT).HasColumnType("datetime2(0)");
+
+                entity.Property(e => e.CREATE_DT).HasColumnType("datetime2(0)");
+
+                entity.Property(e => e.CREATE_USER_ID).HasMaxLength(450);
+
+                entity.Property(e => e.CURRENT_SITE_STATUS)
+                    .HasMaxLength(30)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.MODIFY_DT).HasColumnType("datetime2(0)");
+
+                entity.Property(e => e.MODIFY_USER_ID).HasMaxLength(450);
+
+                entity.Property(e => e.VOLUME_CU_YD).HasColumnType("decimal(10, 2)");
+
+                entity.HasOne(d => d.ASSESSMENT_TYPE_IDXNavigation)
+                    .WithMany(p => p.T_OD_ASSESSMENTS)
+                    .HasForeignKey(d => d.ASSESSMENT_TYPE_IDX)
+                    .HasConstraintName("FK_T_OD_ASSESSMENTS_D");
+
+                entity.HasOne(d => d.HF_ACCESS_CONTROLNavigation)
+                    .WithMany(p => p.T_OD_ASSESSMENTSHF_ACCESS_CONTROLNavigation)
+                    .HasForeignKey(d => d.HF_ACCESS_CONTROL)
+                    .HasConstraintName("FK_T_OD_ASSESSMENTS_HFA");
+
+                entity.HasOne(d => d.HF_BURNINGNavigation)
+                    .WithMany(p => p.T_OD_ASSESSMENTSHF_BURNINGNavigation)
+                    .HasForeignKey(d => d.HF_BURNING)
+                    .HasConstraintName("FK_T_OD_ASSESSMENTS_HFB");
+
+                entity.HasOne(d => d.HF_DRAINAGENavigation)
+                    .WithMany(p => p.T_OD_ASSESSMENTSHF_DRAINAGENavigation)
+                    .HasForeignKey(d => d.HF_DRAINAGE)
+                    .HasConstraintName("FK_T_OD_ASSESSMENTS_HFD");
+
+                entity.HasOne(d => d.HF_FENCINGNavigation)
+                    .WithMany(p => p.T_OD_ASSESSMENTSHF_FENCINGNavigation)
+                    .HasForeignKey(d => d.HF_FENCING)
+                    .HasConstraintName("FK_T_OD_ASSESSMENTS_HFFN");
+
+                entity.HasOne(d => d.HF_FLOODINGNavigation)
+                    .WithMany(p => p.T_OD_ASSESSMENTSHF_FLOODINGNavigation)
+                    .HasForeignKey(d => d.HF_FLOODING)
+                    .HasConstraintName("FK_T_OD_ASSESSMENTS_HFF");
+
+                entity.HasOne(d => d.HF_PUBLIC_CONCERNNavigation)
+                    .WithMany(p => p.T_OD_ASSESSMENTSHF_PUBLIC_CONCERNNavigation)
+                    .HasForeignKey(d => d.HF_PUBLIC_CONCERN)
+                    .HasConstraintName("FK_T_OD_ASSESSMENTS_HFP");
+
+                entity.HasOne(d => d.HF_RAINFALLNavigation)
+                    .WithMany(p => p.T_OD_ASSESSMENTSHF_RAINFALLNavigation)
+                    .HasForeignKey(d => d.HF_RAINFALL)
+                    .HasConstraintName("FK_T_OD_ASSESSMENTS_HFR");
+
+                entity.HasOne(d => d.SITE_IDXNavigation)
+                    .WithMany(p => p.T_OD_ASSESSMENTS)
+                    .HasForeignKey(d => d.SITE_IDX)
+                    .HasConstraintName("FK_T_OD_ASSESSMENTS_S");
+            });
+
+            modelBuilder.Entity<T_OD_CLEANUP_ACTIVITIES>(entity =>
+            {
+                entity.HasKey(e => e.CLEANUP_ACTIVITY_IDX);
+
+                entity.Property(e => e.CLEANUP_ACTIVITY_IDX).HasDefaultValueSql("(newid())");
+
+                entity.Property(e => e.CLEANUP_ACTIVITY)
+                    .IsRequired()
+                    .HasMaxLength(100)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.CLEANUP_CAT)
+                    .IsRequired()
+                    .HasMaxLength(20)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.CLEANUP_COST).HasColumnType("decimal(10, 2)");
+
+                entity.Property(e => e.CLEANUP_UNIT_COST).HasColumnType("decimal(10, 2)");
+
+                entity.Property(e => e.CREATE_DT).HasColumnType("datetime2(0)");
+
+                entity.Property(e => e.CREATE_USER_ID).HasMaxLength(450);
+
+                entity.Property(e => e.MODIFY_DT).HasColumnType("datetime2(0)");
+
+                entity.Property(e => e.MODIFY_USER_ID).HasMaxLength(450);
+
+                entity.Property(e => e.QUANTITY)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.QUANTITY_UNIT)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.HasOne(d => d.CLEANUP_PROJECT_IDXNavigation)
+                    .WithMany(p => p.T_OD_CLEANUP_ACTIVITIES)
+                    .HasForeignKey(d => d.CLEANUP_PROJECT_IDX)
+                    .HasConstraintName("FK_T_OD_CLEANUP_ACTIVITIES");
+            });
+
+            modelBuilder.Entity<T_OD_CLEANUP_CLEANUP_DTL>(entity =>
+            {
+                entity.HasKey(e => e.CLEANUP_CLEANUP_DTL_IDX);
+
+                entity.Property(e => e.CLEANUP_CLEANUP_DTL_IDX).HasDefaultValueSql("(newid())");
 
                 entity.Property(e => e.CLEANUP_COST).HasColumnType("decimal(10, 2)");
 
@@ -584,85 +742,39 @@ namespace TribalSvcPortal.Data.Models
                     .HasMaxLength(100)
                     .IsUnicode(false);
 
-                entity.HasOne(d => d.DUMP_ASSESSMENTS_IDXNavigation)
-                    .WithMany(p => p.T_OD_DUMP_ASSESSMENT_CLEANUP)
-                    .HasForeignKey(d => d.DUMP_ASSESSMENTS_IDX)
-                    .HasConstraintName("FK_T_OD_DUMP_ASSESS_CLEAN_A");
+                entity.HasOne(d => d.CLEANUP_PROJECT_IDXNavigation)
+                    .WithMany(p => p.T_OD_CLEANUP_CLEANUP_DTL)
+                    .HasForeignKey(d => d.CLEANUP_PROJECT_IDX)
+                    .HasConstraintName("FK_T_OD_CLEANUP_CLEANUP_DTL");
             });
 
-            modelBuilder.Entity<T_OD_DUMP_ASSESSMENT_CONTENT>(entity =>
+            modelBuilder.Entity<T_OD_CLEANUP_DOCS>(entity =>
             {
-                entity.HasKey(e => e.DUMP_ASSESSMENTS_CONTENT_IDX);
+                entity.HasKey(e => e.DOC_IDX);
 
-                entity.Property(e => e.DUMP_ASSESSMENTS_CONTENT_IDX).HasDefaultValueSql("(newid())");
+                entity.Property(e => e.DOC_IDX).ValueGeneratedNever();
 
-                entity.Property(e => e.WASTE_AMT).HasColumnType("decimal(10, 2)");
-
-                entity.Property(e => e.WASTE_DISPOSAL_DIST)
-                    .HasMaxLength(4)
-                    .IsUnicode(false);
-
-                entity.HasOne(d => d.DUMP_ASSESSMENTS_IDXNavigation)
-                    .WithMany(p => p.T_OD_DUMP_ASSESSMENT_CONTENT)
-                    .HasForeignKey(d => d.DUMP_ASSESSMENTS_IDX)
-                    .HasConstraintName("FK_T_OD_DUMP_ASSESS_CNT_A");
-
-                entity.HasOne(d => d.REF_WASTE_TYPE_IDXNavigation)
-                    .WithMany(p => p.T_OD_DUMP_ASSESSMENT_CONTENT)
-                    .HasForeignKey(d => d.REF_WASTE_TYPE_IDX)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_T_OD_DUMP_ASSESS_CNT_D");
+                entity.HasOne(d => d.CLEANUP_PROJECT_IDXNavigation)
+                    .WithMany(p => p.T_OD_CLEANUP_DOCS)
+                    .HasForeignKey(d => d.CLEANUP_PROJECT_IDX)
+                    .HasConstraintName("FK_T_OD_CLEANUP_DOCS_A");
             });
 
-            modelBuilder.Entity<T_OD_DUMP_ASSESSMENT_DOCS>(entity =>
+            modelBuilder.Entity<T_OD_CLEANUP_PROJECT>(entity =>
             {
-                entity.HasKey(e => new { e.DUMP_ASSESSMENTS_IDX, e.DOC_IDX });
+                entity.HasKey(e => e.CLEANUP_PROJECT_IDX);
 
-                entity.HasOne(d => d.DUMP_ASSESSMENTS_IDXNavigation)
-                    .WithMany(p => p.T_OD_DUMP_ASSESSMENT_DOCS)
-                    .HasForeignKey(d => d.DUMP_ASSESSMENTS_IDX)
-                    .HasConstraintName("FK_T_OD_DUMP_ASSESS_DOCS_A");
-            });
+                entity.Property(e => e.CLEANUP_PROJECT_IDX).HasDefaultValueSql("(newid())");
 
-            modelBuilder.Entity<T_OD_DUMP_ASSESSMENT_RESTORE>(entity =>
-            {
-                entity.HasKey(e => e.DUMP_ASSESSMENT_RESTORE_IDX);
-
-                entity.Property(e => e.DUMP_ASSESSMENT_RESTORE_IDX).HasDefaultValueSql("(newid())");
-
-                entity.Property(e => e.MODIFY_DT).HasColumnType("datetime2(0)");
-
-                entity.Property(e => e.MODIFY_USER_ID).HasMaxLength(450);
-
-                entity.Property(e => e.RESTORE_ACTIVITY)
-                    .IsRequired()
+                entity.Property(e => e.CLEANUP_BY)
                     .HasMaxLength(100)
                     .IsUnicode(false);
 
-                entity.Property(e => e.RESTORE_CAT)
-                    .IsRequired()
-                    .HasMaxLength(20)
+                entity.Property(e => e.CLEANUP_BY_TITLE)
+                    .HasMaxLength(100)
                     .IsUnicode(false);
 
-                entity.Property(e => e.RESTORE_COST).HasColumnType("decimal(10, 2)");
-
-                entity.HasOne(d => d.DUMP_ASSESSMENTS_IDXNavigation)
-                    .WithMany(p => p.T_OD_DUMP_ASSESSMENT_RESTORE)
-                    .HasForeignKey(d => d.DUMP_ASSESSMENTS_IDX)
-                    .HasConstraintName("FK_T_OD_DUMP_ASSESS_RESTORE_A");
-            });
-
-            modelBuilder.Entity<T_OD_DUMP_ASSESSMENTS>(entity =>
-            {
-                entity.HasKey(e => e.DUMP_ASSESSMENTS_IDX);
-
-                entity.Property(e => e.DUMP_ASSESSMENTS_IDX).HasDefaultValueSql("(newid())");
-
-                entity.Property(e => e.AREA_ACRES).HasColumnType("decimal(8, 2)");
-
-                entity.Property(e => e.ASSESSED_BY).HasMaxLength(100);
-
-                entity.Property(e => e.ASSESSMENT_DT).HasColumnType("datetime2(0)");
+                entity.Property(e => e.COMPLETION_DATE).HasColumnType("datetime2(0)");
 
                 entity.Property(e => e.COST_CLEANUP_AMT).HasColumnType("decimal(12, 2)");
 
@@ -680,58 +792,23 @@ namespace TribalSvcPortal.Data.Models
 
                 entity.Property(e => e.CREATE_USER_ID).HasMaxLength(450);
 
-                entity.Property(e => e.CURRENT_SITE_STATUS).HasMaxLength(30);
-
                 entity.Property(e => e.MODIFY_DT).HasColumnType("datetime2(0)");
 
                 entity.Property(e => e.MODIFY_USER_ID).HasMaxLength(450);
 
-                entity.Property(e => e.VOLUME_CU_YD).HasColumnType("decimal(10, 2)");
+                entity.Property(e => e.PROJECT_DESCRIPTION).IsUnicode(false);
 
-                entity.HasOne(d => d.ASSESSMENT_TYPE_IDXNavigation)
-                    .WithMany(p => p.T_OD_DUMP_ASSESSMENTS)
-                    .HasForeignKey(d => d.ASSESSMENT_TYPE_IDX)
-                    .HasConstraintName("FK_T_OD_DUMP_ASSESSMENTS_D");
+                entity.Property(e => e.PROJECT_TYPE)
+                    .IsRequired()
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
 
-                entity.HasOne(d => d.HF_ACCESS_CONTROLNavigation)
-                    .WithMany(p => p.T_OD_DUMP_ASSESSMENTSHF_ACCESS_CONTROLNavigation)
-                    .HasForeignKey(d => d.HF_ACCESS_CONTROL)
-                    .HasConstraintName("FK_T_OD_DUMP_ASSESSMENTS_HFA");
+                entity.Property(e => e.START_DATE).HasColumnType("datetime2(0)");
 
-                entity.HasOne(d => d.HF_BURNINGNavigation)
-                    .WithMany(p => p.T_OD_DUMP_ASSESSMENTSHF_BURNINGNavigation)
-                    .HasForeignKey(d => d.HF_BURNING)
-                    .HasConstraintName("FK_T_OD_DUMP_ASSESSMENTS_HFB");
-
-                entity.HasOne(d => d.HF_DRAINAGENavigation)
-                    .WithMany(p => p.T_OD_DUMP_ASSESSMENTSHF_DRAINAGENavigation)
-                    .HasForeignKey(d => d.HF_DRAINAGE)
-                    .HasConstraintName("FK_T_OD_DUMP_ASSESSMENTS_HFD");
-
-                entity.HasOne(d => d.HF_FENCINGNavigation)
-                    .WithMany(p => p.T_OD_DUMP_ASSESSMENTSHF_FENCINGNavigation)
-                    .HasForeignKey(d => d.HF_FENCING)
-                    .HasConstraintName("FK_T_OD_DUMP_ASSESSMENTS_HFFN");
-
-                entity.HasOne(d => d.HF_FLOODINGNavigation)
-                    .WithMany(p => p.T_OD_DUMP_ASSESSMENTSHF_FLOODINGNavigation)
-                    .HasForeignKey(d => d.HF_FLOODING)
-                    .HasConstraintName("FK_T_OD_DUMP_ASSESSMENTS_HFF");
-
-                entity.HasOne(d => d.HF_PUBLIC_CONCERNNavigation)
-                    .WithMany(p => p.T_OD_DUMP_ASSESSMENTSHF_PUBLIC_CONCERNNavigation)
-                    .HasForeignKey(d => d.HF_PUBLIC_CONCERN)
-                    .HasConstraintName("FK_T_OD_DUMP_ASSESSMENTS_HFP");
-
-                entity.HasOne(d => d.HF_RAINFALLNavigation)
-                    .WithMany(p => p.T_OD_DUMP_ASSESSMENTSHF_RAINFALLNavigation)
-                    .HasForeignKey(d => d.HF_RAINFALL)
-                    .HasConstraintName("FK_T_OD_DUMP_ASSESSMENTS_HFR");
-
-                entity.HasOne(d => d.SITE_IDXNavigation)
-                    .WithMany(p => p.T_OD_DUMP_ASSESSMENTS)
-                    .HasForeignKey(d => d.SITE_IDX)
-                    .HasConstraintName("FK_T_OD_DUMP_ASSESSMENTS_S");
+                entity.HasOne(d => d.ASSESSMENT_IDXNavigation)
+                    .WithMany(p => p.T_OD_CLEANUP_PROJECT)
+                    .HasForeignKey(d => d.ASSESSMENT_IDX)
+                    .HasConstraintName("FK_T_OD_CLEANUP_PROJECT_A");
             });
 
             modelBuilder.Entity<T_OD_REF_CLEANUP_ASSETS>(entity =>
@@ -780,7 +857,7 @@ namespace TribalSvcPortal.Data.Models
                     .WithMany(p => p.T_OD_REF_DATA)
                     .HasForeignKey(d => d.REF_DATA_CAT_NAME)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__T_OD_REF___REF_D__13DCE752");
+                    .HasConstraintName("FK__T_OD_REF___REF_D__0ECE1972");
             });
 
             modelBuilder.Entity<T_OD_REF_DATA_CATEGORIES>(entity =>
@@ -926,7 +1003,9 @@ namespace TribalSvcPortal.Data.Models
 
                 entity.Property(e => e.SITE_IDX).ValueGeneratedNever();
 
-                entity.Property(e => e.CURRENT_SITE_STATUS).HasMaxLength(30);
+                entity.Property(e => e.CURRENT_SITE_STATUS)
+                    .HasMaxLength(30)
+                    .IsUnicode(false);
 
                 entity.Property(e => e.REPORTED_BY)
                     .HasMaxLength(50)

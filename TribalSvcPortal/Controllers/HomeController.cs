@@ -59,9 +59,6 @@ namespace TribalSvcPortal.Controllers
                 }
             }
 
-
-
-
             return View(model);
         }
 

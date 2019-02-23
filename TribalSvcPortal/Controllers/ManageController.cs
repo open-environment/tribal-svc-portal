@@ -209,7 +209,6 @@ namespace TribalSvcPortal.Controllers
         public JsonResult AccessRightsRequest(int? orgUser, string client)
         {
             string _UserIDX = _userManager.GetUserId(User);
-            string _UserName = _userManager.GetUserName(User);
 
             T_PRT_ORG_USERS _ou = _DbPortal.GetT_PRT_ORG_USERS_ByOrgUserID(orgUser ?? -1);
             if (_ou != null)
@@ -249,6 +248,7 @@ namespace TribalSvcPortal.Controllers
                         }
                     }
 
+                    string _UserName = _userManager.GetUserName(User);
 
                     //construct email parameters
                     List<emailParam> emailParams = new List<emailParam>()

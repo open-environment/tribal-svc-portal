@@ -14,13 +14,13 @@
             </a>
         </li>
         <li>
-            <a href="@Url.Action("WasteProfile", "OpenDump", new { id = Model.Assessment.DUMP_ASSESSMENTS_IDX })">
+            <a href="@Url.Action("WasteProfile", "OpenDump", new { id = Model.Assessment.ASSESSMENT_IDX })">
                 Waste Profile/Health Threat
             </a>
         </li>
         <li>
-            <a href="@Url.Action("Cleanup", "OpenDump", new { id = Model.Assessment.DUMP_ASSESSMENTS_IDX })">
-                Cleanup Estimates
+            <a href="@Url.Action("WasteContent", "OpenDump", new { id = Model.Assessment.ASSESSMENT_IDX })">
+                Waste Contents
             </a>
         </li>
     </ul>
@@ -28,7 +28,6 @@
     <div class="tab-content">
         <div class="tab-pane in active" id="tab2">
             <!-- render the main content -->
-
             <div class="row">
                 <div class="col-xs-6 col-sm-4 col-md-4">
                     <h4>@Model.SiteName</h4>
@@ -38,21 +37,21 @@
                 </div>
                 <div class="col-xs-12 col-md-4 col-sm-4 pull-right">
                     <div class="btn-group pull-right">
-                        @if (Model.Assessment.DUMP_ASSESSMENTS_IDX != Guid.Empty)
+                        @if (Model.Assessment.ASSESSMENT_IDX != Guid.Empty)
                         {
-                        <a href="#" data-toggle="dropdown" class="btn btn-primary dropdown-toggle" aria-expanded="false">
-                            Change Assessment <span class="caret"></span>
-                        </a>
-                        <ul class="dropdown-menu" role="menu">
-                            @foreach (var item1 in Model.ddl_Assessments)
-                            {
-                                <li>
-                                    <a href="@Url.Action("AssessmentDetails", "OpenDump", new { id = item1.Value })">
-                                        @item1.Text
-                                    </a>
-                                </li>
-                            }
-                        </ul>
+                            <a href="#" data-toggle="dropdown" class="btn btn-primary dropdown-toggle" aria-expanded="false">
+                                Change Assessment <span class="caret"></span>
+                            </a>
+                            <ul class="dropdown-menu" role="menu">
+                                @foreach (var item1 in Model.ddl_Assessments)
+                                {
+                                    <li>
+                                        <a href="@Url.Action("AssessmentDetails", "OpenDump", new { id = item1.Value })">
+                                            @item1.Text
+                                        </a>
+                                    </li>
+                                }
+                            </ul>
                         }
                     </div>
                     <a href="@Url.Action("Assessments", "OpenDump", new { id = Model.Assessment.SITE_IDX })" class="btn btn-primary pull-right tooltips" style="margin-left:10px; margin-right:10px"
@@ -62,210 +61,187 @@
                 </div>
             </div>
 
-            @using (Html.BeginForm("AssessmentDetails", "OpenDump", FormMethod.Post, new { @id = "norepostform", enctype = "multipart/form-data" }))
+            @using (Html.BeginForm("AssessmentDetails", "OpenDump", FormMethod.Post, new { @id = "norepostform" }))
             {
                 @Html.AntiForgeryToken()
-                @Html.HiddenFor(model => model.Assessment.DUMP_ASSESSMENTS_IDX)
+                @Html.HiddenFor(model => model.Assessment.ASSESSMENT_IDX)
                 @Html.HiddenFor(model => model.Assessment.SITE_IDX)
                 @Html.ValidationSummary(true, "", new { @class = "text-danger" })
 
-                <section class="panel panel-default" style="margin-top:5px;">
+                <section class="panel panel-default">
                     <div class="panel-heading">
                         Assessment Details
                         <div class="panel-tools">
-                            <a class="btn btn-xs panel-collapse collapses" href="#">
-                            </a>
+                            <a class="btn btn-xs panel-collapse collapses" href="#"></a>
                         </div>
                     </div>
                     <div class="panel-body">
-                        <div class="col-lg-12 col-md-12 col-sm-12 no-padding">
-                            <div class="row">
-                                <div class="col-md-3">
-                                    <div class="form-group">
-                                        <label>Date of Assessment</label>
-                                        <div class="input-group date">
-                                            @Html.TextBoxFor(model => model.Assessment.ASSESSMENT_DT, "{0:MM/dd/yyyy}", new { @id = "dateAssessment", @class = "form-control datepicker", required = "required" })
-                                            <div class="input-group-addon">
-                                                <span class="glyphicon glyphicon-th"></span>
-                                            </div>
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label>Date of Assessment</label>
+                                    <div class="input-group date">
+                                        @Html.TextBoxFor(model => model.Assessment.ASSESSMENT_DT, "{0:MM/dd/yyyy}", new { @id = "dateAssessment", @class = "form-control datepicker", required = "required" })
+                                        <div class="input-group-addon">
+                                            <span class="glyphicon glyphicon-th"></span>
                                         </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-3">
-                                    <div class="form-group">
-                                        <label>Assessed By</label>
-                                        @Html.TextBoxFor(model => model.Assessment.ASSESSED_BY, new { @class = "form-control", @placeholder = "", @maxlength = "450" })
-                                    </div>
-                                </div>
-                                <div class="col-md-2">
-                                    <div class="form-group">
-                                        <label>Assessment Type</label>
-                                        @Html.DropDownListFor(model => model.Assessment.ASSESSMENT_TYPE_IDX, Model.ddl_AssessmentTypeList, "", new { @class = "form-control" })
-                                    </div>
-                                </div>
-                                <div class="col-md-2">
-                                    <div class="form-group">
-                                        <label>Site Status</label>
-                                        @Html.DropDownListFor(model => model.Assessment.CURRENT_SITE_STATUS, Model.ddl_SiteStatus, new { @class = "form-control" })
-                                    </div>
-                                </div>
-                                <div class="col-md-2">
-                                    <div class="form-group">
-                                        <label>Cleaned/Closed Date</label>
-                                        @Html.TextBoxFor(model => model.Assessment.CLEANED_CLOSED_DT, "{0:MM/dd/yyyy}", new { @id = "dateClosed", @class = "form-control datepicker" })
                                     </div>
                                 </div>
                             </div>
-
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label>Site Description</label>
-                                        @Html.TextAreaFor(model => model.Assessment.SITE_DESCRIPTION, new { @class = "form-control", @placeholder = "" })
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label>Observations / Notes</label>
-                                        @Html.TextAreaFor(model => model.Assessment.ASSESSMENT_NOTES, new { @class = "form-control", @placeholder = "" })
-                                    </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label>Assessed By</label>
+                                    @Html.TextBoxFor(model => model.Assessment.ASSESSED_BY, new { @class = "form-control", @placeholder = "", @maxlength = "450" })
                                 </div>
                             </div>
-                            @if (Model.Assessment != null && Model.Assessment.DUMP_ASSESSMENTS_IDX != null)
-                            {
-                                <div class="row">
-                                    <div class="col-sm-1" style="text-align:left;">
-                                        <label><b>Photos</b></label>
-                                    </div>
-                                    <div class="col-sm-10" style="text-align:left;">
-                                        <p>
-                                            <a id="add-it" href="#modal-formPhoto" data-toggle="modal" class="add-it btn btn-rounded  btn-rounded btn-success">
-                                                <i class="glyphicon glyphicon-plus"></i> Add Photo
-                                            </a>
-                                        </p>
-                                    </div>
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    <label>Assessment Type</label>
+                                    @Html.DropDownListFor(model => model.Assessment.ASSESSMENT_TYPE_IDX, Model.ddl_AssessmentTypeList, "", new { @class = "form-control" })
                                 </div>
-
-                                <div class="row">
-                                    <div class="col-lg-12 col-md-12 col-sm-12 no-padding" style="width: 100%;overflow-y:auto;white-space: nowrap;">
-                                        <div class="row">
-                                            @if (Model.filesPhoto_existing != null && Model.filesPhoto_existing.Count > 0)
-                                            {
-                                                <div class="postuploadedfilesholder clearfix">
-                                                    <ul>
-                                                        @foreach (var file in Model.filesPhoto_existing.OrderByDescending(o => o.CREATE_DT))
-                                                        {
-                                                            <li style="display: inline-block;padding: 4px 1%; width: 20%;">
-                                                                @Html.HiddenFor( modelItem => file.DOC_IDX)
-                                                                <a class="fileupload" href="@Url.Action("FileDownload", "OpenDump", new { id = file.DOC_IDX })">
-                                                                    @if (Utils.FileIsImage(file.DOC_NAME))
-                                                                    {
-                                                                        <span class="glyphicon glyphicon-picture" aria-hidden="true"></span>
-                                                                    }
-                                                                    else
-                                                                    {
-                                                                        <span class="glyphicon glyphicon-file" aria-hidden="true"></span>
-                                                                    }
-                                                                </a>
-                                                                <a href="@Url.Action("FileDelete", "OpenDump", new { id = file.DOC_IDX })" class="deleteupload" title="Delete">
-                                                                    <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
-                                                                </a>
-
-                                                                <a href="#" class="btn btn-rounded btn-xs activity" title="Edit">
-                                                                    <i class="glyphicon glyphicon-pencil" aria-hidden="true"></i>
-                                                                </a>
-                                                                <div class="postedfilename" style="overflow-wrap: break-word; word-wrap: break-word;white-space: normal !important;">
-                                                                    @Html.DisplayFor(modelItem => file.DOC_NAME)
-
-                                                                </div>
-                                                                <div id="divPhotoHideOnEdit" style="overflow-wrap: break-word; word-wrap: break-word;white-space: normal !important;">
-                                                                    @Html.DisplayFor(modelItem => file.DOC_COMMENT)
-                                                                </div>
-                                                                <div id="divPhotoShowOnEdit" style="display:none;">
-                                                                    @Html.EditorFor(modelItem => file.DOC_COMMENT, new { @class = "form-control", @maxlength = "200" })
-                                                                </div>
-                                                            </li>
-                                                        }
-                                                    </ul>
-                                                </div>
-                                            }
-                                        </div>
-                                    </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    <label>Site Status</label>
+                                    @Html.DropDownListFor(model => model.Assessment.CURRENT_SITE_STATUS, Model.ddl_SiteStatus, new { @class = "form-control" })
                                 </div>
-
-                                <div class="row" style="margin-top:10px;">
-                                    <div class="col-sm-1" style="text-align:left;">
-                                        <label><b>Files</b></label>
-                                    </div>
-                                    <div class="col-sm-10" style="text-align:left;">
-                                        <p>
-                                            <a id="add-it" href="#modal-formFile" data-toggle="modal" class="add-it btn btn-rounded  btn-rounded btn-success">
-                                                <i class="glyphicon glyphicon-plus"></i> Add File
-                                            </a>
-                                        </p>
-                                    </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    <label>Cleaned/Closed Date</label>
+                                    @Html.TextBoxFor(model => model.Assessment.CLEANED_CLOSED_DT, "{0:MM/dd/yyyy}", new { @id = "dateClosed", @class = "form-control datepicker" })
                                 </div>
-
-                                <div class="row">
-                                    <div class="col-lg-12 col-md-12 col-sm-12 no-padding" style="width: 100%;overflow-y:auto;white-space: nowrap;">
-                                        <div class="row">
-                                            @if (Model.files_existing != null && Model.files_existing.Count > 0)
-                                            {
-                                                <div class="postuploadedfilesholder clearfix">
-                                                    <ul>
-                                                        @foreach (var file in Model.files_existing.OrderByDescending(o => o.CREATE_DT))
-                                                        {
-
-                                                            <li style="display: inline-block;padding: 4px 1%; width: 20%;">
-                                                                @Html.HiddenFor(modelItem => file.DOC_IDX)
-
-                                                                <a class="fileupload" href="@Url.Action("FileDownload", "OpenDump", new { id = file.DOC_IDX })">
-                                                                    @if (Utils.FileIsImage(file.DOC_NAME))
-                                                                    {
-                                                                        <span class="glyphicon glyphicon-picture" aria-hidden="true"></span>
-                                                                    }
-                                                                    else
-                                                                    {
-                                                                        <span class="glyphicon glyphicon-file" aria-hidden="true"></span>
-                                                                    }
-                                                                </a>
-                                                                <a href="@Url.Action("FileDelete", "OpenDump", new { id = file.DOC_IDX })" class="deleteupload" title="Delete">
-                                                                    <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
-                                                                </a>
-
-                                                                <a href="#" class="btn btn-rounded btn-xs descinfo" title="Edit">
-                                                                    <i class="glyphicon glyphicon-pencil" aria-hidden="true"></i>
-                                                                </a>
-                                                                <div class="postedfilename" style="overflow-wrap: break-word; word-wrap: break-word;white-space: normal !important;">
-                                                                    @Html.DisplayFor(modelItem => file.DOC_NAME)
-
-                                                                </div>
-                                                                <div id="divHideOnEdit" style="overflow-wrap: break-word; word-wrap: break-word;white-space: normal !important;">
-                                                                    @Html.DisplayFor(modelItem => file.DOC_COMMENT)
-                                                                </div>
-                                                                <div id="divShowOnEdit" style="display:none;">
-                                                                    @Html.EditorFor(modelItem => file.DOC_COMMENT, new { @class = "form-control", @maxlength = "200" })
-                                                                </div>
-                                                            </li>
-                                                        }
-                                                    </ul>
-                                                </div>
-                                            }
-                                        </div>
-                                    </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Site Description</label>
+                                    @Html.TextAreaFor(model => model.Assessment.SITE_DESCRIPTION, new { @class = "form-control", @placeholder = "" })
                                 </div>
-                            }
-
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <button type="submit" name="submitButton" value="Save" class="btn btn-primary">Save</button>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Observations / Notes</label>
+                                    @Html.TextAreaFor(model => model.Assessment.ASSESSMENT_NOTES, new { @class = "form-control", @placeholder = "" })
                                 </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <button type="submit" name="submitButton" value="Save" class="btn btn-eecip">Save</button>
                             </div>
                         </div>
                     </div>
                 </section>
-
             }
+
+            @if (Model.Assessment != null && Model.Assessment.ASSESSMENT_IDX != Guid.Empty)
+            {
+                <div class="row">
+                    <div class="col-md-6">
+                        <section class="panel panel-default">
+                            <div class="panel-heading">
+                                Assessment Pictures
+                                <div class="panel-tools">
+                                    <a class="btn btn-xs panel-collapse collapses" href="#"></a>
+                                </div>
+                            </div>
+                            <div class="panel-body">
+
+                                @if (Model.filesPhoto_existing != null && Model.filesPhoto_existing.Count > 0)
+                                {
+                                    <div class="row">
+
+                                        @foreach (var file in Model.filesPhoto_existing)
+                                        {
+                                            <div class="publicbadge col-md-4 col-sm-4 col-xs-4">
+                                                <div class="circle-tile-heading" style="display:inline-grid; background-image:url(@Url.Action("ViewImage", "OpenDump", new {id  = file.DOC_IDX }))">
+                                                </div>
+                                                <div class="publicbadgenamedesc">
+                                                    @Html.DisplayFor(modelItem => file.DOC_NAME)
+                                                </div>
+                                                <div class="publicbadgeawards">
+                                                    @Html.DisplayFor(modelItem => file.DOC_COMMENT)
+                                                </div>
+
+                                                <a class="fileupload" href="@Url.Action("FileDownload", "OpenDump", new { id = file.DOC_IDX })">
+                                                    <span class="glyphicon glyphicon-download-alt" aria-hidden="true"></span>
+                                                </a>
+                                                <a href="@Url.Action("FileDelete", "OpenDump", new { id = file.DOC_IDX, returnIDX = Model.Assessment.ASSESSMENT_IDX, returnAction="AssessmentDetails" })" class="deleteupload text-red"  title="Delete">
+                                                    <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+                                                </a>
+                                                @*<a href="#" class="btn btn-rounded btn-xs activity" title="Edit">
+                                                    <i class="glyphicon glyphicon-pencil" aria-hidden="true"></i>
+                                                    </a>*@
+                                            </div>
+                                        }
+                                    </div>
+
+                                }
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <a id="add-it" href="#modal-formPhoto" data-toggle="modal" class="add-it btn btn-eecip">
+                                            <i class="glyphicon glyphicon-plus"></i> Add Photo
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="col-md-6">
+                        <section class="panel panel-default" >
+                            <div class="panel-heading">
+                                Other Files
+                                <div class="panel-tools">
+                                    <a class="btn btn-xs panel-collapse collapses" href="#"></a>
+                                </div>
+                            </div>
+                            <div class="panel-body">
+
+                                @if (Model.files_existing != null && Model.files_existing.Count > 0)
+                                {
+                                <div class="row">
+
+                                    @foreach (var file in Model.files_existing)
+                                    {
+                                        <div class="publicbadge col-md-4 col-sm-4 col-xs-4">
+                                            <div class="circle-tile-heading" style="color: #555; padding-top: 65px; text-align: center; font-size: 20px;">
+                                                <i class="glyphicon glyphicon-file"></i><br />
+                                                @Html.DisplayFor(modelItem => file.DOC_NAME)
+                                            </div>
+                                            <div class="publicbadgeawards">
+                                                @Html.DisplayFor(modelItem => file.DOC_COMMENT)
+                                            </div>
+
+                                            <a class="fileupload" href="@Url.Action("FileDownload", "OpenDump", new { id = file.DOC_IDX })">
+                                                <span class="glyphicon glyphicon-download-alt" aria-hidden="true"></span>
+                                            </a>
+                                            <a href="@Url.Action("FileDelete", "OpenDump", new { id = file.DOC_IDX, returnIDX = Model.Assessment.ASSESSMENT_IDX, returnAction="AssessmentDetails" })" class="deleteupload text-red" title="Delete">
+                                                <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+                                            </a>
+                                            @*<a href="#" class="btn btn-rounded btn-xs activity" title="Edit">
+                <i class="glyphicon glyphicon-pencil" aria-hidden="true"></i>
+                </a>*@
+                                        </div>
+                                    }
+
+                                </div>
+                                }
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <a id="add-it" href="#modal-formPhoto" data-toggle="modal" class="add-it btn btn-eecip">
+                                            <i class="glyphicon glyphicon-plus"></i> Add File
+                                        </a>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </section>
+                    </div>
+                </div>
+            }
+
 
         </div>
     </div>
@@ -273,101 +249,54 @@
 
 
 
-<!-- START MODAL FORM  -->
+<!-- START MODAL FORMS  -->
 <div class="modal fade" id="modal-formPhoto" style="display: none;" aria-hidden="true">
     <div class="modal-dialog">
-        @using (Html.BeginForm("PhotoUpload", "OpenDump", FormMethod.Post, new { enctype = "multipart/form-data" }))
-        {
-            @Html.AntiForgeryToken()
-            @Html.HiddenFor(model => model.Assessment.SITE_IDX)
-            @Html.HiddenFor(model => model.Assessment.DUMP_ASSESSMENTS_IDX)
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
-                    <h3 class="modal-tital">Add Photos</h3>
-                </div>
-                <div class="modal-header">
-                    <div class="form-group">
-                        @Html.LabelFor(x => x.filesPhoto)
-                        <div class="input-group">
-                            <label class="input-group-btn">
-                                <span class="btn btn-primary btn btn-default btn-file">
-                                    @Html.EditorFor(model => model.filesPhoto, new { htmlAttributes = new { @id = "filesPhoto", @class = "form-control", @type = "file" } })
-                                </span>
-                            </label>
-                        </div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 style="float: left" class="modal-title">Add Photo</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            @using (Html.BeginForm("PhotoUpload", "OpenDump", FormMethod.Post, new { enctype = "multipart/form-data" }))
+            {
+                @Html.AntiForgeryToken()
+                @Html.HiddenFor(model => model.Assessment.SITE_IDX)
+                @Html.HiddenFor(model => model.Assessment.ASSESSMENT_IDX)
+
+            <div class="modal-body">
+                <div class="form-group">
+                    Upload Photo
+                    <div class="input-group">
+                        <label for="file-upload" class="custom-file-upload btn btn-eecip">
+                            <i class="glyphicon glyphicon-cloud-upload"></i> Upload File
+                        </label>
+                        <span id="file-selected"></span>
+                        @Html.EditorFor(model => model.filesPhoto, new { htmlAttributes = new { @id = "file-upload", @class = "form-control", @type = "file" } })
+                        @*<input id="file-upload" type="file" />*@
                     </div>
-                    <div class="form-group">
-                        <label>Description</label>
-                        @Html.TextBoxFor(model => model.FilePhotoDescription, new { @class = "form-control", @maxlength = "200" })
-                    </div>
                 </div>
-                <div class="modal-footer">
-                    <button id="picLoc" type="submit" class="btn btn-sm btn-primary">Save</button>
-                    <button type="submit" class="btn btn-sm btn-default" data-dismiss="modal">Cancel</button>
+                <div class="form-group">
+                    <label>Description</label>
+                    @Html.TextBoxFor(model => model.FilePhotoDescription, new { @class = "form-control", @maxlength = "200" })
                 </div>
             </div>
-        }
-    </div>
-</div>
-
-<div class="modal fade" id="modal-formFile" style="display: none;" aria-hidden="true">
-    <div class="modal-dialog">
-        @using (Html.BeginForm("DocUpload", "OpenDump", FormMethod.Post, new { enctype = "multipart/form-data" }))
-        {
-            @Html.AntiForgeryToken()
-            @Html.HiddenFor(model => model.Assessment.SITE_IDX)
-            @Html.HiddenFor(model => model.Assessment.DUMP_ASSESSMENTS_IDX)
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
-                    <h3 class="modal-tital">Add Files</h3>
-                </div>
-                <div class="modal-header">
-                    <div class="form-group">
-                        @Html.LabelFor(x => x.files)
-                        <div class="input-group">
-                            <label class="input-group-btn">
-                                <span class="btn btn-primary btn btn-default btn-file">
-                                    @Html.EditorFor(model => model.files, new { htmlAttributes = new { @id = "files", @class = "form-control", @type = "file" } })
-                                </span>
-                            </label>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label>Description</label>
-                        @Html.TextBoxFor(model => model.FileDescription, new { @class = "form-control", @maxlength = "200" })
-                    </div>
-                </div>
                 <div class="modal-footer">
-                    <button id="picLocFile" type="submit" class="btn btn-sm btn-primary">Save</button>
+                    <button id="picLoc" type="submit" class="btn btn-sm btn-eecip">Save</button>
                     <button type="submit" class="btn btn-sm btn-default" data-dismiss="modal">Cancel</button>
                 </div>
-            </div>
+            }
+        </div>
 
-        }
     </div>
 </div>
-<!-- END MODAL FORM -->
+<!-- END MODAL FORMS -->
 
 
 @section scripts {
     <script type="text/javascript">
         $(document).ready(function () {
-            $('.descinfo').click(function () {
-                var dad = $(this).parent();
-                dad.find("#divHideOnEdit").hide();
-                dad.find("#divShowOnEdit").show().focus();
-                return false;
-            });
-
-            $('.activity').click(function () {
-                var dad = $(this).parent();
-                dad.find("#divPhotoHideOnEdit").hide();
-                dad.find("#divPhotoShowOnEdit").show().focus();
-                return false;
-            });
-
             //datepicker
             $(".input-group-addon").click(function () {
                 $("#dateAssessment").datepicker('show')
@@ -379,6 +308,13 @@
                 autoclose: true,
                // todayBtn: 'linked'
             });
+
+
+            $('#file-upload').bind('change', function () {
+                var fileName = '';
+                fileName = $(this).val();
+                $('#file-selected').html(fileName.replace(/^.*\\/, ""));
+            })
 
         });
     </script>

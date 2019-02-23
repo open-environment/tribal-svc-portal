@@ -1,0 +1,41 @@
+﻿@model TribalSvcPortal.ViewModels.OpenDumpViewModels.ImportViewModel
+@{
+    ViewBag.Title = "Import Open Dump Data";
+}
+
+<div class="row">
+    <div class="col-md-12">
+        @using (Html.BeginForm("Import", "OpenDump", FormMethod.Post, new { @class = "", enctype = "multipart/form-data", @id = "norepostform" }))
+        {
+            @Html.AntiForgeryToken()
+
+            <section class="panel panel-default ">
+                <div class="panel-heading">
+                    Paste Data Below to Import
+                    <div class="panel-tools">
+                        <a class="btn btn-xs btn-link panel-collapse collapses" href="#">
+                        </a>
+                    </div>
+                </div>
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                @Html.TextAreaFor(model => model.IMPORT_BLOCK, new { @class = "form-control", @placeholder = "(make sure to include column headers when pasting...)", @rows = "10" })
+                                @Html.ValidationMessageFor(model => model.IMPORT_BLOCK)
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <button type="submit" class="btn btn-primary">Import Data</button>
+                        </div>
+                        <div class="col-md-2 no-padding">
+                            <a href="@Url.Content("~/Docs/SiteImportTemplate.xlsx")">Download Site import template</a>
+                        </div>
+                    </div>
+                    <div class="row">
+                    </div>
+                </div>
+            </section>
+        }
+    </div>
+</div>

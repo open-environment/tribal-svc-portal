@@ -1,0 +1,166 @@
+﻿@model TribalSvcPortal.ViewModels.OpenDumpViewModels.WasteContentViewModel
+
+<div id="tabs" class="tabbable">
+    <ul id="myTab" class="nav nav-tabs tab-blue">
+        <li>
+            <a href="@Url.Action("PreField", "OpenDump", new { id = Model.Assessment.SITE_IDX })">
+                Pre-Field
+            </a>
+        </li>
+        <li>
+            <a href="@Url.Action("AssessmentDetails", "OpenDump", new { id = Model.Assessment.ASSESSMENT_IDX })">
+                Field Assessments
+            </a>
+        </li>
+        <li>
+            <a href="@Url.Action("WasteProfile", "OpenDump", new { id = Model.Assessment.ASSESSMENT_IDX })">
+                Waste Profile/Health Threat
+            </a>
+        </li>
+        <li class="active">
+            <a href="#tab4" data-toggle="tab">
+                Waste Content
+            </a>
+        </li>
+    </ul>
+
+    <div class="tab-content">
+        <div class="tab-pane in active" id="tab4">
+            <!-- render the main content -->
+            <div class="row">
+                <div class="col-xs-6 col-sm-4 col-md-4">
+                    <h4>@Model.SiteName (@Model.Assessment.ASSESSMENT_DT.ToShortDateString())</h4>
+                </div>
+                <div class="col-xs-6 col-sm-4 col-md-4">
+                    <h4><span class="label"> Health Threat: <label class="healthThreatScoreText"></label></span></h4>
+                </div>
+                <div class="col-xs-12 col-md-4 col-sm-4 pull-right">
+                    <div class="btn-group pull-right">
+                        <a href="#" data-toggle="dropdown" class="btn btn-primary dropdown-toggle" aria-expanded="false">
+                            Change Assessment <span class="caret"></span>
+                        </a>
+                        <ul class="dropdown-menu" role="menu">
+                            @foreach (var item1 in Model.ddl_Assessments)
+                            {
+                                <li>
+                                    <a href="@Url.Action("WasteContent", "OpenDump", new { id = item1.Value })">
+                                        @item1.Text
+                                    </a>
+                                </li>
+                            }
+                        </ul>
+                    </div>
+                    <a href="@Url.Action("Assessments", "OpenDump", new { id = Model.Assessment.SITE_IDX })" class="btn btn-primary pull-right tooltips" style="margin-left:10px; margin-right:10px"
+                       data-original-title="Return to list of assessments" data-placement="bottom">
+                        <i class="clip-list"></i>
+                    </a>
+                </div>
+            </div>
+
+
+            <section class="panel panel-default" style="margin-top:5px;">
+                <div class="panel-heading">
+                    Waste Amounts
+                    <div class="panel-tools">
+                        <a class="btn btn-xs panel-collapse collapses" href="#">
+                        </a>
+                    </div>
+                </div>
+                @using (Html.BeginForm("WasteContent", "OpenDump", FormMethod.Post, new { @id = "norepostform", enctype = "multipart/form-data" }))
+                {
+                    @Html.AntiForgeryToken()
+                    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                    @Html.HiddenFor(model => model.Assessment.ASSESSMENT_IDX)
+                    <div class="panel-body">
+
+                        <div class="table-responsive">
+                            <table class="table table-hover table-striped m-b-none" data-ride="datatables">
+                                <thead>
+                                    <tr class="thead-inverse">
+                                        <th>Category</th>
+                                        <th>Waste Type</th>
+                                        <th>Amount</th>
+                                        <th>Unit</th>
+                                        <th>Disposal Method</th>
+                                        <th>Disposal Distance (hr)</th>
+                                    </tr>
+                                </thead>
+
+                                @for (int i = 0; i < Model.DumpContents.Count; i++)
+                                {
+                                    <tr>
+                                        <td>
+                                            @Html.HiddenFor(model => model.DumpContents[i].DUMP_ASSESSMENTS_CONTENT_IDX)
+                                            @Html.HiddenFor(model => model.DumpContents[i].REF_WASTE_TYPE_IDX)
+                                            @Html.DisplayFor(model => model.DumpContents[i].REF_WASTE_TYPE_CAT)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(model => model.DumpContents[i].REF_WASTE_TYPE_NAME)
+                                        </td>
+                                        <td>
+                                            @Html.TextBoxFor(model => model.DumpContents[i].WASTE_AMT, new { @class = "form-control" })
+                                        </td>
+                                        <td>
+                                            @*@Html.TextBoxFor(model => model.DumpContents[i].UNIT_MSR_IDX, new { @class = "form-control" })*@
+                                            @Html.DropDownListFor(model => model.DumpContents[i].UNIT_MSR_IDX, Model.DumpContents[i].ddl_Unit, "", new { @class = "form-control" })
+
+                                        </td>
+                                        <td>
+                                            @Html.DropDownListFor(model => model.DumpContents[i].WASTE_DISPOSAL_METHOD, Model.ddl_DisposalMethod, "", new { @class = "form-control" })
+                                        </td>
+                                        <td>
+                                            @Html.TextBoxFor(model => model.DumpContents[i].WASTE_DISPOSAL_DIST, new { @class = "form-control" })
+                                        </td>
+                                    </tr>
+                                }
+
+                            </table>
+                        </div>
+                        <div class="col-lg-12 col-md-12 col-sm-12" style="text-align:center;">
+                            <div class="row">
+                                <div class="col-md-12" style="text-align: center;">
+                                    @if (Model.DumpContents.Count() > 0)
+                                    {
+                                        if (Model.CleanupEstimatesInd == true)
+                                        {
+                                            <label id="lblRecalc" style="display:none;">@Html.CheckBoxFor(model => model.RecalcInd, new { @class = "cbk" }) &nbsp;Recalculate Cleanup Estimates</label>
+                                        }
+                                        <button id="btnSave" type="submit" name="submitButton" disabled value="Save" class="btn btn-eecip">Save</button>
+                                    }
+                                    else
+                                    {
+                                        <span>Select dump contents on previous tab.</span>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </section>
+
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+    <script src="~/js/jquery.are-you-sure.js"></script>
+    <script type="text/javascript">
+
+        //warn user if leaving unsaved page
+        $('form').areYouSure();
+        $('form').on('dirty.areYouSure', function () {
+            $("#btnSave").prop("disabled", false);
+            //$("#RecalcInd").prop("disabled", false);
+
+            $("#lblRecalc").css('display', 'block');
+            
+        });
+        $('form').on('clean.areYouSure', function () {
+            $("#btnSave").prop("disabled", true);
+            //$("#RecalcInd").prop("disabled", true);
+            $("#lblRecalc").css('display', 'none');
+        });
+
+    </script>
+}

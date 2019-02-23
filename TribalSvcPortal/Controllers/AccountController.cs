@@ -92,18 +92,9 @@ namespace TribalSvcPortal.Controllers
                     //update last login datetime
                     _DbPortal.UpdateT_PRT_USERS_LoginDate(user);
 
-                    //set memorycache for the logged in user left menu
+                    //remove Left Menu memorycache for user, so it can be repopulated from db
                     string CacheKey = "UserMenuData" + user.Id;
                     _memoryCache.Remove(CacheKey);
-                    var cts = new CancellationTokenSource();
-                    var cacheEntryOptions = new MemoryCacheEntryOptions()
-                        .SetPriority(CacheItemPriority.High)
-                        .SetSlidingExpiration(TimeSpan.FromHours(1))
-                        .SetAbsoluteExpiration(TimeSpan.FromHours(1))
-                        .AddExpirationToken(new CancellationChangeToken(cts.Token));
-
-                    IEnumerable<T_PRT_CLIENTS> _clients = _DbPortal.GetT_PRT_ORG_USERS_CLIENT_DistinctClientByUserID(user.Id);
-                    _memoryCache.Set(CacheKey, _clients, cacheEntryOptions);
 
                     _logger.LogInformation("User logged in.");
 
@@ -276,6 +267,7 @@ namespace TribalSvcPortal.Controllers
                     FIRST_NAME = model.FirstName,
                     LAST_NAME = model.LastName
                 };
+
                 var result = await _userManager.CreateAsync(user, model.Password);
                 if (result.Succeeded)
                 {

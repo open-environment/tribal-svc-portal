@@ -8,7 +8,7 @@
             </a>
         </li>
         <li>
-            <a href="@Url.Action("AssessmentDetails", "OpenDump", new { id = Model.Assessment.DUMP_ASSESSMENTS_IDX })">
+            <a href="@Url.Action("AssessmentDetails", "OpenDump", new { id = Model.Assessment.ASSESSMENT_IDX })">
                 Field Assessments
             </a>
         </li>
@@ -18,8 +18,8 @@
             </a>
         </li>
         <li class="">
-            <a href="@Url.Action("Cleanup", "OpenDump", new { id = Model.Assessment.DUMP_ASSESSMENTS_IDX })">
-                Cleanup Estimates
+            <a href="@Url.Action("WasteContent", "OpenDump", new { id = Model.Assessment.ASSESSMENT_IDX })">
+                Waste Contents
             </a>
         </li>
     </ul>
@@ -64,7 +64,7 @@
                 {
                     @Html.AntiForgeryToken()
                     @Html.ValidationSummary(true, "", new { @class = "text-danger" })
-                    @Html.HiddenFor(model => model.Assessment.DUMP_ASSESSMENTS_IDX)
+                    @Html.HiddenFor(model => model.Assessment.ASSESSMENT_IDX)
                     @Html.HiddenFor(model => model.Assessment.SITE_IDX)
 
                     <section class="panel panel-default">

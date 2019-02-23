@@ -5,11 +5,10 @@
 }
 
 <div class="table-responsive">
-    <table class="table table-hover table-striped m-b-none" data-ride="datatables">
-        <thead>
-            <tr class="thead-inverse">
-                <th style="min-width:100px">
-                </th>
+    <table class="table table-bordered table-hover table-striped m-b-none" data-ride="datatables">
+        <thead class="thead-inverse">
+            <tr>
+                <th style="width:100px"></th>
                 <th>Organization</th>
                 <th>Site</th>
                 <th>Date of Assessment</th>
@@ -21,18 +20,18 @@
             </tr>
         </thead>
 
-        @foreach (var item in Model.T_OD_DUMP_ASSESSMENTS)
+        @foreach (var item in Model.Assessments)
         {
         <tr>
             <td style="min-width:65px">
-                <a href="@Url.Action("AssessmentDetails", "OpenDump", new { id = item.DUMP_ASSESSMENTS_IDX })" class="btn btn-rounded btn-xs btn-info">
+                <a href="@Url.Action("AssessmentDetails", "OpenDump", new { id = item.ASSESSMENT_IDX })" class="btn btn-rounded btn-xs btn-info">
                     <i class="glyphicon glyphicon-pencil"></i>
                 </a>
                 <div class="delete-section" style="display:inline">
                     <a class=" btn btn-rounded btn-xs btn-danger delete-link"><i class="glyphicon glyphicon-remove"></i></a>
-                    <div class="btn btn-rounded btn-xs btn-warning delete-confirm" style="display:none" data-delete-id="@item.DUMP_ASSESSMENTS_IDX" data-delete-p="/OpenDump/AssessmentDelete"><b>Confirm Delete</b></div>
+                    <div class="btn btn-rounded btn-xs btn-warning delete-confirm" style="display:none" data-delete-id="@item.ASSESSMENT_IDX" data-delete-p="/OpenDump/AssessmentDelete"><b>Confirm Delete</b></div>
                 </div>
-                <a href="@Url.Action("IHSReport", "OpenDump", new { id = item.DUMP_ASSESSMENTS_IDX })" title="IHS Dump Survey Form" class="btn btn-rounded btn-xs btn-eecip">
+                <a href="@Url.Action("IHSReport", "OpenDump", new { id = item.ASSESSMENT_IDX })" title="IHS Dump Survey Form" class="btn btn-rounded btn-xs btn-eecip">
                     <i class="clip-file-pdf"></i>
                 </a>
             </td>
@@ -72,9 +71,9 @@
                 }
             </td>
             <td>
-                @if (item.COST_TOTAL_AMT != null)
+                @if (item.LatestCleanupProject != null)
                 {
-                    <text>$ </text> @Html.DisplayFor(modelItem => item.COST_TOTAL_AMT)
+                    <text>$ </text> @Html.DisplayFor(modelItem => item.LatestCleanupProject.COST_TOTAL_AMT)
                 }
             </td>
         </tr>

@@ -7,7 +7,7 @@ namespace TribalSvcPortal.Data.Models
     {
         public T_OD_REF_DATA()
         {
-            T_OD_DUMP_ASSESSMENTS = new HashSet<T_OD_DUMP_ASSESSMENTS>();
+            T_OD_ASSESSMENTS = new HashSet<T_OD_ASSESSMENTS>();
             T_OD_SITESCOMMUNITY_IDXNavigation = new HashSet<T_OD_SITES>();
             T_OD_SITESSITE_SETTING_IDXNavigation = new HashSet<T_OD_SITES>();
         }
@@ -23,7 +23,7 @@ namespace TribalSvcPortal.Data.Models
         public DateTime? MODIFY_DT { get; set; }
 
         public T_OD_REF_DATA_CATEGORIES REF_DATA_CAT_NAMENavigation { get; set; }
-        public ICollection<T_OD_DUMP_ASSESSMENTS> T_OD_DUMP_ASSESSMENTS { get; set; }
+        public ICollection<T_OD_ASSESSMENTS> T_OD_ASSESSMENTS { get; set; }
         public ICollection<T_OD_SITES> T_OD_SITESCOMMUNITY_IDXNavigation { get; set; }
         public ICollection<T_OD_SITES> T_OD_SITESSITE_SETTING_IDXNavigation { get; set; }
     }

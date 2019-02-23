@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using TribalSvcPortal.Data.Models;
+using TribalSvcPortal.ViewModels;
 
 namespace TribalSvcPortal.AppLogic.DataAccessLayer
 {
@@ -34,10 +35,14 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
                 string CacheKey = "UserMenuData" + _UserIDX;
 
                 //check if memory cache exists
-                IEnumerable<T_PRT_CLIENTS> _clients;
-                bool isExist = _memoryCache.TryGetValue(CacheKey, out _clients);
-                if (!isExist || _clients == null)
+                var _model = new LeftMenuViewModel();
+
+                bool isExist = _memoryCache.TryGetValue(CacheKey, out _model);
+                if (!isExist || _model == null)
                 {
+                    if (_model == null)
+                        _model = new LeftMenuViewModel();
+
                     var cts = new CancellationTokenSource();
 
                     var cacheEntryOptions = new MemoryCacheEntryOptions()
@@ -46,10 +51,12 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
                         .SetAbsoluteExpiration(TimeSpan.FromHours(1))
                         .AddExpirationToken(new CancellationChangeToken(cts.Token));
 
-                    _clients = _DbPortal.GetT_PRT_ORG_USERS_CLIENT_DistinctClientByUserID(_UserIDX);
-                    _memoryCache.Set(CacheKey, _clients, cacheEntryOptions);
+                    _model.IsOrgClientAdmin = _DbPortal.IsUserAnOrgClientAdmin(_UserIDX);
+                    _model._clients = _DbPortal.GetT_PRT_ORG_USERS_CLIENT_DistinctClientByUserID(_UserIDX);
+                    
+                    _memoryCache.Set(CacheKey, _model, cacheEntryOptions);
                 }
-                return View(_clients);
+                return View(_model);
             }
             else
                 return View();

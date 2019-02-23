@@ -1,0 +1,150 @@
+﻿@model TribalSvcPortal.ViewModels.OpenDumpViewModels.CleanupActivitiesViewModel
+
+
+<section class="panel panel-default" style="margin-top:5px;">
+    <div class="panel-heading">
+        Site @Model.CleanupCategory Costs
+        <div class="panel-tools">
+            <a class="btn btn-xs panel-collapse collapses" href="#">
+            </a>
+        </div>
+    </div>
+    <div class="panel-body">
+        <div class="row form-group">
+            <div class="col-lg-12">
+                <div class="table-responsive">
+                    <table class="table table-hover table-striped m-b-none" data-ride="datatables">
+                        <thead>
+                            <tr class="thead-inverse">
+                                <th></th>
+                                <th>@Model.CleanupCategory Activity</th>
+                                <th>Cost</th>
+                            </tr>
+                        </thead>
+                        <tfoot>
+                            <tr class="tfoot-inverse">
+                                <td></td>
+                                <td>Total:</td>
+                                <td class="text-bold"><span id="tot"></span></td>
+                            </tr>
+                        </tfoot>
+
+                        @foreach (T_OD_CLEANUP_ACTIVITIES item in Model.CleanupActivities)
+                        {
+                            <tr>
+                                <td>
+                                    @Html.HiddenFor(model => item.CLEANUP_ACTIVITY_IDX)
+                                    @Html.HiddenFor(model => item.CLEANUP_ACTIVITY)
+                                    @Html.HiddenFor(model => item.CLEANUP_COST, new { @class = "subtot" })
+                                    <a href="#modal-form" class="btn btn-rounded btn-xs btn-info modal-it" data-toggle="modal"><i class="glyphicon glyphicon-pencil"></i></a>
+                                    <div class="delete-section" style="display:inline">
+                                        <a class=" btn btn-rounded btn-xs btn-danger delete-link"><i class="glyphicon glyphicon-remove"></i></a>
+                                        <div class="btn btn-rounded btn-xs btn-warning delete-confirm" style="display:none" data-delete-id="@item.CLEANUP_ACTIVITY_IDX" data-delete-p="/OpenDump/CleanupActivityDelete" data-success-url="/OpenDump/CleanupActivities/@item.CLEANUP_PROJECT_IDX?Cat=@Model.CleanupCategory"><b>Confirm Delete</b></div>
+                                    </div>
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(model => item.CLEANUP_ACTIVITY)
+                                </td>
+                                <td>
+                                    @string.Format("{0:C}", item.CLEANUP_COST)
+                                </td>
+                            </tr>
+                        }
+
+                    </table>
+                </div>
+
+            </div>
+        </div>
+        <a id="add-it" href="#modal-form" data-toggle="modal" class="add-it btn btn-rounded  btn-rounded btn-success"><i class="glyphicon glyphicon-plus"></i> Add</a>
+        <a href="@Url.Action("Cleanup", "OpenDump", new { id = Model.CleanupProject.CLEANUP_PROJECT_IDX })" class="btn btn-rounded btn-rounded btn-primary">Back</a>
+    </div>
+</section>
+
+
+<!-- START MODAL FORM  -->
+<div class="modal fade" id="modal-form" style="display: none;" aria-hidden="true">
+    <div class="modal-dialog">
+        @using (Html.BeginForm("CleanupActivityAdd", "OpenDump", FormMethod.Post, new { @class = "", @id = "norepostform" }))
+        {
+            @Html.AntiForgeryToken()
+            @Html.HiddenFor(model => model.CleanupProject.CLEANUP_PROJECT_IDX)
+            @Html.HiddenFor(model => model.edit_cleanupActivityIdx)
+            @Html.HiddenFor(model => model.CleanupCategory)
+
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+                    <h4 class="modal-title">Add @Model.CleanupCategory Activity</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-sm-12 ">
+                            <div class="panel-body">
+                                <div class="row">
+                                    <div class="col-md-9">
+                                        <div class="form-group">
+                                            <label>Activity Name</label>
+                                            @Html.TextBoxFor(model => model.newCleanupActivityName, new { @class = "form-control", @data_required = "true" })
+                                            @Html.ValidationMessageFor(model => model.newCleanupActivityName)
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label>Amount</label>
+                                            @Html.TextBoxFor(model => model.newCleanupActivityAmt, new { @class = "form-control", @data_required = "true" })
+                                            @Html.ValidationMessageFor(model => model.newCleanupActivityAmt)
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="picLoc" type="submit" class="btn btn-sm btn-primary">Save</button>
+                    <button class="btn btn-sm btn-default" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+<!-- END MODAL FORM -->
+
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+
+    <script src="~/js/confirm_delete.js"></script>
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+
+
+            //display total on page ready
+            CalcTotal();
+
+            function CalcTotal() {
+                var _tot = 0;
+                $(".subtot").each(function () {
+                    _tot += parseFloat(this.value);
+                });
+                $("#tot").text("$ " + _tot.toFixed(2));
+            }
+
+
+
+            //create an event when button is clicked to display modal
+            $(".modal-it").click(function () {
+                $('#edit_cleanupActivityIdx').val($(this).parent('td').find('#item_CLEANUP_ACTIVITY_IDX').val());
+                $('#newCleanupActivityName').val($(this).parent('td').find('#item_CLEANUP_ACTIVITY').val());
+                $('#newCleanupActivityAmt').val($(this).parent('td').find('#item_CLEANUP_COST').val());
+            });
+
+            $(".add-it").click(function () {
+                $('#edit_cleanupActivityIdx').val(null);
+                $('#newCleanupActivityName').val('');
+                $('#newCleanupActivityAmt').val('');
+            });
+        });
+    </script>
+}

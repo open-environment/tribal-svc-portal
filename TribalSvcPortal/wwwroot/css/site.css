@@ -138,8 +138,8 @@ textarea.input-validation-error, input.input-validation-error[type="text"], inpu
 }
 
 .btn-icon {
-    background-color: #6AB43E;
-    border: 0px solid #6AB43E;
+    background-color: #bfa546;
+    border: 0px solid #bfa546;
 }
 
 .color-eecip {
@@ -174,6 +174,23 @@ textarea.input-validation-error, input.input-validation-error[type="text"], inpu
     .modal-header .close {
         margin-top: 0;
     }
+
+
+
+/***************     FILE SELECTOR     ******************/
+input[type="file"] {
+    display: none;
+}
+#file-upload {
+    display: none;
+}
+.custom-file-upload {
+    border: 1px solid #ccc;
+    display: inline-block;
+    padding: 6px 12px;
+    cursor: pointer;
+}
+
 
 /******************************************************************/
 /*************************ECO FRONT PAGE STYLING ******************/
@@ -916,22 +933,17 @@ ul.main-navigation-menu > li.active > a {
 
 .circle-tile-heading {
     position: relative;
-    width: 80px;
-    height: 80px;
-    margin: 0 auto -40px;
-    border: 3px solid rgba(200,200,200,1);
+    width: 100%;
+    height: 180px;
+    border: 1px solid rgba(200,200,200,1);
     border-radius: 10px;
     color: #fff;
     transition: all ease-in-out .3s;
-    background-size: 75px;
     background-repeat: no-repeat;
     background-position: center;
-    background-color: #333;
+    background-size: contain;
 }
 
-    .circle-tile-heading:hover {
-        background-size: 80px;
-    }
 
     .circle-tile-heading .fa {
         line-height: 80px;
@@ -1037,7 +1049,20 @@ ul.main-navigation-menu > li.active > a {
     color: #bbb;
 }
 
+.publicbadge {
+    margin-bottom: 10px;
+}
+.publicbadgenamedesc {
+    margin: 0;
+}
 
+.publicbadgeawards {
+    color: #636267;
+    font-weight: 300;
+    font-style: italic;
+    font-size: 12px;
+    margin-bottom: 2px;
+}
 
 
 /************************ CAROUSEL STYLING  ******************/

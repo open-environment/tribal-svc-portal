@@ -277,8 +277,7 @@ namespace TribalSvcPortal.Controllers
             var model = _DbPortal.GetT_PRT_ORGANIZATIONS();
             return View(model);
         }
-
-
+        
         public IActionResult OrgEdit(string id)
         {
             var model = new OrgEditViewModel
@@ -294,8 +293,7 @@ namespace TribalSvcPortal.Controllers
             }
             return View(model);
         }
-
-
+        
         [HttpPost, ValidateAntiForgeryToken]
         public IActionResult OrgEdit(T_PRT_ORGANIZATIONS org)
         {
@@ -368,7 +366,7 @@ namespace TribalSvcPortal.Controllers
         }
 
         [HttpPost]
-        public IActionResult OrgUserClientEdit(int org_user_idx, string client_id, string AdminInd, string StatusInd)
+        public IActionResult OrgUserClientEdit(int org_user_idx, string client_id, string AdminInd, string StatusInd, string returnUrl)
         {
             if (ModelState.IsValid)
             {                
@@ -382,13 +380,12 @@ namespace TribalSvcPortal.Controllers
             else
                 TempData["Error"] = "Error adding user";
 
-            return RedirectToAction("OrgUserClients", "Admin", new { id = org_user_idx });
+            return RedirectToAction(returnUrl, "Admin", new { id = org_user_idx });
         }
 
         [HttpPost]
         public IActionResult OrgUserClientDelete(int id, string id2)
-        {          
-
+        {    
             int SuccID = _DbPortal.DeleteT_PRT_ORG_USER_CLIENT(id);
             if (SuccID > 0)
                 TempData["Success"] = "Record has been deleted.";
@@ -397,6 +394,63 @@ namespace TribalSvcPortal.Controllers
 
             return RedirectToAction("OrgUserClients", new { id = id2 });
         }
+
+        [HttpPost]
+        public IActionResult OrgUserClientDelete2(int id, string id2)
+        {
+            int SuccID = _DbPortal.DeleteT_PRT_ORG_USER_CLIENT(id);
+            if (SuccID > 0)
+                TempData["Success"] = "Record has been deleted.";
+            else
+                TempData["Error"] = "Unable to delete client access from user.";
+
+            return RedirectToAction("ManageUsers", new { id = id2 });
+        }
+
+
+        //************************************ ORGANIZATION USER CLIENT (non-Global Admin)  ***************************************
+        public IActionResult ManageUsers(int? id)
+        {
+            //********* id = OrgUserClientID
+
+            string _UserIDX = _userManager.GetUserId(User);
+
+            var model = new ManageUsersViewModel
+            {
+                ddl_AdminOfOrgClients = _DbPortal.GetT_PRT_ORG_USERS_CLIENT_AdminByUserID(_UserIDX).Select(x => new SelectListItem
+                {
+                    Value = x.ORG_USER_CLIENT_IDX.ToString(),
+                    Text = x.ORG_CLIENT_ALIAS + " - " + x.CLIENT_ID
+                })
+            };
+
+            //get users currently listed for the org/client
+            //get users for the organization
+            if (id != null)
+            {
+                model.selOrgUserClient = id;
+
+                T_PRT_ORG_USER_CLIENT _ouc = _DbPortal.GetT_PRT_ORG_USERS_CLIENT_ByID((int)id);
+                if (_ouc != null)
+                {
+                    T_PRT_ORG_USERS _ou = _DbPortal.GetT_PRT_ORG_USERS_ByOrgUserID(_ouc.ORG_USER_IDX);
+                    if (_ou != null)
+                    {
+                        model.client_id = _ouc.CLIENT_ID;
+                        model.selOrg = _ou.ORG_ID;
+                        model.OrgUserClients = _DbPortal.GetT_PRT_ORG_USERS_CLIENT_ByOrgIDandClientID(_ou.ORG_ID, _ouc.CLIENT_ID, false);
+                        model.ddl_Users = _DbPortal.GetT_PRT_ORG_USERS_ByOrgID(_ou.ORG_ID).Select(x => new SelectListItem
+                        {
+                            Value = x.ORG_USER_IDX.ToString(),
+                            Text = x.USER_NAME
+                        });
+                    }
+                }               
+            };
+
+            return View(model);
+        }
+
 
 
 

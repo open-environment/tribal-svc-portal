@@ -1,11 +1,11 @@
-﻿@model TribalSvcPortal.ViewModels.OpenDumpViewModels.SearchViewModel
+﻿@model TribalSvcPortal.ViewModels.OpenDumpViewModels.SitesViewModel
 @{
     ViewBag.Title = "Search Open Dumps";
-    ViewBag.SubTitle = "Search and view open dump records.";
+    ViewBag.SubTitle = "Search and view open dump sites.";
 }
 <link rel="stylesheet" href="https://js.arcgis.com/3.25/esri/css/esri.css">
 
-@using (Html.BeginForm("Search", "OpenDump", FormMethod.Get, new { @class = "" }))
+@using (Html.BeginForm("Sites", "OpenDump", FormMethod.Get, new { @class = "" }))
 {
     @Html.HiddenFor(model => model.tab)
     <div class="row aligned-row">
@@ -27,7 +27,7 @@
                                 @Html.TextBoxFor(model => model.selStr, new { @class = "form-control", @placeholder = "Search site name or address" })
                             </div>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <div class="form-group">
                                 <label>Status:</label>
                                 @Html.DropDownListFor(model => model.selStatus, Model.ddl_Status, "", new { @class = "form-control" })
@@ -39,7 +39,7 @@
                                 @Html.DropDownListFor(model => model.selOrg, Model.ddl_Org, "", new { @class = "form-control" })
                             </div>
                         </div>
-                        <div class="col-md-1">
+                        <div class="col-md-2">
                             <label>&nbsp;</label><br/>
                             <button class="btn btn-eecip" type="submit">
                                 <i class="clip-search-2"> </i>Search
@@ -66,16 +66,21 @@
             </a>
         </li>
         <li class="pull-right">
-            <a href="@Url.Action("PreField", "OpenDump", new { returnURL = "Search" })" class="btn btn-rounded "
-               style="color: #fff;background-color: #6AB43E;border-color: #6AB43E;border-radius: 4px !important;"><i class="glyphicon glyphicon-plus"></i> Add New</a>
+            <a href="@Url.Action("PreField", "OpenDump", new { returnURL = "Sites" })" class="btn"
+               style="color: #fff; background-color: #6AB43E; border-color: #6AB43E; border-radius: 6px !important; margin-left:10px;"><i class="glyphicon glyphicon-plus"></i>Add New</a>
         </li>
+        <li class="pull-right">
+            <a href="@Url.Action("SiteExport", "OpenDump", new { selStr = Model.selStr, selOrg = Model.selOrg, selStatus = Model.selStatus })" class="btn "
+               style=" border-radius: 6px !important; margin-left:10px;"><i class="clip-file-excel"></i></a>
+        </li>
+
     </ul>
 
     <!--  ************************************** TAB CONTENT *********************************************************-->
     <div class="tab-content">
         <div class="tab-pane @(Model.tab=="1" ? "active in" : "")" id="tabList">
             <div class="table-responsive">
-                <table class="table table-striped m-b-none" data-ride="datatables">
+                <table class="table table-bordered table-striped m-b-none" data-ride="datatables">
                     <thead>
                         <tr class="thead-inverse">
                             <th style="min-width:70px"></th>
@@ -84,84 +89,84 @@
                                 <th>Organization</th>
                             }
                             <th>Site Name</th>
-                            <th>Site Address</th>
-                            <th>Reported By</th>
+                            <th>Address</th>
+                            <th>Reported</th>
                             <th>Status</th>
                             <th>Last Assessed</th>
                             <th>Health Threat</th>
                             <th>Cleanup Estimate</th>
                         </tr>
                     </thead>
-                    @if (Model.searchResults != null)
+                    @if (Model.sites != null)
                     {
-                        @foreach (var item in Model.searchResults)
+                        @foreach (var item in Model.sites)
                         {
-                    <tr>
-                        <td style="min-width:65px">
-                            <a href="@Url.Action("PreField", "OpenDump", new { id = item.Site_Idx, returnURL = "Search" })" class="btn btn-rounded btn-xs btn-info"><i class="glyphicon glyphicon-pencil"></i></a>
-                            <div class="delete-section" style="display:inline">
-                                <a class=" btn btn-rounded btn-xs btn-danger delete-link"><i class="glyphicon glyphicon-remove"></i></a>
-                                <div class="btn btn-rounded btn-xs btn-warning delete-confirm" style="display:none" data-delete-id="@item.Site_Idx" data-delete-p="/OpenDump/SiteDelete"><b>Confirm Delete</b></div>
-                            </div>
-                        </td>
-                        @if (Model.ddl_Org.Count() > 1)
-                        {
-                            <td>
-                                @Html.DisplayFor(modelItem => item.OrgName)
-                            </td>
-                        }
-                        <td>
-                            @Html.DisplayFor(modelItem => item.SiteName)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.SiteAddress)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.ReportedBy)
-                            @Html.DisplayFor(modelItem => item.ReportedOn)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.CurrentSiteStatus)
-                        </td>
-                        <td>
-                            @if (item.LastAssessment != null && item.LastAssessment.ASSESSMENT_DT != DateTime.MinValue)
-                            {
-                                @Html.DisplayFor(modelItem => item.LastAssessment.ASSESSMENT_DT)
-                            }
-                        </td>
-                        <td>
-                            @if (item.HEALTH_THREAT_SCORE != null)
-                            {
-                                if (item.HEALTH_THREAT_SCORE > 400)
+                            <tr>
+                                <td style="min-width:65px">
+                                    <a href="@Url.Action("PreField", "OpenDump", new { id = item.SiteIdx, returnURL = "Sites" })" class="btn btn-rounded btn-xs btn-info"><i class="glyphicon glyphicon-pencil"></i></a>
+                                    <div class="delete-section" style="display:inline">
+                                        <a class=" btn btn-rounded btn-xs btn-danger delete-link"><i class="glyphicon glyphicon-remove"></i></a>
+                                        <div class="btn btn-rounded btn-xs btn-warning delete-confirm" style="display:none" data-delete-id="@item.SiteIdx" data-delete-p="/OpenDump/SiteDelete"><b>Confirm Delete</b></div>
+                                    </div>
+                                </td>
+                                @if (Model.ddl_Org.Count() > 1)
                                 {
-                                    <span class="label label-danger"> High @Html.DisplayFor(modelItem => item.HEALTH_THREAT_SCORE)</span>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.OrgName)
+                                    </td>
                                 }
-                                else if (item.HEALTH_THREAT_SCORE > 250)
-                                {
-                                    <span class="label label-warning">Medium (@Html.DisplayFor(modelItem => item.HEALTH_THREAT_SCORE))</span>
-                                }
-                                else
-                                {
-                                    <span class="label label-success">Low @Html.DisplayFor(modelItem => item.HEALTH_THREAT_SCORE)</span>
-                                }
-                            }
-                        </td>
-                        <td>
-                            @if (item.EST_CLEANUP_COSTS != null)
-                            {
-                                <text>$ </text> @Html.DisplayFor(modelItem => item.EST_CLEANUP_COSTS)
-                            }
-                        </td>
-                    </tr>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.SiteName)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.SiteAddress)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.ReportedBy)
+                                    @Html.DisplayFor(modelItem => item.ReportedOn)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.CurrentSiteStatus)
+                                </td>
+                                <td>
+                                    @if (item.LastAssessment != null && item.LastAssessment.ASSESSMENT_DT != DateTime.MinValue)
+                                    {
+                                        @Convert.ToDateTime(item.LastAssessment.ASSESSMENT_DT).ToString("MM/dd/yyyy")
+                                    }
+                                </td>
+                                <td>
+                                    @if (item.HEALTH_THREAT_SCORE != null)
+                                    {
+                                        if (item.HEALTH_THREAT_SCORE > 400)
+                                        {
+                                            <span class="label label-danger"> High @Html.DisplayFor(modelItem => item.HEALTH_THREAT_SCORE)</span>
+                                        }
+                                        else if (item.HEALTH_THREAT_SCORE > 250)
+                                        {
+                                            <span class="label label-warning">Medium (@Html.DisplayFor(modelItem => item.HEALTH_THREAT_SCORE))</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="label label-success">Low @Html.DisplayFor(modelItem => item.HEALTH_THREAT_SCORE)</span>
+                                        }
+                                    }
+                                </td>
+                                <td>
+                                    @if (item.LatestCleanupProject != null)
+                                    {
+                                        <text>$ </text> @Html.DisplayFor(modelItem => item.LatestCleanupProject.COST_TOTAL_AMT)
+                                    }
+                                </td>
+                            </tr>
                         }
                     }
 
                 </table>
+
             </div>
 
         </div>
         <div class="tab-pane @(Model.tab=="2" ? "active in" : "")" id="tabMap" style="width:100%;height:100%;max-height:650px;min-height: 500px;">
-
         </div>
     </div>
 </div>
@@ -169,17 +174,17 @@
 @section scripts {
     <script src="~/js/confirm_delete.js"></script>
     <script src="https://js.arcgis.com/3.25/"></script>
-    @if (Model.searchResults != null)
+    @if (Model.sites != null)
     {
     <script type="text/javascript">
 
         var map;
         var siteArray = [];
-        @foreach (var item in Model.searchResults)
+        @foreach (var item in Model.sites)
         {
             if (item.Latitude != null && item.Longitude != null)
             {
-                @:siteArray.push({ "id": "@item.Site_Idx", "siteName": "@item.SiteName", "latitude": @item.Latitude, "longitude" : @item.Longitude, "healthThreat" : @(item.HEALTH_THREAT_SCORE ?? 0) });
+                @:siteArray.push({ "id": "@item.SiteIdx", "siteName": "@item.SiteName", "latitude": @item.Latitude, "longitude" : @item.Longitude, "healthThreat" : @(item.HEALTH_THREAT_SCORE ?? 0) });
             }
         }
 
@@ -275,12 +280,8 @@
                             map.setExtent(zoomExtent, true);
                         }
                     }
-
                 });
-
         }
     </script>
     }
-
 }
-

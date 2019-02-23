@@ -1,0 +1,126 @@
+﻿@model TribalSvcPortal.ViewModels.OpenDumpViewModels.CleanupProjectsViewModel
+@{
+    ViewBag.Title = "Cleanup Projects";
+    ViewBag.SubTitle = "A listing of both cleanup estimations and actual cleanup projects.";
+}
+
+<div class="table-responsive">
+    <table class="table table-hover table-striped m-b-none" data-ride="datatables">
+        <thead>
+            <tr class="thead-inverse">
+                <th style="min-width:100px">
+                </th>
+                <th>Organization</th>
+                <th>Site</th>
+                <th>Based on Assessment</th>
+                <th>Project Type</th>
+                <th>Project Description</th>
+                <th>Start Date</th>
+                <th>Total Cost</th>
+            </tr>
+        </thead>
+
+        @foreach (var item in Model.CleanupProjects)
+        {
+            <tr>
+                <td style="min-width:65px">
+                    @if (item.T_OD_CLEANUP_PROJECT.PROJECT_TYPE == "Estimate")
+                    {
+                        <a href="@Url.Action("Cleanup", "OpenDump", new { id = item.T_OD_CLEANUP_PROJECT.CLEANUP_PROJECT_IDX })" class="btn btn-rounded btn-xs btn-info">
+                            <i class="glyphicon glyphicon-pencil"></i>
+                        </a>
+                    }
+                    else
+                    {
+                        <a href="@Url.Action("CleanupActual", "OpenDump", new { id = item.T_OD_CLEANUP_PROJECT.CLEANUP_PROJECT_IDX })" class="btn btn-rounded btn-xs btn-info">
+                            <i class="glyphicon glyphicon-pencil"></i>
+                        </a>
+                    }
+                    <div class="delete-section" style="display:inline">
+                        <a class=" btn btn-rounded btn-xs btn-danger delete-link"><i class="glyphicon glyphicon-remove"></i></a>
+                        <div class="btn btn-rounded btn-xs btn-warning delete-confirm" style="display:none" data-delete-id="@item.T_OD_CLEANUP_PROJECT.CLEANUP_PROJECT_IDX" data-delete-p="/OpenDump/CleanupProjectDelete"><b>Confirm Delete</b></div>
+                    </div>
+                    <a href="@Url.Action("CleanupEstRpt", "OpenDump", new { id = item.T_OD_CLEANUP_PROJECT.CLEANUP_PROJECT_IDX })" title="Cleanup Report" class="btn btn-rounded btn-xs btn-eecip">
+                        <i class="clip-file-pdf"></i>
+                    </a>
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ORG_NAME)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.SITE_NAME)
+                </td>
+                <td>
+                    @Convert.ToDateTime(item.ASSESSMENT_DT).ToString("MM/dd/yyyy")
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.T_OD_CLEANUP_PROJECT.PROJECT_TYPE)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.T_OD_CLEANUP_PROJECT.PROJECT_DESCRIPTION)
+                </td>
+                <td>
+                    @if (item.T_OD_CLEANUP_PROJECT.START_DATE != null)
+                    {
+                        @item.T_OD_CLEANUP_PROJECT.START_DATE.Value.ToShortDateString()
+                    }
+                </td>
+                <td>
+                    <text>$</text>@Html.DisplayFor(modelItem => item.T_OD_CLEANUP_PROJECT.COST_TOTAL_AMT)
+                </td>
+            </tr>
+        }
+
+    </table>
+</div>
+<p>
+    <a id="add-it" href="#modal-form" data-toggle="modal" class="add-it btn btn-rounded  btn-rounded btn-success"><i class="glyphicon glyphicon-plus"></i> Add New</a>
+</p>
+
+
+<!-- START MODAL FORM  -->
+<div class="modal fade" id="modal-form" style="display: none;" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 style="float: left" class="modal-title">Create a Cleanup Project</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                @using (Html.BeginForm("CleanupProjectAdd", "OpenDump", FormMethod.Post))
+                {
+                    @Html.AntiForgeryToken()
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Cleanup Type</label>
+                                @Html.DropDownListFor(model => model.selCleanupType, Model.ddlCleanupType, "", new { @class = "form-control" })
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Assessment</label>
+                                @Html.DropDownListFor(model => model.selAssessID, Model.ddlAssessments, "", new { @class = "form-control" })
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <button id="btnSave" type="submit" class="btn btn-eecip">Create</button>
+                            <button type="submit" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END MODAL FORM -->
+
+@section scripts {
+    <script src="~/js/confirm_delete.js"></script>
+
+}

@@ -14,7 +14,7 @@
                     <th>Organization</th>
                     <th>User</th>
                     <th>Client</th>
-                    <th>Admin?</th>
+                    <th>Access Level</th>
                     <th>Status</th>
                 </tr>
             </thead>
@@ -23,7 +23,11 @@
             {
                 <tr>
                     <td>
-                        <a href="@Url.Action("OrgEdit","Admin", new { id=item.ORG_USER_CLIENT_IDX })" class="btn btn-rounded btn-xs btn-default"><i class="glyphicon glyphicon-pencil"></i></a>
+                        @Html.HiddenFor(model => item.ORG_USER_CLIENT_IDX)
+                        @Html.HiddenFor(model => item.CLIENT_ID)
+                        @Html.HiddenFor(model => item.ADMIN_IND)
+                        @Html.HiddenFor(model => item.STATUS_IND)
+                        <a href="#modal-form" class="btn btn-rounded btn-xs btn-info modal-it" data-toggle="modal"><i class="glyphicon glyphicon-pencil"></i></a>
                         <div class="delete-section" style="display:inline">
                             <a class=" btn btn-rounded btn-xs btn-danger delete-link"><i class="glyphicon glyphicon-remove"></i></a>
                             <div class="btn btn-rounded btn-xs btn-warning delete-confirm" style="display:none" data-delete-id="@item.ORG_USER_CLIENT_IDX" data-delete-id2="@Model.OrgUserIDX" data-delete-p="/Admin/OrgUserClientDelete"><b>Confirm Delete</b></div>
@@ -33,16 +37,34 @@
                         @Html.DisplayFor(modelItem => item.ORG_ID)
                     </td>
                     <td>
-                        @Html.DisplayFor(modelItem => item.UserID)
+                        @Html.DisplayFor(modelItem => item.UserName)
                     </td>
                     <td>
                         @Html.DisplayFor(modelItem => item.CLIENT_ID)
                     </td>
                     <td>
-                        @Html.DisplayFor(modelItem => item.ADMIN_IND)
+                        @if (item.ADMIN_IND == true)
+                        {
+                            <span class="label label-success"> Admin</span>
+                        }
+                        else
+                        {
+                            <span class="label label-beige"> User</span>
+                        }
                     </td>
                     <td>
-                        @Html.DisplayFor(modelItem => item.STATUS_IND)
+                        @if (item.STATUS_IND == "A")
+                        {
+                            <span class="label label-success"> Active</span>
+                        }
+                        else if (item.STATUS_IND == "P")
+                        {
+                            <span class="label label-warning"> Pending</span>
+                        }
+                        else if (item.STATUS_IND == "R")
+                        {
+                            <span class="label label-danger"> Requested</span>
+                        }
                     </td>
                 </tr>
             }
@@ -71,6 +93,7 @@
                         @using (Html.BeginForm("OrgUserClientEdit", "Admin", FormMethod.Post, new { @class = "" }))
                         {
                             @Html.AntiForgeryToken()
+                            @Html.Hidden("returnUrl", "OrgUserClients")
                             @Html.Hidden("org_user_idx", Model.OrgUserIDX)
 
                             <div class="panel-body" style="padding: 0px">
@@ -85,11 +108,11 @@
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="form-group">
-                                            Admin Access:
+                                            Access Level:
                                             @Html.DropDownList("AdminInd", new List<SelectListItem>
                                            {
-                                               new SelectListItem{ Text="No", Value = "0" },
-                                               new SelectListItem{ Text="Yes", Value = "1" }
+                                               new SelectListItem{ Text="User", Value = "False" },
+                                               new SelectListItem{ Text="Admin", Value = "True" }
                                            }, new { @class = "form-control" })
                                         </div>
                                     </div>
@@ -98,7 +121,7 @@
                                             Status:
                                             @Html.DropDownList("StatusInd", new List<SelectListItem>
                                        {
-                                           new SelectListItem{ Text="Approved", Value = "A" },
+                                           new SelectListItem{ Text="Active", Value = "A" },
                                            new SelectListItem{ Text="Pending", Value = "P" },
                                            new SelectListItem{ Text="Rejected", Value = "R" }
                                        }, new { @class = "form-control" })
@@ -123,11 +146,28 @@
 </div>
 <!-- END MODAL ORGANIZATION ACCESS -->
 
-
 @section scripts {
     <script src="~/js/confirm_delete.js"></script>
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+
+            //create an event when button is clicked to display modal
+            $(".modal-it").click(function () {
+                $('#edit_ORG_USER_CLIENT_IDX').val($(this).parent('td').find('#item_ORG_USER_CLIENT_IDX').val());
+                $('#client_id').val($(this).parent('td').find('#item_CLIENT_ID').val());
+                $('#AdminInd').val($(this).parent('td').find('#item_ADMIN_IND').val());
+                $('#StatusInd').val($(this).parent('td').find('#item_STATUS_IND').val());
+            });
+
+            $(".add-it").click(function () {
+                $('#edit_ORG_USER_CLIENT_IDX').val(null);
+                $('#client_id').val(null);
+                $('#AdminInd').val('');
+                $('#StatusInd').val('');
+            });
+        });
+    </script>
 }
-
-
 
 

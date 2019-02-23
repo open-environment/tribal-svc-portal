@@ -3,10 +3,22 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Xml.Linq;
 
 namespace TribalSvcPortal.AppLogic.BusinessLogicLayer
 {
     public static class Utils {
+
+        public class ConfigInfoType
+        {
+            public string _name { get; set; }
+            public string _req { get; set; }
+            public int? _length { get; set; }
+            public string _datatype { get; set; }
+            public string _fkey { get; set; }
+            public string _addfield { get; set; }
+        }
+
 
         /// <summary>
         ///  Converts to another datatype or returns default value
@@ -285,6 +297,92 @@ namespace TribalSvcPortal.AppLogic.BusinessLogicLayer
                 ".jpg", ".jpeg",".gif",".bmp",".png"
             };
             return imageFileTypes.Any(file.Contains);
+        }
+
+
+
+        //******************* DATA IMPORT HELPERS**********************************
+        public static Dictionary<string, int> GetColumnMapping(string ImportType, string[] headerCols, string path)
+        {
+            // Loading configuration file listing all data import columns
+            var xml = XDocument.Load(path);
+
+            // Query list of all columns for the type
+            var allFields = (from c in xml.Root.Descendants("Alias")
+                          .Where(i => i.Parent.Attribute("Level").Value == ImportType)
+                             select new
+                             {
+                                 Name = c.Parent.Attribute("FieldName").Value,
+                                 Alias = c.Value.ToUpper()
+                             }).ToList();
+
+            //list of fields supplied by user
+            var headerColList = headerCols.Select((value, index) => new { value, index }).ToList();
+
+            //return matches with index
+            var colMapping = (from f in allFields
+                              join h in headerColList
+                              on f.Alias.Trim() equals h.value.ToUpper().Trim()
+                              select new
+                              {
+                                  _Name = f.Name.Trim(),
+                                  _Col = h.index
+                              }).ToDictionary(x => x._Name, x => x._Col.ConvertOrDefault<int>());
+
+            return colMapping;
+        }
+
+        public static List<ConfigInfoType> GetAllColumnInfo(string ImportType, string path)
+        {
+            // Loading configuration file listing all data import columns
+            var xml = XDocument.Load(path);
+
+            // Query list of all columns for the type
+            return (from c in xml.Root.Descendants("Alias")
+                    .Where(i => i.Parent.Attribute("Level").Value == ImportType)
+                    select new ConfigInfoType
+                    {
+                        _name = c.Parent.Attribute("FieldName").Value,
+                        _req = c.Parent.Attribute("ReqInd").Value,
+                        _length = c.Parent.Attribute("Length").Value.ConvertOrDefault<int?>(),
+                        _datatype = c.Parent.Attribute("DataType").Value,
+                        _fkey = c.Parent.Attribute("FKey").Value,
+                        _addfield = c.Parent.Attribute("AddField") != null ? c.Parent.Attribute("AddField").Value : ""
+                    }).ToList();
+        }
+
+        public static List<string> GetMandatoryImportFieldList(string ImportType, string path)
+        {
+            // Loading configuration file listing all data import columns
+            var xml = XDocument.Load(path);
+
+            // Query list of all columns for the type
+            List<string> mandFields = (from c in xml.Root.Descendants("Alias")
+                                       .Where(i => i.Parent.Attribute("Level").Value == ImportType)
+                                       .Where(j => j.Parent.Attribute("ReqInd").Value == "Y")
+                                       select c.Parent.Attribute("FieldName").Value
+                                       ).ToList();
+            return mandFields;
+        }
+
+        public static List<string> GetOptionalImportFieldList(string ImportType, string path)
+        {
+            // Loading configuration file listing all data import columns
+            var xml = XDocument.Load(path);
+
+            // Query list of all columns for the type
+            List<string> optFields = (from c in xml.Root.Descendants("Alias")
+                                       .Where(i => i.Parent.Attribute("Level").Value == ImportType)
+                                       .Where(j => j.Parent.Attribute("ReqInd").Value == "N")
+                                      select c.Parent.Attribute("FieldName").Value
+                                       ).ToList();
+            return optFields;
+        }
+
+        public static V GetValueOrDefault<K, V>(this Dictionary<K, V> dict, K key)
+        {
+            dict.TryGetValue(key, out V ret);
+            return ret;
         }
 
     }

@@ -11,22 +11,15 @@ namespace TribalSvcPortal.ViewModels.OpenDumpViewModels
         public string SiteName { get; set; }
         public string OrgName { get; set; }
         public IEnumerable<SelectListItem> ddl_Assessments { get; set; }  //used for changing assessments only
-        public T_OD_DUMP_ASSESSMENTS Assessment { get; set; }
+        public T_OD_ASSESSMENTS Assessment { get; set; }
         public IEnumerable<SelectListItem> ddl_AssessmentTypeList { get; set; }
         public IEnumerable<SelectListItem> ddl_SiteStatus  { get; set; }
 
 
-        [DisplayName("Upload Photo")]
-        public IFormFile filesPhoto { get; set; }
-        public string FilePhotoDescription { get; set; }
         public List<T_PRT_DOCUMENTS> filesPhoto_existing { get; set; }
-
-        [DisplayName("Upload File")]
-        public IFormFile files { get; set; }
-        public string FileDescription { get; set; }
         public List<T_PRT_DOCUMENTS> files_existing { get; set; }
-        
-
+        public IFormFile filesPhoto { get; set; }  //new photo
+        public string FilePhotoDescription { get; set; }
 
     }
 }

@@ -6,44 +6,30 @@ using System.Linq;
 using TribalSvcPortal.Data.Models;
 using TribalSvcPortal.AppLogic.BusinessLogicLayer;
 using Microsoft.EntityFrameworkCore;
+using static TribalSvcPortal.AppLogic.BusinessLogicLayer.Utils;
 
 namespace TribalSvcPortal.AppLogic.DataAccessLayer
 {
     public class OpenDumpSiteListDisplay
     {
-        private readonly Ilog _log;
-        public OpenDumpSiteListDisplay(Ilog log) {
-            _log = log ?? throw new ArgumentNullException(nameof(log));
-        }
-
         public string OrgName { get; set; }
-        public Guid Site_Idx { get; set; }
+        public Guid SiteIdx { get; set; }
         public string SiteName { get; set; }
         public string SiteAddress { get; set; }
         public string ReportedBy { get; set; }
+
         [DisplayFormat(DataFormatString = "{0:d}")]
         public DateTime? ReportedOn { get; set; }
         public decimal? Latitude { get; set; }
         public decimal? Longitude { get; set; }
         public string CurrentSiteStatus { get; set; }
-
-        [DisplayFormat(DataFormatString = "{0:d}")]
-
-        public T_OD_DUMP_ASSESSMENTS LastAssessment { get; set; }
+        public T_OD_ASSESSMENTS LastAssessment { get; set; }
         public int? HEALTH_THREAT_SCORE { get; set; }
-        public decimal? EST_CLEANUP_COSTS { get; set; }
+        public T_OD_CLEANUP_PROJECT LatestCleanupProject { get; set; }
     }
 
-    public class RefThreatFactor
+    public class SelectedWasteTypeDisplay
     {
-        public Guid THREAT_FACTOR_IDX { get; set; }
-        public string THREAT_FACTOR_TYPE { get; set; }
-        public string THREAT_FACTOR_NAME { get; set; }
-        public int? THREAT_FACTOR_SCORE { get; set; }
-
-    }
-
-    public class SelectedWasteTypeDisplay {
         public T_OD_REF_WASTE_TYPE T_OD_REF_WASTE_TYPE { get; set; }
         public bool IsChecked { get; set; }
     }
@@ -57,21 +43,23 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
     public class AssessmentContentTypeDisplay
     {
         public Guid DUMP_ASSESSMENTS_CONTENT_IDX { get; set; }
-        public Guid DUMP_ASSESSMENTS_IDX { get; set; }
+        public Guid ASSESSMENT_IDX { get; set; }
         public Guid REF_WASTE_TYPE_IDX { get; set; }
         public string REF_WASTE_TYPE_NAME { get; set; }
         public string REF_WASTE_TYPE_CAT { get; set; }
-
         public decimal? WASTE_AMT { get; set; }
         public Guid? UNIT_MSR_IDX { get; set; }
+        public string UNIT_MSR_CD { get; set; }
         public Guid? WASTE_DISPOSAL_METHOD { get; set; }
+        public string WASTE_DISPOSAL_METHOD_TXT { get; set; }
         public string WASTE_DISPOSAL_DIST { get; set; }
         public IEnumerable<SelectListItem> ddl_Unit { get; set; }
     }
 
     public class AssessmentCleanupDisplayType {
-        public Guid DUMP_ASSESSMENT_CLEANUP_IDX { get; set; }
-        public Guid DUMP_ASSESSMENTS_IDX { get; set; }
+        public Guid CLEANUP_CLEANUP_DTL_IDX { get; set; }
+        public Guid ASSESSMENT_IDX { get; set; }
+        public Guid CLEANUP_PROJECT_IDX { get; set; }
         public string REF_WASTE_TYPE_CAT { get; set; }
         public string REF_ASSET_NAME { get; set; }
         public decimal? CLEANUP_COST { get; set; }
@@ -84,19 +72,42 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
         public decimal? sumCat { get; set; }
     }
 
-
     public class AssessmentSummaryDisplayType
     {
-        public Guid DUMP_ASSESSMENTS_IDX { get; set; }
+        public Guid ASSESSMENT_IDX { get; set; }
         public DateTime ASSESSMENT_DT { get; set; }
         public string ASSESSED_BY { get; set; }
         public string ASSESSMENT_NOTES { get; set; }
         public int? HEALTH_THREAT_SCORE { get; set; }
-        public decimal? COST_TOTAL_AMT { get; set; }
+        public T_OD_CLEANUP_PROJECT LatestCleanupProject { get; set; }
         public string ORG_NAME { get; set; }
         public string SITE_NAME { get; set; }
         public string CURRENT_SITE_STATUS { get; set; }
 
+    }
+
+    public class CleanupProjectsDisplayType {
+        public T_OD_CLEANUP_PROJECT  T_OD_CLEANUP_PROJECT { get; set; }
+        public string ORG_NAME { get; set; }
+        public string SITE_NAME { get; set; }
+        public DateTime ASSESSMENT_DT { get; set; }
+    }
+
+    public class SiteImportType
+    {
+        public T_PRT_SITES T_PRT_SITES { get; set; }
+        public T_OD_SITES T_OD_SITES { get; set; }
+        public bool VALIDATE_CD { get; set; }
+        public string VALIDATE_MSG { get; set; }
+        public string ORG_NAME { get; set; }
+
+        //INITIALIZE
+        public SiteImportType()
+        {
+            T_PRT_SITES = new T_PRT_SITES();
+            T_OD_SITES = new T_OD_SITES();
+            VALIDATE_CD = true;
+        }
     }
 
     public interface IDbOpenDump
@@ -108,41 +119,55 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
         string UpdateT_OD_SITES_Status(Guid sITE_IDX);
 
         //************** T_OD_DUMP_ASSESSMENTS **********************************
-        T_OD_DUMP_ASSESSMENTS getT_OD_DUMP_ASSESSMENTS_ByDumpAssessmentIDX(Guid DumpAssessmentIDX);
-        T_OD_DUMP_ASSESSMENTS getT_OD_DUMP_ASSESSMENTS_ByDumpAssessmentIDX_wNav(Guid DumpAssessmentIDX);
-        List<AssessmentSummaryDisplayType> getT_OD_DUMP_ASSESSMENTS_BySITEIDX(Guid Siteidx);
-        List<AssessmentSummaryDisplayType> getT_OD_DUMP_ASSESSMENTS_ByUser(string UserID);
-        IEnumerable<SelectListItem> get_ddl_T_OD_DUMP_ASSESSMENTS_by_BySITEIDX(Guid? Siteidx);
-        int deleteT_OD_DumpAssessment(Guid DumpAssessmentIDX);
-        Guid? InsertUpdateT_OD_DumpAssessment(Guid dUMPASSESSMENTS_IDX, Guid? sITE_IDX, DateTime? aSSESSMENT_DT, string aSSESSED_BY, Guid? ASSESSMENT_TYPE_IDX, string cURRENT_SITE_STATUS, string SITE_DESCRIPTION,
+        T_OD_ASSESSMENTS getT_OD_ASSESSMENTS_ByAssessmentIDX(Guid aSSESSMENT_IDX);
+        T_OD_ASSESSMENTS getT_OD_ASSESSMENTS_ByAssessmentIDX_wNav(Guid aSSESSMENT_IDX);
+        List<AssessmentSummaryDisplayType> getT_OD_ASSESSMENTS_BySITEIDX(Guid Siteidx);
+        List<AssessmentSummaryDisplayType> getT_OD_ASSESSMENTS_ByUser(string UserID);
+        IEnumerable<SelectListItem> get_ddl_T_OD_ASSESSMENTS_by_BySITEIDX(Guid? Siteidx);
+        IEnumerable<SelectListItem> get_ddl_T_OD_ASSESSMENTS_by_ByUser(string UserID);
+        int deleteT_OD_Assessment(Guid aSSESSMENT_IDX);
+        Guid? InsertUpdateT_OD_ASSESSMENTS(Guid aSSESSMENT_IDX, Guid? sITE_IDX, DateTime? aSSESSMENT_DT, string aSSESSED_BY, Guid? ASSESSMENT_TYPE_IDX, string cURRENT_SITE_STATUS, string SITE_DESCRIPTION,
                                                         string ASSESSMENT_NOTES, decimal? aREA_ACRES, decimal? vOLUMN_CU_YD, Guid? hF_RAINFALL, Guid? hF_DRAINAGE, Guid? hF_FLOODING, Guid? hF_BURNING, Guid? hF_FENCING,
-                                                        Guid? hF_ACCESS_CONTROL, Guid? hF_PUBLIC_CONCERN, int? hEALTH_THREAT_SCORE, decimal? cOST_CLEANUP_AMT, decimal? cOST_TRANSPORT_AMT, decimal? cOST_DISPOSAL_AMT,
-                                                        decimal? cOST_RESTORE_AMT, decimal? cOST_SURVEIL_AMT, decimal? cOST_TOTAL_AMT, DateTime? cLEANED_CLOSED_DT);
+                                                        Guid? hF_ACCESS_CONTROL, Guid? hF_PUBLIC_CONCERN, int? hEALTH_THREAT_SCORE, DateTime? cLEANED_CLOSED_DT);
         IEnumerable<SelectListItem> get_ddl_T_OD_SITE_STATUS();
 
         //************** T_OD_DUMP_ASSESSMENT_CONTENT **********************************
-        List<SelectedWasteTypeDisplay> getT_OD_DUMP_ASSESSMENT_CONTENT_by_AssessIDX(Guid? AssessmentIdx);
-        List<AssessmentContentTypeDisplay> getT_OD_DUMP_ASSESSMENT_CONTENT_ByDumpAssessmentIDX(Guid DumpAssessmentIDX);
-        Guid? InsertUpdateT_OD_DumpAssessment_Content(Guid? dUMP_ASSESSMENTS_CONTENT_IDX, Guid? dUMP_ASSESSMENTS_IDX, Guid? rEF_WASTE_TYPE_IDX, decimal? wASTE_AMT, Guid? wASTE_UNIT_MSR, Guid? wASTE_DISPOSAL_METHOD, string wASTE_DISPOSAL_DIST, bool IS_CHECKED);
-        List<CatSums> getT_OD_DUMP_ASSESSMENT_CONTENT_DistinctCatSums(Guid dUMPASSESSMENTS_IDX, string Cat);
+        List<SelectedWasteTypeDisplay> getT_OD_ASSESSMENT_CONTENT_by_AssessIDX(Guid? aSSESSMENT_IDX);
+        List<AssessmentContentTypeDisplay> getT_OD_ASSESSMENT_CONTENT_ByDumpAssessmentIDX(Guid aSSESSMENT_IDX);
+        List<AssessmentContentTypeDisplay> getT_OD_ASSESSMENT_CONTENT_ByDumpAssessmentIDX_readonly(Guid aSSESSMENT_IDX);
+        Guid? InsertUpdateT_OD_Assessment_Content(Guid? aSSESSMENT_CONTENT_IDX, Guid? aSSESSMENT_IDX, Guid? rEF_WASTE_TYPE_IDX, decimal? wASTE_AMT, Guid? wASTE_UNIT_MSR, Guid? wASTE_DISPOSAL_METHOD, string wASTE_DISPOSAL_DIST, bool IS_CHECKED);
+        List<CatSums> getT_OD_ASSESSMENT_CONTENT_DistinctCatSums(Guid aSSESSMENTS_IDX, string Cat);
 
         //************** T_OD_DUMP_ASSESSMENT_DOCUMENTS *********************************
-        Guid? InsertUpdateT_OD_DUMP_ASSESSMENT_DOCUMENTS(Guid? dOC_IDX, Guid dUMPASSESSMENTS_IDX);
-        List<T_PRT_DOCUMENTS> GetT_PRT_DOCUMENTS_ByDumpAssessmentsIDx(Guid dUMPASSESSMENTS_IDX);
-        List<T_PRT_DOCUMENTS> GetT_PRT_DOCUMENTS_Photos_ByDumpAssessmentsIDx(Guid dUMPASSESSMENTS_IDX);
+        Guid? InsertUpdateT_OD_ASSESSMENT_DOCUMENTS(Guid? dOC_IDX, Guid aSSESSMENT_IDX);
+        List<T_PRT_DOCUMENTS> GetT_PRT_DOCUMENTS_ByAssessmentIDX(Guid aSSESSMENT_IDX, string docType);
 
+        //****************T_OD_CLEANUP_PROJECT ***********************************
+        Guid? InsertUpdateT_OD_CLEANUP_PROJECT(Guid? cLEANUP_PROJECT_IDX, Guid? aSSESSMENT_IDX, string pROJECT_TYPE, string pROJECT_DESCRIPTION, DateTime? sTART_DATE,
+            DateTime? cOMPLETION_DATE, decimal? cOST_CLEANUP_AMT, decimal? cOST_TRANSPORT_AMT, decimal? cOST_DISPOSAL_AMT, decimal? cOST_RESTORE_AMT, decimal? cOST_SURVEIL_AMT,
+            decimal? cOST_TOTAL_AMT, string mODIFY_USERID, string cLEANUP_BY, string cLEANUP_BY_TITLE);
+        T_OD_CLEANUP_PROJECT getT_OD_CLEANUP_PROJECT_by_IDX(Guid? cLEANUP_PROJECT_IDX);
+        bool getT_OD_CLEANUP_PROJECT_Estimate_by_Assessment(Guid? aSSESSMENT_IDX);
+        List<CleanupProjectsDisplayType> getT_OD_CLEANUP_PROJECT_by_User(string UserID);
+        int deleteT_OD_CLEANUP_PROJECT(Guid cLEANUP_PROJECT_IDX);
 
-        //************** T_OD_DUMP_ASSESSMENT_CLEANUP **********************************
-        Guid? InsertUpdateT_OD_DUMP_ASSESSMENT_CLEANUP(Guid? dUMP_ASSESSMENT_CLEANUP_IDX, Guid? dUMP_ASSESSMENTS_IDX, string rEF_WASTE_TYPE_CAT, string rEF_ASSET_NAME, decimal? cLEANUP_COST);
-        List<AssessmentCleanupDisplayType> getT_OD_DUMP_ASSESSMENT_CLEANUP_by_AssessIDX(Guid? dUMPASSESSMENTS_IDX);
-        decimal? getT_OD_DUMP_ASSESSMENT_CLEANUP_Sum_by_AssessIDX(Guid? dUMPASSESSMENTS_IDX);
+        //************** T_OD_CLEANUP_DOCUMENTS **********************************
+        Guid? InsertUpdateT_OD_CLEANUP_DOCS(Guid? dOC_IDX, Guid cLEANUP_PROJECT_IDX);
+        List<T_PRT_DOCUMENTS> GetT_PRT_DOCUMENTS_ByCleanupProjectIDX(Guid cLEANUP_PROJECT_IDX, string docType);
 
-        //****************T_OD_DUMP_ASSESSMENT_RESTORE **********************************
-        T_OD_DUMP_ASSESSMENT_RESTORE getT_OD_DUMP_ASSESSMENT_RESTORE_by_IDX(Guid? dUMP_ASSESSMENT_RESTORE_IDX);
-        List<T_OD_DUMP_ASSESSMENT_RESTORE> getT_OD_DUMP_ASSESSMENT_RESTORE_by_DumpAssessIDXandCat(Guid? dUMPASSESSMENTS_IDX, string rESTORE_CAT);
-        decimal? getT_OD_DUMP_ASSESSMENT_RESTORE_Sum_by_AssessIDX(Guid? dUMPASSESSMENTS_IDX, string rESTORE_CAT);
-        Guid? InsertUpdateT_OD_DUMP_ASSESSMENT_RESTORE(Guid? dUMP_ASSESSMENT_RESTORE_IDX, Guid? dUMP_ASSESSMENTS_IDX, string rESTORE_CAT, string rESTORE_ACTIVITY, decimal? rESTORE_COST, string mODIFY_BY);
-        int DeleteT_OD_DUMP_ASSESSMENT_RESTORE(Guid dUMP_ASSESSMENT_RESTORE_IDX);
+        //************** T_OD_CLEANUP_CLEANUP_DTL **********************************
+        Guid? InsertUpdateT_OD_CLEANUP_CLEANUP_DTL(Guid? cLEANUP_CLEANUP_DTL_IDX, Guid? cLEANUP_PROJECT_IDX, string rEF_WASTE_TYPE_CAT, string rEF_ASSET_NAME, decimal? cLEANUP_COST);
+        List<AssessmentCleanupDisplayType> getT_OD_CLEANUP_CLEANUP_DTL_by_ProjectIDX(Guid? cLEANUP_PROJECT_IDX);
+        decimal? getT_OD_CLEANUP_CLEANUP_DTL_Sum_by_ProjectIDX(Guid? cLEANUP_PROJECT_IDX);
+        int deleteT_OD_CLEANUP_CLEANUP_DTL(Guid cLEANUP_CLEANUP_DTL_IDX);
+
+        //****************T_OD_CLEANUP_ACTIVITIES **********************************
+        T_OD_CLEANUP_ACTIVITIES getT_OD_CLEANUP_ACTIVITIES_by_IDX(Guid? cLEANUP_ACTIVITY_IDX);
+        List<T_OD_CLEANUP_ACTIVITIES> getT_OD_CLEANUP_ACTIVITIES_by_Project_and_Cat(Guid? cLEANUP_PROJECT_IDX, string cLEANUP_CAT);
+        decimal? getT_OD_CLEANUP_ACTIVITIES_Sum_by_Project_and_Cat(Guid? cLEANUP_PROJECT_IDX, string cLEANUP_CAT);
+        Guid? InsertUpdateT_OD_CLEANUP_ACTIVITIES(Guid? cLEANUP_ACTIVITY_IDX, Guid? cLEANUP_PROJECT_IDX, string cLEANUP_CAT, string cLEANUP_ACTIVITY, decimal? cLEANUP_COST,
+            string mODIFY_BY, decimal? cLEANUP_UNIT_COST, string qUANTITY, string qUANTITY_UNIT);
+        int DeleteT_OD_CLEANUP_ACTIVITIES(Guid cLEANUP_ACTIVITY_IDX);
 
         //************** T_OD_REF_DATA **************************************************
         IEnumerable<SelectListItem> get_ddl_T_OD_REF_DATA_by_category(string cat_name, string org_id);
@@ -161,8 +186,12 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
         //************** T_OD_REF_DISPOSAL **********************************************
         IEnumerable<SelectListItem> get_ddl_ref_disposal();
 
+        //************** REF_CLEANUP_TYPE **********************************
+        IEnumerable<SelectListItem> get_ddl_CLEANUP_PROJECT_TYPE();
+
         //util
-        int CalcCleanup(Guid DumpAssessmentIDX);
+        int CalcCleanupEstimate(Guid CleanupProjectIDX, bool CalcCleanupCleanupDtl);
+        SiteImportType InsertOrUpdate_T_OD_SITE_local(string UserIDX, Dictionary<string, string> colVals, string path);
 
     }
 
@@ -212,10 +241,10 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
                         && (searchStr == null || (d.SITE_NAME.ToUpper().Contains(searchStr.ToUpper())
                            || d.SITE_ADDRESS.ToUpper().Contains(searchStr.ToUpper()) ))
                         orderby b.ORG_NAME, d.SITE_NAME
-                        select new OpenDumpSiteListDisplay(_log)
+                        select new OpenDumpSiteListDisplay
                         {
                             OrgName = b.ORG_NAME,
-                            Site_Idx = d.SITE_IDX,
+                            SiteIdx = d.SITE_IDX,
                             SiteName = d.SITE_NAME,
                             SiteAddress = d.SITE_ADDRESS,
                             CurrentSiteStatus = e.CURRENT_SITE_STATUS,
@@ -223,20 +252,21 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
                             ReportedOn = e.REPORTED_ON,
                             Latitude = d.LATITUDE,
                             Longitude = d.LONGITUDE,
-                            LastAssessment = (from v1 in ctx.T_OD_DUMP_ASSESSMENTS
+                            LastAssessment = (from v1 in ctx.T_OD_ASSESSMENTS
                                              where v1.SITE_IDX == d.SITE_IDX
                                              orderby v1.ASSESSMENT_DT descending
                                              select v1).FirstOrDefault(),
-                            HEALTH_THREAT_SCORE = (from v1 in ctx.T_OD_DUMP_ASSESSMENTS
+                            HEALTH_THREAT_SCORE = (from v1 in ctx.T_OD_ASSESSMENTS
                                                    where v1.SITE_IDX == d.SITE_IDX
                                                    && v1.HEALTH_THREAT_SCORE != null
                                                    orderby v1.ASSESSMENT_DT descending
                                                    select v1.HEALTH_THREAT_SCORE).FirstOrDefault(),
-                            EST_CLEANUP_COSTS = (from v1 in ctx.T_OD_DUMP_ASSESSMENTS
-                                                   where v1.SITE_IDX == d.SITE_IDX
-                                                   && v1.COST_TOTAL_AMT != null
-                                                   orderby v1.ASSESSMENT_DT descending
-                                                   select v1.COST_TOTAL_AMT).FirstOrDefault()
+                            LatestCleanupProject = (from v1 in ctx.T_OD_CLEANUP_PROJECT
+                                                 join v2 in ctx.T_OD_ASSESSMENTS on v1.ASSESSMENT_IDX equals v2.ASSESSMENT_IDX
+                                                 where v2.SITE_IDX == d.SITE_IDX
+                                                 && v1.COST_TOTAL_AMT != null
+                                                 orderby v1.CREATE_DT descending
+                                                 select v1).FirstOrDefault()
                         }).ToList();
             }
             catch (Exception ex)
@@ -290,7 +320,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
         {
             try
             {
-                T_OD_DUMP_ASSESSMENTS lastAssessment = ctx.T_OD_DUMP_ASSESSMENTS
+                T_OD_ASSESSMENTS lastAssessment = ctx.T_OD_ASSESSMENTS
                                 .Where(c => c.SITE_IDX == sITE_IDX)
                                 .OrderByDescending(t => t.ASSESSMENT_DT)
                                 .FirstOrDefault();
@@ -317,12 +347,12 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
 
 
         //************** T_OD_DUMP_ASSESSMENTS **********************************
-        public T_OD_DUMP_ASSESSMENTS getT_OD_DUMP_ASSESSMENTS_ByDumpAssessmentIDX(Guid DumpAssessmentIDX)
+        public T_OD_ASSESSMENTS getT_OD_ASSESSMENTS_ByAssessmentIDX(Guid aSSESSMENT_IDX)
         {
             try
             {
-                return ctx.T_OD_DUMP_ASSESSMENTS
-                    .Where(s => s.DUMP_ASSESSMENTS_IDX == DumpAssessmentIDX)
+                return ctx.T_OD_ASSESSMENTS
+                    .Where(s => s.ASSESSMENT_IDX == aSSESSMENT_IDX)
                     .FirstOrDefault();
             }
             catch (Exception ex)
@@ -332,12 +362,12 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             }
         }
 
-        public T_OD_DUMP_ASSESSMENTS getT_OD_DUMP_ASSESSMENTS_ByDumpAssessmentIDX_wNav(Guid DumpAssessmentIDX)
+        public T_OD_ASSESSMENTS getT_OD_ASSESSMENTS_ByAssessmentIDX_wNav(Guid aSSESSMENT_IDX)
         {
             try
             {
-                var xxx = ctx.T_OD_DUMP_ASSESSMENTS
-                    .Where(s => s.DUMP_ASSESSMENTS_IDX == DumpAssessmentIDX)
+                var xxx = ctx.T_OD_ASSESSMENTS
+                    .Where(s => s.ASSESSMENT_IDX == aSSESSMENT_IDX)
                     .Include(s => s.HF_ACCESS_CONTROLNavigation)
                     .Include(s => s.HF_BURNINGNavigation)
                     .Include(s => s.HF_DRAINAGENavigation)
@@ -356,24 +386,28 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             }
         }
 
-        public List<AssessmentSummaryDisplayType> getT_OD_DUMP_ASSESSMENTS_BySITEIDX(Guid Siteidx)
+        public List<AssessmentSummaryDisplayType> getT_OD_ASSESSMENTS_BySITEIDX(Guid Siteidx)
         {
             try
             {
-                return (from a in ctx.T_OD_DUMP_ASSESSMENTS
+                return (from a in ctx.T_OD_ASSESSMENTS
                         where a.SITE_IDX == Siteidx
                         orderby a.ASSESSMENT_DT descending
                         select new AssessmentSummaryDisplayType
                         {
-                            DUMP_ASSESSMENTS_IDX = a.DUMP_ASSESSMENTS_IDX,
+                            ASSESSMENT_IDX = a.ASSESSMENT_IDX,
                             ASSESSMENT_DT = a.ASSESSMENT_DT,
                             ASSESSED_BY = a.ASSESSED_BY,
                             ASSESSMENT_NOTES = a.ASSESSMENT_NOTES,
                             HEALTH_THREAT_SCORE = a.HEALTH_THREAT_SCORE,
-                            COST_TOTAL_AMT = a.COST_TOTAL_AMT,
                             ORG_NAME = null,
                             SITE_NAME = null,
-                            CURRENT_SITE_STATUS = a.CURRENT_SITE_STATUS
+                            CURRENT_SITE_STATUS = a.CURRENT_SITE_STATUS,
+                            LatestCleanupProject = (from v1 in ctx.T_OD_CLEANUP_PROJECT
+                                                    where v1.ASSESSMENT_IDX == a.ASSESSMENT_IDX
+                                                    && v1.COST_TOTAL_AMT != null
+                                                    orderby v1.CREATE_DT descending
+                                                    select v1).FirstOrDefault()
                         }).ToList();
             }
             catch (Exception ex)
@@ -383,25 +417,29 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             }
         }
 
-        public List<AssessmentSummaryDisplayType> getT_OD_DUMP_ASSESSMENTS_ByUser(string UserID)
+        public List<AssessmentSummaryDisplayType> getT_OD_ASSESSMENTS_ByUser(string UserID)
         {
             try
             {
-                return (from a in ctx.T_OD_DUMP_ASSESSMENTS
+                return (from a in ctx.T_OD_ASSESSMENTS
                         join b in ctx.T_PRT_SITES on a.SITE_IDX equals b.SITE_IDX
                         join c in ctx.T_PRT_ORG_USERS on b.ORG_ID equals c.ORG_ID
                         where c.Id == UserID
                         orderby a.ASSESSMENT_DT descending
                         select new AssessmentSummaryDisplayType {
-                            DUMP_ASSESSMENTS_IDX= a.DUMP_ASSESSMENTS_IDX,
+                            ASSESSMENT_IDX= a.ASSESSMENT_IDX,
                             ASSESSMENT_DT = a.ASSESSMENT_DT,
                             ASSESSED_BY = a.ASSESSED_BY,
                             ASSESSMENT_NOTES = a.ASSESSMENT_NOTES,
                             HEALTH_THREAT_SCORE = a.HEALTH_THREAT_SCORE,
-                            COST_TOTAL_AMT = a.COST_TOTAL_AMT,
                             ORG_NAME = c.ORG_ID,
                             SITE_NAME = b.SITE_NAME,
-                            CURRENT_SITE_STATUS = a.CURRENT_SITE_STATUS
+                            CURRENT_SITE_STATUS = a.CURRENT_SITE_STATUS,
+                            LatestCleanupProject = (from v1 in ctx.T_OD_CLEANUP_PROJECT
+                                                    where v1.ASSESSMENT_IDX == a.ASSESSMENT_IDX
+                                                    && v1.COST_TOTAL_AMT != null
+                                                    orderby v1.CREATE_DT descending
+                                                    select v1).FirstOrDefault()
                         }).ToList();
             }
             catch (Exception ex)
@@ -411,17 +449,17 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             }
         }
                
-        public IEnumerable<SelectListItem> get_ddl_T_OD_DUMP_ASSESSMENTS_by_BySITEIDX(Guid? Siteidx)
+        public IEnumerable<SelectListItem> get_ddl_T_OD_ASSESSMENTS_by_BySITEIDX(Guid? Siteidx)
         {
             try
             {
 
-                return (from a in ctx.T_OD_DUMP_ASSESSMENTS
+                return (from a in ctx.T_OD_ASSESSMENTS
                         where a.SITE_IDX == Siteidx
                         orderby a.ASSESSMENT_DT descending
                         select new SelectListItem
                         {
-                            Value = a.DUMP_ASSESSMENTS_IDX.ToString(),
+                            Value = a.ASSESSMENT_IDX.ToString(),
                             Text = a.ASSESSMENT_DT.ToString("MM/dd/yyyy")
                         }).ToList();
             }
@@ -432,11 +470,33 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             }
         }
 
-        public int deleteT_OD_DumpAssessment(Guid DumpAssessmentIDX)
+        public IEnumerable<SelectListItem> get_ddl_T_OD_ASSESSMENTS_by_ByUser(string UserID)
         {
             try
             {
-                T_OD_DUMP_ASSESSMENTS tda = new T_OD_DUMP_ASSESSMENTS { DUMP_ASSESSMENTS_IDX = DumpAssessmentIDX };
+                return (from a in ctx.T_OD_ASSESSMENTS
+                        join b in ctx.T_PRT_SITES on a.SITE_IDX equals b.SITE_IDX
+                        join c in ctx.T_PRT_ORG_USERS on b.ORG_ID equals c.ORG_ID
+                        where c.Id == UserID
+                        orderby a.ASSESSMENT_DT descending
+                        select new SelectListItem
+                        {
+                            Value = a.ASSESSMENT_IDX.ToString(),
+                            Text = b.SITE_NAME + " - " + a.ASSESSMENT_DT.ToString("MM/dd/yyyy")
+                        }).ToList();
+            }
+            catch (Exception ex)
+            {
+                _log.LogEFException(ex);
+                return null;
+            }
+        }
+
+        public int deleteT_OD_Assessment(Guid aSSESSMENT_IDX)
+        {
+            try
+            {
+                T_OD_ASSESSMENTS tda = new T_OD_ASSESSMENTS { ASSESSMENT_IDX = aSSESSMENT_IDX };
                 ctx.Entry(tda).State = Microsoft.EntityFrameworkCore.EntityState.Deleted;
                 ctx.SaveChanges();
 
@@ -453,25 +513,23 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             }
         }
 
-        public Guid? InsertUpdateT_OD_DumpAssessment(Guid dUMPASSESSMENTS_IDX, Guid? sITE_IDX, DateTime? aSSESSMENT_DT, string aSSESSED_BY, Guid? ASSESSMENT_TYPE_IDX, string cURRENT_SITE_STATUS, string SITE_DESCRIPTION,
+        public Guid? InsertUpdateT_OD_ASSESSMENTS(Guid aSSESSMENT_IDX, Guid? sITE_IDX, DateTime? aSSESSMENT_DT, string aSSESSED_BY, Guid? ASSESSMENT_TYPE_IDX, string cURRENT_SITE_STATUS, string SITE_DESCRIPTION,
                                                         string ASSESSMENT_NOTES, decimal? aREA_ACRES, decimal? vOLUMN_CU_YD, Guid? hF_RAINFALL, Guid? hF_DRAINAGE, Guid? hF_FLOODING, Guid? hF_BURNING, Guid? hF_FENCING, 
-                                                        Guid? hF_ACCESS_CONTROL, Guid? hF_PUBLIC_CONCERN, int? hEALTH_THREAT_SCORE, decimal? cOST_CLEANUP_AMT, decimal? cOST_TRANSPORT_AMT, decimal? cOST_DISPOSAL_AMT, 
-                                                        decimal? cOST_RESTORE_AMT, decimal? cOST_SURVEIL_AMT, decimal? cOST_TOTAL_AMT, DateTime? cLEANED_CLOSED_DT)
+                                                        Guid? hF_ACCESS_CONTROL, Guid? hF_PUBLIC_CONCERN, int? hEALTH_THREAT_SCORE, DateTime? cLEANED_CLOSED_DT)
         {
             try
             {
                 Boolean insInd = false;
-
-                T_OD_DUMP_ASSESSMENTS e = (from c in ctx.T_OD_DUMP_ASSESSMENTS
-                                           where c.DUMP_ASSESSMENTS_IDX == dUMPASSESSMENTS_IDX
-                                           select c).FirstOrDefault();
+                T_OD_ASSESSMENTS e = (from c in ctx.T_OD_ASSESSMENTS
+                                      where c.ASSESSMENT_IDX == aSSESSMENT_IDX
+                                      select c).FirstOrDefault();
 
                 //insert case
                 if (e == null)
                 {
                     insInd = true;
-                    e = new T_OD_DUMP_ASSESSMENTS();
-                    e.DUMP_ASSESSMENTS_IDX = Guid.NewGuid();
+                    e = new T_OD_ASSESSMENTS();
+                    e.ASSESSMENT_IDX = Guid.NewGuid();
                 }
 
                 if (sITE_IDX != null) e.SITE_IDX = (Guid)sITE_IDX;
@@ -491,19 +549,10 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
                 if (hF_ACCESS_CONTROL != null) e.HF_ACCESS_CONTROL = hF_ACCESS_CONTROL;
                 if (hF_PUBLIC_CONCERN != null) e.HF_PUBLIC_CONCERN = hF_PUBLIC_CONCERN;
                 if (hEALTH_THREAT_SCORE != null) e.HEALTH_THREAT_SCORE = hEALTH_THREAT_SCORE;
-                if (cOST_CLEANUP_AMT != null) e.COST_CLEANUP_AMT = cOST_CLEANUP_AMT;
-                if (cOST_TRANSPORT_AMT != null) e.COST_TRANSPORT_AMT = cOST_TRANSPORT_AMT;
-                if (cOST_DISPOSAL_AMT != null) e.COST_DISPOSAL_AMT = cOST_DISPOSAL_AMT;
-                if (cOST_RESTORE_AMT != null) e.COST_RESTORE_AMT = cOST_RESTORE_AMT;
-                if (cOST_SURVEIL_AMT != null) e.COST_SURVEIL_AMT = cOST_SURVEIL_AMT;
-                if (cOST_TOTAL_AMT != null)
-                    e.COST_TOTAL_AMT = cOST_TOTAL_AMT;
-                else if (cOST_CLEANUP_AMT != null || cOST_TRANSPORT_AMT != null || cOST_DISPOSAL_AMT != null || cOST_RESTORE_AMT != null || cOST_SURVEIL_AMT != null)
-                    e.COST_TOTAL_AMT = (e.COST_CLEANUP_AMT??0) + (e.COST_TRANSPORT_AMT??0) + (e.COST_DISPOSAL_AMT??0) + (e.COST_RESTORE_AMT??0) + (e.COST_SURVEIL_AMT??0);
                 if (cLEANED_CLOSED_DT != null) e.CLEANED_CLOSED_DT = cLEANED_CLOSED_DT;
 
                 if (insInd)
-                    ctx.T_OD_DUMP_ASSESSMENTS.Add(e);
+                    ctx.T_OD_ASSESSMENTS.Add(e);
 
                 ctx.SaveChanges();
 
@@ -511,7 +560,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
                 if (cURRENT_SITE_STATUS != null)
                     UpdateT_OD_SITES_Status(e.SITE_IDX);
 
-                return e.DUMP_ASSESSMENTS_IDX;
+                return e.ASSESSMENT_IDX;
             }
             catch (Exception ex)
             {
@@ -526,6 +575,8 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             List<SelectListItem> ddl_SiteStatus = new List<SelectListItem>();
 
             ddl_SiteStatus.Add(new SelectListItem() { Value = "Active", Text = "Active" });
+            ddl_SiteStatus.Add(new SelectListItem() { Value = "Active - Assessment Phase", Text = "Active - Assessment Phase" });
+            ddl_SiteStatus.Add(new SelectListItem() { Value = "Active - Cleanup Phase", Text = "Active - Cleanup Phase" });
             ddl_SiteStatus.Add(new SelectListItem() { Value = "Inactive - Cleaned Up", Text = "Inactive - Cleaned Up" });
             ddl_SiteStatus.Add(new SelectListItem() { Value = "Inactive - Closed", Text = "Inactive - Closed" });
 
@@ -533,20 +584,20 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
         }
 
 
-        //************** T_OD_DUMP_ASSESSMENT_CONTENT **********************************
-        public List<SelectedWasteTypeDisplay> getT_OD_DUMP_ASSESSMENT_CONTENT_by_AssessIDX(Guid? AssessmentIdx)
+        //************** T_OD_ASSESSMENT_CONTENT **********************************
+        public List<SelectedWasteTypeDisplay> getT_OD_ASSESSMENT_CONTENT_by_AssessIDX(Guid? aSSESSMENT_IDX)
         {
             try
             {
                 return (from a in ctx.T_OD_REF_WASTE_TYPE
-                        join b in ctx.T_OD_DUMP_ASSESSMENT_CONTENT.Where(o => o.DUMP_ASSESSMENTS_IDX == AssessmentIdx) on a.REF_WASTE_TYPE_IDX equals b.REF_WASTE_TYPE_IDX
+                        join b in ctx.T_OD_ASSESSMENT_CONTENT.Where(o => o.ASSESSMENT_IDX == aSSESSMENT_IDX) on a.REF_WASTE_TYPE_IDX equals b.REF_WASTE_TYPE_IDX
                         into sr
                         from x in sr.DefaultIfEmpty()  //left join
                         orderby a.REF_WASTE_TYPE_NAME
                         select new SelectedWasteTypeDisplay
                         {
                             T_OD_REF_WASTE_TYPE = a,
-                            IsChecked = (x.DUMP_ASSESSMENTS_CONTENT_IDX != null)
+                            IsChecked = (x.ASSESSMENT_CONTENT_IDX != null)
                         }).ToList();
             }
             catch (Exception ex)
@@ -556,17 +607,17 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             }
         }
 
-        public List<AssessmentContentTypeDisplay> getT_OD_DUMP_ASSESSMENT_CONTENT_ByDumpAssessmentIDX(Guid DumpAssessmentIDX)
+        public List<AssessmentContentTypeDisplay> getT_OD_ASSESSMENT_CONTENT_ByDumpAssessmentIDX(Guid aSSESSMENT_IDX)
         {
             try
             {
-                return (from a in ctx.T_OD_DUMP_ASSESSMENT_CONTENT
+                return (from a in ctx.T_OD_ASSESSMENT_CONTENT
                         join b in ctx.T_OD_REF_WASTE_TYPE on a.REF_WASTE_TYPE_IDX equals b.REF_WASTE_TYPE_IDX
-                        where a.DUMP_ASSESSMENTS_IDX == DumpAssessmentIDX
+                        where a.ASSESSMENT_IDX == aSSESSMENT_IDX
                         orderby b.REF_WASTE_TYPE_CAT, b.REF_WASTE_TYPE_NAME
                         select new AssessmentContentTypeDisplay {
-                            DUMP_ASSESSMENTS_CONTENT_IDX = a.DUMP_ASSESSMENTS_CONTENT_IDX,
-                            DUMP_ASSESSMENTS_IDX = a.DUMP_ASSESSMENTS_IDX,
+                            DUMP_ASSESSMENTS_CONTENT_IDX = a.ASSESSMENT_CONTENT_IDX,
+                            ASSESSMENT_IDX = a.ASSESSMENT_IDX,
                             REF_WASTE_TYPE_IDX = a.REF_WASTE_TYPE_IDX,
                             REF_WASTE_TYPE_NAME = b.REF_WASTE_TYPE_NAME,
                             REF_WASTE_TYPE_CAT = b.REF_WASTE_TYPE_CAT,
@@ -591,21 +642,54 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             }
         }
 
-        public Guid? InsertUpdateT_OD_DumpAssessment_Content(Guid? dUMP_ASSESSMENTS_CONTENT_IDX, Guid? dUMP_ASSESSMENTS_IDX, Guid? rEF_WASTE_TYPE_IDX, decimal? wASTE_AMT, Guid? wASTE_UNIT_MSR, Guid? wASTE_DISPOSAL_METHOD, string wASTE_DISPOSAL_DIST, bool IS_CHECKED)
+        public List<AssessmentContentTypeDisplay> getT_OD_ASSESSMENT_CONTENT_ByDumpAssessmentIDX_readonly(Guid aSSESSMENT_IDX)
+        {
+            try
+            {
+                return (from a in ctx.T_OD_ASSESSMENT_CONTENT
+                        join b in ctx.T_OD_REF_WASTE_TYPE on a.REF_WASTE_TYPE_IDX equals b.REF_WASTE_TYPE_IDX
+                        where a.ASSESSMENT_IDX == aSSESSMENT_IDX
+                        orderby b.REF_WASTE_TYPE_CAT, b.REF_WASTE_TYPE_NAME
+                        select new AssessmentContentTypeDisplay
+                        {
+                            DUMP_ASSESSMENTS_CONTENT_IDX = a.ASSESSMENT_CONTENT_IDX,
+                            ASSESSMENT_IDX = a.ASSESSMENT_IDX,
+                            REF_WASTE_TYPE_IDX = a.REF_WASTE_TYPE_IDX,
+                            REF_WASTE_TYPE_NAME = b.REF_WASTE_TYPE_NAME,
+                            REF_WASTE_TYPE_CAT = b.REF_WASTE_TYPE_CAT,
+                            WASTE_AMT = a.WASTE_AMT,
+                            UNIT_MSR_CD = (from bb in ctx.T_PRT_REF_UNITS 
+                                            where bb.UNIT_MSR_IDX == a.UNIT_MSR_IDX
+                                            select bb.UNIT_MSR_CD).FirstOrDefault(),
+                            WASTE_DISPOSAL_METHOD = a.WASTE_DISPOSAL_METHOD,
+                            WASTE_DISPOSAL_METHOD_TXT = (from cc in ctx.T_OD_REF_DISPOSAL
+                                                         where cc.REF_DISPOSAL_IDX == a.WASTE_DISPOSAL_METHOD
+                                                         select cc.DISPOSAL_NAME).FirstOrDefault(),
+                            WASTE_DISPOSAL_DIST = a.WASTE_DISPOSAL_DIST
+                        }).ToList();
+            }
+            catch (Exception ex)
+            {
+                _log.LogEFException(ex);
+                return null;
+            }
+        }
+
+        public Guid? InsertUpdateT_OD_Assessment_Content(Guid? aSSESSMENT_CONTENT_IDX, Guid? aSSESSMENT_IDX, Guid? rEF_WASTE_TYPE_IDX, decimal? wASTE_AMT, Guid? wASTE_UNIT_MSR, Guid? wASTE_DISPOSAL_METHOD, string wASTE_DISPOSAL_DIST, bool IS_CHECKED)
         {
             try
             {
                 Boolean insInd = false;
 
                 //first try grabbing from PK
-                T_OD_DUMP_ASSESSMENT_CONTENT e = (from c in ctx.T_OD_DUMP_ASSESSMENT_CONTENT
-                                                  where c.DUMP_ASSESSMENTS_CONTENT_IDX == dUMP_ASSESSMENTS_CONTENT_IDX
-                                                  select c).FirstOrDefault();
+                T_OD_ASSESSMENT_CONTENT e = (from c in ctx.T_OD_ASSESSMENT_CONTENT
+                                                  where c.ASSESSMENT_CONTENT_IDX == aSSESSMENT_CONTENT_IDX
+                                             select c).FirstOrDefault();
 
                 //then try grabbing from composite key
                 if (e == null)
-                    e = (from c in ctx.T_OD_DUMP_ASSESSMENT_CONTENT
-                         where c.DUMP_ASSESSMENTS_IDX == dUMP_ASSESSMENTS_IDX 
+                    e = (from c in ctx.T_OD_ASSESSMENT_CONTENT
+                         where c.ASSESSMENT_IDX == aSSESSMENT_IDX
                          && c.REF_WASTE_TYPE_IDX == rEF_WASTE_TYPE_IDX
                          select c).FirstOrDefault();
 
@@ -621,9 +705,9 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
                     if (e == null)
                     {
                         insInd = true;
-                        e = new T_OD_DUMP_ASSESSMENT_CONTENT();
-                        e.DUMP_ASSESSMENTS_CONTENT_IDX = Guid.NewGuid();
-                        e.DUMP_ASSESSMENTS_IDX = (Guid)dUMP_ASSESSMENTS_IDX;
+                        e = new T_OD_ASSESSMENT_CONTENT();
+                        e.ASSESSMENT_CONTENT_IDX = Guid.NewGuid();
+                        e.ASSESSMENT_IDX = (Guid)aSSESSMENT_IDX;
                         e.REF_WASTE_TYPE_IDX = (Guid)rEF_WASTE_TYPE_IDX;
                     }
                     if (wASTE_AMT != null) e.WASTE_AMT = wASTE_AMT;
@@ -632,10 +716,11 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
                     if (wASTE_DISPOSAL_DIST != null) e.WASTE_DISPOSAL_DIST = wASTE_DISPOSAL_DIST;
 
                     if (insInd)
-                        ctx.T_OD_DUMP_ASSESSMENT_CONTENT.Add(e);
+                        ctx.T_OD_ASSESSMENT_CONTENT.Add(e);
                     ctx.SaveChanges();
                 }
-                return dUMP_ASSESSMENTS_IDX;
+
+                return aSSESSMENT_IDX;
             }
             catch (Exception ex)
             {
@@ -645,12 +730,12 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
 
         }
 
-        public List<CatSums> getT_OD_DUMP_ASSESSMENT_CONTENT_DistinctCatSums(Guid dUMPASSESSMENTS_IDX, string Cat) {
+        public List<CatSums> getT_OD_ASSESSMENT_CONTENT_DistinctCatSums(Guid aSSESSMENT_IDX, string Cat) {
             try
             {
-                return (from a in ctx.T_OD_DUMP_ASSESSMENT_CONTENT
+                return (from a in ctx.T_OD_ASSESSMENT_CONTENT
                         join b in ctx.T_OD_REF_WASTE_TYPE on a.REF_WASTE_TYPE_IDX equals b.REF_WASTE_TYPE_IDX
-                        where a.DUMP_ASSESSMENTS_IDX == dUMPASSESSMENTS_IDX
+                        where a.ASSESSMENT_IDX == aSSESSMENT_IDX
                         && (Cat == null ? true : b.REF_WASTE_TYPE_CAT == Cat)
                         group a by new { b.REF_WASTE_TYPE_CAT } into grp
                         select new CatSums
@@ -667,15 +752,15 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
         }
 
 
-        //************** T_OD_DUMP_ASSESSMENT_DOCUMENTS **********************************
-        public Guid? InsertUpdateT_OD_DUMP_ASSESSMENT_DOCUMENTS(Guid? dOC_IDX, Guid dUMPASSESSMENTS_IDX)
+        //************** T_OD_ASSESSMENT_DOCUMENTS **********************************
+        public Guid? InsertUpdateT_OD_ASSESSMENT_DOCUMENTS(Guid? dOC_IDX, Guid aSSESSMENT_IDX)
         {
 
             try
             {
                 Boolean insInd = false;
 
-                T_OD_DUMP_ASSESSMENT_DOCS e = (from c in ctx.T_OD_DUMP_ASSESSMENT_DOCS
+                T_OD_ASSESSMENT_DOCS e = (from c in ctx.T_OD_ASSESSMENT_DOCS
                                                where c.DOC_IDX == dOC_IDX
                                                select c).FirstOrDefault();
 
@@ -683,15 +768,15 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
                 if (e == null)
                 {
                     insInd = true;
-                    e = new T_OD_DUMP_ASSESSMENT_DOCS();
+                    e = new T_OD_ASSESSMENT_DOCS();
 
                 }
 
                 if (dOC_IDX != null) e.DOC_IDX = (Guid)dOC_IDX;
-                if (dUMPASSESSMENTS_IDX != null) e.DUMP_ASSESSMENTS_IDX = dUMPASSESSMENTS_IDX;
+                if (aSSESSMENT_IDX != null) e.ASSESSMENT_IDX = aSSESSMENT_IDX;
 
                 if (insInd)
-                    ctx.T_OD_DUMP_ASSESSMENT_DOCS.Add(e);
+                    ctx.T_OD_ASSESSMENT_DOCS.Add(e);
 
                 ctx.SaveChanges();
                 return e.DOC_IDX;
@@ -704,14 +789,15 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
 
         }
 
-        public List<T_PRT_DOCUMENTS> GetT_PRT_DOCUMENTS_ByDumpAssessmentsIDx(Guid dUMPASSESSMENTS_IDX)
+        public List<T_PRT_DOCUMENTS> GetT_PRT_DOCUMENTS_ByAssessmentIDX(Guid aSSESSMENT_IDX, string docType)
         {
             try
             {
-                return (from a in ctx.T_OD_DUMP_ASSESSMENT_DOCS
+                return (from a in ctx.T_OD_ASSESSMENT_DOCS
                         join b in ctx.T_PRT_DOCUMENTS on a.DOC_IDX equals b.DOC_IDX
-                        where a.DUMP_ASSESSMENTS_IDX == dUMPASSESSMENTS_IDX
-                        && !b.DOC_FILE_TYPE.Contains("image")
+                        where a.ASSESSMENT_IDX == aSSESSMENT_IDX
+                        && b.DOC_TYPE == docType
+                        orderby b.CREATE_DT
                         select b).ToList();
             }
             catch (Exception ex)
@@ -722,15 +808,74 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
 
         }
 
-        public List<T_PRT_DOCUMENTS> GetT_PRT_DOCUMENTS_Photos_ByDumpAssessmentsIDx(Guid dUMPASSESSMENTS_IDX)
+
+        //****************T_OD_CLEANUP_PROJECT ***********************************
+        public Guid? InsertUpdateT_OD_CLEANUP_PROJECT(Guid? cLEANUP_PROJECT_IDX, Guid? aSSESSMENT_IDX, string pROJECT_TYPE, string pROJECT_DESCRIPTION, DateTime? sTART_DATE, 
+            DateTime? cOMPLETION_DATE, decimal? cOST_CLEANUP_AMT, decimal? cOST_TRANSPORT_AMT, decimal? cOST_DISPOSAL_AMT, decimal? cOST_RESTORE_AMT, decimal? cOST_SURVEIL_AMT, 
+            decimal? cOST_TOTAL_AMT, string mODIFY_USERID, string cLEANUP_BY, string cLEANUP_BY_TITLE)
         {
             try
             {
-                return (from a in ctx.T_OD_DUMP_ASSESSMENT_DOCS
-                        join b in ctx.T_PRT_DOCUMENTS on a.DOC_IDX equals b.DOC_IDX
-                        where a.DUMP_ASSESSMENTS_IDX == dUMPASSESSMENTS_IDX
-                        && b.DOC_FILE_TYPE.Contains("image")
-                        select b).ToList();
+                Boolean insInd = false;
+                T_OD_CLEANUP_PROJECT e = (from c in ctx.T_OD_CLEANUP_PROJECT
+                                          where c.CLEANUP_PROJECT_IDX == cLEANUP_PROJECT_IDX
+                                          select c).FirstOrDefault();
+
+                //insert case
+                if (e == null)
+                {
+                    insInd = true;
+                    e = new T_OD_CLEANUP_PROJECT();
+                    e.CLEANUP_PROJECT_IDX = Guid.NewGuid();
+                    e.CREATE_USER_ID = mODIFY_USERID;
+                    e.CREATE_DT = System.DateTime.Now;
+                }
+                else
+                {
+                    e.MODIFY_USER_ID = mODIFY_USERID;
+                    e.MODIFY_DT = System.DateTime.Now;
+                }
+
+                if (aSSESSMENT_IDX != null) e.ASSESSMENT_IDX = (Guid)aSSESSMENT_IDX;
+                if (pROJECT_TYPE != null) e.PROJECT_TYPE = pROJECT_TYPE;
+                if (pROJECT_DESCRIPTION != null) e.PROJECT_DESCRIPTION = pROJECT_DESCRIPTION;
+                if (sTART_DATE != null) e.START_DATE = sTART_DATE;
+                if (cOMPLETION_DATE != null) e.COMPLETION_DATE = cOMPLETION_DATE;
+                if (cOMPLETION_DATE == DateTime.MinValue) e.COMPLETION_DATE = null;  //allow nulling
+                if (cLEANUP_BY != null) e.CLEANUP_BY = cLEANUP_BY;
+                if (cLEANUP_BY_TITLE != null) e.CLEANUP_BY_TITLE = cLEANUP_BY_TITLE;
+                if (cOST_CLEANUP_AMT != null) e.COST_CLEANUP_AMT = cOST_CLEANUP_AMT;
+                if (cOST_TRANSPORT_AMT != null) e.COST_TRANSPORT_AMT = cOST_TRANSPORT_AMT;
+                if (cOST_DISPOSAL_AMT != null) e.COST_DISPOSAL_AMT = cOST_DISPOSAL_AMT;
+                if (cOST_RESTORE_AMT != null) e.COST_RESTORE_AMT = cOST_RESTORE_AMT;
+                if (cOST_SURVEIL_AMT != null) e.COST_SURVEIL_AMT = cOST_SURVEIL_AMT;
+                if (cOST_TOTAL_AMT != null)
+                    e.COST_TOTAL_AMT = cOST_TOTAL_AMT;
+                else if (cOST_CLEANUP_AMT != null || cOST_TRANSPORT_AMT != null || cOST_DISPOSAL_AMT != null || cOST_RESTORE_AMT != null || cOST_SURVEIL_AMT != null)
+                    e.COST_TOTAL_AMT = (e.COST_CLEANUP_AMT ?? 0) + (e.COST_TRANSPORT_AMT ?? 0) + (e.COST_DISPOSAL_AMT ?? 0) + (e.COST_RESTORE_AMT ?? 0) + (e.COST_SURVEIL_AMT ?? 0);
+
+                if (insInd)
+                    ctx.T_OD_CLEANUP_PROJECT.Add(e);
+
+                ctx.SaveChanges();
+
+                return e.CLEANUP_PROJECT_IDX;
+            }
+            catch (Exception ex)
+            {
+                _log.LogEFException(ex);
+                return null;
+            }
+
+        }
+
+        public T_OD_CLEANUP_PROJECT getT_OD_CLEANUP_PROJECT_by_IDX(Guid? cLEANUP_PROJECT_IDX)
+        {
+            try
+            {
+                return (from a in ctx.T_OD_CLEANUP_PROJECT
+                        where a.CLEANUP_PROJECT_IDX == cLEANUP_PROJECT_IDX
+                        select a).FirstOrDefault();
             }
             catch (Exception ex)
             {
@@ -739,25 +884,140 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             }
         }
 
+        public bool getT_OD_CLEANUP_PROJECT_Estimate_by_Assessment(Guid? aSSESSMENT_IDX)
+        {
+            try
+            {
+                int xxx = (from a in ctx.T_OD_CLEANUP_PROJECT
+                        where a.ASSESSMENT_IDX == aSSESSMENT_IDX
+                        && a.PROJECT_TYPE == "Estimate"
+                        select a).Count();
+
+                return xxx > 0;
+            }
+            catch (Exception ex)
+            {
+                _log.LogEFException(ex);
+                return false;
+            }
+        }
+
+        public List<CleanupProjectsDisplayType> getT_OD_CLEANUP_PROJECT_by_User(string UserID)
+        {
+            try
+            {
+                return (from z in ctx.T_OD_CLEANUP_PROJECT 
+                        join a in ctx.T_OD_ASSESSMENTS on z.ASSESSMENT_IDX equals a.ASSESSMENT_IDX
+                        join b in ctx.T_PRT_SITES on a.SITE_IDX equals b.SITE_IDX
+                        join c in ctx.T_PRT_ORG_USERS on b.ORG_ID equals c.ORG_ID
+                        where c.Id == UserID
+                        orderby z.CREATE_DT descending
+                        select new CleanupProjectsDisplayType
+                        {
+                            T_OD_CLEANUP_PROJECT = z,
+                            ORG_NAME = c.ORG_ID,
+                            SITE_NAME = b.SITE_NAME,
+                            ASSESSMENT_DT = a.ASSESSMENT_DT
+                        }).ToList();
+            }
+            catch (Exception ex)
+            {
+                _log.LogEFException(ex);
+                return null;
+            }
+        }
+
+        public int deleteT_OD_CLEANUP_PROJECT(Guid cLEANUP_PROJECT_IDX)
+        {
+            try
+            {
+                T_OD_CLEANUP_PROJECT tda = new T_OD_CLEANUP_PROJECT { CLEANUP_PROJECT_IDX = cLEANUP_PROJECT_IDX };
+                ctx.Entry(tda).State = Microsoft.EntityFrameworkCore.EntityState.Deleted;
+                ctx.SaveChanges();
+
+                return 1;
+            }
+            catch (Exception ex)
+            {
+                _log.LogEFException(ex);
+                return 0;
+            }
+        }
 
 
-        //****************T_OD_DUMP_ASSESSMENT_CLEANUP ***********************************
-        public Guid? InsertUpdateT_OD_DUMP_ASSESSMENT_CLEANUP(Guid? dUMP_ASSESSMENT_CLEANUP_IDX, Guid? dUMP_ASSESSMENTS_IDX, string rEF_WASTE_TYPE_CAT, string rEF_ASSET_NAME, decimal? cLEANUP_COST)
+        //************** T_OD_CLEANUP_DOCUMENTS **********************************
+        public Guid? InsertUpdateT_OD_CLEANUP_DOCS(Guid? dOC_IDX, Guid cLEANUP_PROJECT_IDX)
         {
 
             try
             {
                 Boolean insInd = false;
-                
+
+                T_OD_CLEANUP_DOCS e = (from c in ctx.T_OD_CLEANUP_DOCS
+                                          where c.DOC_IDX == dOC_IDX
+                                          select c).FirstOrDefault();
+
+                //insert case
+                if (e == null)
+                {
+                    insInd = true;
+                    e = new T_OD_CLEANUP_DOCS();
+
+                }
+
+                if (dOC_IDX != null) e.DOC_IDX = (Guid)dOC_IDX;
+                if (cLEANUP_PROJECT_IDX != null) e.CLEANUP_PROJECT_IDX = cLEANUP_PROJECT_IDX;
+
+                if (insInd)
+                    ctx.T_OD_CLEANUP_DOCS.Add(e);
+
+                ctx.SaveChanges();
+                return e.DOC_IDX;
+            }
+            catch (Exception ex)
+            {
+                _log.LogEFException(ex);
+                return null;
+            }
+
+        }
+
+        public List<T_PRT_DOCUMENTS> GetT_PRT_DOCUMENTS_ByCleanupProjectIDX(Guid cLEANUP_PROJECT_IDX, string docType)
+        {
+            try
+            {
+                return (from a in ctx.T_OD_CLEANUP_DOCS
+                        join b in ctx.T_PRT_DOCUMENTS on a.DOC_IDX equals b.DOC_IDX
+                        where a.CLEANUP_PROJECT_IDX == cLEANUP_PROJECT_IDX
+                        && b.DOC_TYPE == docType
+                        orderby b.CREATE_DT
+                        select b).ToList();
+            }
+            catch (Exception ex)
+            {
+                _log.LogEFException(ex);
+                return null;
+            }
+
+        }
+
+        //****************T_OD_DUMP_CLEANUP_CLEANUP_DTL ***********************************
+        public Guid? InsertUpdateT_OD_CLEANUP_CLEANUP_DTL(Guid? cLEANUP_CLEANUP_DTL_IDX, Guid? cLEANUP_PROJECT_IDX, string rEF_WASTE_TYPE_CAT, string rEF_ASSET_NAME, decimal? cLEANUP_COST)
+        {
+
+            try
+            {
+                Boolean insInd = false;
+
                 //first grab from PK
-                T_OD_DUMP_ASSESSMENT_CLEANUP e = (from c in ctx.T_OD_DUMP_ASSESSMENT_CLEANUP
-                                                  where c.DUMP_ASSESSMENT_CLEANUP_IDX == dUMP_ASSESSMENT_CLEANUP_IDX
-                                                  select c).FirstOrDefault();
+                T_OD_CLEANUP_CLEANUP_DTL e = (from c in ctx.T_OD_CLEANUP_CLEANUP_DTL
+                                              where c.CLEANUP_CLEANUP_DTL_IDX == cLEANUP_CLEANUP_DTL_IDX
+                                              select c).FirstOrDefault();
 
                 //else grab from composite key
                 if (e == null)
-                    e = (from c in ctx.T_OD_DUMP_ASSESSMENT_CLEANUP
-                         where c.DUMP_ASSESSMENTS_IDX == dUMP_ASSESSMENTS_IDX
+                    e = (from c in ctx.T_OD_CLEANUP_CLEANUP_DTL
+                         where c.CLEANUP_PROJECT_IDX == cLEANUP_PROJECT_IDX
                          && c.REF_WASTE_TYPE_CAT == rEF_WASTE_TYPE_CAT
                          && c.REF_ASSET_NAME == rEF_ASSET_NAME
                          select c).FirstOrDefault();
@@ -766,20 +1026,20 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
                 if (e == null)
                 {
                     insInd = true;
-                    e = new T_OD_DUMP_ASSESSMENT_CLEANUP();
-                    e.DUMP_ASSESSMENT_CLEANUP_IDX = Guid.NewGuid();
+                    e = new T_OD_CLEANUP_CLEANUP_DTL();
+                    e.CLEANUP_CLEANUP_DTL_IDX = Guid.NewGuid();
                 }
 
-                if (dUMP_ASSESSMENTS_IDX != null) e.DUMP_ASSESSMENTS_IDX = (Guid)dUMP_ASSESSMENTS_IDX;
+                if (cLEANUP_PROJECT_IDX != null) e.CLEANUP_PROJECT_IDX = (Guid)cLEANUP_PROJECT_IDX;
                 if (rEF_WASTE_TYPE_CAT != null) e.REF_WASTE_TYPE_CAT = rEF_WASTE_TYPE_CAT;
                 if (rEF_ASSET_NAME != null) e.REF_ASSET_NAME = rEF_ASSET_NAME;
                 if (cLEANUP_COST != null) e.CLEANUP_COST = cLEANUP_COST;
 
                 if (insInd)
-                    ctx.T_OD_DUMP_ASSESSMENT_CLEANUP.Add(e);
+                    ctx.T_OD_CLEANUP_CLEANUP_DTL.Add(e);
 
                 ctx.SaveChanges();
-                return e.DUMP_ASSESSMENT_CLEANUP_IDX;
+                return e.CLEANUP_CLEANUP_DTL_IDX;
             }
             catch (Exception ex)
             {
@@ -789,17 +1049,19 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
 
         }
 
-        public List<AssessmentCleanupDisplayType> getT_OD_DUMP_ASSESSMENT_CLEANUP_by_AssessIDX(Guid? dUMPASSESSMENTS_IDX)
+        public List<AssessmentCleanupDisplayType> getT_OD_CLEANUP_CLEANUP_DTL_by_ProjectIDX(Guid? cLEANUP_PROJECT_IDX)
         {
             try
             {
-                return (from a in ctx.T_OD_DUMP_ASSESSMENT_CLEANUP
-                           join b in ctx.T_OD_REF_WASTE_TYPE_CAT_CLEANUP on new { a.REF_WASTE_TYPE_CAT, a.REF_ASSET_NAME } equals new { b.REF_WASTE_TYPE_CAT, b.REF_ASSET_NAME } 
-                           where a.DUMP_ASSESSMENTS_IDX == dUMPASSESSMENTS_IDX
-                           orderby a.REF_WASTE_TYPE_CAT ascending, a.REF_ASSET_NAME descending
+                return (from a in ctx.T_OD_CLEANUP_CLEANUP_DTL
+                           join b in ctx.T_OD_REF_WASTE_TYPE_CAT_CLEANUP on new { a.REF_WASTE_TYPE_CAT, a.REF_ASSET_NAME } equals new { b.REF_WASTE_TYPE_CAT, b.REF_ASSET_NAME }
+                           join c in ctx.T_OD_CLEANUP_PROJECT on a.CLEANUP_PROJECT_IDX equals c.CLEANUP_PROJECT_IDX
+                        where a.CLEANUP_PROJECT_IDX == cLEANUP_PROJECT_IDX
+                        orderby a.REF_WASTE_TYPE_CAT ascending, a.REF_ASSET_NAME descending
                            select new AssessmentCleanupDisplayType {
-                               DUMP_ASSESSMENT_CLEANUP_IDX = a.DUMP_ASSESSMENT_CLEANUP_IDX,
-                               DUMP_ASSESSMENTS_IDX = a.DUMP_ASSESSMENTS_IDX,
+                               CLEANUP_CLEANUP_DTL_IDX = a.CLEANUP_CLEANUP_DTL_IDX,
+                               CLEANUP_PROJECT_IDX = a.CLEANUP_PROJECT_IDX,
+                               ASSESSMENT_IDX = c.ASSESSMENT_IDX,
                                REF_WASTE_TYPE_CAT = a.REF_WASTE_TYPE_CAT,
                                REF_ASSET_NAME = a.REF_ASSET_NAME,
                                CLEANUP_COST = a.CLEANUP_COST,
@@ -810,9 +1072,9 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
                                ASSET_COUNT = b.ASSET_COUNT,
                                PER_UNIT_IND = b.PER_UNIT_IND,
 
-                               sumCat = (from aa in ctx.T_OD_DUMP_ASSESSMENT_CONTENT
+                               sumCat = (from aa in ctx.T_OD_ASSESSMENT_CONTENT
                                          join bb in ctx.T_OD_REF_WASTE_TYPE on aa.REF_WASTE_TYPE_IDX equals bb.REF_WASTE_TYPE_IDX
-                                         where aa.DUMP_ASSESSMENTS_IDX == dUMPASSESSMENTS_IDX
+                                         where aa.ASSESSMENT_IDX == c.ASSESSMENT_IDX
                                          && bb.REF_WASTE_TYPE_CAT == b.REF_WASTE_TYPE_CAT
                                          select aa.WASTE_AMT).Sum()
 //                                         group aa by new { bb.REF_WASTE_TYPE_CAT } into grp
@@ -827,13 +1089,13 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             }
         }
 
-        public decimal? getT_OD_DUMP_ASSESSMENT_CLEANUP_Sum_by_AssessIDX(Guid? dUMPASSESSMENTS_IDX)
+        public decimal? getT_OD_CLEANUP_CLEANUP_DTL_Sum_by_ProjectIDX(Guid? cLEANUP_PROJECT_IDX)
         {
             try
             {
-                var xxx= (from a in ctx.T_OD_DUMP_ASSESSMENT_CLEANUP
-                        where a.DUMP_ASSESSMENTS_IDX == dUMPASSESSMENTS_IDX
-                        select a).ToList();
+                var xxx= (from a in ctx.T_OD_CLEANUP_CLEANUP_DTL
+                          where a.CLEANUP_PROJECT_IDX == cLEANUP_PROJECT_IDX
+                          select a).ToList();
 
                 return xxx.Select(c => c.CLEANUP_COST).Sum();
             }
@@ -844,16 +1106,31 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             }
         }
 
-
-
-        //****************T_OD_DUMP_ASSESSMENT_RESTORE ***********************************
-        public T_OD_DUMP_ASSESSMENT_RESTORE getT_OD_DUMP_ASSESSMENT_RESTORE_by_IDX(Guid? dUMP_ASSESSMENT_RESTORE_IDX)
+        public int deleteT_OD_CLEANUP_CLEANUP_DTL(Guid cLEANUP_CLEANUP_DTL_IDX)
         {
             try
             {
-                return (from a in ctx.T_OD_DUMP_ASSESSMENT_RESTORE
-                        where a.DUMP_ASSESSMENT_RESTORE_IDX == dUMP_ASSESSMENT_RESTORE_IDX
-                        orderby a.RESTORE_ACTIVITY
+                T_OD_CLEANUP_CLEANUP_DTL tda = new T_OD_CLEANUP_CLEANUP_DTL { CLEANUP_CLEANUP_DTL_IDX = cLEANUP_CLEANUP_DTL_IDX };
+                ctx.Entry(tda).State = Microsoft.EntityFrameworkCore.EntityState.Deleted;
+                ctx.SaveChanges();
+
+                return 1;
+            }
+            catch (Exception ex)
+            {
+                _log.LogEFException(ex);
+                return 0;
+            }
+        }
+
+
+        //****************T_OD_CLEANUP_ACTIVITIES ***********************************
+        public T_OD_CLEANUP_ACTIVITIES getT_OD_CLEANUP_ACTIVITIES_by_IDX(Guid? cLEANUP_ACTIVITY_IDX)
+        {
+            try
+            {
+                return (from a in ctx.T_OD_CLEANUP_ACTIVITIES
+                        where a.CLEANUP_ACTIVITY_IDX == cLEANUP_ACTIVITY_IDX
                         select a).FirstOrDefault();
             }
             catch (Exception ex)
@@ -863,15 +1140,14 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             }
         }
 
-
-        public List<T_OD_DUMP_ASSESSMENT_RESTORE> getT_OD_DUMP_ASSESSMENT_RESTORE_by_DumpAssessIDXandCat(Guid? dUMPASSESSMENTS_IDX, string rESTORE_CAT)
+        public List<T_OD_CLEANUP_ACTIVITIES> getT_OD_CLEANUP_ACTIVITIES_by_Project_and_Cat(Guid? cLEANUP_PROJECT_IDX, string cLEANUP_CAT)
         {
             try
             {
-                return (from a in ctx.T_OD_DUMP_ASSESSMENT_RESTORE
-                        where a.DUMP_ASSESSMENTS_IDX == dUMPASSESSMENTS_IDX
-                        && a.RESTORE_CAT == rESTORE_CAT
-                        orderby a.RESTORE_ACTIVITY
+                return (from a in ctx.T_OD_CLEANUP_ACTIVITIES
+                        where a.CLEANUP_PROJECT_IDX == cLEANUP_PROJECT_IDX
+                        && a.CLEANUP_CAT == cLEANUP_CAT
+                        orderby a.CLEANUP_ACTIVITY
                         select a).ToList();
             }
             catch (Exception ex)
@@ -881,16 +1157,16 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             }
         }
 
-        public decimal? getT_OD_DUMP_ASSESSMENT_RESTORE_Sum_by_AssessIDX(Guid? dUMPASSESSMENTS_IDX, string rESTORE_CAT)
+        public decimal? getT_OD_CLEANUP_ACTIVITIES_Sum_by_Project_and_Cat(Guid? cLEANUP_PROJECT_IDX, string cLEANUP_CAT)
         {
             try
             {
-                var xxx = (from a in ctx.T_OD_DUMP_ASSESSMENT_RESTORE
-                           where a.DUMP_ASSESSMENTS_IDX == dUMPASSESSMENTS_IDX
-                           && a.RESTORE_CAT == rESTORE_CAT
+                var xxx = (from a in ctx.T_OD_CLEANUP_ACTIVITIES
+                           where a.CLEANUP_PROJECT_IDX == cLEANUP_PROJECT_IDX
+                           && a.CLEANUP_CAT == cLEANUP_CAT
                            select a).ToList();
 
-                return xxx.Select(c => c.RESTORE_COST).Sum();
+                return xxx.Select(c => c.CLEANUP_COST).Sum();
             }
             catch (Exception ex)
             {
@@ -899,44 +1175,46 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             }
         }
 
-        public Guid? InsertUpdateT_OD_DUMP_ASSESSMENT_RESTORE(Guid? dUMP_ASSESSMENT_RESTORE_IDX, Guid? dUMP_ASSESSMENTS_IDX, string rESTORE_CAT, string rESTORE_ACTIVITY, decimal? rESTORE_COST, string mODIFY_BY)
+        public Guid? InsertUpdateT_OD_CLEANUP_ACTIVITIES(Guid? cLEANUP_ACTIVITY_IDX, Guid? cLEANUP_PROJECT_IDX, string cLEANUP_CAT, string cLEANUP_ACTIVITY, decimal? cLEANUP_COST, 
+            string mODIFY_BY, decimal? cLEANUP_UNIT_COST, string qUANTITY, string qUANTITY_UNIT)
         {
-
             try
             {
                 Boolean insInd = false;
 
                 //first grab from PK
-                T_OD_DUMP_ASSESSMENT_RESTORE e = (from c in ctx.T_OD_DUMP_ASSESSMENT_RESTORE
-                                                  where c.DUMP_ASSESSMENT_RESTORE_IDX == dUMP_ASSESSMENT_RESTORE_IDX
-                                                  select c).FirstOrDefault();
-
-                //else grab from composite key
-                if (e == null)
-                    e = (from c in ctx.T_OD_DUMP_ASSESSMENT_RESTORE
-                         where c.DUMP_ASSESSMENTS_IDX == dUMP_ASSESSMENTS_IDX
-                         && c.RESTORE_ACTIVITY == rESTORE_ACTIVITY
-                         && c.RESTORE_CAT == rESTORE_CAT
-                         select c).FirstOrDefault();
+                T_OD_CLEANUP_ACTIVITIES e = (from c in ctx.T_OD_CLEANUP_ACTIVITIES
+                                             where c.CLEANUP_ACTIVITY_IDX == cLEANUP_ACTIVITY_IDX
+                                             select c).FirstOrDefault();
 
                 //insert case
                 if (e == null)
                 {
                     insInd = true;
-                    e = new T_OD_DUMP_ASSESSMENT_RESTORE();
-                    e.DUMP_ASSESSMENT_RESTORE_IDX = Guid.NewGuid();
+                    e = new T_OD_CLEANUP_ACTIVITIES();
+                    e.CLEANUP_ACTIVITY_IDX = Guid.NewGuid();
+                    e.CREATE_USER_ID = mODIFY_BY;
+                    e.CREATE_DT = System.DateTime.Now;
+                }
+                else
+                {
+                    e.MODIFY_USER_ID = mODIFY_BY;
+                    e.MODIFY_DT = System.DateTime.Now;
                 }
 
-                if (dUMP_ASSESSMENTS_IDX != null) e.DUMP_ASSESSMENTS_IDX = (Guid)dUMP_ASSESSMENTS_IDX;
-                if (rESTORE_CAT != null) e.RESTORE_CAT = rESTORE_CAT;
-                if (rESTORE_ACTIVITY != null) e.RESTORE_ACTIVITY = rESTORE_ACTIVITY;
-                if (rESTORE_COST != null) e.RESTORE_COST = (decimal)rESTORE_COST;
+                if (cLEANUP_PROJECT_IDX != null) e.CLEANUP_PROJECT_IDX = (Guid)cLEANUP_PROJECT_IDX;
+                if (cLEANUP_CAT != null) e.CLEANUP_CAT = cLEANUP_CAT;
+                if (cLEANUP_ACTIVITY != null) e.CLEANUP_ACTIVITY = cLEANUP_ACTIVITY;
+                if (cLEANUP_COST != null) e.CLEANUP_COST = (decimal)cLEANUP_COST;
+                if (cLEANUP_UNIT_COST != null) e.CLEANUP_UNIT_COST = (decimal)cLEANUP_UNIT_COST;
+                if (qUANTITY != null) e.QUANTITY = qUANTITY;
+                if (qUANTITY_UNIT != null) e.QUANTITY_UNIT = qUANTITY_UNIT;
 
                 if (insInd)
-                    ctx.T_OD_DUMP_ASSESSMENT_RESTORE.Add(e);
+                    ctx.T_OD_CLEANUP_ACTIVITIES.Add(e);
 
                 ctx.SaveChanges();
-                return e.DUMP_ASSESSMENT_RESTORE_IDX;
+                return e.CLEANUP_ACTIVITY_IDX;
             }
             catch (Exception ex)
             {
@@ -946,12 +1224,12 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
 
         }
 
-        public int DeleteT_OD_DUMP_ASSESSMENT_RESTORE(Guid dUMP_ASSESSMENT_RESTORE_IDX)
+        public int DeleteT_OD_CLEANUP_ACTIVITIES(Guid cLEANUP_ACTIVITY_IDX)
         {
             try
             {
-                T_OD_DUMP_ASSESSMENT_RESTORE xxx = getT_OD_DUMP_ASSESSMENT_RESTORE_by_IDX(dUMP_ASSESSMENT_RESTORE_IDX);
-                ctx.Entry(xxx).State = Microsoft.EntityFrameworkCore.EntityState.Deleted;
+                var xxx = new T_OD_CLEANUP_ACTIVITIES { CLEANUP_ACTIVITY_IDX = cLEANUP_ACTIVITY_IDX };
+                ctx.Entry(xxx).State = EntityState.Deleted;
                 ctx.SaveChanges();
 
                 return 1;
@@ -1119,43 +1397,232 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
         }
 
 
+        //************** REF_CLEANUP_TYPE **********************************
+        public IEnumerable<SelectListItem> get_ddl_CLEANUP_PROJECT_TYPE()
+        {
+            List<SelectListItem> ddl = new List<SelectListItem>();
+            ddl.Add(new SelectListItem() { Value = "Estimate", Text = "Estimate" });
+            ddl.Add(new SelectListItem() { Value = "Actual", Text = "Actual" });
+            return ddl;
+        }
 
         //*************** CALC CLEANUP COSTS
-        public int CalcCleanup(Guid DumpAssessmentIDX)
+        public int CalcCleanupEstimate(Guid CleanupProjectIDX, bool CalcCleanupCleanupDtl)
         {
             try
             {
-                List<CatSums> DistinctCats = getT_OD_DUMP_ASSESSMENT_CONTENT_DistinctCatSums(DumpAssessmentIDX,null);
+                T_OD_CLEANUP_PROJECT _project = getT_OD_CLEANUP_PROJECT_by_IDX(CleanupProjectIDX);
+                if (_project != null) {
 
-                foreach (CatSums Cat in DistinctCats)
-                {
-                    //get sum for cat
-                    var CategoryResources = (from a in ctx.T_OD_REF_WASTE_TYPE_CAT_CLEANUP
-                                              where a.REF_WASTE_TYPE_CAT == Cat.Category
-                                              select a).ToList();
+                    //CLEANUP_CLEANUP_DTL calculation
+                    if (CalcCleanupCleanupDtl)
+                    {
+                        List<CatSums> DistinctCats = getT_OD_ASSESSMENT_CONTENT_DistinctCatSums(_project.ASSESSMENT_IDX, null);
 
-                    foreach (var refResource in CategoryResources) {
-                        Decimal? cost = (refResource.PER_UNIT_IND != true ? (Cat.Amount / refResource.PROCESS_RATE_PER_HR * refResource.ASSET_HOURLY_RATE * refResource.ASSET_COUNT) : (Math.Ceiling(Cat.Amount.ConvertOrDefault<decimal>() / refResource.PROCESS_RATE_PER_HR.ConvertOrDefault<decimal>()) * refResource.ASSET_HOURLY_RATE * refResource.ASSET_COUNT));
-                        InsertUpdateT_OD_DUMP_ASSESSMENT_CLEANUP(null, DumpAssessmentIDX, Cat.Category, refResource.REF_ASSET_NAME, cost);
+                        foreach (CatSums Cat in DistinctCats)
+                        {
+                            //get sum for cat
+                            var CategoryResources = (from a in ctx.T_OD_REF_WASTE_TYPE_CAT_CLEANUP
+                                                     where a.REF_WASTE_TYPE_CAT == Cat.Category
+                                                     select a).ToList();
+
+                            foreach (var refResource in CategoryResources)
+                            {
+                                Decimal? cost = (refResource.PER_UNIT_IND != true ? (Cat.Amount / refResource.PROCESS_RATE_PER_HR * refResource.ASSET_HOURLY_RATE * refResource.ASSET_COUNT) : (Math.Ceiling(Cat.Amount.ConvertOrDefault<decimal>() / refResource.PROCESS_RATE_PER_HR.ConvertOrDefault<decimal>()) * refResource.ASSET_HOURLY_RATE * refResource.ASSET_COUNT));
+
+                                InsertUpdateT_OD_CLEANUP_CLEANUP_DTL(null, CleanupProjectIDX, Cat.Category, refResource.REF_ASSET_NAME, cost);
+                            }
+                        }
                     }
+
+
+                    //then recalculate and save total cleanup costs
+                    decimal? cleanTotCost = getT_OD_CLEANUP_CLEANUP_DTL_Sum_by_ProjectIDX(CleanupProjectIDX);
+                    decimal? TotCost = cleanTotCost + (_project.COST_TRANSPORT_AMT ?? 0) + (_project.COST_DISPOSAL_AMT ?? 0) + (_project.COST_RESTORE_AMT ?? 0) + (_project.COST_SURVEIL_AMT ?? 0);
+                    InsertUpdateT_OD_CLEANUP_PROJECT(CleanupProjectIDX, null, null, null, null, null, cleanTotCost, null, null, null, null, TotCost, null, null, null);
+
+                    return 1;
                 }
 
-                //then add up sums for all cleanup
-                decimal? totCost = getT_OD_DUMP_ASSESSMENT_CLEANUP_Sum_by_AssessIDX(DumpAssessmentIDX);
-
-                InsertUpdateT_OD_DumpAssessment(DumpAssessmentIDX, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
-                    null, null, totCost, null, null, null, null, null, null);
-
-                return 1;
+                return 0;
             }
             catch (Exception ex)
             {
                 _log.LogEFException(ex);
                 return 0;
             }
-
-
         }
+
+
+
+        //***************************site local (temp when importing)****************************************
+        /// <summary>
+        /// Creates a new local SITE record and validates it according to the validation rules contained in XML file
+        /// </summary>
+        /// <param name="UserIDX"></param>
+        /// <param name="colVals">Name value pair for the different fields to import into the project record</param>
+        /// <returns></returns>
+        public SiteImportType InsertOrUpdate_T_OD_SITE_local(string UserIDX, Dictionary<string, string> colVals, string path)
+        {
+
+            try
+            {
+                SiteImportType e = new SiteImportType();
+
+                //determine if new Site record or updating existing one
+                Boolean insInd = true;
+
+                //try to get existing project based on SITE_IDX
+                Guid siteIDX;
+                string siteIDXStr = Utils.GetValueOrDefault(colVals, "PROJECT_IDX");
+                if (Guid.TryParse(siteIDXStr, out siteIDX))
+                {
+                    T_OD_SITES p = getT_OD_SITES_BySITEIDX(siteIDX);
+                    if (p != null)
+                    {
+                        insInd = false;
+                        e.T_PRT_SITES.SITE_IDX = p.SITE_IDX;
+                        e.T_OD_SITES.SITE_IDX = p.SITE_IDX;
+                    }
+                }
+
+                ////then try to get based on supplied IMPORT_ID 
+                //T_OE_PROJECTS p2 = db_EECIP.GetT_OE_PROJECTS_ByIMPORT_ID(Utils.GetValueOrDefault(colVals, "IMPORT_ID"));
+                //if (p2 != null)
+                //{
+                //    insInd = false;
+                //    e.T_OE_PROJECT.PROJECT_IDX = p2.PROJECT_IDX;
+                //}
+
+                if (insInd)
+                {
+                    e.T_PRT_SITES.SITE_IDX = Guid.NewGuid();
+                    e.T_OD_SITES.SITE_IDX = Guid.NewGuid();
+                    e.T_PRT_SITES.CREATE_DT = System.DateTime.Now;
+                    e.T_PRT_SITES.CREATE_USER_ID = UserIDX;
+                }
+                else
+                {
+                    e.T_PRT_SITES.MODIFY_DT = System.DateTime.Now;
+                    e.T_PRT_SITES.MODIFY_USER_ID = UserIDX;
+                }
+
+
+                //get import config rules
+                List<ConfigInfoType> _allRules = Utils.GetAllColumnInfo("S", path);
+
+                //explicitly validate mandatory fields
+
+                foreach (string entry in Utils.GetMandatoryImportFieldList("S", path))
+                    T_OD_SITE_validate(ref e, _allRules, colVals, entry);
+
+                //then only validate optional fields if supplied (performance)
+                foreach (string entry in Utils.GetOptionalImportFieldList("S", path))
+                    T_OD_SITE_validate(ref e, _allRules, colVals, entry);
+
+
+
+                //********************** CUSTOM POST VALIDATION ********************************************
+                ////SET ORG_IDX based on supplied ORG_NAME
+                //e.ORG_NAME = Utils.GetValueOrDefault(colVals, "ORG_NAME");
+                //T_OE_ORGANIZATION oo = db_Ref.GetT_OE_ORGANIZATION_ByName(e.ORG_NAME);
+                //if (oo != null)
+                //    e.T_OE_PROJECT.ORG_IDX = oo.ORG_IDX;
+                //else
+                //{
+                //    e.VALIDATE_CD = false;
+                //    e.VALIDATE_MSG += "No matching agency found.";
+                //}
+
+
+                ////MEDIA
+                //e.MEDIA_NAME = Utils.GetValueOrDefault(colVals, "MEDIA_TAG");
+                //if (!string.IsNullOrEmpty(e.MEDIA_NAME))
+                //{
+                //    T_OE_REF_TAGS media1 = db_Ref.GetT_OE_REF_TAGS_ByCategoryAndName("Project Media", e.MEDIA_NAME);
+                //    if (media1 != null)
+                //        e.T_OE_PROJECT.MEDIA_TAG = media1.TAG_IDX;
+                //    else
+                //    {
+                //        e.VALIDATE_CD = false;
+                //        e.VALIDATE_MSG += "Invalid Media name.";
+                //    }
+                //}
+                                       
+                //e.PROGRAM_AREAS = Utils.GetValueOrDefault(colVals, "PROGRAM_AREAS");
+                //e.FEATURES = Utils.GetValueOrDefault(colVals, "FEATURES");
+                //********************** CUSTOM POST VALIDATION END ********************************************
+
+                return e;
+            }
+            catch (Exception ex)
+            {
+                _log.LogEFException(ex);
+                return null;
+            }
+        }
+
+        public static void T_OD_SITE_validate(ref SiteImportType a, List<ConfigInfoType> t, Dictionary<string, string> colVals, string f)
+        {
+            var _rules = t.Find(item => item._name == f);   //import validation rules for this field
+            if (_rules == null)
+                return;
+
+            string _value = Utils.GetValueOrDefault(colVals, f); //supplied value for this field
+
+            if (!string.IsNullOrEmpty(_value)) //if value is supplied
+            {
+                _value = _value.Trim();
+
+                //strings: field length validation and substring 
+                if (_rules._datatype == "" && _rules._length != null)
+                {
+                    if (_value.Length > _rules._length)
+                    {
+                        a.VALIDATE_CD = false;
+                        a.VALIDATE_MSG = (a.VALIDATE_MSG + f + " length (" + _rules._length + ") exceeded. ");
+                        _value = _value.SubStringPlus(0, (int)_rules._length);
+                    }
+                }
+
+                //integers: check type
+                if (_rules._datatype == "int")
+                {
+                    int n;
+                    if (int.TryParse(_value, out n) == false)
+                    {
+                        a.VALIDATE_CD = false;
+                        a.VALIDATE_MSG = (a.VALIDATE_MSG + f + " not numeric. ");
+                    }
+                }
+
+            }
+            else
+            {
+                //required check
+                if (_rules._req == "Y")
+                {
+                    if (_rules._datatype == "")
+                        _value = "-";
+                    a.VALIDATE_CD = false;
+                    a.VALIDATE_MSG = (a.VALIDATE_MSG + "Required field " + f + " missing. ");
+                }
+            }
+
+            //finally set the value before returning
+            try
+            {
+                if (_rules._datatype == "")
+                    typeof(T_OD_SITES).GetProperty(f).SetValue(a.T_OD_SITES, _value);
+                else if (_rules._datatype == "int")
+                    typeof(T_OD_SITES).GetProperty(f).SetValue(a.T_OD_SITES, _value.ConvertOrDefault<int?>());
+            }
+            catch
+            {
+                //let fail silently (non T_OE_PROJECTS fields will fail)
+            }
+        }
+
 
     }
 }

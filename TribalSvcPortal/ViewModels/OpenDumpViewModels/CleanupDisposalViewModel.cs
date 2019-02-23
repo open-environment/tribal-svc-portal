@@ -8,6 +8,6 @@ namespace TribalSvcPortal.ViewModels.OpenDumpViewModels
 {
     public class CleanupDisposalViewModel
     {
-        public T_OD_DUMP_ASSESSMENTS Assessment { get; set; }
+        public T_OD_ASSESSMENTS Assessment { get; set; }
     }
 }

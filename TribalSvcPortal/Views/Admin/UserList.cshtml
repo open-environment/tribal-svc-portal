@@ -4,79 +4,74 @@
     ViewData["SubTitle"] = "View and manage the list of users that can access the tribal portal and client applications";
 }
 
-<section class="panel panel-default">
-    <div class="table-responsive">
-
-        <table class="table table-striped m-b-none" data-ride="datatables">
-            <thead class="thead-inverse">
-                <tr>
-                    <th></th>
-                    <th>User ID</th>
-                    <th>First Name</th>
-                    <th>Last Name</th>
-                    <th>Phone</th>
-                    <th>Status</th>
-                    <th>Last Login</th>
-                </tr>
-            </thead>
-
-            @foreach (var item in Model)
-            {
+<div class="table-responsive">
+    <table class="table table-bordered table-hover table-striped m-b-none" data-ride="datatables">
+        <thead class="thead-inverse">
             <tr>
-                <td>
-                    <a href="@Url.Action("UserEdit","Admin", new { id=item.Id })" class="btn btn-rounded btn-xs btn-info"><i class="glyphicon glyphicon-pencil"></i></a>
-                    <div class="delete-section" style="display:inline">
-                        <a class="btn btn-rounded btn-xs btn-danger delete-link"><i class="glyphicon glyphicon-remove"></i></a>
-                        <div class="btn btn-rounded btn-xs btn-warning delete-confirm" style="display:none" data-delete-id="@item.Id" data-delete-p="/Admin/UserDelete"><b>Confirm Delete</b></div>
-                    </div>
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.UserName)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.FIRST_NAME)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.LAST_NAME)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.PhoneNumber)
-                </td>
-                <td>
-                    @if (item.LockoutEnd != null)
+                <th style="width:70px"></th>
+                <th>User ID</th>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Phone</th>
+                <th>Status</th>
+                <th>Last Login</th>
+            </tr>
+        </thead>
+
+        @foreach (var item in Model)
+        {
+        <tr>
+            <td>
+                <a href="@Url.Action("UserEdit","Admin", new { id=item.Id })" class="btn btn-rounded btn-xs btn-info"><i class="glyphicon glyphicon-pencil"></i></a>
+                <div class="delete-section" style="display:inline">
+                    <a class="btn btn-rounded btn-xs btn-danger delete-link"><i class="glyphicon glyphicon-remove"></i></a>
+                    <div class="btn btn-rounded btn-xs btn-warning delete-confirm" style="display:none" data-delete-id="@item.Id" data-delete-p="/Admin/UserDelete"><b>Confirm Delete</b></div>
+                </div>
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.UserName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.FIRST_NAME)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.LAST_NAME)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.PhoneNumber)
+            </td>
+            <td>
+                @if (item.LockoutEnd != null)
+                {
+                    if (item.LockoutEnd == DateTime.MaxValue)
                     {
-                        if (item.LockoutEnd == DateTime.MaxValue)
-                        {
-                            <span class="label label-danger"> Inactive</span>
-                        }
-                        else
-                        {
-                            <span class="label label-warning"> Locked Out</span>
-                        }
+                        <span class="label label-danger"> Inactive</span>
                     }
                     else
                     {
-                        if (item.EmailConfirmed)
-                        {
-                            <span class="label label-success"> Active</span>
-                        }
-                        else
-                        {
-                            <span class="label label-warning"> Awaiting Email Confirmation</span>
-                        }
+                        <span class="label label-warning"> Locked Out</span>
                     }
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.LAST_LOGIN_DT)
-                </td>
-            </tr>
-            }
+                }
+                else
+                {
+                    if (item.EmailConfirmed)
+                    {
+                        <span class="label label-success"> Active</span>
+                    }
+                    else
+                    {
+                        <span class="label label-warning"> Awaiting Email Confirmation</span>
+                    }
+                }
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.LAST_LOGIN_DT)
+            </td>
+        </tr>
+        }
 
-        </table>
-
-    </div>
-
-</section>
+    </table>
+</div>
 
 @section scripts {
     <script src="~/js/confirm_delete.js"></script>

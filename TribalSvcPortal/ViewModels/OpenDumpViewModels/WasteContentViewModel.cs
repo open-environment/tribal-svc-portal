@@ -5,11 +5,14 @@ using TribalSvcPortal.Data.Models;
 
 namespace TribalSvcPortal.ViewModels.OpenDumpViewModels
 {
-    public class CleanupViewModel
+    public class WasteContentViewModel
     {
         public string SiteName { get; set; }
+        public IEnumerable<SelectListItem> ddl_Assessments { get; set; }  //used for changing assessments only
         public T_OD_ASSESSMENTS Assessment { get; set; }
-        public T_OD_CLEANUP_PROJECT CleanupProject { get; set; }
         public List<AssessmentContentTypeDisplay> DumpContents { get; set; }
+        public IEnumerable<SelectListItem> ddl_DisposalMethod { get; set; }
+        public bool CleanupEstimatesInd { get; set; }
+        public bool RecalcInd { get; set; }
     }
 }

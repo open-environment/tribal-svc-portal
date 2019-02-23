@@ -17,11 +17,6 @@
                         Field Assessments
                     </a>
                 </li>
-                <li>
-                    <a href="@Url.Action("CleanupAct", "OpenDump", new { id = Model.TPrtSite.SITE_IDX })">
-                        Actual Cleanup
-                    </a>
-                </li>
             </ul>
             <div class="tab-content">
                 <div class="tab-pane in active" id="tab1">
@@ -229,7 +224,7 @@
                                 <button id="btnSave" name="submitButton" disabled type="submit" class="btn btn-eecip">Save</button>
                                 @if (Model.returnURL == "Search2")
                                 {
-                                    <a href="@Url.Action("Search", "OpenDump", new { tab = "2" })" class="btn btn-default">Back</a>
+                                    <a href="@Url.Action("Sites", "OpenDump", new { tab = "2" })" class="btn btn-default">Back</a>
                                 }
                                 else
                                 {
@@ -300,6 +295,7 @@
             $("#btnSave").prop("disabled", false);
         });
         $('form').on('clean.areYouSure', function () {
+            console.log('fff')
             $("#btnSave").prop("disabled", true);
         });
 

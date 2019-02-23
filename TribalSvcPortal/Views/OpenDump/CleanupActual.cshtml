@@ -1,0 +1,422 @@
+﻿@model TribalSvcPortal.ViewModels.OpenDumpViewModels.CleanupActualViewModel
+@{
+    ViewBag.Title = "Cleanup Project";
+    ViewBag.SubTitle = "for " + Model.SiteName + " (related to assessment " + Model.Assessment.ASSESSMENT_DT.ToShortDateString() + ")";
+}
+
+<section class="panel panel-default">
+    <div class="panel-heading">
+        General Information
+        <div class="panel-tools">
+            <a class="btn btn-xs panel-collapse collapses" href="#">
+            </a>
+        </div>
+    </div>
+    @using (Html.BeginForm("CleanupActual", "OpenDump", FormMethod.Post, new { @id = "norepostform", enctype = "multipart/form-data" }))
+    {
+        @Html.HiddenFor(model => model.CleanupProject.CLEANUP_PROJECT_IDX)
+        <div class="panel-body">
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label>Start Date</label>
+                        @Html.TextBoxFor(model => model.CleanupProject.START_DATE, "{0:MM/dd/yyyy}", new { @class = "form-control" })
+                        @Html.ValidationMessageFor(model => model.CleanupProject.START_DATE)
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label>Completion Date</label>
+                        @Html.TextBoxFor(model => model.CleanupProject.COMPLETION_DATE, "{0:MM/dd/yyyy}", new { @class = "form-control" })
+                        @Html.ValidationMessageFor(model => model.CleanupProject.COMPLETION_DATE)
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label>Cleanup By</label>
+                        @Html.TextBoxFor(model => model.CleanupProject.CLEANUP_BY, new { @class = "form-control" })
+                        @Html.ValidationMessageFor(model => model.CleanupProject.CLEANUP_BY)
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label>Cleanup By Title</label>
+                        @Html.TextBoxFor(model => model.CleanupProject.CLEANUP_BY_TITLE, new { @class = "form-control" })
+                        @Html.ValidationMessageFor(model => model.CleanupProject.CLEANUP_BY_TITLE)
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <label>Cleanup Summary</label>
+                        @Html.TextAreaFor(model => model.CleanupProject.PROJECT_DESCRIPTION, new { @class = "form-control", @rows = 5 })
+                        @Html.ValidationMessageFor(model => model.CleanupProject.PROJECT_DESCRIPTION)
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <button type="submit" name="submitButton" value="Save" class="btn btn-eecip">Save</button>
+                    <a href="@Url.Action("CleanupProjects", "OpenDump")" class="btn btn-rounded btn-rounded btn-primary">Back</a>
+                    <a href="@Url.Action("CleanupActRpt", "OpenDump", new { id = Model.CleanupProject.CLEANUP_PROJECT_IDX })" class="btn btn-eecip" style="float:right"><i class="clip-file-pdf"></i> Report</a>
+                </div>
+            </div>
+        </div>
+    }
+</section>
+
+<section class="panel panel-default" style="margin-top:5px;">
+    <div class="panel-heading">
+        Itemized Cleanup Costs
+        <div class="panel-tools">
+            <a class="btn btn-xs panel-collapse collapses" href="#">
+            </a>
+        </div>
+    </div>
+    <div class="panel-body">
+
+    @if (Model.CleanupActivities != null)
+    {
+        <div class="table-responsive">
+            <table class="table table-hover table-striped m-b-none" data-ride="datatables">
+                <thead>
+                    <tr class="thead-inverse">
+                        <th></th>
+                        <th>Cleanup Activity</th>
+                        <th>Quantity</th>
+                        <th>Unit Cost</th>
+                        <th>Total Cost</th>
+                    </tr>
+                </thead>
+                <tfoot>
+                    <tr class="tfoot-inverse">
+                        <td>Total:</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td class="text-bold"><span id="tot"></span></td>
+                    </tr>
+                </tfoot>
+
+                @foreach (T_OD_CLEANUP_ACTIVITIES item in Model.CleanupActivities)
+                {
+                    <tr>
+                        <td>
+                            @Html.HiddenFor(model => item.CLEANUP_ACTIVITY_IDX)
+                            @Html.HiddenFor(model => item.CLEANUP_ACTIVITY)
+                            @Html.HiddenFor(model => item.CLEANUP_UNIT_COST)
+                            @Html.HiddenFor(model => item.QUANTITY)
+                            @Html.HiddenFor(model => item.QUANTITY_UNIT)
+                            @Html.HiddenFor(model => item.CLEANUP_COST, new { @class = "subtot" })
+                            <a href="#modal-form" class="btn btn-rounded btn-xs btn-info modal-it" data-toggle="modal"><i class="glyphicon glyphicon-pencil"></i></a>
+                            <div class="delete-section" style="display:inline">
+                                <a class=" btn btn-rounded btn-xs btn-danger delete-link"><i class="glyphicon glyphicon-remove"></i></a>
+                                <div class="btn btn-rounded btn-xs btn-warning delete-confirm" style="display:none" data-delete-id="@item.CLEANUP_ACTIVITY_IDX" data-delete-p="/OpenDump/CleanupActualActivityDelete"><b>Confirm Delete</b></div>
+                            </div>
+                        </td>
+                        <td>
+                            @Html.DisplayFor(model => item.CLEANUP_ACTIVITY)
+                        </td>
+                        <td>
+                            @string.Format("{0:C}", item.QUANTITY)
+                            @string.Format("{0:C}", item.QUANTITY_UNIT)
+                        </td>
+                        <td>
+                            @string.Format("{0:C}", item.CLEANUP_UNIT_COST)
+                        </td>
+                        <td>
+                            @string.Format("{0:C}", item.CLEANUP_COST)
+                        </td>
+                    </tr>
+                }
+
+            </table>
+        </div>
+    }
+
+        <a id="add-it" href="#modal-form" data-toggle="modal" class="add-it btn btn-rounded  btn-rounded btn-eecip"><i class="glyphicon glyphicon-plus"></i> Add</a>
+    </div>
+</section>
+
+@if (Model.Assessment != null && Model.Assessment.ASSESSMENT_IDX != Guid.Empty)
+{
+    <div class="row">
+        <div class="col-md-6">
+            <section class="panel panel-default">
+                <div class="panel-heading">
+                    Before Pictures
+                    <div class="panel-tools">
+                        <a class="btn btn-xs panel-collapse collapses" href="#"></a>
+                    </div>
+                </div>
+                <div class="panel-body">
+
+                    @if (Model.picsBefore_existing != null && Model.picsBefore_existing.Count > 0)
+                    {
+                        <div class="row">
+
+                            @foreach (var file in Model.picsBefore_existing)
+                            {
+                                <div class="publicbadge col-md-4 col-sm-4 col-xs-4">
+                                    <div class="circle-tile-heading" style="display:inline-grid; background-image:url(@Url.Action("ViewImage", "OpenDump", new {id  = file.DOC_IDX }))">
+                                    </div>
+                                    <div class="publicbadgenamedesc">
+                                        @Html.DisplayFor(modelItem => file.DOC_NAME)
+                                    </div>
+                                    <div class="publicbadgeawards">
+                                        @Html.DisplayFor(modelItem => file.DOC_COMMENT)
+                                    </div>
+
+                                    <a class="fileupload" href="@Url.Action("FileDownload", "OpenDump", new { id = file.DOC_IDX })">
+                                        <span class="glyphicon glyphicon-download-alt" aria-hidden="true"></span>
+                                    </a>
+                                    <a href="@Url.Action("FileDelete", "OpenDump", new { id = file.DOC_IDX, returnIDX = Model.CleanupProject.CLEANUP_PROJECT_IDX, returnAction="CleanupActual" })" class="deleteupload text-red" title="Delete">
+                                        <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+                                    </a>
+                                    @*<a href="#" class="btn btn-rounded btn-xs activity" title="Edit">
+                                        <i class="glyphicon glyphicon-pencil" aria-hidden="true"></i>
+                                        </a>*@
+                                </div>
+                            }
+                        </div>
+
+                    }
+                    <div class="row">
+                        <div class="col-md-12">
+                            <a id="add-it-photo-before" href="#modal-formPhoto" data-toggle="modal" class="add-it btn btn-eecip">
+                                <i class="glyphicon glyphicon-plus"></i> Add Photo
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+        <div class="col-md-6">
+            <section class="panel panel-default">
+                <div class="panel-heading">
+                    After Pictures
+                    <div class="panel-tools">
+                        <a class="btn btn-xs panel-collapse collapses" href="#"></a>
+                    </div>
+                </div>
+                <div class="panel-body">
+
+                    @if (Model.picsAfter_existing != null && Model.picsAfter_existing.Count > 0)
+                    {
+                        <div class="row">
+
+                            @foreach (var file in Model.picsAfter_existing)
+                            {
+                            <div class="publicbadge col-md-4 col-sm-4 col-xs-4">
+                                <div class="circle-tile-heading" style="display:inline-grid; background-image:url(@Url.Action("ViewImage", "OpenDump", new {id  = file.DOC_IDX }))">
+                                </div>
+                                <div class="publicbadgenamedesc">
+                                    @Html.DisplayFor(modelItem => file.DOC_NAME)
+                                </div>
+                                <div class="publicbadgeawards">
+                                    @Html.DisplayFor(modelItem => file.DOC_COMMENT)
+                                </div>
+
+                                <a class="fileupload" href="@Url.Action("FileDownload", "OpenDump", new { id = file.DOC_IDX })">
+                                    <span class="glyphicon glyphicon-download-alt" aria-hidden="true"></span>
+                                </a>
+                                <a href="@Url.Action("FileDelete", "OpenDump", new { id = file.DOC_IDX, returnIDX = Model.CleanupProject.CLEANUP_PROJECT_IDX, returnAction="CleanupActual" })" class="deleteupload text-red" title="Delete">
+                                    <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+                                </a>
+                                @*<a href="#" class="btn btn-rounded btn-xs activity" title="Edit">
+        <i class="glyphicon glyphicon-pencil" aria-hidden="true"></i>
+        </a>*@
+                            </div>
+                            }
+
+                        </div>
+                    }
+                    <div class="row">
+                        <div class="col-md-12">
+                            <a id="add-it-photo-after" href="#modal-formPhoto" data-toggle="modal" class="add-it btn btn-eecip">
+                                <i class="glyphicon glyphicon-plus"></i> Add Photo
+                            </a>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+        </div>
+    </div>
+}
+
+
+
+<!-- START MODAL FORMS  -->
+<div class="modal fade" id="modal-form" style="display: none;" aria-hidden="true">
+    <div class="modal-dialog">
+        @using (Html.BeginForm("CleanupActivityAdd", "OpenDump", FormMethod.Post, new { @class = "", @id = "norepostform" }))
+        {
+            @Html.AntiForgeryToken()
+            @Html.HiddenFor(model => model.CleanupProject.CLEANUP_PROJECT_IDX)
+            @Html.HiddenFor(model => model.edit_cleanupActivityIdx)
+            @Html.Hidden("returnURL", "CleanupActual")
+
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+                    <h4 class="modal-title">Add Activity</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-sm-12 ">
+                            <div class="panel-body">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <label>Activity Name</label>
+                                            @Html.TextBoxFor(model => model.newCleanupActivityName, new { @class = "form-control", @data_required = "true" })
+                                            @Html.ValidationMessageFor(model => model.newCleanupActivityName)
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label>Quantity</label>
+                                            @Html.TextBoxFor(model => model.newCleanupActivityQuantity, new { @class = "form-control", @data_required = "true" })
+                                            @Html.ValidationMessageFor(model => model.newCleanupActivityQuantity)
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label>Quantity Unit</label>
+                                            @Html.TextBoxFor(model => model.newCleanupActivityQuantityUnit, new { @class = "form-control", @data_required = "true" })
+                                            @Html.ValidationMessageFor(model => model.newCleanupActivityQuantityUnit)
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label>Unit Cost</label>
+                                            @Html.TextBoxFor(model => model.newCleanupActivityUnitCost, new { @class = "form-control", @data_required = "true" })
+                                            @Html.ValidationMessageFor(model => model.newCleanupActivityUnitCost)
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label>Total Cost</label>
+                                            @Html.TextBoxFor(model => model.newCleanupActivityAmt, new { @class = "form-control", @data_required = "true" })
+                                            @Html.ValidationMessageFor(model => model.newCleanupActivityAmt)
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="picLoc" type="submit" class="btn btn-eecip">Save</button>
+                    <button class="btn btn-default" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+
+<div class="modal fade" id="modal-formPhoto" style="display: none;" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                <h4 class="modal-title">Add Photo</h4>
+            </div>
+            @using (Html.BeginForm("PhotoUploadCleanupProject", "OpenDump", FormMethod.Post, new { enctype = "multipart/form-data" }))
+            {
+                @Html.AntiForgeryToken()
+                @Html.HiddenFor(model => model.Assessment.SITE_IDX)
+                @Html.HiddenFor(model => model.CleanupProject.CLEANUP_PROJECT_IDX)
+
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>Photo Type</label>
+                        @Html.TextBoxFor(model => model.FilePhotoType, new { @class = "form-control", @readonly = "readonly" })
+                    </div>
+                    <div class="form-group">
+                        Upload Photo
+                        <div class="input-group">
+                            <label for="file-upload" class="custom-file-upload btn btn-eecip">
+                                <i class="glyphicon glyphicon-cloud-upload"></i> Upload File
+                            </label>
+                            <span id="file-selected"></span>
+                            @Html.EditorFor(model => model.filesPhoto, new { htmlAttributes = new { @id = "file-upload", @class = "form-control", @type = "file" } })
+                            @*<input id="file-upload" type="file" />*@
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Description</label>
+                        @Html.TextBoxFor(model => model.FilePhotoDescription, new { @class = "form-control", @maxlength = "200" })
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="picLoc" type="submit" class="btn btn-eecip">Save</button>
+                    <button type="submit" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                </div>
+            }
+        </div>
+
+    </div>
+</div>
+<!-- END MODAL FORMS -->
+
+
+@section Scripts {
+    <script src="~/js/confirm_delete.js"></script>
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+
+            //display total on page ready
+            CalcTotal();
+
+            function CalcTotal() {
+                var _tot = 0;
+                $(".subtot").each(function () {
+                    _tot += parseFloat(this.value);
+                });
+                $("#tot").text("$ " + _tot.toFixed(2));
+            }
+
+
+
+            //create an event when button is clicked to display modal
+            $(".modal-it").click(function () {
+                $('#edit_cleanupActivityIdx').val($(this).parent('td').find('#item_CLEANUP_ACTIVITY_IDX').val());
+                $('#newCleanupActivityName').val($(this).parent('td').find('#item_CLEANUP_ACTIVITY').val());
+                $('#newCleanupActivityQuantity').val($(this).parent('td').find('#item_QUANTITY').val());
+                $('#newCleanupActivityQuantityUnit').val($(this).parent('td').find('#item_QUANTITY_UNIT').val());
+                $('#newCleanupActivityUnitCost').val($(this).parent('td').find('#item_CLEANUP_UNIT_COST').val());
+                $('#newCleanupActivityAmt').val($(this).parent('td').find('#item_CLEANUP_COST').val());
+            });
+
+            $(".add-it").click(function () {
+                $('#edit_cleanupActivityIdx').val(null);
+                $('#newCleanupActivityName').val('');
+                $('#newCleanupActivityQuantity').val('');
+                $('#newCleanupActivityQuantityUnit').val('');
+                $('#newCleanupActivityUnitCost').val('');
+                $('#newCleanupActivityAmt').val('');
+            });
+
+            //phtotos
+            $("#add-it-photo-before").click(function () {
+                $('#FilePhotoType').val('Open Dump Cleanup - Before');
+            });
+
+            $("#add-it-photo-after").click(function () {
+                $('#FilePhotoType').val('Open Dump Cleanup - After');
+            });
+        });
+    </script>
+
+
+}
+
+

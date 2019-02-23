@@ -1,0 +1,205 @@
+﻿@model TribalSvcPortal.ViewModels.AdminViewModels.ManageUsersViewModel
+@{
+    ViewBag.Title = "Manage User Access Rights";
+    ViewBag.SubTitle = "Manage which users can access the client applications for the tribe you manage.";
+}
+
+<!-- render the top dropdown -->
+@using (Html.BeginForm("ManageUsers", "Admin", FormMethod.Post, new { @class = "form-horizontal" }))
+{
+    <div class="form-group">
+        <label class="col-sm-2 control-label">
+            Tribal Application:
+        </label>
+        <div class="col-sm-6">
+            @Html.DropDownListFor(model => model.selOrgUserClient, Model.ddl_AdminOfOrgClients, "", new { @class = "form-control", @onchange = "document.location.href = '/Admin/ManageUsers/' + this.options[this.selectedIndex].value;" })
+        </div>
+    </div>
+}
+
+
+@if (Model.OrgUserClients != null)
+{
+    <div class="row">
+        <div class="col-sm-12">
+            <section class="panel panel-default">
+                <div class="table-responsive">
+                    <table class="table table-striped m-b-none" data-ride="datatables">
+                        <thead class="thead-inverse">
+                            <tr>
+                                <th style="min-width: 70px;"></th>
+                                <th>Org</th>
+                                <th>Client</th>
+                                <th>User</th>
+                                <th>Access Level</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        @foreach (var item in Model.OrgUserClients)
+                        {
+                            <tr>
+                                <td>
+
+                                    @Html.HiddenFor(model => item.ORG_USER_IDX)
+                                    @Html.HiddenFor(model => item.ADMIN_IND)
+                                    @Html.HiddenFor(model => item.STATUS_IND)
+
+                                    <a href="#modal-form" class="btn btn-rounded btn-xs btn-info modal-it" data-toggle="modal"><i class="glyphicon glyphicon-pencil"></i></a>
+                                    <div class="delete-section" style="display:inline">
+                                        <a class=" btn btn-rounded btn-xs btn-danger delete-link"><i class="glyphicon glyphicon-remove"></i></a>
+                                        <div class="btn btn-rounded btn-xs btn-warning delete-confirm" style="display:none" data-delete-id="@item.ORG_USER_CLIENT_IDX" data-delete-id2="@Model.selOrgUserClient" data-delete-p="/Admin/OrgUserClientDelete2"><b>Confirm Delete</b></div>
+                                    </div>
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.ORG_ID)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.CLIENT_ID)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.UserName)
+                                </td>
+                                <td>
+                                    @if (item.ADMIN_IND == true)
+                                    {
+                                        <span class="label label-success"> Admin</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="label label-beige"> User</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (item.STATUS_IND == "A")
+                                    {
+                                        <span class="label label-success"> Active</span>
+                                    }
+                                    else if (item.STATUS_IND == "P")
+                                    {
+                                        <span class="label label-warning"> Pending</span>
+                                    }
+                                    else if (item.STATUS_IND == "R")
+                                    {
+                                        <span class="label label-danger"> Requested</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </table>
+                </div>
+            </section>
+            <p>
+                <a id="add-it" href="#modal-form" data-toggle="modal" class="add-it btn btn-rounded  btn-rounded btn-success"><i class="glyphicon glyphicon-plus"></i> Add New</a>
+            </p>
+        </div>
+    </div>
+
+
+
+    <!-- START MODAL ORGANIZATION ACCESS -->
+    <div class="modal fade" id="modal-form" style="display: none;" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-sm-12 ">
+                            <h3 class="m-t-none m-b">Add Access</h3>
+
+                            @using (Html.BeginForm("OrgUserClientEdit", "Admin", FormMethod.Post, new { @class = "" }))
+                            {
+                                @Html.AntiForgeryToken()
+
+                                @Html.HiddenFor(model => model.client_id)
+                                @Html.Hidden("returnUrl", "ManageUsers")
+
+                                <div class="panel-body" style="padding: 0px">
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <div class="form-group">
+                                                User:
+                                                @Html.DropDownList("org_user_idx", Model.ddl_Users, "", new { @class = "form-control" })
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <div class="form-group">
+                                                Tribe:
+                                                @Html.TextBoxFor(model => model.selOrg, new { @class = "form-control" })
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <div class="form-group">
+                                                Client:
+                                                @Html.TextBoxFor(model => model.client_id, new { @class = "form-control" })
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                Access Level:
+                                                @Html.DropDownList("AdminInd", new List<SelectListItem>
+                                               {
+                                                   new SelectListItem{ Text="User", Value = "False" },
+                                                   new SelectListItem{ Text="Admin", Value = "True" }
+                                               }, new { @class = "form-control" })
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                Status:
+                                                @Html.DropDownList("StatusInd", new List<SelectListItem>
+                                           {
+                                               new SelectListItem{ Text="Active", Value = "A" },
+                                               new SelectListItem{ Text="Pending", Value = "P" },
+                                               new SelectListItem{ Text="Rejected", Value = "R" }
+                                           }, new { @class = "form-control" })
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <button id="picLoc" type="submit" class="btn btn-sm btn-primary"><strong>Save</strong></button>
+                                            <button type="submit" class="btn btn-sm btn-default" data-dismiss="modal"><strong>Cancel</strong></button>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+    </div>
+    <!-- END MODAL ORGANIZATION ACCESS -->
+
+}
+
+@section scripts {
+    <script src="~/js/confirm_delete.js"></script>
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+
+            //create an event when button is clicked to display modal
+            $(".modal-it").click(function () {
+                $('#org_user_idx').val($(this).parent('td').find('#item_ORG_USER_IDX').val());
+                $('#AdminInd').val($(this).parent('td').find('#item_ADMIN_IND').val());
+                $('#StatusInd').val($(this).parent('td').find('#item_STATUS_IND').val());
+            });
+
+            $(".add-it").click(function () {
+                $('#org_user_idx').val(null);
+                $('#AdminInd').val('');
+                $('#StatusInd').val('');
+            });
+        });
+    </script>
+}
+
+

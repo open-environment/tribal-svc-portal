@@ -7,7 +7,7 @@ namespace TribalSvcPortal.Data.Models
     {
         public T_OD_SITES()
         {
-            T_OD_DUMP_ASSESSMENTS = new HashSet<T_OD_DUMP_ASSESSMENTS>();
+            T_OD_ASSESSMENTS = new HashSet<T_OD_ASSESSMENTS>();
         }
 
         public Guid SITE_IDX { get; set; }
@@ -25,6 +25,6 @@ namespace TribalSvcPortal.Data.Models
         public T_OD_REF_THREAT_FACTORS PF_HOMES_DISTNavigation { get; set; }
         public T_OD_REF_THREAT_FACTORS PF_SURF_WATER_HORIZ_DISTNavigation { get; set; }
         public T_OD_REF_DATA SITE_SETTING_IDXNavigation { get; set; }
-        public ICollection<T_OD_DUMP_ASSESSMENTS> T_OD_DUMP_ASSESSMENTS { get; set; }
+        public ICollection<T_OD_ASSESSMENTS> T_OD_ASSESSMENTS { get; set; }
     }
 }

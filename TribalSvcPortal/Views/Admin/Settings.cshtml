@@ -121,48 +121,43 @@
 <div class="modal fade" id="modal-form" style="display: none;" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
+            <div class="modal-header">
+                <h4 style="float: left" class="modal-title">Edit Setting</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
             <div class="modal-body">
-                <div class="row">
-                    <div class="col-sm-12 ">
-                        <h3 class="m-t-none m-b">Edit Setting</h3>
+                @using (Html.BeginForm("Settings", "Admin", FormMethod.Post))
+                {
+                    @Html.AntiForgeryToken()
+                    @Html.HiddenFor(model => model.edit_app_setting.SETTING_IDX)
 
-                        @using (Html.BeginForm("Settings", "Admin", FormMethod.Post))
-                        {
-                            @Html.AntiForgeryToken()
-                            @Html.HiddenFor(model => model.edit_app_setting.SETTING_IDX)
-
-                            <div class="panel-body">
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="form-group">
-                                            <label>Global Setting Name</label>
-                                            @Html.TextBoxFor(model => model.edit_app_setting.SETTING_NAME, new { @class = "form-control", @readonly = "readonly" })
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="form-group">
-                                            <label>Global Setting Value</label>
-                                            @Html.TextBoxFor(model => model.edit_app_setting.SETTING_VALUE, new { @class = "form-control" })
-                                            @Html.ValidationMessageFor(model => model.edit_app_setting.SETTING_VALUE)
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="row">
-                                    <div class="col-md-12">
-                                        <button id="btnSave" type="submit" class="btn btn-sm btn-primary">Save</button>
-                                        <button type="submit" class="btn btn-sm btn-default" data-dismiss="modal">Cancel</button>
-                                    </div>
-                                </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Global Setting Name</label>
+                                @Html.TextBoxFor(model => model.edit_app_setting.SETTING_NAME, new { @class = "form-control", @readonly = "readonly" })
                             </div>
-                        }
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Global Setting Value</label>
+                                @Html.TextBoxFor(model => model.edit_app_setting.SETTING_VALUE, new { @class = "form-control" })
+                                @Html.ValidationMessageFor(model => model.edit_app_setting.SETTING_VALUE)
+                            </div>
+                        </div>
                     </div>
-                </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <button id="btnSave" type="submit" class="btn btn-eecip">Save</button>
+                            <button type="submit" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                        </div>
+                    </div>
+                }
             </div>
         </div>
-        <!-- /.modal-content -->
     </div>
-    <!-- /.modal-dialog -->
 </div>
 <!-- END MODAL FORM -->
 
