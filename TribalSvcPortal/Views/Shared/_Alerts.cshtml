@@ -1,15 +1,14 @@
 ﻿<script type="text/javascript">
     $(function () {
-
+        // toastr alerts
         var timeout = 5000;
         @if (TempData["toastrTimeout"] != null)
         {
             <text>
-            timeout = 0;
+        timeout = TempData["toastrTimeout"];
             </text>
         }
 
-        // use toastr to display the alerts
         toastr.options = {
             "closeButton": true,
             "positionClass": "toast-top-right",
@@ -22,8 +21,7 @@
             toastr.warning("@TempData["Error"]");
             </text>
         }
-
-        @if (TempData["Success"] != null)
+        else if (TempData["Success"] != null)
         {
             <text>
             toastr.success("@TempData["Success"]");

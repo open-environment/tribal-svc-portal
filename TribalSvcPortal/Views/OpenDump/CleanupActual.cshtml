@@ -20,14 +20,14 @@
                 <div class="col-md-3">
                     <div class="form-group">
                         <label>Start Date</label>
-                        @Html.TextBoxFor(model => model.CleanupProject.START_DATE, "{0:MM/dd/yyyy}", new { @class = "form-control" })
+                        @Html.TextBoxFor(model => model.CleanupProject.START_DATE, "{0:MM/dd/yyyy}", new { @autocomplete = "off", @class = "form-control" })
                         @Html.ValidationMessageFor(model => model.CleanupProject.START_DATE)
                     </div>
                 </div>
                 <div class="col-md-3">
                     <div class="form-group">
                         <label>Completion Date</label>
-                        @Html.TextBoxFor(model => model.CleanupProject.COMPLETION_DATE, "{0:MM/dd/yyyy}", new { @class = "form-control" })
+                        @Html.TextBoxFor(model => model.CleanupProject.COMPLETION_DATE, "{0:MM/dd/yyyy}", new { @autocomplete = "off", @class = "form-control" })
                         @Html.ValidationMessageFor(model => model.CleanupProject.COMPLETION_DATE)
                     </div>
                 </div>
@@ -385,7 +385,21 @@
             }
 
 
+            //date pickers
+            datepicker('#CleanupProject_START_DATE', {
+                formatter: (input, date, instance) => {
+                    const value = date.toLocaleDateString()
+                    input.value = value // => '1/1/2099'
+                }
+            });
 
+            datepicker('#CleanupProject_COMPLETION_DATE', {
+                formatter: (input, date, instance) => {
+                    const value = date.toLocaleDateString()
+                    input.value = value // => '1/1/2099'
+                }
+            });
+        
             //create an event when button is clicked to display modal
             $(".modal-it").click(function () {
                 $('#edit_cleanupActivityIdx').val($(this).parent('td').find('#item_CLEANUP_ACTIVITY_IDX').val());

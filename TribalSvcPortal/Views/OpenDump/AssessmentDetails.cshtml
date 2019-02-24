@@ -80,12 +80,7 @@
                             <div class="col-md-3">
                                 <div class="form-group">
                                     <label>Date of Assessment</label>
-                                    <div class="input-group date">
-                                        @Html.TextBoxFor(model => model.Assessment.ASSESSMENT_DT, "{0:MM/dd/yyyy}", new { @id = "dateAssessment", @class = "form-control datepicker", required = "required" })
-                                        <div class="input-group-addon">
-                                            <span class="glyphicon glyphicon-th"></span>
-                                        </div>
-                                    </div>
+                                    @Html.TextBoxFor(model => model.Assessment.ASSESSMENT_DT, "{0:MM/dd/yyyy}", new { @autocomplete="off", @class = "form-control", required = "required" })
                                 </div>
                             </div>
                             <div class="col-md-3">
@@ -109,7 +104,7 @@
                             <div class="col-md-2">
                                 <div class="form-group">
                                     <label>Cleaned/Closed Date</label>
-                                    @Html.TextBoxFor(model => model.Assessment.CLEANED_CLOSED_DT, "{0:MM/dd/yyyy}", new { @id = "dateClosed", @class = "form-control datepicker" })
+                                    @Html.TextBoxFor(model => model.Assessment.CLEANED_CLOSED_DT, "{0:MM/dd/yyyy}", new { @autocomplete = "off", @class = "form-control datepicker" })
                                 </div>
                             </div>
                         </div>
@@ -297,19 +292,23 @@
 @section scripts {
     <script type="text/javascript">
         $(document).ready(function () {
-            //datepicker
-            $(".input-group-addon").click(function () {
-                $("#dateAssessment").datepicker('show')
+
+            //date pickers
+            datepicker('#Assessment_ASSESSMENT_DT', {
+                formatter: (input, date, instance) => {
+                    const value = date.toLocaleDateString()
+                    input.value = value // => '1/1/2099'
+                }
             });
 
-            // get date from MyDate input field
-            $('.datepicker').datepicker({
-                format: "mm/dd/yyyy",
-                autoclose: true,
-               // todayBtn: 'linked'
+            datepicker('#Assessment_CLEANED_CLOSED_DT', {
+                formatter: (input, date, instance) => {
+                    const value = date.toLocaleDateString()
+                    input.value = value // => '1/1/2099'
+                }
             });
 
-
+            //photo/document upload
             $('#file-upload').bind('change', function () {
                 var fileName = '';
                 fileName = $(this).val();

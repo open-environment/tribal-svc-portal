@@ -10,6 +10,7 @@
       "wwwroot/css/main-responsive.css",
       "wwwroot/css/theme_dark.css",
       "wwwroot/css/toastr.css",
+      "wwwroot/lib/js-datepicker/dist/datepicker.min.css",
       "wwwroot/css/site.css"
     ]
   },

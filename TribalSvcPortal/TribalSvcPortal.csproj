@@ -6,6 +6,7 @@
     <ApplicationIcon>wwwroot\favicon.ico</ApplicationIcon>
     <Company>Open Environment Software</Company>
     <Product>Tribal Services Portal</Product>
+    <Copyright>2019</Copyright>
   </PropertyGroup>
 
   <ItemGroup>
