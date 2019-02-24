@@ -4448,16 +4448,7 @@ div.timeline_element.purple {
     border-color: #3D9400 !important;
 }
 
-/* ---------------------------------------------------------------------- */
-/*	daterangepicker
- /* ---------------------------------------------------------------------- */
-.daterangepicker {
-    margin-top: 51px !important;
-}
 
-body.header-default .daterangepicker {
-    margin-top: 1px !important;
-}
 
 /* ---------------------------------------------------------------------- */
 /*	Home elements
@@ -5054,14 +5045,4 @@ a [class^="icon-"], a [class*=" icon-"] {
     margin-right: auto;
     font-size: 150px;
     color: #007AFF;
-}
-/* ---------------------------------------------------------------------- */
-/*	X-editable Table
- /* ---------------------------------------------------------------------- */
-td.column-left {
-    width: 25%;
-}
-
-td.column-right {
-    width: 75%;
 }

@@ -213,7 +213,7 @@
                                     <div class="col-md-3 col-sm-6">
                                         <div class="form-group">
                                             <label>Reported On</label>
-                                            @Html.TextBoxFor(model => model.TOdSite.REPORTED_ON, "{0:MM/dd/yyyy}", new { @id = "date", @class = "form-control datepicker" })
+                                            @Html.TextBoxFor(model => model.TOdSite.REPORTED_ON, "{0:MM/dd/yyyy}", new { @autocomplete = "off", @class = "form-control" })
                                         </div>
                                     </div>
                                 </div>
@@ -302,11 +302,12 @@
 
         $(document).ready(function () {
 
-            // datepicker dropdown
-            $('.datepicker').datepicker({
-                format: "mm/dd/yyyy",
-                autoclose: true,
-                todayBtn: 'linked'
+            //date pickers
+            datepicker('#TOdSite_REPORTED_ON', {
+                formatter: (input, date) => {
+                    const value = date.toLocaleDateString()
+                    input.value = value
+                }
             });
 
             //pass coordinates to modal
