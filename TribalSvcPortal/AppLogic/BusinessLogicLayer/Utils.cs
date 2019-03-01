@@ -351,28 +351,28 @@ namespace TribalSvcPortal.AppLogic.BusinessLogicLayer
                     }).ToList();
         }
 
-        public static List<string> GetMandatoryImportFieldList(string ImportType, string path)
+        public static List<string> GetMandatoryImportFieldList(string TableName, string path)
         {
             // Loading configuration file listing all data import columns
             var xml = XDocument.Load(path);
 
             // Query list of all columns for the type
             List<string> mandFields = (from c in xml.Root.Descendants("Alias")
-                                       .Where(i => i.Parent.Attribute("Level").Value == ImportType)
+                                       .Where(i => i.Parent.Attribute("TableName").Value == TableName)
                                        .Where(j => j.Parent.Attribute("ReqInd").Value == "Y")
                                        select c.Parent.Attribute("FieldName").Value
                                        ).ToList();
             return mandFields;
         }
 
-        public static List<string> GetOptionalImportFieldList(string ImportType, string path)
+        public static List<string> GetOptionalImportFieldList(string TableName, string path)
         {
             // Loading configuration file listing all data import columns
             var xml = XDocument.Load(path);
 
             // Query list of all columns for the type
             List<string> optFields = (from c in xml.Root.Descendants("Alias")
-                                       .Where(i => i.Parent.Attribute("Level").Value == ImportType)
+                                       .Where(i => i.Parent.Attribute("TableName").Value == TableName)
                                        .Where(j => j.Parent.Attribute("ReqInd").Value == "N")
                                       select c.Parent.Attribute("FieldName").Value
                                        ).ToList();

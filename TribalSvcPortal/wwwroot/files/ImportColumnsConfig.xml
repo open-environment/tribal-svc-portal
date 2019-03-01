@@ -1,0 +1,23 @@
+﻿<FieldConfig>
+  <Fields>
+    <!-- OPEN DUMP SITES -->
+    <!--<Field Level="S" TableName="T_PRT_SITES" FieldName="ORG_NAME" ReqInd="Y" Length="30" UniqueInd="Y" FKey="" DataType=""><Alias>Organization Name</Alias></Field>-->
+    <Field Level="S" TableName="T_PRT_SITES" FieldName="SITE_NAME" ReqInd="Y" Length="100" UniqueInd="Y" FKey="" DataType=""><Alias>Site Name</Alias></Field>
+    <Field Level="S" TableName="T_PRT_SITES" FieldName="EPA_ID" ReqInd="N" Length="50" UniqueInd="Y" FKey="" DataType=""><Alias>EPA Site ID</Alias></Field>
+    <Field Level="S" TableName="T_PRT_SITES" FieldName="LATITUDE" ReqInd="N" Length="15" UniqueInd="N" FKey="" DataType="dec"><Alias>Latitude</Alias></Field>
+    <Field Level="S" TableName="T_PRT_SITES" FieldName="LONGITUDE" ReqInd="N" Length="15" UniqueInd="N" FKey="" DataType="dec"><Alias>Longitude</Alias></Field>
+    <Field Level="S" TableName="T_PRT_SITES" FieldName="SITE_ADDRESS" ReqInd="N" Length="400" UniqueInd="N" FKey="" DataType=""><Alias>Site Address</Alias></Field>
+    <Field Level="S" TableName="T_PRT_SITES" FieldName="LAND_STATUS" ReqInd="N" Length="30" UniqueInd="N" FKey="" DataType=""><Alias>Land Status</Alias></Field>
+    <Field Level="S" TableName="T_PRT_SITES" FieldName="SITE_IDX" ReqInd="N" Length="30" UniqueInd="N" FKey="" DataType=""><Alias>Tribal Service Portal Site ID</Alias></Field>
+
+    <Field Level="S" TableName="T_OD_SITES" FieldName="REPORTED_BY" ReqInd="N" Length="50" UniqueInd="N" FKey="" DataType=""><Alias>Reported By</Alias></Field>
+    <Field Level="S" TableName="T_OD_SITES" FieldName="REPORTED_ON" ReqInd="N" Length="" UniqueInd="N" FKey="" DataType="date"><Alias>Reported On</Alias></Field>
+    <Field Level="S" TableName="T_OD_SITES" FieldName="CURRENT_SITE_STATUS" ReqInd="N" Length="30" UniqueInd="N" FKey="" DataType=""><Alias>Current Site Status</Alias></Field>
+
+    <Field Level="S" TableName="T_OD_ASSESSMENTS" FieldName="ASSESSMENT_DT" ReqInd="N" Length="" UniqueInd="N" FKey="" DataType="date"><Alias>Assessment Date</Alias></Field>
+    <Field Level="S" TableName="T_OD_ASSESSMENTS" FieldName="ASSESSED_BY" ReqInd="N" Length="100" UniqueInd="N" FKey="" DataType=""><Alias>Assessed By</Alias></Field>
+    <Field Level="S" TableName="T_OD_ASSESSMENTS" FieldName="SITE_DESCRIPTION" ReqInd="N" Length="2000" UniqueInd="N" FKey="" DataType=""><Alias>Assessed Site Description</Alias></Field>
+    <Field Level="S" TableName="T_OD_ASSESSMENTS" FieldName="ASSESSMENT_NOTES" ReqInd="N" Length="2000" UniqueInd="N" FKey="" DataType=""><Alias>Observations/Notes</Alias></Field>
+
+  </Fields>
+</FieldConfig>

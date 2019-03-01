@@ -97,9 +97,9 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
     {
         public T_PRT_SITES T_PRT_SITES { get; set; }
         public T_OD_SITES T_OD_SITES { get; set; }
+        public T_OD_ASSESSMENTS T_OD_ASSESSMENTS { get; set; }
         public bool VALIDATE_CD { get; set; }
         public string VALIDATE_MSG { get; set; }
-        public string ORG_NAME { get; set; }
 
         //INITIALIZE
         public SiteImportType()
@@ -117,6 +117,10 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
         List<OpenDumpSiteListDisplay> getT_OD_SITES_ListBySearch(string id, string searchStr, string selOrg, string selStatus);
         Guid? InsertUpdateT_OD_SITES(Guid sITE_IDX, string rEPORTED_BY, DateTime? rEPORTED_ON, Guid? cOMMUNITY_IDX, Guid? sITE_SETTING_IDX, Guid? pF_AQUIFER_VERT_DIST, Guid? pF_SURF_WATER_HORIZ_DIST, Guid? pF_HOMES_DIST, string cURRENT_SITE_STATUS);
         string UpdateT_OD_SITES_Status(Guid sITE_IDX);
+
+        //************** T_OD_SITE_PARCELS **********************************
+        List<T_OD_SITE_PARCELS> getT_OD_SITE_PARCELS_BySITEIDX(Guid Siteidx);
+        Guid? InsertUpdateT_OD_SITE_PARCELS(Guid? sITE_PARCEL_IDX, Guid? sITE_IDX, string pARCEL_NUM, string oWNER, string aCRES);
 
         //************** T_OD_DUMP_ASSESSMENTS **********************************
         T_OD_ASSESSMENTS getT_OD_ASSESSMENTS_ByAssessmentIDX(Guid aSSESSMENT_IDX);
@@ -277,7 +281,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
         }
 
         public Guid? InsertUpdateT_OD_SITES(Guid sITE_IDX, string rEPORTED_BY, DateTime? rEPORTED_ON, Guid? cOMMUNITY_IDX, Guid? sITE_SETTING_IDX, Guid? pF_AQUIFER_VERT_DIST,
-    Guid? pF_SURF_WATER_HORIZ_DIST, Guid? pF_HOMES_DIST, string cURRENT_SITE_STATUS)
+            Guid? pF_SURF_WATER_HORIZ_DIST, Guid? pF_HOMES_DIST, string cURRENT_SITE_STATUS)
         {
             try
             {
@@ -344,6 +348,65 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
                 return null;
             }
         }
+
+
+        //************** T_OD_SITE_PARCELS **********************************
+        public List<T_OD_SITE_PARCELS> getT_OD_SITE_PARCELS_BySITEIDX(Guid Siteidx)
+        {
+            try
+            {
+                return (from a in ctx.T_OD_SITE_PARCELS
+                        .Where(s => s.SITE_IDX == Siteidx)
+                        select a).ToList();
+            }
+            catch (Exception ex)
+            {
+                _log.LogEFException(ex);
+                return null;
+            }
+        }
+
+        public Guid? InsertUpdateT_OD_SITE_PARCELS(Guid? sITE_PARCEL_IDX, Guid? sITE_IDX, string pARCEL_NUM, string oWNER, string aCRES)
+        {
+            try
+            {
+                Boolean insInd = false;
+
+                T_OD_SITE_PARCELS e = (from c in ctx.T_OD_SITE_PARCELS
+                                where c.SITE_PARCEL_IDX == sITE_PARCEL_IDX
+                                select c).FirstOrDefault();
+
+                if (e == null)
+                    e = (from c in ctx.T_OD_SITE_PARCELS
+                         where c.SITE_IDX == sITE_IDX
+                         && e.PARCEL_NUM == pARCEL_NUM
+                         select c).FirstOrDefault();
+
+                //insert case
+                if (e == null)
+                {
+                    insInd = true;
+                    e = new T_OD_SITE_PARCELS();
+                    e.SITE_PARCEL_IDX = Guid.NewGuid();
+                    e.SITE_IDX = (Guid)sITE_IDX;
+                }
+
+                if (pARCEL_NUM != null) e.PARCEL_NUM = pARCEL_NUM;
+                if (oWNER != null) e.OWNER = oWNER;
+                if (aCRES != null) e.ACRES = aCRES;
+
+                if (insInd)
+                    ctx.T_OD_SITE_PARCELS.Add(e);
+                ctx.SaveChanges();
+                return e.SITE_PARCEL_IDX;
+            }
+            catch (Exception ex)
+            {
+                _log.LogEFException(ex);
+                return null;
+            }
+        }
+
 
 
         //************** T_OD_DUMP_ASSESSMENTS **********************************
@@ -1474,7 +1537,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
 
                 //try to get existing project based on SITE_IDX
                 Guid siteIDX;
-                string siteIDXStr = Utils.GetValueOrDefault(colVals, "PROJECT_IDX");
+                string siteIDXStr = Utils.GetValueOrDefault(colVals, "SITE_IDX");
                 if (Guid.TryParse(siteIDXStr, out siteIDX))
                 {
                     T_OD_SITES p = getT_OD_SITES_BySITEIDX(siteIDX);
@@ -1486,52 +1549,52 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
                     }
                 }
 
-                ////then try to get based on supplied IMPORT_ID 
-                //T_OE_PROJECTS p2 = db_EECIP.GetT_OE_PROJECTS_ByIMPORT_ID(Utils.GetValueOrDefault(colVals, "IMPORT_ID"));
-                //if (p2 != null)
-                //{
-                //    insInd = false;
-                //    e.T_OE_PROJECT.PROJECT_IDX = p2.PROJECT_IDX;
-                //}
-
                 if (insInd)
                 {
                     e.T_PRT_SITES.SITE_IDX = Guid.NewGuid();
-                    e.T_OD_SITES.SITE_IDX = Guid.NewGuid();
                     e.T_PRT_SITES.CREATE_DT = System.DateTime.Now;
                     e.T_PRT_SITES.CREATE_USER_ID = UserIDX;
+                    e.T_OD_SITES.SITE_IDX = e.T_PRT_SITES.SITE_IDX;
                 }
                 else
                 {
                     e.T_PRT_SITES.MODIFY_DT = System.DateTime.Now;
                     e.T_PRT_SITES.MODIFY_USER_ID = UserIDX;
                 }
+                
 
 
                 //get import config rules
                 List<ConfigInfoType> _allRules = Utils.GetAllColumnInfo("S", path);
 
                 //explicitly validate mandatory fields
-
-                foreach (string entry in Utils.GetMandatoryImportFieldList("S", path))
-                    T_OD_SITE_validate(ref e, _allRules, colVals, entry);
+                foreach (string entry in Utils.GetMandatoryImportFieldList("T_PRT_SITES", path))
+                    TableFields_validate(ref e, _allRules, colVals, entry, "T_PRT_SITES");
 
                 //then only validate optional fields if supplied (performance)
-                foreach (string entry in Utils.GetOptionalImportFieldList("S", path))
-                    T_OD_SITE_validate(ref e, _allRules, colVals, entry);
+                foreach (string entry in Utils.GetOptionalImportFieldList("T_PRT_SITES", path))
+                    TableFields_validate(ref e, _allRules, colVals, entry, "T_PRT_SITES");
 
+                //then only validate optional fields if supplied (performance)
+                foreach (string entry in Utils.GetOptionalImportFieldList("T_OD_SITES", path))
+                    TableFields_validate(ref e, _allRules, colVals, entry, "T_OD_SITES");
 
+                //then only validate optional fields if supplied (performance)
+
+                foreach (string entry in Utils.GetOptionalImportFieldList("T_OD_ASSESSMENTS", path))
+                    TableFields_validate(ref e, _allRules, colVals, entry, "T_OD_ASSESSMENTS");
 
                 //********************** CUSTOM POST VALIDATION ********************************************
-                ////SET ORG_IDX based on supplied ORG_NAME
+                //SECURITY CHECK FOR ABILIITY TO IMPORT ORG_ID
                 //e.ORG_NAME = Utils.GetValueOrDefault(colVals, "ORG_NAME");
+
                 //T_OE_ORGANIZATION oo = db_Ref.GetT_OE_ORGANIZATION_ByName(e.ORG_NAME);
                 //if (oo != null)
                 //    e.T_OE_PROJECT.ORG_IDX = oo.ORG_IDX;
                 //else
                 //{
                 //    e.VALIDATE_CD = false;
-                //    e.VALIDATE_MSG += "No matching agency found.";
+                //    e.VALIDATE_MSG += "Unable to import for this organization.";
                 //}
 
 
@@ -1548,7 +1611,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
                 //        e.VALIDATE_MSG += "Invalid Media name.";
                 //    }
                 //}
-                                       
+
                 //e.PROGRAM_AREAS = Utils.GetValueOrDefault(colVals, "PROGRAM_AREAS");
                 //e.FEATURES = Utils.GetValueOrDefault(colVals, "FEATURES");
                 //********************** CUSTOM POST VALIDATION END ********************************************
@@ -1562,7 +1625,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             }
         }
 
-        public static void T_OD_SITE_validate(ref SiteImportType a, List<ConfigInfoType> t, Dictionary<string, string> colVals, string f)
+        public static void TableFields_validate(ref SiteImportType a, List<ConfigInfoType> t, Dictionary<string, string> colVals, string f, string tableName)
         {
             var _rules = t.Find(item => item._name == f);   //import validation rules for this field
             if (_rules == null)
@@ -1612,17 +1675,45 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             //finally set the value before returning
             try
             {
-                if (_rules._datatype == "")
-                    typeof(T_OD_SITES).GetProperty(f).SetValue(a.T_OD_SITES, _value);
-                else if (_rules._datatype == "int")
-                    typeof(T_OD_SITES).GetProperty(f).SetValue(a.T_OD_SITES, _value.ConvertOrDefault<int?>());
+                if (tableName == "T_PRT_SITES")
+                {
+                    if (_rules._datatype == "")
+                        typeof(T_PRT_SITES).GetProperty(f).SetValue(a.T_PRT_SITES, _value);
+                    else if (_rules._datatype == "int")
+                        typeof(T_PRT_SITES).GetProperty(f).SetValue(a.T_PRT_SITES, _value.ConvertOrDefault<int?>());
+                    else if (_rules._datatype == "dec")
+                        typeof(T_PRT_SITES).GetProperty(f).SetValue(a.T_PRT_SITES, _value.ConvertOrDefault<decimal?>());
+                }
+                else if (tableName == "T_OD_SITES")
+                {
+                    if (_rules._datatype == "")
+                        typeof(T_OD_SITES).GetProperty(f).SetValue(a.T_OD_SITES, _value);
+                    else if (_rules._datatype == "int")
+                        typeof(T_OD_SITES).GetProperty(f).SetValue(a.T_OD_SITES, _value.ConvertOrDefault<int?>());
+                }
+                else if (tableName == "T_OD_ASSESSMENTS")
+                {
+                    if (a.T_OD_ASSESSMENTS == null)
+                    {
+                        a.T_OD_ASSESSMENTS = new T_OD_ASSESSMENTS
+                        {
+                            ASSESSMENT_IDX = Guid.NewGuid()
+                        };
+                    }
+
+                    if (_rules._datatype == "")
+                        typeof(T_OD_ASSESSMENTS).GetProperty(f).SetValue(a.T_OD_ASSESSMENTS, _value);
+                    else if (_rules._datatype == "int")
+                        typeof(T_OD_ASSESSMENTS).GetProperty(f).SetValue(a.T_OD_ASSESSMENTS, _value.ConvertOrDefault<int?>());
+                    else if (_rules._datatype == "date")
+                        typeof(T_OD_ASSESSMENTS).GetProperty(f).SetValue(a.T_OD_ASSESSMENTS, _value.ConvertOrDefault<DateTime?>());
+                }
             }
             catch
             {
-                //let fail silently (non T_OE_PROJECTS fields will fail)
+                //let fail silently
             }
         }
-
-
     }
+
 }

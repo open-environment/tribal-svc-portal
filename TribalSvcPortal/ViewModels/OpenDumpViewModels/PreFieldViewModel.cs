@@ -8,6 +8,7 @@ namespace TribalSvcPortal.ViewModels.OpenDumpViewModels
     {
         public T_PRT_SITES TPrtSite { get; set; }
         public T_OD_SITES TOdSite { get; set; }
+        public List<T_OD_SITE_PARCELS> T_OD_SITE_PARCELs { get; set; }
         public IEnumerable<SelectListItem> SiteSettingsList { get; set; }
         public IEnumerable<SelectListItem> CommunityList { get; set; }
         public IEnumerable<SelectListItem> ddl_LandStatus { get; set; }

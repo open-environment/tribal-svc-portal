@@ -1,21 +1,24 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using ClosedXML.Excel;
+using iTextSharp.text;
+using iTextSharp.text.pdf;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
+using System.Data;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using TribalSvcPortal.AppLogic.BusinessLogicLayer;
 using TribalSvcPortal.AppLogic.DataAccessLayer;
 using TribalSvcPortal.Data.Models;
 using TribalSvcPortal.ViewModels.OpenDumpViewModels;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Identity;
-using System.Collections.Generic;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using iTextSharp.text.pdf;
-using iTextSharp.text;
-using ClosedXML.Excel;
-using System.Data;
-using Microsoft.AspNetCore.Http;
 
 namespace TribalSvcPortal.Controllers
 {
@@ -172,10 +175,65 @@ namespace TribalSvcPortal.Controllers
         [HttpPost, ValidateAntiForgeryToken]
         public ActionResult PreField(PreFieldViewModel model)
         {
+            string parcelNum = "";
+            string twp = "";
+            string range = "";
+            int? sect = null;
+
             string _UserIDX = _userManager.GetUserId(User);
 
+            //if lat/long supplied call map service, get additional information
+            try
+            {
+                if (model.TPrtSite.LATITUDE != null && model.TPrtSite.LONGITUDE != null)
+                {
+                    //************************* TWP RANGE SECT *********************************
+                    using (var client = new HttpClient())
+                    {
+                        client.BaseAddress = new Uri("http://maps.owrb.ok.gov/");
+                        client.DefaultRequestHeaders.Accept.Clear();
+                        client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+                        HttpResponseMessage response = client.GetAsync("arcgis/rest/services/Base/PLSS_10_ACRE_GRID/MapServer/5/query?f=json&returnGeometry=false&geometry={" + model.TPrtSite.LONGITUDE  + "," + model.TPrtSite.LATITUDE + " }&geometryType=esriGeometryPoint&inSR=4326&outFields=SECT,TOWNSHIP,RANGE").GetAwaiter().GetResult();
+                        if (response.IsSuccessStatusCode)
+                        {
+                            var ddd = response.Content.ReadAsStringAsync().GetAwaiter().GetResult();
+                            dynamic stuff = JsonConvert.DeserializeObject(ddd);
+                            model.TPrtSite.TWP = stuff.features[0].attributes.TOWNSHIP;  //3
+                            model.TPrtSite.RANGE = stuff.features[0].attributes.RANGE;  //4
+                            model.TPrtSite.SECTION = stuff.features[0].attributes.SECT;  //2
+                        }
+                    }
+
+
+                    //************************* PARCELS *********************************
+                    using (var client = new HttpClient())
+                    {
+                        client.BaseAddress = new Uri("https://arcdev1.mcngis.net/");
+                        client.DefaultRequestHeaders.Accept.Clear();
+                        client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+                        HttpResponseMessage response = client.GetAsync("arcgisserver/rest/services/Parcels/TulsaParcels/MapServer/0/query?returnGeometry=false&geometry=" + model.TPrtSite.LONGITUDE + "," + model.TPrtSite.LATITUDE + "&geometryType=esriGeometryPoint&inSR=4326&distance=25&units=esriSRUnit_Meter&f=pjson").GetAwaiter().GetResult();
+                        if (response.IsSuccessStatusCode)
+                        {
+                            var ddd = response.Content.ReadAsStringAsync().GetAwaiter().GetResult();
+                            dynamic stuff = JsonConvert.DeserializeObject(ddd);
+                            parcelNum = stuff.features[0].attributes.Parcel_Num;
+                        }
+                    }
+
+                }
+            }
+            catch
+            {
+            }
+
             Guid? newSiteID = _DbPortal.InsertUpdateT_PRT_SITES(model.TPrtSite.SITE_IDX, model.TPrtSite.ORG_ID, model.TPrtSite.SITE_NAME ?? "",
-                    model.TPrtSite.EPA_ID ?? "", model.TPrtSite.LATITUDE, model.TPrtSite.LONGITUDE, model.TPrtSite.SITE_ADDRESS ?? "", _UserIDX, model.TPrtSite.LAND_STATUS);
+                    model.TPrtSite.EPA_ID ?? "", model.TPrtSite.LATITUDE, model.TPrtSite.LONGITUDE, model.TPrtSite.SITE_ADDRESS ?? "", _UserIDX, model.TPrtSite.LAND_STATUS,
+                    model.TPrtSite.TWP, model.TPrtSite.RANGE, model.TPrtSite.SECTION);
+
+
+
 
             if (newSiteID != null)
             {
@@ -184,7 +242,7 @@ namespace TribalSvcPortal.Controllers
 
                 if (newSiteID != null)
                 {
-                    TempData["Success"] = "Update successful.";
+                    TempData["Success"] = "Update successful." + "Parcel #:" + parcelNum;
                     return RedirectToAction("PreField", "OpenDump", new { id = newSiteID, returnURL = model.returnURL });
                 }
             }
@@ -206,6 +264,18 @@ namespace TribalSvcPortal.Controllers
 
         }
         #endregion
+
+        [HttpGet]
+        public ActionResult Parcels(Guid? id)
+        {
+            var model = new ParcelsViewModel
+            {
+                T_PRT_SITES = _DbPortal.GetT_PRT_SITES_BySITEIDX((Guid)id),
+                T_OD_SITE_PARCELS = _DbOpenDump.getT_OD_SITE_PARCELS_BySITEIDX((Guid)id)
+            };
+
+            return View(model);
+        }
 
 
         #region ASSESSMENT CONTROLLERS ************************************************************
@@ -942,8 +1012,11 @@ namespace TribalSvcPortal.Controllers
         [HttpGet]
         public ActionResult Import()
         {
+            string _UserIDX = _userManager.GetUserId(User);
+
             var model = new ImportViewModel
             {
+                ddl_Org = _DbPortal.get_ddl_T_PRT_ORG_USERS_CLIENT_ByUserIDandClient(_UserIDX, "open_dump")
             };
 
             return View(model);
@@ -956,7 +1029,7 @@ namespace TribalSvcPortal.Controllers
 
             //set dictionaries used to store stuff in memory
             Dictionary<string, int> colMapping = new Dictionary<string, int>();  //identifies the column number for each field to be imported
-            string path = Path.Combine(_hostingEnvironment.ContentRootPath, "Docs", "ImportColumnsConfig.xml");
+            string path = Path.Combine(_hostingEnvironment.WebRootPath, "files", "ImportColumnsConfig.xml");
 
             //initialize variables
             bool headInd = true;
@@ -974,7 +1047,7 @@ namespace TribalSvcPortal.Controllers
                         //**********************************************************
                         //HEADER ROW - LOGIC TO DETERMINE WHAT IS IN EACH COLUMN
                         //**********************************************************
-                        colMapping = Utils.GetColumnMapping("P", cols, path);
+                        colMapping = Utils.GetColumnMapping("S", cols, path);
 
                         headInd = false;
 
@@ -996,7 +1069,7 @@ namespace TribalSvcPortal.Controllers
 
                         Dictionary<string, string> fieldValuesDict = new Dictionary<string, string>();  //identifies the column number for each field to be imported
 
-                        //loop through all values and insert to list
+                        //LOOP THROUGH ALL VALUES AND INSERT TO A GENERIC VALUE/PAIR LIST
                         foreach (var c in colDataIndexed)
                             fieldValuesDict.Add(c._Name, c._Val);
 
@@ -1017,13 +1090,21 @@ namespace TribalSvcPortal.Controllers
                 {
                     //import prt site
                     T_PRT_SITES x = ps.T_PRT_SITES;
-                    Guid? SiteIDX = _DbPortal.InsertUpdateT_PRT_SITES(x.SITE_IDX, x.ORG_ID, x.SITE_NAME, x.EPA_ID, x.LATITUDE, x.LONGITUDE, x.SITE_ADDRESS, x.CREATE_USER_ID, x.LAND_STATUS);
+                    Guid? SiteIDX = _DbPortal.InsertUpdateT_PRT_SITES(x.SITE_IDX, model.selOrg, x.SITE_NAME, x.EPA_ID, x.LATITUDE, x.LONGITUDE, x.SITE_ADDRESS, x.CREATE_USER_ID, x.LAND_STATUS, null, null, null);
 
                     //import OD site
                     if (SiteIDX != null)
                     {
                         T_OD_SITES y = ps.T_OD_SITES;
-                        _DbOpenDump.InsertUpdateT_OD_SITES((Guid)SiteIDX, y.REPORTED_BY, y.REPORTED_ON, y.COMMUNITY_IDX, y.SITE_SETTING_IDX, y.PF_AQUIFER_VERT_DIST, y.PF_SURF_WATER_HORIZ_DIST, y.PF_HOMES_DIST, y.CURRENT_SITE_STATUS);
+                        SiteIDX = _DbOpenDump.InsertUpdateT_OD_SITES((Guid)SiteIDX, y.REPORTED_BY, y.REPORTED_ON, y.COMMUNITY_IDX, y.SITE_SETTING_IDX, y.PF_AQUIFER_VERT_DIST, y.PF_SURF_WATER_HORIZ_DIST, y.PF_HOMES_DIST, y.CURRENT_SITE_STATUS);
+
+                        //import assessment
+                        if (ps.T_OD_ASSESSMENTS != null)
+                        {
+                            T_OD_ASSESSMENTS z = ps.T_OD_ASSESSMENTS;
+                            _DbOpenDump.InsertUpdateT_OD_ASSESSMENTS(z.ASSESSMENT_IDX, (Guid)SiteIDX, z.ASSESSMENT_DT, z.ASSESSED_BY, z.ASSESSMENT_TYPE_IDX, y.CURRENT_SITE_STATUS, z.SITE_DESCRIPTION, z.ASSESSMENT_NOTES,
+                                z.AREA_ACRES, z.VOLUME_CU_YD, z.HF_RAINFALL, z.HF_DRAINAGE, z.HF_FLOODING, z.HF_BURNING, z.HF_FENCING, z.HF_ACCESS_CONTROL, z.HF_PUBLIC_CONCERN, null, null);
+                        }
                     }
 
                 }
@@ -1033,6 +1114,7 @@ namespace TribalSvcPortal.Controllers
                 model.sites = null;
                 TempData["Success"] = "Data imported successfully";
             }
+            model.ddl_Org = _DbPortal.get_ddl_T_PRT_ORG_USERS_CLIENT_ByUserIDandClient(_UserIDX, "open_dump");
             return View(model);
         }
 

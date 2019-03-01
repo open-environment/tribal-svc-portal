@@ -20,6 +20,8 @@
             </ul>
             <div class="tab-content">
                 <div class="tab-pane in active" id="tab1">
+
+
                     <!-- render the main content -->
                     @using (Html.BeginForm("PreField", "OpenDump", FormMethod.Post, new { @id = "norepostform", enctype = "multipart/form-data" }))
                     {
@@ -28,7 +30,7 @@
                         @Html.HiddenFor(model => model.returnURL)
                         @Html.ValidationSummary(true, "", new { @class = "text-danger" })
                         <div class="row">
-                            <div class="col-sm-12" style="margin-top: 8px;">
+                            <div class="col-sm-12" style="margin-bottom:10px;">
                                 <div>
                                     <label class="col-sm-1 control-label" style="margin-top:8px;">
                                         Site Name
@@ -56,62 +58,148 @@
                                 </div>
                             </div>
                         </div>
-                        <section class="panel panel-default" style="margin-top:5px;">
-                            <div class="panel-heading">
-                                Location
-                                <div class="panel-tools">
-                                    <a class="btn btn-xs panel-collapse collapses" href="#">
-                                    </a>
-                                </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <section class="panel panel-default">
+                                    <div class="panel-heading">
+                                        Location
+                                        <div class="panel-tools">
+                                            <a class="btn btn-xs panel-collapse collapses" href="#">
+                                            </a>
+                                        </div>
+                                    </div>
+                                    <div class="panel-body">
+                                        <div class="row">
+                                            <div class="col-lg-6 col-md-6 col-sm-6" style="border-right: 2px solid black;">
+                                                <div class="row">
+                                                    <div class="col-md-4">
+                                                        <div class="form-group">
+                                                            <label>Latitude</label>
+                                                            @Html.TextBoxFor(model => model.TPrtSite.LATITUDE, new { @id = "latitude", @class = "form-control", @placeholder = "", @maxlength = "18" })
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <div class="form-group">
+                                                            <label>Longitude</label>
+                                                            @Html.TextBoxFor(model => model.TPrtSite.LONGITUDE, new { @id = "longitude", @class = "form-control", @placeholder = "", @maxlength = "18" })
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-2">
+                                                        <label>&nbsp;</label>
+                                                        <a href="#modal-form" data-toggle="modal" id="btnShow" class="btn btn-primary">Select on Map</a>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-md-12">
+                                                        <div class="form-group">
+                                                            <label>Street Address or Road/Intersection</label>
+                                                            @Html.TextAreaFor(model => model.TPrtSite.SITE_ADDRESS, new { @class = "form-control", @placeholder = "", @maxlength = "400" })
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <div class="form-group">
+                                                            <label>Community</label>
+                                                            @Html.DropDownListFor(model => model.TOdSite.COMMUNITY_IDX, Model.CommunityList, "", new { @class = "form-control" })
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <div class="form-group">
+                                                            <label>Land Status</label>
+                                                            @Html.DropDownListFor(model => model.TPrtSite.LAND_STATUS, Model.ddl_LandStatus, "", new { @class = "form-control" })
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-6 col-md-6 col-sm-6">
+                                                <div class="row" style="background-color:#4F4F4F; padding:6px;">
+                                                    <label style="color:white; font-size:11pt;">Auto-populated</label>
+                                                </div>
+                                                <div class="row">
+                                                    <label class="col-sm-4 control-label" style="text-align: right;">
+                                                        Twp:
+                                                    </label>
+                                                    <div class="col-sm-8">
+                                                        @Html.DisplayFor(model => model.TPrtSite.TWP, new { @class = "" })
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <label class="col-sm-4 control-label" style="text-align: right;">
+                                                        Range:
+                                                    </label>
+                                                    <div class="col-sm-8">
+                                                        @Html.DisplayFor(model => model.TPrtSite.RANGE, new { @class = "" })
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <label class="col-sm-4 control-label" style="text-align: right;">
+                                                        Section:
+                                                    </label>
+                                                    <div class="col-sm-8">
+                                                        @Html.DisplayFor(model => model.TPrtSite.SECTION, new { @class = "" })
+                                                    </div>
+                                                </div>
+                                                <div class="row" style="background-color:#4F4F4F; padding:6px;">
+                                                    <label style="color:white; font-size:11pt;">Parcels</label>
+                                                    <a href="@Url.Action("Parcels", "OpenDump", new { id = Model.TPrtSite.SITE_IDX })" class="btn btn-primary pull-right btn-xs">View/Add Parcels</a>
+                                                </div>
+                                                <div class="row">
+                                                    @if (Model.T_OD_SITE_PARCELs != null)
+                                                    {
+                                                        <div class="table-responsive">
+                                                            <table class="table table-hover table-striped m-b-none" data-ride="datatables">
+                                                                <thead>
+                                                                    <tr class="thead-inverse">
+                                                                        <th></th>
+                                                                        <th>Parcel Num</th>
+                                                                        <th>Owner</th>
+                                                                        <th>Acres</th>
+                                                                    </tr>
+                                                                </thead>
+                                                                @foreach (var item in Model.T_OD_SITE_PARCELs)
+                                                                {
+                                                                    <tr>
+                                                                        <td>
+                                                                            <div class="delete-section" style="display:inline">
+                                                                                <a class=" btn btn-rounded btn-xs btn-danger delete-link"><i class="glyphicon glyphicon-remove"></i></a>
+                                                                                <div class="btn btn-rounded btn-xs btn-warning delete-confirm" style="display:none" data-delete-id="@item.SITE_PARCEL_IDX" data-delete-p="/OpenDump/SiteParcelDelete"><b>Confirm Delete</b></div>
+                                                                            </div>
+                                                                        </td>
+                                                                        <td>
+                                                                            @Html.DisplayFor(model => item.PARCEL_NUM)
+                                                                        </td>
+                                                                        <td>
+                                                                            @Html.DisplayFor(model => item.OWNER)
+                                                                        </td>
+                                                                        <td>
+                                                                            @Html.DisplayFor(model => item.ACRES)
+                                                                        </td>
+                                                                    </tr>
+                                                                }
+
+                                                            </table>
+                                                        </div>
+                                                    }
+
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </section>
                             </div>
-                            <div class="panel-body">
-                                <div class="row">
-                                    <div class="col-lg-6 col-md-6 col-sm-6" style="border-right: 2px solid black;">
-                                        <div class="row">
-                                            <div class="col-md-4">
-                                                <div class="form-group">
-                                                    <label>Latitude</label>
-                                                    @Html.TextBoxFor(model => model.TPrtSite.LATITUDE, new { @id = "latitude", @class = "form-control", @placeholder = "", @maxlength = "18" })
-                                                </div>
-                                            </div>
-                                            <div class="col-md-4">
-                                                <div class="form-group">
-                                                    <label>Longitude</label>
-                                                    @Html.TextBoxFor(model => model.TPrtSite.LONGITUDE, new { @id = "longitude", @class = "form-control", @placeholder = "", @maxlength = "18" })
-                                                </div>
-                                            </div>
-                                            <div class="col-md-2">
-                                                <label>&nbsp;</label>
-                                                <a href="#modal-form" data-toggle="modal" id="btnShow" class="btn btn-primary">Select on Map</a>
-                                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <section class="panel panel-default">
+                                    <div class="panel-heading">
+                                        Proximity Factors
+                                        <div class="panel-tools">
+                                            <a class="btn btn-xs panel-collapse collapses" href="#">
+                                            </a>
                                         </div>
-                                        <div class="row">
-                                            <div class="col-md-12">
-                                                <div class="form-group">
-                                                    <label>Street Address or Road/Intersection</label>
-                                                    @Html.TextAreaFor(model => model.TPrtSite.SITE_ADDRESS, new { @class = "form-control", @placeholder = "", @maxlength = "400" })
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="row">
-                                            <div class="col-md-6">
-                                                <div class="form-group">
-                                                    <label>Community</label>
-                                                    @Html.DropDownListFor(model => model.TOdSite.COMMUNITY_IDX, Model.CommunityList, "", new { @class = "form-control" })
-                                                </div>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <div class="form-group">
-                                                    <label>Land Status</label>
-                                                    @Html.DropDownListFor(model => model.TPrtSite.LAND_STATUS, Model.ddl_LandStatus, "", new { @class = "form-control" })
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="row">
-                                            <label class="col-sm-12 control-label" style="margin-top:8px;">
-                                                <b><u>Proximity Factors</u></b>
-                                            </label>
-                                        </div>
+                                    </div>
+                                    <div class="panel-body">
                                         <div class="row">
                                             <div class="col-md-6">
                                                 <div class="form-group">
@@ -141,84 +229,38 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="col-lg-6 col-md-6 col-sm-6">
-                                        <div class="row" style="background-color:#4F4F4F; padding:6px;">
-                                            <label style="color:white; font-size:11pt;">Auto-populated</label>
+                                </section>
+                            </div>
+                            <div class="col-md-6">
+                                <section class="panel panel-default">
+                                    <div class="panel-heading">
+                                        Initial Report
+                                        <div class="panel-tools">
+                                            <a class="btn btn-xs panel-collapse collapses" href="#">
+                                            </a>
                                         </div>
+                                    </div>
+                                    <div class="panel-body">
                                         <div class="row">
-                                            <label class="col-sm-4 control-label" style="text-align: right;">
-                                                State:
-                                            </label>
-                                            <div class="col-sm-8">
-                                                Test data
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label>Reported By</label>
+                                                    @Html.TextBoxFor(model => model.TOdSite.REPORTED_BY, new { @class = "form-control", @placeholder = "", @maxlength = "50" })
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label>Reported On</label>
+                                                    @Html.TextBoxFor(model => model.TOdSite.REPORTED_ON, "{0:MM/dd/yyyy}", new { @autocomplete = "off", @class = "form-control" })
+                                                </div>
                                             </div>
                                         </div>
-                                        <div class="row">
-                                            <label class="col-sm-4 control-label" style="text-align: right;">
-                                                Country:
-                                            </label>
-                                            <div class="col-sm-8">
-                                                Test data
-                                            </div>
-                                        </div>
-                                        <div class="row">
-                                            <label class="col-sm-4 control-label" style="text-align: right;">
-                                                ZIP:
-                                            </label>
-                                            <div class="col-sm-8">
-                                                Test data
-                                            </div>
-                                        </div>
-                                        <div class="row">
-                                            <label class="col-sm-4 control-label" style="text-align: right;">
-                                                Section/Twp/Range:
-                                            </label>
-                                            <div class="col-sm-8">
-                                                Test data
-                                            </div>
-                                        </div>
-                                        <div class="row">
-                                            <label class="col-sm-4 control-label" style="text-align: right;">
-                                                Topographic Quadrangle:
-                                            </label>
-                                            <div class="col-sm-8">
-                                                Test data
-                                            </div>
-                                        </div>
-                                        <div class="row" style="background-color:#4F4F4F; padding:6px;">
-                                            <label style="color:white; font-size:11pt;">Parcels</label>
-                                            <button type="button" name="btnAddMore" class="btn btn-primary pull-right btn-xs">Add More</button>
-                                        </div>
+                                    </div>
+                                </section>
+                            </div>
 
-                                    </div>
-                                </div>
-                            </div>
-                        </section>
-                        <section class="panel panel-default" style="margin-top:5px;">
-                            <div class="panel-heading">
-                                Initial Report
-                                <div class="panel-tools">
-                                    <a class="btn btn-xs panel-collapse collapses" href="#">
-                                    </a>
-                                </div>
-                            </div>
-                            <div class="panel-body">
-                                <div class="row">
-                                    <div class="col-md-3 col-sm-6">
-                                        <div class="form-group">
-                                            <label>Reported By</label>
-                                            @Html.TextBoxFor(model => model.TOdSite.REPORTED_BY, new { @class = "form-control", @placeholder = "", @maxlength = "50" })
-                                        </div>
-                                    </div>
-                                    <div class="col-md-3 col-sm-6">
-                                        <div class="form-group">
-                                            <label>Reported On</label>
-                                            @Html.TextBoxFor(model => model.TOdSite.REPORTED_ON, "{0:MM/dd/yyyy}", new { @autocomplete = "off", @class = "form-control" })
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </section>
+                        </div>
+
                         <div class="row">
                             <div class="col-md-12">
                                 <button id="btnSave" name="submitButton" disabled type="submit" class="btn btn-eecip">Save</button>

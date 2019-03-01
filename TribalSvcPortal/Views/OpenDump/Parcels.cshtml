@@ -1,0 +1,92 @@
+﻿@model TribalSvcPortal.ViewModels.OpenDumpViewModels.ParcelsViewModel
+@{
+    ViewData["Title"] = "Site Parcels";
+    ViewData["SubTitle"] = "Parcels for " + Model.T_PRT_SITES.SITE_NAME;
+}
+<link rel="stylesheet" href="https://js.arcgis.com/4.10/esri/css/main.css">
+<style>
+    #mapDiv {
+        padding: 0;
+        margin: 0;
+        height: 1000px;
+        width: 1000px;
+    }
+</style>
+
+<section class="panel panel-default">
+    <div class="panel-heading">
+        Parcel Map
+        <div class="panel-tools">
+            <a class="btn btn-xs panel-collapse collapses" href="#">
+            </a>
+        </div>
+    </div>
+    <div class="panel-body">
+        <div class="row">
+            <div class="col-md-12">
+                <div id="mapDiv"></div>
+
+
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <a href="@Url.Action("PreField", "OpenDump", new { id = Model.T_PRT_SITES.SITE_IDX })" class="btn btn-rounded btn-rounded btn-primary">Back</a>
+            </div>
+        </div>
+    </div>
+
+</section>
+
+@section scripts {
+
+    <script src="https://js.arcgis.com/4.10/"></script>
+
+    <script>
+        require([
+            "esri/Map",
+            "esri/views/MapView",
+            "esri/layers/FeatureLayer",
+
+            //"esri/symbols/SimpleFillSymbol", "esri/symbols/SimpleLineSymbol",
+
+            //"esri/renderers/SimpleRenderer",
+            //"esri/Color", "dojo/number", "dojo/dom-style",
+
+            //"esri/layers/GraphicsLayer",
+            //"esri/Graphic",
+            //"dijit/TooltipDialog", "dijit/popup", "dojo/domReady!"
+        ], function (Map, MapView,
+            FeatureLayer,
+            //SimpleFillSymbol, SimpleLineSymbol,
+            //SimpleRenderer,
+            //Color, number, domStyle,
+
+            //GraphicsLayer,
+            //Graphic, TooltipDialog, dijitPopup
+        ) {
+
+            var map = new Map({
+                basemap: "streets"
+            });
+
+            var dialog;
+
+            var view = new MapView({
+                container: "mapDiv",
+                map: map,
+                zoom: 16,
+                center: [-95.96, 35.92] // longitude, latitude
+            });
+
+            //var featureLayer = new FeatureLayer({
+            //    url: "https://arcdev1.mcngis.net/arcgisserver/rest/services/Parcels/TulsaParcels/MapServer",
+            //    outFields: ["*"],
+            //    popupTemplate: template
+            //});
+
+            //map.add(featureLayer);
+        });
+    </script>
+
+}

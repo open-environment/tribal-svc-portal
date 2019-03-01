@@ -17,6 +17,9 @@ namespace TribalSvcPortal.Data.Models
         public decimal? LATITUDE { get; set; }
         public decimal? LONGITUDE { get; set; }
         public string SITE_ADDRESS { get; set; }
+        public string TWP { get; set; }
+        public string RANGE { get; set; }
+        public int? SECTION { get; set; }
         public string CREATE_USER_ID { get; set; }
         public DateTime? CREATE_DT { get; set; }
         public string MODIFY_USER_ID { get; set; }

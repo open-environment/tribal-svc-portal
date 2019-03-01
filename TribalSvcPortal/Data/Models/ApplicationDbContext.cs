@@ -54,6 +54,7 @@ namespace TribalSvcPortal.Data.Models
         public virtual DbSet<T_OD_REF_WASTE_TYPE_CAT> T_OD_REF_WASTE_TYPE_CAT { get; set; }
         public virtual DbSet<T_OD_REF_WASTE_TYPE_CAT_CLEANUP> T_OD_REF_WASTE_TYPE_CAT_CLEANUP { get; set; }
         public virtual DbSet<T_OD_REF_WASTE_TYPE_UNITS> T_OD_REF_WASTE_TYPE_UNITS { get; set; }
+        public virtual DbSet<T_OD_SITE_PARCELS> T_OD_SITE_PARCELS { get; set; }
         public virtual DbSet<T_OD_SITES> T_OD_SITES { get; set; }
 
         //**************** END TABLES *******************************************************
@@ -505,12 +506,16 @@ namespace TribalSvcPortal.Data.Models
                     .HasMaxLength(30)
                     .IsUnicode(false);
 
+                entity.Property(e => e.RANGE).HasMaxLength(4);
+
                 entity.Property(e => e.SITE_ADDRESS).HasMaxLength(400);
 
                 entity.Property(e => e.SITE_NAME)
                     .IsRequired()
                     .HasMaxLength(100)
                     .IsUnicode(false);
+
+                entity.Property(e => e.TWP).HasMaxLength(3);
 
                 entity.HasOne(d => d.ORG_)
                     .WithMany(p => p.T_PRT_SITES)
@@ -995,6 +1000,25 @@ namespace TribalSvcPortal.Data.Models
                     .WithMany(p => p.T_OD_REF_WASTE_TYPE_UNITS)
                     .HasForeignKey(d => d.REF_WASTE_TYPE_IDX)
                     .HasConstraintName("FK_T_OD_REF_WASTE_TYPE_UNITS_W");
+            });
+
+            modelBuilder.Entity<T_OD_SITE_PARCELS>(entity =>
+            {
+                entity.HasKey(e => e.SITE_PARCEL_IDX);
+
+                entity.Property(e => e.SITE_PARCEL_IDX).ValueGeneratedNever();
+
+                entity.Property(e => e.ACRES)
+                    .HasMaxLength(20)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.OWNER)
+                    .HasMaxLength(100)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.PARCEL_NUM)
+                    .HasMaxLength(20)
+                    .IsUnicode(false);
             });
 
             modelBuilder.Entity<T_OD_SITES>(entity =>
