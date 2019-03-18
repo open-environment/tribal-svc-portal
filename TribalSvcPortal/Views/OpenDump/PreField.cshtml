@@ -145,7 +145,7 @@
                                                     <a href="@Url.Action("Parcels", "OpenDump", new { id = Model.TPrtSite.SITE_IDX })" class="btn btn-primary pull-right btn-xs">View/Add Parcels</a>
                                                 </div>
                                                 <div class="row">
-                                                    @if (Model.T_OD_SITE_PARCELs != null)
+                                                    @if (Model.T_OD_SITE_PARCELs != null && Model.T_OD_SITE_PARCELs.Count > 0)
                                                     {
                                                         <div class="table-responsive">
                                                             <table class="table table-hover table-striped m-b-none" data-ride="datatables">

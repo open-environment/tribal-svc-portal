@@ -145,6 +145,7 @@ namespace TribalSvcPortal.Controllers
                 model.TOdSite = _DbOpenDump.getT_OD_SITES_BySITEIDX((Guid)id);
 
                 model.CommunityList = _DbOpenDump.get_ddl_T_OD_REF_DATA_by_category("Community", model.TPrtSite.ORG_ID);
+                model.T_OD_SITE_PARCELs = _DbOpenDump.getT_OD_SITE_PARCELS_BySITEIDX((Guid)id);
 
                 //fail if site ID provided but not found
                 if (model.TOdSite == null)
@@ -175,62 +176,63 @@ namespace TribalSvcPortal.Controllers
         [HttpPost, ValidateAntiForgeryToken]
         public ActionResult PreField(PreFieldViewModel model)
         {
-            string parcelNum = "";
-            string twp = "";
-            string range = "";
-            int? sect = null;
-
             string _UserIDX = _userManager.GetUserId(User);
+            bool newLocation = true;
 
-            //if lat/long supplied call map service, get additional information
-            try
+            //first determine if the lat or long has changed
+            T_PRT_SITES _oldSite = _DbPortal.GetT_PRT_SITES_BySITEIDX(model.TPrtSite.SITE_IDX);
+            if (_oldSite != null && _oldSite.LATITUDE != null)
             {
-                if (model.TPrtSite.LATITUDE != null && model.TPrtSite.LONGITUDE != null)
+                if ((_oldSite.LATITUDE == model.TPrtSite.LATITUDE) && (_oldSite.LONGITUDE == model.TPrtSite.LONGITUDE))
+                    newLocation = false;
+            }
+
+
+            //************************* TWP RANGE SECT COUNTY*********************************
+            string countyName = null;
+            if (newLocation == true && model.TPrtSite.LATITUDE != null && model.TPrtSite.LONGITUDE != null)
+            {
+                try
                 {
-                    //************************* TWP RANGE SECT *********************************
                     using (var client = new HttpClient())
                     {
+
                         client.BaseAddress = new Uri("http://maps.owrb.ok.gov/");
                         client.DefaultRequestHeaders.Accept.Clear();
                         client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+                        HttpResponseMessage responseCounty = client.GetAsync("arcgis/rest/services/Base/SDE_State_County_PLSS/MapServer/3/query?f=json&returnGeometry=false&geometry={" + model.TPrtSite.LONGITUDE + "," + model.TPrtSite.LATITUDE + " }&geometryType=esriGeometryPoint&inSR=4326&outFields=NAME").GetAwaiter().GetResult();
+                        if (responseCounty.IsSuccessStatusCode)
+                        {
+                            var ddd = responseCounty.Content.ReadAsStringAsync().GetAwaiter().GetResult();
+                            dynamic stuff = JsonConvert.DeserializeObject(ddd);
+                            countyName = stuff.features[0].attributes.NAME;
+                            model.TPrtSite.COUNTY = countyName;
+                        }
+
 
                         HttpResponseMessage response = client.GetAsync("arcgis/rest/services/Base/PLSS_10_ACRE_GRID/MapServer/5/query?f=json&returnGeometry=false&geometry={" + model.TPrtSite.LONGITUDE  + "," + model.TPrtSite.LATITUDE + " }&geometryType=esriGeometryPoint&inSR=4326&outFields=SECT,TOWNSHIP,RANGE").GetAwaiter().GetResult();
                         if (response.IsSuccessStatusCode)
                         {
                             var ddd = response.Content.ReadAsStringAsync().GetAwaiter().GetResult();
                             dynamic stuff = JsonConvert.DeserializeObject(ddd);
-                            model.TPrtSite.TWP = stuff.features[0].attributes.TOWNSHIP;  //3
-                            model.TPrtSite.RANGE = stuff.features[0].attributes.RANGE;  //4
-                            model.TPrtSite.SECTION = stuff.features[0].attributes.SECT;  //2
+                            model.TPrtSite.TWP = stuff.features[0].attributes.TOWNSHIP;  
+                            model.TPrtSite.RANGE = stuff.features[0].attributes.RANGE;  
+                            model.TPrtSite.SECTION = stuff.features[0].attributes.SECT; 
                         }
+
+
+
                     }
-
-
-                    //************************* PARCELS *********************************
-                    using (var client = new HttpClient())
-                    {
-                        client.BaseAddress = new Uri("https://arcdev1.mcngis.net/");
-                        client.DefaultRequestHeaders.Accept.Clear();
-                        client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-
-                        HttpResponseMessage response = client.GetAsync("arcgisserver/rest/services/Parcels/TulsaParcels/MapServer/0/query?returnGeometry=false&geometry=" + model.TPrtSite.LONGITUDE + "," + model.TPrtSite.LATITUDE + "&geometryType=esriGeometryPoint&inSR=4326&distance=25&units=esriSRUnit_Meter&f=pjson").GetAwaiter().GetResult();
-                        if (response.IsSuccessStatusCode)
-                        {
-                            var ddd = response.Content.ReadAsStringAsync().GetAwaiter().GetResult();
-                            dynamic stuff = JsonConvert.DeserializeObject(ddd);
-                            parcelNum = stuff.features[0].attributes.Parcel_Num;
-                        }
-                    }
-
                 }
+                catch
+                { }
             }
-            catch
-            {
-            }
+
 
             Guid? newSiteID = _DbPortal.InsertUpdateT_PRT_SITES(model.TPrtSite.SITE_IDX, model.TPrtSite.ORG_ID, model.TPrtSite.SITE_NAME ?? "",
                     model.TPrtSite.EPA_ID ?? "", model.TPrtSite.LATITUDE, model.TPrtSite.LONGITUDE, model.TPrtSite.SITE_ADDRESS ?? "", _UserIDX, model.TPrtSite.LAND_STATUS,
-                    model.TPrtSite.TWP, model.TPrtSite.RANGE, model.TPrtSite.SECTION);
+                    model.TPrtSite.TWP, model.TPrtSite.RANGE, model.TPrtSite.SECTION, model.TPrtSite.COUNTY);
 
 
 
@@ -242,7 +244,32 @@ namespace TribalSvcPortal.Controllers
 
                 if (newSiteID != null)
                 {
-                    TempData["Success"] = "Update successful." + "Parcel #:" + parcelNum;
+
+                    //************************* UPDATE PARCELS *********************************
+                    if (newLocation)
+                    {
+                        try
+                        {
+                            using (var client = new HttpClient())
+                            {
+                                client.BaseAddress = new Uri("https://arcdev1.mcngis.net/");
+                                client.DefaultRequestHeaders.Accept.Clear();
+                                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+                                HttpResponseMessage response = client.GetAsync("arcgisserver/rest/services/Parcels/" + countyName ?? "" + "Parcels/MapServer/0/query?returnGeometry=false&geometry=" + model.TPrtSite.LONGITUDE + "," + model.TPrtSite.LATITUDE + "&geometryType=esriGeometryPoint&inSR=4326&distance=25&units=esriSRUnit_Meter&f=pjson").GetAwaiter().GetResult();
+                                if (response.IsSuccessStatusCode)
+                                {
+                                    var ddd = response.Content.ReadAsStringAsync().GetAwaiter().GetResult();
+                                    dynamic stuff = JsonConvert.DeserializeObject(ddd);
+
+                                    _DbOpenDump.InsertUpdateT_OD_SITE_PARCELS(null, newSiteID, stuff.features[0].attributes.Parcel_Num, null, null);
+                                }
+                            }
+                        }
+                        catch { }
+                    }
+
+                    TempData["Success"] = "Update successful.";
                     return RedirectToAction("PreField", "OpenDump", new { id = newSiteID, returnURL = model.returnURL });
                 }
             }
@@ -1090,7 +1117,7 @@ namespace TribalSvcPortal.Controllers
                 {
                     //import prt site
                     T_PRT_SITES x = ps.T_PRT_SITES;
-                    Guid? SiteIDX = _DbPortal.InsertUpdateT_PRT_SITES(x.SITE_IDX, model.selOrg, x.SITE_NAME, x.EPA_ID, x.LATITUDE, x.LONGITUDE, x.SITE_ADDRESS, x.CREATE_USER_ID, x.LAND_STATUS, null, null, null);
+                    Guid? SiteIDX = _DbPortal.InsertUpdateT_PRT_SITES(x.SITE_IDX, model.selOrg, x.SITE_NAME, x.EPA_ID, x.LATITUDE, x.LONGITUDE, x.SITE_ADDRESS, x.CREATE_USER_ID, x.LAND_STATUS, null, null, null, null);
 
                     //import OD site
                     if (SiteIDX != null)

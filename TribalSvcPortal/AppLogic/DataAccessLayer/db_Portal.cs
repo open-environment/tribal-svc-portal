@@ -108,7 +108,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
         List<T_PRT_SYS_EMAIL_LOG> GetT_PRT_SYS_EMAIL_LOG();
 
         //**************************** T_PRT_SITES ***********************************************
-        Guid? InsertUpdateT_PRT_SITES(Guid? sITE_IDX, string oRG_ID, string sITE_NAME, string ePA_ID, decimal? lATITUDE, decimal? lONGITUDE, string sITE_ADDRESS, string UserIDX, string lAND_STATUS, string tWP, string rANGE, int? sECTION);
+        Guid? InsertUpdateT_PRT_SITES(Guid? sITE_IDX, string oRG_ID, string sITE_NAME, string ePA_ID, decimal? lATITUDE, decimal? lONGITUDE, string sITE_ADDRESS, string UserIDX, string lAND_STATUS, string tWP, string rANGE, int? sECTION, string cOUNTY);
         T_PRT_SITES GetT_PRT_SITES_BySITEIDX(Guid Siteidx);
         int DeleteT_PRT_SITES(Guid sITE_IDX);
         IEnumerable<SelectListItem> get_ddl_T_PRT_LAND_STATUS();
@@ -1060,7 +1060,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
 
         //*****************SITES *************************************
         public Guid? InsertUpdateT_PRT_SITES(Guid? sITE_IDX, string oRG_ID, string sITE_NAME, string ePA_ID, decimal? lATITUDE, decimal? lONGITUDE, string sITE_ADDRESS, string UserIDX, string lAND_STATUS,
-            string tWP, string rANGE, int? sECTION)
+            string tWP, string rANGE, int? sECTION, string cOUNTY)
         {
             try
             {
@@ -1095,6 +1095,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
                 if (tWP != null) e.TWP = tWP;
                 if (rANGE != null) e.RANGE = rANGE;
                 if (sECTION != null) e.SECTION = sECTION;
+                if (cOUNTY != null) e.COUNTY = cOUNTY;
 
                 if (insInd)
                     ctx.T_PRT_SITES.Add(e);

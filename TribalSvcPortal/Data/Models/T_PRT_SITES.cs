@@ -20,6 +20,7 @@ namespace TribalSvcPortal.Data.Models
         public string TWP { get; set; }
         public string RANGE { get; set; }
         public int? SECTION { get; set; }
+        public string COUNTY { get; set; }
         public string CREATE_USER_ID { get; set; }
         public DateTime? CREATE_DT { get; set; }
         public string MODIFY_USER_ID { get; set; }

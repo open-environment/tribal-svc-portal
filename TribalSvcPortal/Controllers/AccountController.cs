@@ -474,17 +474,29 @@ namespace TribalSvcPortal.Controllers
             if (ModelState.IsValid)
             {
                 var user = await _userManager.FindByEmailAsync(model.Email);
-                if (user == null || !(await _userManager.IsEmailConfirmedAsync(user)))
+
+                // if user doesn't exist don't reveal and silently return confirmation
+                if (user == null)
                 {
-                    // Don't reveal that the user does not exist or is not confirmed
                     return RedirectToAction(nameof(ForgotPasswordConfirmation));
                 }
 
-                var code = await _userManager.GeneratePasswordResetTokenAsync(user);
-                var callbackUrl = Url.ResetPasswordCallbackLink(user.Id, code, Request.Scheme);
-                _emailSender.SendEmail(null, model.Email, null, null, null, null, "RESET_PASSWORD", "callbackUrl", callbackUrl);
 
-                return RedirectToAction(nameof(ForgotPasswordConfirmation));
+                //if user has registered but not confirmed email, resend email confirmation
+                if (await _userManager.IsEmailConfirmedAsync(user) == false)
+                {
+                    var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                    var callbackUrl = Url.EmailConfirmationLink(user.Id, code, Request.Scheme);
+                    bool EmailSucc = _emailSender.SendEmail(null, model.Email, null, null, null, null, "EMAIL_CONFIRM", "callbackUrl", callbackUrl);
+                    return RedirectToAction(nameof(ResendVerificationEmailConfirmation));
+                }
+                else
+                {
+                    var code = await _userManager.GeneratePasswordResetTokenAsync(user);
+                    var callbackUrl = Url.ResetPasswordCallbackLink(user.Id, code, Request.Scheme);
+                    _emailSender.SendEmail(null, model.Email, null, null, null, null, "RESET_PASSWORD", "callbackUrl", callbackUrl);
+                }
+
             }
 
             // If we got this far, something failed, redisplay form
@@ -497,6 +509,15 @@ namespace TribalSvcPortal.Controllers
         {
             return View();
         }
+
+
+        [HttpGet]
+        [AllowAnonymous]
+        public IActionResult ResendVerificationEmailConfirmation()
+        {
+            return View();
+        }
+
 
         [HttpGet]
         [AllowAnonymous]
