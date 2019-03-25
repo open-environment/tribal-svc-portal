@@ -1,7 +1,7 @@
 ﻿@model TribalSvcPortal.ViewModels.OpenDumpViewModels.AssessmentsViewModel
 @{
-        ViewBag.Title = "Field Assessments";
-        ViewBag.SubTitle = "A listing of all assessments that have been conducted.";
+    ViewBag.Title = "Field Assessments";
+    ViewBag.SubTitle = "A listing of all assessments that have been conducted.";
 }
 
 <div class="table-responsive">
@@ -22,62 +22,69 @@
 
         @foreach (var item in Model.Assessments)
         {
-        <tr>
-            <td style="min-width:65px">
-                <a href="@Url.Action("AssessmentDetails", "OpenDump", new { id = item.ASSESSMENT_IDX })" class="btn btn-rounded btn-xs btn-info">
-                    <i class="glyphicon glyphicon-pencil"></i>
-                </a>
-                <div class="delete-section" style="display:inline">
-                    <a class=" btn btn-rounded btn-xs btn-danger delete-link"><i class="glyphicon glyphicon-remove"></i></a>
-                    <div class="btn btn-rounded btn-xs btn-warning delete-confirm" style="display:none" data-delete-id="@item.ASSESSMENT_IDX" data-delete-p="/OpenDump/AssessmentDelete"><b>Confirm Delete</b></div>
-                </div>
-                <a href="@Url.Action("IHSReport", "OpenDump", new { id = item.ASSESSMENT_IDX })" title="IHS Dump Survey Form" class="btn btn-rounded btn-xs btn-eecip">
-                    <i class="clip-file-pdf"></i>
-                </a>
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ORG_NAME)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.SITE_NAME)
-            </td>
-            <td>
-                @Convert.ToDateTime(item.ASSESSMENT_DT).ToString("MM/dd/yyyy")
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.CURRENT_SITE_STATUS)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ASSESSED_BY)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ASSESSMENT_NOTES)
-            </td>
-            <td>
-                @if (item.HEALTH_THREAT_SCORE != null)
-                {
-                    if (item.HEALTH_THREAT_SCORE > 400)
+            <tr>
+                <td style="min-width:65px">
+                    <a href="@Url.Action("AssessmentDetails", "OpenDump", new { id = item.ASSESSMENT_IDX })" class="btn btn-rounded btn-xs btn-info">
+                        <i class="glyphicon glyphicon-pencil"></i>
+                    </a>
+                    <div class="delete-section" style="display:inline">
+                        <a class=" btn btn-rounded btn-xs btn-danger delete-link"><i class="glyphicon glyphicon-remove"></i></a>
+                        <div class="btn btn-rounded btn-xs btn-warning delete-confirm" style="display:none" data-delete-id="@item.ASSESSMENT_IDX" data-delete-p="/OpenDump/AssessmentDelete"><b>Confirm Delete</b></div>
+                    </div>
+                    <a href="@Url.Action("IHSReport", "OpenDump", new { id = item.ASSESSMENT_IDX })" title="IHS Dump Survey Form" class="btn btn-rounded btn-xs btn-eecip">
+                        <i class="clip-file-pdf"></i>
+                    </a>
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ORG_NAME)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.SITE_NAME)
+                </td>
+                <td>
+                    @Convert.ToDateTime(item.ASSESSMENT_DT).ToString("MM/dd/yyyy")
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.CURRENT_SITE_STATUS)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ASSESSED_BY)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ASSESSMENT_NOTES)
+                </td>
+                <td>
+                    @if (item.HEALTH_THREAT_SCORE != null)
                     {
-                        <span class="label label-danger"> High @Html.DisplayFor(modelItem => item.HEALTH_THREAT_SCORE)</span>
+                        if (item.HEALTH_THREAT_SCORE > 400)
+                        {
+                            <span class="label label-danger"> High @Html.DisplayFor(modelItem => item.HEALTH_THREAT_SCORE)</span>
+                        }
+                        else if (item.HEALTH_THREAT_SCORE > 250)
+                        {
+                            <span class="label label-warning">Medium (@Html.DisplayFor(modelItem => item.HEALTH_THREAT_SCORE))</span>
+                        }
+                        else
+                        {
+                            <span class="label label-success">Low @Html.DisplayFor(modelItem => item.HEALTH_THREAT_SCORE)</span>
+                        }
                     }
-                    else if (item.HEALTH_THREAT_SCORE > 250)
+                </td>
+                <td>
+                    @if (item.LatestCleanupProject != null)
                     {
-                        <span class="label label-warning">Medium (@Html.DisplayFor(modelItem => item.HEALTH_THREAT_SCORE))</span>
+                        <text>$ </text> @Html.DisplayFor(modelItem => item.LatestCleanupProject.COST_TOTAL_AMT)
                     }
-                    else
-                    {
-                        <span class="label label-success">Low @Html.DisplayFor(modelItem => item.HEALTH_THREAT_SCORE)</span>
-                    }
-                }
-            </td>
-            <td>
-                @if (item.LatestCleanupProject != null)
-                {
-                    <text>$ </text> @Html.DisplayFor(modelItem => item.LatestCleanupProject.COST_TOTAL_AMT)
-                }
-            </td>
-        </tr>
+                </td>
+            </tr>
         }
 
     </table>
 </div>
+
+
+@section scripts {
+    <script src="~/js/confirm_delete.js"></script>
+
+    }
+}

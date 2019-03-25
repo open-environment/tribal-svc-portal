@@ -20,6 +20,7 @@ namespace TribalSvcPortal.Data.Models
         public virtual DbSet<T_OD_ASSESSMENTS> T_OD_ASSESSMENTS { get; set; }
         public virtual DbSet<T_OD_CLEANUP_ACTIVITIES> T_OD_CLEANUP_ACTIVITIES { get; set; }
         public virtual DbSet<T_OD_CLEANUP_CLEANUP_DTL> T_OD_CLEANUP_CLEANUP_DTL { get; set; }
+        public virtual DbSet<T_OD_CLEANUP_DISPOSAL_DTL> T_OD_CLEANUP_DISPOSAL_DTL { get; set; }
         public virtual DbSet<T_OD_CLEANUP_DOCS> T_OD_CLEANUP_DOCS { get; set; }
         public virtual DbSet<T_OD_CLEANUP_PROJECT> T_OD_CLEANUP_PROJECT { get; set; }
         public virtual DbSet<T_OD_REF_CLEANUP_ASSETS> T_OD_REF_CLEANUP_ASSETS { get; set; }
@@ -56,6 +57,8 @@ namespace TribalSvcPortal.Data.Models
                 entity.Property(e => e.WASTE_DISPOSAL_DIST)
                     .HasMaxLength(4)
                     .IsUnicode(false);
+
+                entity.Property(e => e.WASTE_WEIGHT_LBS).HasColumnType("decimal(10, 2)");
 
                 entity.HasOne(d => d.ASSESSMENT_IDXNavigation)
                     .WithMany(p => p.T_OD_ASSESSMENT_CONTENT)
@@ -219,6 +222,22 @@ namespace TribalSvcPortal.Data.Models
                     .WithMany(p => p.T_OD_CLEANUP_CLEANUP_DTL)
                     .HasForeignKey(d => d.CLEANUP_PROJECT_IDX)
                     .HasConstraintName("FK_T_OD_CLEANUP_CLEANUP_DTL");
+            });
+
+            modelBuilder.Entity<T_OD_CLEANUP_DISPOSAL_DTL>(entity =>
+            {
+                entity.HasKey(e => e.CLEANUP_DISPOSAL_DTL_IDX);
+
+                entity.Property(e => e.CLEANUP_DISPOSAL_DTL_IDX).HasDefaultValueSql("(newid())");
+
+                entity.Property(e => e.DISPOSAL_COST).HasColumnType("decimal(10, 2)");
+
+                entity.Property(e => e.DISPOSAL_WEIGHT_LBS).HasColumnType("decimal(10, 2)");
+
+                entity.HasOne(d => d.CLEANUP_PROJECT_IDXNavigation)
+                    .WithMany(p => p.T_OD_CLEANUP_DISPOSAL_DTL)
+                    .HasForeignKey(d => d.CLEANUP_PROJECT_IDX)
+                    .HasConstraintName("FK_T_OD_CLEANUP_DISPOSA_DTL");
             });
 
             modelBuilder.Entity<T_OD_CLEANUP_DOCS>(entity =>

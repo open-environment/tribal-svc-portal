@@ -593,9 +593,13 @@ namespace TribalSvcPortal.Controllers
                 //recalculate costs
                 if (model.RecalcInd)
                 {
-                    //TOODO
-                    //_DbOpenDump.proj
-                    _DbOpenDump.CalcCleanupEstimate(model.Assessment.ASSESSMENT_IDX, true);
+                    //find all cleanup projects (if any) based on this assessment
+                    List<T_OD_CLEANUP_PROJECT> _projects = _DbOpenDump.getT_OD_CLEANUP_PROJECT_Estimate_by_Assessment_List(model.Assessment.ASSESSMENT_IDX);
+                    foreach (T_OD_CLEANUP_PROJECT _project in _projects)
+                    {
+                        _DbOpenDump.CalcCleanupEstimate(_project.CLEANUP_PROJECT_IDX, true, true);
+                    }
+
                 }
                 TempData["Success"] = "Update successful.";
 
@@ -637,7 +641,7 @@ namespace TribalSvcPortal.Controllers
                     if (model.selCleanupType == "Estimate")
                     {
                         //if estimate, then calculate based on waste contents
-                        _DbOpenDump.CalcCleanupEstimate((Guid)SuccIDX, true);
+                        _DbOpenDump.CalcCleanupEstimate((Guid)SuccIDX, true, true);
                     }
 
                     TempData["Success"] = "Created successfully.";
@@ -769,7 +773,7 @@ namespace TribalSvcPortal.Controllers
                 if (SuccID == 1)
                 {
                     //recalculate 
-                    _DbOpenDump.CalcCleanupEstimate((Guid)id2, false);
+                    _DbOpenDump.CalcCleanupEstimate((Guid)id2, false, false);
                     return Json("Success");
                 }
             }
@@ -789,6 +793,8 @@ namespace TribalSvcPortal.Controllers
         {
             var model = new CleanupDisposalViewModel
             {
+                CleanupProject = _DbOpenDump.getT_OD_CLEANUP_PROJECT_by_IDX((Guid)id),
+                DisposalDetails = _DbOpenDump.getT_OD_CLEANUP_DISPOSAL_DTL_by_ProjectIDX((Guid)id)
             };
             return View(model);
         }
@@ -1491,8 +1497,8 @@ namespace TribalSvcPortal.Controllers
                                 document.Add(table3);
 
 
-                                // Cleanup, Waste Transport, and Disposal Costs Section ************************************************************
-                                _p_temp = new Paragraph("Cleanup, Waste Transport, and Disposal Costs:" + Environment.NewLine + Environment.NewLine, font_main_bold);
+                                // Cleanup Costs Section ************************************************************
+                                _p_temp = new Paragraph("Cleanup Costs:" + Environment.NewLine + Environment.NewLine, font_main_bold);
                                 document.Add(_p_temp);
 
                                 PdfPTable table4 = new PdfPTable(5);
@@ -1520,6 +1526,37 @@ namespace TribalSvcPortal.Controllers
                                 document.Add(table4);
 
 
+
+
+                                // Disposal Costs Section ************************************************************
+                                _p_temp = new Paragraph("Disposal Costs:" + Environment.NewLine + Environment.NewLine, font_main_bold);
+                                document.Add(_p_temp);
+
+                                PdfPTable table5 = new PdfPTable(4);
+                                table5.WidthPercentage = 95f;
+                                table5.SetWidths(new float[] { 45f, 20f, 20f, 15f });
+
+                                AddPDFTableField(null, "Disposal Type", font_main_bold, font_main_bold, table5, 1, null, true, true);
+                                AddPDFTableField(null, "Weight (lbs)", font_main_bold, font_main_bold, table5, 1, null, true, true);
+                                AddPDFTableField(null, "Price per ton", font_main_bold, font_main_bold, table5, 1, null, true, true);
+                                AddPDFTableField(null, "Cost", font_main_bold, font_main_bold, table5, 1, null, true, true);
+
+                                List<CleanupDisposalDetailsType> _disposal = _DbOpenDump.getT_OD_CLEANUP_DISPOSAL_DTL_by_ProjectIDX(CleanupProjectID);
+                                foreach (CleanupDisposalDetailsType _item in _disposal)
+                                {
+                                    AddPDFTableField(null, _item.DISPOSAL_NAME, font_main, font_small, table5);
+                                    AddPDFTableField(null, _item.T_OD_CLEANUP_DISPOSAL_DTL.DISPOSAL_WEIGHT_LBS.ToString(), font_main, font_small, table5);
+                                    AddPDFTableField(null, _item.T_OD_CLEANUP_DISPOSAL_DTL.PRICE_PER_TON.ToString(), font_main, font_small, table5);
+                                    AddPDFTableField(null, "$" + _item.T_OD_CLEANUP_DISPOSAL_DTL.DISPOSAL_COST.ToString(), font_main, font_small, table5);
+                                }
+                                AddPDFTableField(null, "", font_main, font_small, table5, 3, null, true, true);
+                                AddPDFTableField(null, "$" + _project.COST_DISPOSAL_AMT, font_main_bold, font_main_bold, table5, 1, null, true, true);
+
+                                document.Add(table5);
+
+
+
+
                                 // Post-Cleanup Costs Section ************************************************************
                                 _p_temp = new Paragraph("Post-Cleanup Costs:" + Environment.NewLine + Environment.NewLine, font_main_bold);
                                 document.Add(_p_temp);
@@ -1528,7 +1565,7 @@ namespace TribalSvcPortal.Controllers
                                 //*********************************************
                                 //Restoration *********************************
                                 //*********************************************
-                                List<T_OD_CLEANUP_ACTIVITIES> _restore = _DbOpenDump.getT_OD_CLEANUP_ACTIVITIES_by_Project_and_Cat(CleanupProjectID, "Restore");
+                                List<T_OD_CLEANUP_ACTIVITIES> _restore = _DbOpenDump.getT_OD_CLEANUP_ACTIVITIES_by_Project_and_Cat(CleanupProjectID, "Restoration");
                                 if (_restore != null && _restore.Count > 0)
                                 {
                                     PdfPTable tblRestore = new PdfPTable(2);
@@ -1554,7 +1591,7 @@ namespace TribalSvcPortal.Controllers
                                 //*********************************************
                                 //Surveilance *********************************
                                 //*********************************************
-                                List<T_OD_CLEANUP_ACTIVITIES> _surveil = _DbOpenDump.getT_OD_CLEANUP_ACTIVITIES_by_Project_and_Cat(CleanupProjectID, "Surveil");
+                                List<T_OD_CLEANUP_ACTIVITIES> _surveil = _DbOpenDump.getT_OD_CLEANUP_ACTIVITIES_by_Project_and_Cat(CleanupProjectID, "Surveillance");
                                 if (_surveil != null && _surveil.Count > 0)
                                 {
                                     PdfPTable tblSurveil = new PdfPTable(2);

@@ -12,6 +12,7 @@ namespace TribalSvcPortal.Data.Models
         public Guid? UNIT_MSR_IDX { get; set; }
         public Guid? WASTE_DISPOSAL_METHOD { get; set; }
         public string WASTE_DISPOSAL_DIST { get; set; }
+        public decimal? WASTE_WEIGHT_LBS { get; set; }
 
         public T_OD_ASSESSMENTS ASSESSMENT_IDXNavigation { get; set; }
         public T_OD_REF_WASTE_TYPE REF_WASTE_TYPE_IDXNavigation { get; set; }

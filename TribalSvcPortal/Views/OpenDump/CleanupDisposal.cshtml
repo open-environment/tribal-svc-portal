@@ -1,1 +1,94 @@
-﻿
+﻿@model TribalSvcPortal.ViewModels.OpenDumpViewModels.CleanupDisposalViewModel
+
+
+<section class="panel panel-default" style="margin-top:5px;">
+    <div class="panel-heading">
+        Disposal Cost Estimate - Itemized Details
+        <div class="panel-tools">
+            <a class="btn btn-xs panel-collapse collapses" href="#">
+            </a>
+        </div>
+    </div>
+    <div class="panel-body">
+        <div class="row form-group">
+            <div class="col-lg-12">
+                <div class="table-responsive">
+                    <table class="table table-hover table-striped m-b-none" data-ride="datatables">
+                        <thead>
+                            <tr class="thead-inverse">
+                                <th></th>
+                                <th>Disposal Method</th>
+                                <th>Weight (lbs)</th>
+                                <th>Price / ton</th>
+                                <th>Disposal Cost</th>
+                            </tr>
+                        </thead>
+                        <tfoot>
+                            <tr class="tfoot-inverse">
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td class="text-bold">Total:</td>
+                                <td class="text-bold"><span id="tot"></span></td>
+                            </tr>
+                        </tfoot>
+
+                        @foreach (var item in Model.DisposalDetails)
+                        {
+                            <tr>
+                                <td>
+                                    @Html.HiddenFor(model => item.T_OD_CLEANUP_DISPOSAL_DTL.CLEANUP_DISPOSAL_DTL_IDX)
+                                    @Html.HiddenFor(model => item.T_OD_CLEANUP_DISPOSAL_DTL.CLEANUP_PROJECT_IDX)
+                                    @Html.HiddenFor(model => item.T_OD_CLEANUP_DISPOSAL_DTL.DISPOSAL_COST, new { @class = "subtot" })
+                                    <a href="#modal-form" class="btn btn-rounded btn-xs btn-info modal-it" data-toggle="modal"><i class="glyphicon glyphicon-pencil"></i></a>
+                                    <div class="delete-section" style="display:inline">
+                                        <a class=" btn btn-rounded btn-xs btn-danger delete-link"><i class="glyphicon glyphicon-remove"></i></a>
+                                        <div class="btn btn-rounded btn-xs btn-warning delete-confirm" style="display:none" data-delete-id="@item.T_OD_CLEANUP_DISPOSAL_DTL.CLEANUP_DISPOSAL_DTL_IDX" data-delete-id2="@item.T_OD_CLEANUP_DISPOSAL_DTL.CLEANUP_PROJECT_IDX" data-delete-p="/OpenDump/CleanupDisposalDelete" data-success-url="OpenDump/CleanupDisposal/@item.T_OD_CLEANUP_DISPOSAL_DTL.CLEANUP_PROJECT_IDX"><b>Confirm Delete</b></div>
+                                    </div>
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(model => item.DISPOSAL_NAME)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(model => item.T_OD_CLEANUP_DISPOSAL_DTL.DISPOSAL_WEIGHT_LBS)
+                                </td>
+                                <td>
+                                    @string.Format("{0:C}", item.T_OD_CLEANUP_DISPOSAL_DTL.PRICE_PER_TON)
+                                </td>
+                                <td>
+                                    @string.Format("{0:C}", item.T_OD_CLEANUP_DISPOSAL_DTL.DISPOSAL_COST)
+                                </td>
+                            </tr>
+                        }
+
+                    </table>
+                </div>
+
+            </div>
+        </div>
+        <a href="@Url.Action("Cleanup", "OpenDump", new { id = Model.CleanupProject.CLEANUP_PROJECT_IDX })" class="btn btn-rounded btn-rounded btn-primary">Back</a>
+    </div>
+</section>
+
+
+@section Scripts {
+    <script src="~/js/confirm_delete.js"></script>
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+
+            //display total on page ready
+            CalcTotal();
+
+            function CalcTotal() {
+                var _tot = 0;
+                $(".subtot").each(function () {
+                    _tot += parseFloat(this.value);
+                });
+                $("#tot").text("$ " + _tot.toFixed(2));
+            }
+
+
+        });
+    </script>
+}

@@ -29,7 +29,7 @@
             <!-- render the main content -->
             <div class="row">
                 <div class="col-xs-6 col-sm-4 col-md-4">
-                    <h4>@Model.SiteName (@Model.Assessment.ASSESSMENT_DT.ToShortDateString())</h4>
+                    <h4><b>Assessment:</b> @Model.SiteName (@Model.Assessment.ASSESSMENT_DT.ToShortDateString())</h4>
                 </div>
                 <div class="col-xs-6 col-sm-4 col-md-4">
                     <h4><span class="label"> Health Threat: <label class="healthThreatScoreText"></label></span></h4>
@@ -79,10 +79,11 @@
                                     <tr class="thead-inverse">
                                         <th>Category</th>
                                         <th>Waste Type</th>
-                                        <th>Amount</th>
+                                        <th>Amount (vol)</th>
                                         <th>Unit</th>
                                         <th>Disposal Method</th>
                                         <th>Disposal Distance (hr)</th>
+                                        <th>Amount (lbs - calculated)</th>
                                     </tr>
                                 </thead>
 
@@ -110,6 +111,9 @@
                                         </td>
                                         <td>
                                             @Html.TextBoxFor(model => model.DumpContents[i].WASTE_DISPOSAL_DIST, new { @class = "form-control" })
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(model => model.DumpContents[i].WASTE_WEIGHT_LBS)
                                         </td>
                                     </tr>
                                 }

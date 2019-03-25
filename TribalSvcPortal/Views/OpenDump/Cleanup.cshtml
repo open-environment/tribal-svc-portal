@@ -106,42 +106,42 @@
                     <a class="btn btn-icon btn-block" style="padding-top: 12px;" href="@Url.Action("Cleanup2", "OpenDump", new { @id = Model.CleanupProject.CLEANUP_PROJECT_IDX })">
                         <i class="clip-wrench-2"></i>
                         Cleanup Costs<br />
-                        $ @Html.DisplayFor(x => x.CleanupProject.COST_CLEANUP_AMT)
+                        @String.Format("{0:c}", Model.CleanupProject.COST_CLEANUP_AMT)
                     </a>
                 </div>
                 <div class="col-md-2 col-sm-4 col-xs-6">
                     <a class="btn btn-icon btn-block" style="padding-top: 12px;" href="@Url.Action("CleanupTransport", "OpenDump", new { @id = Model.CleanupProject.CLEANUP_PROJECT_IDX })">
                         <i class="clip-truck"></i>
                         Transport Costs<br />
-                        $ @Html.DisplayFor(x => x.CleanupProject.COST_TRANSPORT_AMT)
+                        @String.Format("{0:c}", Model.CleanupProject.COST_TRANSPORT_AMT)
                     </a>
                 </div>
                 <div class="col-md-2 col-sm-4 col-xs-6">
                     <a class="btn btn-icon btn-block" style="padding-top: 12px;" href="@Url.Action("CleanupDisposal", "OpenDump", new { @id = Model.CleanupProject.CLEANUP_PROJECT_IDX })">
                         <i class="glyphicon glyphicon-trash"></i><br />
                         Disposal Costs<br />
-                        $ @Html.DisplayFor(x => x.CleanupProject.COST_DISPOSAL_AMT)
+                        @String.Format("{0:c}", Model.CleanupProject.COST_DISPOSAL_AMT)
                     </a>
                 </div>
                 <div class="col-md-2 col-sm-4 col-xs-6">
                     <a class="btn btn-icon btn-block" style="padding-top: 12px;" href="@Url.Action("CleanupActivities", "OpenDump", new { @id = Model.CleanupProject.CLEANUP_PROJECT_IDX, @Cat = "Restoration" })">
                         <i class="clip-leaf"></i>
                         Site Restoration<br />
-                        $ @Html.DisplayFor(x => x.CleanupProject.COST_RESTORE_AMT)
+                        @String.Format("{0:c}", Model.CleanupProject.COST_RESTORE_AMT)
                     </a>
                 </div>
                 <div class="col-md-2 col-sm-4 col-xs-6">
                     <a class="btn btn-icon btn-block" style="padding-top: 12px;" href="@Url.Action("CleanupActivities", "OpenDump", new { @id = Model.CleanupProject.CLEANUP_PROJECT_IDX, @Cat = "Surveillance" })">
                         <i class="clip-camera-2"></i>
                         Surveillance<br />
-                        $ @Html.DisplayFor(x => x.CleanupProject.COST_SURVEIL_AMT)
+                        @String.Format("{0:c}", Model.CleanupProject.COST_SURVEIL_AMT)
                     </a>
                 </div>
                 <div class="col-md-2 col-sm-4 col-xs-6">
-                    <button class="btn btn-icon btn-block" style="background-color: #3D9400;">
+                    <button class="btn btn-icon btn-block" style="background-color: #3D9400; font-weight:bold">
                         <i class="clip-banknote"></i>
                         Total<br />
-                        $ @Html.DisplayFor(x => x.CleanupProject.COST_TOTAL_AMT)
+                        @String.Format("{0:c}", Model.CleanupProject.COST_TOTAL_AMT)
                     </button>
                 </div>
             </div>
