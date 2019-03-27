@@ -597,7 +597,7 @@ namespace TribalSvcPortal.Controllers
                     List<T_OD_CLEANUP_PROJECT> _projects = _DbOpenDump.getT_OD_CLEANUP_PROJECT_Estimate_by_Assessment_List(model.Assessment.ASSESSMENT_IDX);
                     foreach (T_OD_CLEANUP_PROJECT _project in _projects)
                     {
-                        _DbOpenDump.CalcCleanupEstimate(_project.CLEANUP_PROJECT_IDX, true, true);
+                        _DbOpenDump.CalcCleanupEstimate(_project.CLEANUP_PROJECT_IDX, true, true, true);
                     }
 
                 }
@@ -641,7 +641,7 @@ namespace TribalSvcPortal.Controllers
                     if (model.selCleanupType == "Estimate")
                     {
                         //if estimate, then calculate based on waste contents
-                        _DbOpenDump.CalcCleanupEstimate((Guid)SuccIDX, true, true);
+                        _DbOpenDump.CalcCleanupEstimate((Guid)SuccIDX, true, true, true);
                     }
 
                     TempData["Success"] = "Created successfully.";
@@ -773,7 +773,7 @@ namespace TribalSvcPortal.Controllers
                 if (SuccID == 1)
                 {
                     //recalculate 
-                    _DbOpenDump.CalcCleanupEstimate((Guid)id2, false, false);
+                    _DbOpenDump.CalcCleanupEstimate((Guid)id2, false, false, false);
                     return Json("Success");
                 }
             }
@@ -785,6 +785,8 @@ namespace TribalSvcPortal.Controllers
         {
             var model = new CleanupTransportViewModel
             {
+                CleanupProject = _DbOpenDump.getT_OD_CLEANUP_PROJECT_by_IDX((Guid)id),
+                TransportDetails = _DbOpenDump.getT_OD_CLEANUP_TRANSPORT_DTL_by_ProjectIDX((Guid)id)
             };
             return View(model);
         }
@@ -1525,6 +1527,35 @@ namespace TribalSvcPortal.Controllers
 
                                 document.Add(table4);
 
+
+
+                                // Transport Costs Section ************************************************************
+                                _p_temp = new Paragraph("Transport Costs:" + Environment.NewLine + Environment.NewLine, font_main_bold);
+                                document.Add(_p_temp);
+
+                                PdfPTable table6 = new PdfPTable(5);
+                                table6.WidthPercentage = 95f;
+                                table6.SetWidths(new float[] { 40f, 15f, 15f, 15f, 15f });
+
+                                AddPDFTableField(null, "Waste Type", font_main_bold, font_main_bold, table6, 1, null, true, true);
+                                AddPDFTableField(null, "Loads", font_main_bold, font_main_bold, table6, 1, null, true, true);
+                                AddPDFTableField(null, "Distance to Disposal", font_main_bold, font_main_bold, table6, 1, null, true, true);
+                                AddPDFTableField(null, "Total Hourly Cost", font_main_bold, font_main_bold, table6, 1, null, true, true);
+                                AddPDFTableField(null, "Cost", font_main_bold, font_main_bold, table6, 1, null, true, true);
+
+                                List<CleanupTransportDetailsType> _transport = _DbOpenDump.getT_OD_CLEANUP_TRANSPORT_DTL_by_ProjectIDX(CleanupProjectID);
+                                foreach (CleanupTransportDetailsType _item in _transport)
+                                {
+                                    AddPDFTableField(null, _item.REF_WASTE_TYPE_NAME, font_main, font_small, table6);
+                                    AddPDFTableField(null, _item.T_OD_CLEANUP_TRANSPORT_DTL.NUM_LOADS.ToString(), font_main, font_small, table6);
+                                    AddPDFTableField(null, _item.T_OD_CLEANUP_TRANSPORT_DTL.HOURS_LOAD.ToString(), font_main, font_small, table6);
+                                    AddPDFTableField(null, "$" + _item.T_OD_CLEANUP_TRANSPORT_DTL.HOURLY_RATE.ToString(), font_main, font_small, table6);
+                                    AddPDFTableField(null, "$" + _item.T_OD_CLEANUP_TRANSPORT_DTL.TRANSPORT_COST.ToString(), font_main, font_small, table6);
+                                }
+                                AddPDFTableField(null, "", font_main, font_small, table6, 4, null, true, true);
+                                AddPDFTableField(null, "$" + _project.COST_TRANSPORT_AMT, font_main_bold, font_main_bold, table6, 1, null, true, true);
+
+                                document.Add(table6);
 
 
 

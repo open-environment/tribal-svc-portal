@@ -11,6 +11,7 @@ namespace TribalSvcPortal.Data.Models
             T_OD_CLEANUP_CLEANUP_DTL = new HashSet<T_OD_CLEANUP_CLEANUP_DTL>();
             T_OD_CLEANUP_DISPOSAL_DTL = new HashSet<T_OD_CLEANUP_DISPOSAL_DTL>();
             T_OD_CLEANUP_DOCS = new HashSet<T_OD_CLEANUP_DOCS>();
+            T_OD_CLEANUP_TRANSPORT_DTL = new HashSet<T_OD_CLEANUP_TRANSPORT_DTL>();
         }
 
         public Guid CLEANUP_PROJECT_IDX { get; set; }
@@ -37,5 +38,6 @@ namespace TribalSvcPortal.Data.Models
         public ICollection<T_OD_CLEANUP_CLEANUP_DTL> T_OD_CLEANUP_CLEANUP_DTL { get; set; }
         public ICollection<T_OD_CLEANUP_DISPOSAL_DTL> T_OD_CLEANUP_DISPOSAL_DTL { get; set; }
         public ICollection<T_OD_CLEANUP_DOCS> T_OD_CLEANUP_DOCS { get; set; }
+        public ICollection<T_OD_CLEANUP_TRANSPORT_DTL> T_OD_CLEANUP_TRANSPORT_DTL { get; set; }
     }
 }

@@ -23,6 +23,7 @@ namespace TribalSvcPortal.Data.Models
         public virtual DbSet<T_OD_CLEANUP_DISPOSAL_DTL> T_OD_CLEANUP_DISPOSAL_DTL { get; set; }
         public virtual DbSet<T_OD_CLEANUP_DOCS> T_OD_CLEANUP_DOCS { get; set; }
         public virtual DbSet<T_OD_CLEANUP_PROJECT> T_OD_CLEANUP_PROJECT { get; set; }
+        public virtual DbSet<T_OD_CLEANUP_TRANSPORT_DTL> T_OD_CLEANUP_TRANSPORT_DTL { get; set; }
         public virtual DbSet<T_OD_REF_CLEANUP_ASSETS> T_OD_REF_CLEANUP_ASSETS { get; set; }
         public virtual DbSet<T_OD_REF_DATA> T_OD_REF_DATA { get; set; }
         public virtual DbSet<T_OD_REF_DATA_CATEGORIES> T_OD_REF_DATA_CATEGORIES { get; set; }
@@ -234,6 +235,8 @@ namespace TribalSvcPortal.Data.Models
 
                 entity.Property(e => e.DISPOSAL_WEIGHT_LBS).HasColumnType("decimal(10, 2)");
 
+                entity.Property(e => e.PRICE_PER_TON).HasColumnType("decimal(10, 2)");
+
                 entity.HasOne(d => d.CLEANUP_PROJECT_IDXNavigation)
                     .WithMany(p => p.T_OD_CLEANUP_DISPOSAL_DTL)
                     .HasForeignKey(d => d.CLEANUP_PROJECT_IDX)
@@ -301,6 +304,24 @@ namespace TribalSvcPortal.Data.Models
                     .WithMany(p => p.T_OD_CLEANUP_PROJECT)
                     .HasForeignKey(d => d.ASSESSMENT_IDX)
                     .HasConstraintName("FK_T_OD_CLEANUP_PROJECT_A");
+            });
+
+            modelBuilder.Entity<T_OD_CLEANUP_TRANSPORT_DTL>(entity =>
+            {
+                entity.HasKey(e => e.CLEANUP_TRANSPORT_DTL_IDX);
+
+                entity.Property(e => e.CLEANUP_TRANSPORT_DTL_IDX).HasDefaultValueSql("(newid())");
+
+                entity.Property(e => e.HOURLY_RATE).HasColumnType("decimal(10, 2)");
+
+                entity.Property(e => e.HOURS_LOAD).HasColumnType("decimal(10, 2)");
+
+                entity.Property(e => e.TRANSPORT_COST).HasColumnType("decimal(10, 2)");
+
+                entity.HasOne(d => d.CLEANUP_PROJECT_IDXNavigation)
+                    .WithMany(p => p.T_OD_CLEANUP_TRANSPORT_DTL)
+                    .HasForeignKey(d => d.CLEANUP_PROJECT_IDX)
+                    .HasConstraintName("FK_T_OD_CLEANUP_TRANSPORT_DTL");
             });
 
             modelBuilder.Entity<T_OD_REF_CLEANUP_ASSETS>(entity =>

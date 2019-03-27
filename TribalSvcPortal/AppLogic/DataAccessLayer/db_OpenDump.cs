@@ -62,6 +62,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
         public Guid? WASTE_DISPOSAL_METHOD { get; set; }
         public string WASTE_DISPOSAL_METHOD_TXT { get; set; }
         public string WASTE_DISPOSAL_DIST { get; set; }
+        public int? TRANSPORT_AMT_PER_LOAD { get; set; }
         public IEnumerable<SelectListItem> ddl_Unit { get; set; }
     }
 
@@ -100,6 +101,12 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
         public string ORG_NAME { get; set; }
         public string SITE_NAME { get; set; }
         public DateTime ASSESSMENT_DT { get; set; }
+    }
+
+    public class CleanupTransportDetailsType
+    {
+        public T_OD_CLEANUP_TRANSPORT_DTL T_OD_CLEANUP_TRANSPORT_DTL { get; set; }
+        public string REF_WASTE_TYPE_NAME { get; set; }
     }
 
     public class CleanupDisposalDetailsType
@@ -154,6 +161,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
         List<SelectedWasteTypeDisplay> getT_OD_ASSESSMENT_CONTENT_by_AssessIDX(Guid? aSSESSMENT_IDX);
         List<AssessmentContentTypeDisplay> getT_OD_ASSESSMENT_CONTENT_ByDumpAssessmentIDX(Guid aSSESSMENT_IDX);
         List<AssessmentContentTypeDisplay> getT_OD_ASSESSMENT_CONTENT_ByDumpAssessmentIDX_readonly(Guid aSSESSMENT_IDX);
+        List<AssessmentContentTypeDisplay> getT_OD_ASSESSMENT_CONTENT_ByDumpAssessmentIDX_TransportDetails(Guid aSSESSMENT_IDX);
         Guid? InsertUpdateT_OD_Assessment_Content(Guid? aSSESSMENT_CONTENT_IDX, Guid? aSSESSMENT_IDX, Guid? rEF_WASTE_TYPE_IDX, decimal? wASTE_AMT, Guid? wASTE_UNIT_MSR, Guid? wASTE_DISPOSAL_METHOD, string wASTE_DISPOSAL_DIST, bool IS_CHECKED);
         List<CatSums> getT_OD_ASSESSMENT_CONTENT_DistinctCatSums(Guid aSSESSMENTS_IDX, string Cat);
 
@@ -180,6 +188,9 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
         List<AssessmentCleanupDisplayType> getT_OD_CLEANUP_CLEANUP_DTL_by_ProjectIDX(Guid? cLEANUP_PROJECT_IDX);
         decimal? getT_OD_CLEANUP_CLEANUP_DTL_Sum_by_ProjectIDX(Guid? cLEANUP_PROJECT_IDX);
         int deleteT_OD_CLEANUP_CLEANUP_DTL(Guid cLEANUP_CLEANUP_DTL_IDX);
+
+        //************** T_OD_CLEANUP_TRANSPORT_DTL **********************************
+        List<CleanupTransportDetailsType> getT_OD_CLEANUP_TRANSPORT_DTL_by_ProjectIDX(Guid? cLEANUP_PROJECT_IDX);
 
         //************** T_OD_CLEANUP_DISPOSAL_DTL **********************************
         Guid? InsertUpdateT_OD_CLEANUP_DISPOSAL_DTL(Guid? cLEANUP_DISPOSAL_DTL_IDX, Guid? cLEANUP_PROJECT_IDX, Guid? rEF_DISPOSAL_IDX, decimal? dISPOSAL_WEIGHT_LBS, decimal? dISPOSAL_COST, decimal? pRICE_PER_TON);
@@ -219,7 +230,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
         IEnumerable<SelectListItem> get_ddl_CLEANUP_PROJECT_TYPE();
 
         //util
-        int CalcCleanupEstimate(Guid CleanupProjectIDX, bool CalcCleanupCleanupDtl, bool CalcDisposalDtl);
+        int CalcCleanupEstimate(Guid CleanupProjectIDX, bool CalcCleanupCleanupDtl, bool CalcDisposalDtl, bool CalcTransportDtl);
         SiteImportType InsertOrUpdate_T_OD_SITE_local(string UserIDX, Dictionary<string, string> colVals, string path);
 
     }
@@ -765,6 +776,31 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             }
         }
 
+        public List<AssessmentContentTypeDisplay> getT_OD_ASSESSMENT_CONTENT_ByDumpAssessmentIDX_TransportDetails(Guid aSSESSMENT_IDX)
+        {
+            try
+            {
+                return (from a in ctx.T_OD_ASSESSMENT_CONTENT
+                        join b in ctx.T_OD_REF_WASTE_TYPE on a.REF_WASTE_TYPE_IDX equals b.REF_WASTE_TYPE_IDX
+                        where a.ASSESSMENT_IDX == aSSESSMENT_IDX
+                        orderby b.REF_WASTE_TYPE_CAT, b.REF_WASTE_TYPE_NAME
+                        select new AssessmentContentTypeDisplay
+                        {
+                            DUMP_ASSESSMENTS_CONTENT_IDX = a.ASSESSMENT_CONTENT_IDX,
+                            ASSESSMENT_IDX = a.ASSESSMENT_IDX,
+                            REF_WASTE_TYPE_IDX = a.REF_WASTE_TYPE_IDX,
+                            WASTE_AMT = a.WASTE_AMT,
+                            WASTE_DISPOSAL_DIST = a.WASTE_DISPOSAL_DIST,
+                            TRANSPORT_AMT_PER_LOAD = b.TRANSPORT_AMT_PER_LOAD
+                        }).ToList();
+            }
+            catch (Exception ex)
+            {
+                _log.LogEFException(ex);
+                return null;
+            }
+        }
+
         public Guid? InsertUpdateT_OD_Assessment_Content(Guid? aSSESSMENT_CONTENT_IDX, Guid? aSSESSMENT_IDX, Guid? rEF_WASTE_TYPE_IDX, decimal? wASTE_AMT, Guid? wASTE_UNIT_MSR, Guid? wASTE_DISPOSAL_METHOD, 
             string wASTE_DISPOSAL_DIST, bool IS_CHECKED)
         {
@@ -1262,6 +1298,96 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
         }
 
 
+        //************** T_OD_CLEANUP_TRANSPORT_DTL **********************************
+        public Guid? InsertUpdateT_OD_CLEANUP_TRANSPORT_DTL(Guid? cLEANUP_TRANSPORT_DTL_IDX, Guid? cLEANUP_PROJECT_IDX, Guid? rEF_WASTE_TYPE_IDX, int? nUM_LOADS, decimal? hOURS_LOAD, 
+            decimal? hOURLY_RATE, decimal? tRANSPORT_COST)
+        {
+
+            try
+            {
+                Boolean insInd = false;
+
+                //first grab from PK
+                T_OD_CLEANUP_TRANSPORT_DTL e = (from c in ctx.T_OD_CLEANUP_TRANSPORT_DTL
+                                                where c.CLEANUP_TRANSPORT_DTL_IDX == cLEANUP_TRANSPORT_DTL_IDX
+                                                select c).FirstOrDefault();
+
+                //else grab from composite key
+                if (e == null)
+                    e = (from c in ctx.T_OD_CLEANUP_TRANSPORT_DTL
+                         where c.CLEANUP_PROJECT_IDX == cLEANUP_PROJECT_IDX
+                         && c.REF_WASTE_TYPE_IDX == rEF_WASTE_TYPE_IDX
+                         select c).FirstOrDefault();
+
+                //insert case
+                if (e == null)
+                {
+                    insInd = true;
+                    e = new T_OD_CLEANUP_TRANSPORT_DTL();
+                    e.CLEANUP_TRANSPORT_DTL_IDX = Guid.NewGuid();
+                }
+
+                if (cLEANUP_PROJECT_IDX != null) e.CLEANUP_PROJECT_IDX = (Guid)cLEANUP_PROJECT_IDX;
+                if (rEF_WASTE_TYPE_IDX != null) e.REF_WASTE_TYPE_IDX = (Guid)rEF_WASTE_TYPE_IDX;
+                if (nUM_LOADS != null) e.NUM_LOADS = nUM_LOADS;
+                if (hOURS_LOAD != null) e.HOURS_LOAD = hOURS_LOAD;
+                if (hOURLY_RATE != null) e.HOURLY_RATE = hOURLY_RATE;
+                if (tRANSPORT_COST != null) e.TRANSPORT_COST = tRANSPORT_COST;
+
+                if (insInd)
+                    ctx.T_OD_CLEANUP_TRANSPORT_DTL.Add(e);
+
+                ctx.SaveChanges();
+                return e.CLEANUP_TRANSPORT_DTL_IDX;
+            }
+            catch (Exception ex)
+            {
+                _log.LogEFException(ex);
+                return null;
+            }
+
+        }
+
+        public decimal? getT_OD_CLEANUP_TRANSPORT_DTL_Sum_by_ProjectIDX(Guid? cLEANUP_PROJECT_IDX)
+        {
+            try
+            {
+                var xxx = (from a in ctx.T_OD_CLEANUP_TRANSPORT_DTL
+                           where a.CLEANUP_PROJECT_IDX == cLEANUP_PROJECT_IDX
+                           select a).ToList();
+
+                return xxx.Select(c => c.TRANSPORT_COST).Sum();
+            }
+            catch (Exception ex)
+            {
+                _log.LogEFException(ex);
+                return 0;
+            }
+        }
+
+
+
+        public List<CleanupTransportDetailsType> getT_OD_CLEANUP_TRANSPORT_DTL_by_ProjectIDX(Guid? cLEANUP_PROJECT_IDX)
+        {
+            try
+            {
+                return (from a in ctx.T_OD_CLEANUP_TRANSPORT_DTL
+                        join b in ctx.T_OD_REF_WASTE_TYPE on a.REF_WASTE_TYPE_IDX equals b.REF_WASTE_TYPE_IDX
+                        where a.CLEANUP_PROJECT_IDX == cLEANUP_PROJECT_IDX
+                        orderby b.REF_WASTE_TYPE_NAME ascending
+                        select new CleanupTransportDetailsType
+                        {
+                            T_OD_CLEANUP_TRANSPORT_DTL = a,
+                            REF_WASTE_TYPE_NAME = b.REF_WASTE_TYPE_NAME
+                        }).ToList();
+            }
+            catch (Exception ex)
+            {
+                _log.LogEFException(ex);
+                return null;
+            }
+        }
+
         //************** T_OD_CLEANUP_DISPOSAL_DTL **********************************
         public Guid? InsertUpdateT_OD_CLEANUP_DISPOSAL_DTL(Guid? cLEANUP_DISPOSAL_DTL_IDX, Guid? cLEANUP_PROJECT_IDX, Guid? rEF_DISPOSAL_IDX, decimal? dISPOSAL_WEIGHT_LBS, decimal? dISPOSAL_COST, decimal? pRICE_PER_TON)
         {
@@ -1664,7 +1790,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
         }
 
         //*************** CALC CLEANUP COSTS
-        public int CalcCleanupEstimate(Guid CleanupProjectIDX, bool CalcCleanupCleanupDtl, bool CalcDisposalDtl)
+        public int CalcCleanupEstimate(Guid CleanupProjectIDX, bool CalcCleanupCleanupDtl, bool CalcDisposalDtl, bool CalcTransportDtl)
         {
             try
             {
@@ -1706,13 +1832,34 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
                         }
                     }
 
+                    //CLEANUP_TRANSPORT_DTL calculation
+                    if (CalcTransportDtl)
+                    {
+                        List<AssessmentContentTypeDisplay> _items = getT_OD_ASSESSMENT_CONTENT_ByDumpAssessmentIDX_TransportDetails(_project.ASSESSMENT_IDX);
+                        foreach (AssessmentContentTypeDisplay _item in _items)
+                        {
+                            decimal _wasteAmt = _item.WASTE_AMT ?? 0;
+                            decimal _amt_per_load = _item.TRANSPORT_AMT_PER_LOAD ?? 1;
+                            decimal numLoads = Math.Ceiling(_wasteAmt / _amt_per_load);
+                            decimal _wasteCost = numLoads * _item.WASTE_DISPOSAL_DIST.ConvertOrDefault<decimal>() * (decimal)81.16;
+                            InsertUpdateT_OD_CLEANUP_TRANSPORT_DTL(null, CleanupProjectIDX, _item.REF_WASTE_TYPE_IDX, numLoads.ConvertOrDefault<int>(), _item.WASTE_DISPOSAL_DIST.ConvertOrDefault<decimal>(), (decimal)81.16, _wasteCost);
+                        }
+                    }
+
 
                     //then recalculate and save total cleanup costs
                     decimal? cleanTotCost = getT_OD_CLEANUP_CLEANUP_DTL_Sum_by_ProjectIDX(CleanupProjectIDX);
                     decimal? disposalTotCost = getT_OD_CLEANUP_DISPOSAL_DTL_Sum_by_ProjectIDX(CleanupProjectIDX);
+                    decimal? transportTotCost = getT_OD_CLEANUP_TRANSPORT_DTL_Sum_by_ProjectIDX(CleanupProjectIDX);
 
-                    decimal? TotCost = cleanTotCost + (_project.COST_TRANSPORT_AMT ?? 0) + (disposalTotCost ?? 0) + (_project.COST_RESTORE_AMT ?? 0) + (_project.COST_SURVEIL_AMT ?? 0);
-                    InsertUpdateT_OD_CLEANUP_PROJECT(CleanupProjectIDX, null, null, null, null, null, cleanTotCost, null, disposalTotCost, null, null, TotCost, null, null, null);
+                    decimal? TotCost = cleanTotCost 
+                        + (_project.COST_TRANSPORT_AMT ?? 0)
+                        + (disposalTotCost ?? 0)
+                        + (transportTotCost ?? 0) 
+                        + (_project.COST_RESTORE_AMT ?? 0) 
+                        + (_project.COST_SURVEIL_AMT ?? 0);
+
+                    InsertUpdateT_OD_CLEANUP_PROJECT(CleanupProjectIDX, null, null, null, null, null, cleanTotCost, transportTotCost, disposalTotCost, null, null, TotCost, null, null, null);
 
                     return 1;
                 }
