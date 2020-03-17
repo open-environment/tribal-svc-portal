@@ -134,11 +134,22 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
 
     public interface IDbOpenDump
     {
+        //************** ORGANIZATIONS **********************************
+        List<SelectListItem> getT_OD_ORGANIZATIONS();
+
         //************** T_OD_SITES **********************************
         T_OD_SITES getT_OD_SITES_BySITEIDX(Guid Siteidx);
         List<OpenDumpSiteListDisplay> getT_OD_SITES_ListBySearch(string id, string searchStr, string selOrg, string selStatus);
         Guid? InsertUpdateT_OD_SITES(Guid sITE_IDX, string rEPORTED_BY, DateTime? rEPORTED_ON, Guid? cOMMUNITY_IDX, Guid? sITE_SETTING_IDX, Guid? pF_AQUIFER_VERT_DIST, Guid? pF_SURF_WATER_HORIZ_DIST, Guid? pF_HOMES_DIST, string cURRENT_SITE_STATUS);
         string UpdateT_OD_SITES_Status(Guid sITE_IDX);
+
+
+        //************** V_OD_SITES **********************************
+        List<V_OD_SITES> getV_OD_SITES_Search(string org, string county, string status, string score);
+        //************** V_OD_ASSESSMENTS **********************************
+        List<V_OD_ASSESSMENTS> getV_OD_ASSESSMENTS_Search(string org, string county, string status, string score);
+        List<V_OD_ASSESSMENTS> getV_OD_ASSESSMENTS_BySiteIDX(Guid Siteidx);
+
 
         //************** T_OD_SITE_PARCELS **********************************
         List<T_OD_SITE_PARCELS> getT_OD_SITE_PARCELS_BySITEIDX(Guid Siteidx);
@@ -156,6 +167,9 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
                                                         string ASSESSMENT_NOTES, decimal? aREA_ACRES, decimal? vOLUMN_CU_YD, Guid? hF_RAINFALL, Guid? hF_DRAINAGE, Guid? hF_FLOODING, Guid? hF_BURNING, Guid? hF_FENCING,
                                                         Guid? hF_ACCESS_CONTROL, Guid? hF_PUBLIC_CONCERN, int? hEALTH_THREAT_SCORE, DateTime? cLEANED_CLOSED_DT);
         IEnumerable<SelectListItem> get_ddl_T_OD_SITE_STATUS();
+
+        IEnumerable<SelectListItem> get_ddl_HealthThreatScore();
+        
 
         //************** T_OD_DUMP_ASSESSMENT_CONTENT **********************************
         List<SelectedWasteTypeDisplay> getT_OD_ASSESSMENT_CONTENT_by_AssessIDX(Guid? aSSESSMENT_IDX);
@@ -245,6 +259,31 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             ctx = _context;
             _log = log ?? throw new ArgumentNullException(nameof(log));        
         }
+
+
+        //************** T_OD ORGANIZATIONS **********************************
+        public List<SelectListItem> getT_OD_ORGANIZATIONS()
+        {
+            try
+            {
+                var xxx = (from a in ctx.T_OD_SITES
+                        join b in ctx.T_PRT_SITES on a.SITE_IDX equals b.SITE_IDX
+                        join o in ctx.T_PRT_ORGANIZATIONS on b.ORG_ID equals o.ORG_ID
+                        select new SelectListItem
+                        {
+                            Value = o.ORG_ID,
+                            Text = o.ORG_NAME
+                        }).Distinct().ToList();
+
+                return xxx;
+            }
+            catch (Exception ex)
+            {
+                _log.LogEFException(ex);
+                return null;
+            }
+        }
+
 
 
         //************** T_OD_SITES **********************************
@@ -384,6 +423,65 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
                 return null;
             }
         }
+
+
+        //************** V_OD_SITES **********************************
+        public List<V_OD_SITES> getV_OD_SITES_Search(string org, string county, string status, string score)
+        {
+            try
+            {
+                return (from a in ctx.V_OD_SITES
+                        where (org != null ? a.OriginatingPartnerName == org : true)
+                        && (county != null ? a.CountyName == county : true)
+                        && (status != null ? a.SiteStatusText == status : true)
+                        && (score == "Low" ? a.SiteHealthThreatScoreValue < 451 : true)
+                        && (score == "Medium" ? a.SiteHealthThreatScoreValue > 451 : true)
+                        && (score == "High" ? a.SiteHealthThreatScoreValue > 900 : true)
+                        select a).ToList();
+            }
+            catch (Exception ex)
+            {
+                _log.LogEFException(ex);
+                return null;
+            }
+        }
+
+        public List<V_OD_ASSESSMENTS> getV_OD_ASSESSMENTS_BySiteIDX(Guid Siteidx)
+        {
+            try
+            {
+                return (from a in ctx.V_OD_ASSESSMENTS
+                        where a.SITE_IDX == Siteidx
+                        select a).ToList();
+            }
+            catch (Exception ex)
+            {
+                _log.LogEFException(ex);
+                return null;
+            }
+        }
+
+
+        //************** V_OD_ASSESSMENTS **********************************
+        public List<V_OD_ASSESSMENTS> getV_OD_ASSESSMENTS_Search(string org, string county, string status, string score)
+        {
+            try
+            {
+                return (from a in ctx.V_OD_SITES
+                        join b in ctx.V_OD_ASSESSMENTS on a.SITE_IDX equals b.SITE_IDX
+                        where (org != null ? a.OriginatingPartnerName == org : true)
+                        && (county != null ? a.CountyName == county : true)
+                        && (status != null ? a.SiteStatusText == status : true)
+                        && (score != null ? b.SiteHealthThreatScoreSummaryText == score : true)
+                        select b).ToList();
+            }
+            catch (Exception ex)
+            {
+                _log.LogEFException(ex);
+                return null;
+            }
+        }
+
 
 
         //************** T_OD_SITE_PARCELS **********************************
@@ -678,6 +776,17 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             ddl_SiteStatus.Add(new SelectListItem() { Value = "Active - Cleanup Phase", Text = "Active - Cleanup Phase" });
             ddl_SiteStatus.Add(new SelectListItem() { Value = "Inactive - Cleaned Up", Text = "Inactive - Cleaned Up" });
             ddl_SiteStatus.Add(new SelectListItem() { Value = "Inactive - Closed", Text = "Inactive - Closed" });
+
+            return ddl_SiteStatus;
+        }
+
+        public IEnumerable<SelectListItem> get_ddl_HealthThreatScore()
+        {
+            List<SelectListItem> ddl_SiteStatus = new List<SelectListItem>();
+
+            ddl_SiteStatus.Add(new SelectListItem() { Value = "Low", Text = "Low" });
+            ddl_SiteStatus.Add(new SelectListItem() { Value = "Medium", Text = "Medium" });
+            ddl_SiteStatus.Add(new SelectListItem() { Value = "High", Text = "High" });
 
             return ddl_SiteStatus;
         }

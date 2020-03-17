@@ -15,6 +15,7 @@ using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Xml;
 using TribalSvcPortal.AppLogic.BusinessLogicLayer;
 using TribalSvcPortal.AppLogic.DataAccessLayer;
 using TribalSvcPortal.Data.Models;
@@ -117,6 +118,29 @@ namespace TribalSvcPortal.Controllers
             }
 
         }
+
+
+        public JsonResult GetOpenDumpSites()
+        {
+            string _UserIDX = _userManager.GetUserId(User);
+
+            var xxx = _DbOpenDump.getT_OD_SITES_ListBySearch(_UserIDX, null, null, null);
+
+            return Json(xxx);
+        }
+
+        //public ActionResult GetOpenDumpSites()
+        //{
+        //    string _UserIDX = _userManager.GetUserId(User);
+
+        //    var xxx = _DbOpenDump.getT_OD_SITES_ListBySearch(_UserIDX, null, null, null);
+        //    var yyy = Json(xxx);
+
+        //    XNode node = JsonConvert.DeserializeXNode(yyy, "Root");
+
+        //    XmlDocument doc = (XmlDocument)JsonConvert.DeserializeXmlNode(yyy.des);
+        //    return Json(xxx);
+        //}
 
         #endregion
 
@@ -303,6 +327,16 @@ namespace TribalSvcPortal.Controllers
 
             return View(model);
         }
+
+        [AllowAnonymous]
+        public IActionResult DumpParcels()
+        {
+            //var identity = (ClaimsIdentity)User.Identity;
+            //IEnumerable<Claim> claims = identity.Claims;
+
+            return View();
+        }
+
 
 
         #region ASSESSMENT CONTROLLERS ************************************************************
@@ -1155,6 +1189,7 @@ namespace TribalSvcPortal.Controllers
 
         #endregion
 
+
         #region REF DATA CONTROLLERS **********************************************************************
 
         public IActionResult RefData(string selTag)
@@ -1903,18 +1938,6 @@ namespace TribalSvcPortal.Controllers
         }
 
         #endregion
-
-
-        [AllowAnonymous]
-        public IActionResult DumpParcels()
-        {
-            //var identity = (ClaimsIdentity)User.Identity;
-            //IEnumerable<Claim> claims = identity.Claims;
-
-            return View();
-        }
-
-
 
 
 

@@ -112,6 +112,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
         T_PRT_SITES GetT_PRT_SITES_BySITEIDX(Guid Siteidx);
         int DeleteT_PRT_SITES(Guid sITE_IDX);
         IEnumerable<SelectListItem> get_ddl_T_PRT_LAND_STATUS();
+        List<SelectListItem> getT_PRT_SITES_UniqueCounties();
 
         //**************************** T_PRT_DOCUMENTS ***********************************************
         Guid? InsertUpdateT_PRT_DOCUMENTS(Guid? dOC_IDX, string oRG_ID, byte[] dOC_CONTENT, string dOC_NAME, string dOC_TYPE, string dOC_FILE_TYPE, int? dOC_SIZE, string dOC_COMMENT,
@@ -129,6 +130,9 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
         T_PRT_REF_UNITS get_T_PRT_REF_UNITS_ByID(Guid? id);
 
 
+        //**************************** DATA APIS ***********************************************
+        List<SelectListItem> get_ddl_APIS();
+        List<SelectListItem> get_ddl_APIformat();
     }
 
     public class DbPortal : IDbPortal
@@ -1155,6 +1159,26 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             return ddl_LandStatus;
         }
 
+        public List<SelectListItem> getT_PRT_SITES_UniqueCounties()
+        {
+            try
+            {
+                return (from a in ctx.T_PRT_SITES
+                        orderby a.COUNTY
+                        where a.COUNTY != null
+                        select new SelectListItem
+                        {
+                            Value = a.COUNTY,
+                            Text = a.COUNTY
+                        }).Distinct().ToList();
+            }
+            catch (Exception ex)
+            {
+                _log.LogEFException(ex);
+                return null;
+            }
+        }
+
 
         //*******************************DOCUMENTS *********************************************
         public Guid? InsertUpdateT_PRT_DOCUMENTS(Guid? dOC_IDX, string oRG_ID, byte[] dOC_CONTENT, string dOC_NAME, string dOC_TYPE, string dOC_FILE_TYPE, int? dOC_SIZE, string dOC_COMMENT,
@@ -1361,5 +1385,25 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
                 return null;
             }
         }
+
+
+
+        //**************************** DATA APIS ***********************************************
+        public List<SelectListItem> get_ddl_APIS()
+        {
+            List<SelectListItem> _list = new List<SelectListItem>();
+            _list.Add(new SelectListItem() { Value = "OD_Sites", Text = "Open Dump Sites" });
+            _list.Add(new SelectListItem() { Value = "OD_Assess", Text = "Open Dump Assessments" });
+            return _list;
+        }
+
+        public List<SelectListItem> get_ddl_APIformat()
+        {
+            List<SelectListItem> _list = new List<SelectListItem>();
+            _list.Add(new SelectListItem() { Value = "J", Text = "Json" });
+            _list.Add(new SelectListItem() { Value = "X", Text = "XML" });
+            return _list;
+        }
+
     }
 }

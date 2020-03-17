@@ -1,4 +1,114 @@
-﻿@{
+﻿@model TribalSvcPortal.ViewModels.HomeViewModels.apisViewModel
+@{
     ViewData["Title"] = "APIs";
     ViewData["SubTitle"] = "Here you will find published data to conduct research, develop web and mobile applications, design data visualizations, and more.";
 }
+
+@using (Html.BeginForm("api", "Home", FormMethod.Post, new { @id = "frm" }))
+{
+    <!-- render the top dropdown -->
+    <div class="form-horizontal">
+
+        <div class="form-group">
+            <label class="col-sm-2 control-label">
+                Data Category:
+            </label>
+            <div class="col-sm-6">
+                @Html.DropDownListFor(model => model.sel_api, Model.ddl_apis, "", new { @class = "form-control" })
+            </div>
+        </div>
+    </div>
+
+    <div id="frmOD" style="display:none">
+
+        @Html.AntiForgeryToken()
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+        <section class="panel panel-default">
+            <div class="panel-heading">
+                Open Dump API parameters
+                <div class="panel-tools">
+                    <a class="btn btn-xs panel-collapse collapses" href="#"></a>
+                </div>
+            </div>
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Tribe</label>
+                            @Html.DropDownListFor(model => model.selOrg, Model.ddl_Orgs, "", new { @class = "form-control" })
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>County</label>
+                            @Html.DropDownListFor(model => model.selCounty, Model.ddl_County, "", new { @class = "form-control" })
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Status</label>
+                            @Html.DropDownListFor(model => model.selStatus, Model.ddl_Status, "", new { @class = "form-control" })
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Health Threat Score</label>
+                            @Html.DropDownListFor(model => model.selScore, Model.ddl_Score, "", new { @class = "form-control" })
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Data Format</label>
+                            @Html.DropDownListFor(model => model.selFormat, Model.ddl_Format, "", new { @class = "form-control" })
+                            @Html.ValidationMessageFor(model => model.selFormat)
+                        </div>
+                    </div>
+                </div>
+                <div class="postauth row">
+                    <div class="col-md-12">
+                        <button id="submitOD" type="submit" name="submitButton" value="Save" class="btn btn-eecip">Retrieve</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+}
+
+
+
+@section scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+    <script type="text/javascript">
+        $(document).ready(function () {
+
+            //date pickers
+            //datepicker('#Assessment_ASSESSMENT_DT', {
+            //    formatter: (input, date, instance) => {
+            //        const value = date.toLocaleDateString()
+            //        input.value = value // => '1/1/2099'
+            //    }
+            //});
+
+            //api ddl
+            $("#sel_api").change(function () {
+                var api = this.value;
+                if (api == "OD_Sites" || api == "OD_Assess")
+                    $("#frmOD").show();
+                else
+                    $("#frmOD").hide();
+
+            });
+
+            //photo/document upload
+            $('#submitOD').click(function () {
+
+                $(".postauth").show();
+            })
+
+        });
+    </script>
+}
+

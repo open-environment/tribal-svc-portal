@@ -59,6 +59,9 @@ namespace TribalSvcPortal.Data.Models
         public virtual DbSet<T_OD_SITE_PARCELS> T_OD_SITE_PARCELS { get; set; }
         public virtual DbSet<T_OD_SITES> T_OD_SITES { get; set; }
 
+        public virtual DbSet<V_OD_SITES> V_OD_SITES { get; set; }
+        public virtual DbSet<V_OD_ASSESSMENTS> V_OD_ASSESSMENTS { get; set; }
+
         //**************** END TABLES *******************************************************
 
 
@@ -1103,6 +1106,17 @@ namespace TribalSvcPortal.Data.Models
                     .HasConstraintName("FK_T_OD_SITE_DTL_SS");
             });
 
+            modelBuilder.Entity<V_OD_SITES>(entity =>
+            {
+                entity.HasKey(e => e.SITE_IDX);
+                entity.Property(e => e.SITE_IDX).ValueGeneratedNever();
+            });
+
+            modelBuilder.Entity<V_OD_ASSESSMENTS>(entity =>
+            {
+                entity.HasKey(e => e.ASSESSMENT_IDX);
+                entity.Property(e => e.ASSESSMENT_IDX).ValueGeneratedNever();
+            });
             /*************** TABLE COLUMNS END   *******************/
 
         }

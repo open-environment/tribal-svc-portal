@@ -27,7 +27,7 @@
 
 
 --BUILD SCAFFOLDING script (Open Packages Manager (under tools) and run this command:)
-Scaffold-DbContext -UseDatabaseNames "Server=.\SQLEXPRESS;Database=TRIBAL_SVC_PORTAL;Trusted_Connection=True;" Microsoft.EntityFrameworkCore.SqlServer -OutputDir Data/Models -t T_OD_CLEANUP_DOCS, T_OD_CLEANUP_ACTIVITIES, T_OD_CLEANUP_CLEANUP_DTL, T_OD_CLEANUP_TRANSPORT_DTL, T_OD_CLEANUP_DISPOSAL_DTL, T_OD_CLEANUP_PROJECT, T_OD_ASSESSMENT_CONTENT, T_OD_ASSESSMENT_DOCS, T_OD_ASSESSMENTS, T_OD_SITES, T_OD_SITE_PARCELS, T_OD_REF_WASTE_TYPE, T_OD_REF_WASTE_TYPE_UNITS, T_OD_REF_WASTE_TYPE_CAT_CLEANUP, T_OD_REF_WASTE_TYPE_CAT, T_OD_REF_CLEANUP_ASSETS, T_OD_REF_THREAT_FACTORS, T_OD_REF_DATA, T_OD_REF_DATA_CATEGORIES, T_OD_REF_DISPOSAL  -f -Context "ApplicationDbContextTemp"
+Scaffold-DbContext -UseDatabaseNames "Server=.\SQLEXPRESS;Database=TRIBAL_SVC_PORTAL;Trusted_Connection=True;" Microsoft.EntityFrameworkCore.SqlServer -OutputDir Data/Models -t T_OD_CLEANUP_DOCS, T_OD_CLEANUP_ACTIVITIES, T_OD_CLEANUP_CLEANUP_DTL, T_OD_CLEANUP_TRANSPORT_DTL, T_OD_CLEANUP_DISPOSAL_DTL, T_OD_CLEANUP_PROJECT, T_OD_ASSESSMENT_CONTENT, T_OD_ASSESSMENT_DOCS, T_OD_ASSESSMENTS, T_OD_SITES, T_OD_SITE_PARCELS, T_OD_REF_WASTE_TYPE, T_OD_REF_WASTE_TYPE_UNITS, T_OD_REF_WASTE_TYPE_CAT_CLEANUP, T_OD_REF_WASTE_TYPE_CAT, T_OD_REF_CLEANUP_ASSETS, T_OD_REF_THREAT_FACTORS, T_OD_REF_DATA, T_OD_REF_DATA_CATEGORIES, T_OD_REF_DISPOSAL, V_OD_SITES  -f -Context "ApplicationDbContextTemp"
 */
 use [TRIBAL_SVC_PORTAL]
 
@@ -335,3 +335,84 @@ CREATE TABLE [T_OD_CLEANUP_DOCS]
     CONSTRAINT [FK_T_OD_CLEANUP_DOCS_D] FOREIGN KEY ([DOC_IDX]) REFERENCES [T_PRT_DOCUMENTS] ([DOC_IDX]) ON DELETE CASCADE,
     CONSTRAINT [FK_T_OD_CLEANUP_DOCS_A] FOREIGN KEY ([CLEANUP_PROJECT_IDX]) REFERENCES [T_OD_CLEANUP_PROJECT] ([CLEANUP_PROJECT_IDX]) ON DELETE CASCADE ON UPDATE CASCADE
 );
+
+
+GO
+
+--********************************* VIEWS*********************************************************************************************************************
+--********************************* VIEWS*********************************************************************************************************************
+--********************************* VIEWS*********************************************************************************************************************
+--********************************* VIEWS*********************************************************************************************************************
+
+
+CREATE VIEW [dbo].[V_OD_SITES]
+as
+select 
+s.SITE_IDX,
+s.EPA_ID as FacilitySiteIdentitifer,
+s.SITE_NAME as FacilitySiteName,
+s.ORG_ID as OriginatingPartnerName,
+'Oklahoma Tribal Portal' as InformationSystemAcronymName,
+s.MODIFY_DT as LastUpdatedDate,
+s.SITE_ADDRESS as LocationAddressText,
+'Oklahoma' as StateName,
+s.COUNTY as CountyName,
+s.LATITUDE as Latitude,
+s.LONGITUDE as Longitude,
+r1.REF_DATA_VAL as CommunityName,
+s.LAND_STATUS as TribalLandStatusText,
+r2.REF_DATA_VAL  as SiteSettingName,
+tHome.THREAT_FACTOR_NAME as SiteDistanceToHomesText,
+tAquif.THREAT_FACTOR_NAME as SiteVerticalDistanceToAquiferText,
+tSW.THREAT_FACTOR_NAME as SiteHorizontalDistanceToSurfaceWaterText,
+os.REPORTED_BY as SiteInitialReportedByText,
+os.REPORTED_ON as SiteInitialReportedDate,
+os.CURRENT_SITE_STATUS as SiteStatusText
+,(select max(a.HEALTH_THREAT_SCORE) from T_OD_ASSESSMENTS A where A.SITE_IDX = S.SITE_IDX and A.ASSESSMENT_DT = (select MAX(A1.ASSESSMENT_DT) from T_OD_ASSESSMENTS A1 where A1.SITE_IDX = S.SITE_IDX)) as SiteHealthThreatScoreValue
+from T_PRT_SITES S, T_OD_SITES OS
+left join T_OD_REF_DATA r1 on os.COMMUNITY_IDX = r1.REF_DATA_IDX
+left join T_OD_REF_DATA r2 on os.SITE_SETTING_IDX = r2.REF_DATA_IDX
+left join T_OD_REF_THREAT_FACTORS tHome on os.PF_HOMES_DIST = tHome.THREAT_FACTOR_IDX
+left join T_OD_REF_THREAT_FACTORS tAquif on os.PF_AQUIFER_VERT_DIST = tAquif.THREAT_FACTOR_IDX
+left join T_OD_REF_THREAT_FACTORS tSW on os.PF_SURF_WATER_HORIZ_DIST = tSW.THREAT_FACTOR_IDX
+where S.SITE_IDX=OS.SITE_IDX;
+
+GO
+
+
+CREATE VIEW [dbo].[V_OD_ASSESSMENTS]
+as
+select 
+s.SITE_IDX,
+a.ASSESSMENT_IDX,
+a.ASSESSMENT_DT as SiteAssessmentDate,
+a.ASSESSED_BY as SiteAssessedBy,
+r1.REF_DATA_VAL as AssessmentTypeText,
+a.CURRENT_SITE_STATUS as SiteStatusText,
+a.CLEANED_CLOSED_DT as SiteClosedDate,
+a.SITE_DESCRIPTION as AssessmentDescription,
+a.ASSESSMENT_NOTES as AssessmentSiteObservations,
+a.AREA_ACRES as SiteSurfaceAreaValue,
+a.VOLUME_CU_YD as SiteVolumeValue,
+case when a.HEALTH_THREAT_SCORE <= 450 then 'Low' when a.HEALTH_THREAT_SCORE < 900 and a.HEALTH_THREAT_SCORE > 450 then 'Medium' when a.HEALTH_THREAT_SCORE > 900 then 'High' else '' end as SiteHealthThreatScoreSummaryText,
+a.HEALTH_THREAT_SCORE as SiteHealthThreatScoreValue,
+f1.THREAT_FACTOR_NAME as HFRainfall,
+f2.THREAT_FACTOR_NAME as HFDrainage,
+f3.THREAT_FACTOR_NAME as HFFlooding,
+f4.THREAT_FACTOR_NAME as HFBurning,
+f5.THREAT_FACTOR_NAME as HFFencing,
+f6.THREAT_FACTOR_NAME as HFAccess,
+f7.THREAT_FACTOR_NAME as HFPublic
+from T_PRT_SITES S, T_OD_SITES OS, T_OD_ASSESSMENTS A
+left join T_OD_REF_DATA R1 on A.ASSESSMENT_TYPE_IDX = R1.REF_DATA_IDX
+left join T_OD_REF_THREAT_FACTORS F1 on A.HF_RAINFALL = F1.THREAT_FACTOR_IDX
+left join T_OD_REF_THREAT_FACTORS F2 on A.HF_DRAINAGE = F2.THREAT_FACTOR_IDX
+left join T_OD_REF_THREAT_FACTORS F3 on A.HF_FLOODING = F3.THREAT_FACTOR_IDX
+left join T_OD_REF_THREAT_FACTORS F4 on A.HF_BURNING = F4.THREAT_FACTOR_IDX
+left join T_OD_REF_THREAT_FACTORS F5 on A.HF_FENCING = F5.THREAT_FACTOR_IDX
+left join T_OD_REF_THREAT_FACTORS F6 on A.HF_ACCESS_CONTROL = F6.THREAT_FACTOR_IDX
+left join T_OD_REF_THREAT_FACTORS F7 on A.HF_PUBLIC_CONCERN = F7.THREAT_FACTOR_IDX
+where S.SITE_IDX=OS.SITE_IDX
+and S.SITE_IDX = A.SITE_IDX;
+GO
+
