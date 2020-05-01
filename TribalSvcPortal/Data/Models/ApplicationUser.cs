@@ -12,6 +12,8 @@ namespace TribalSvcPortal.Data.Models
         public string FIRST_NAME { get; set; }
         public string LAST_NAME { get; set; }
         public DateTime? LAST_LOGIN_DT { get; set; }
+        public string PasswordEncrypt { get; set; }
+        public int? WordPressUserId { get; set; }
     }
 
 }
