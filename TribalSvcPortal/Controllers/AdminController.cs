@@ -6,6 +6,7 @@ using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using TribalSvcPortal.AppLogic.BusinessLogicLayer;
 using TribalSvcPortal.AppLogic.DataAccessLayer;
@@ -23,18 +24,22 @@ namespace TribalSvcPortal.Controllers
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IDbPortal _DbPortal;
         private readonly IConfiguration _config;
+        private readonly Ilog _log;
+
         //private static WordPressClient _clientAuth;
 
         public AdminController(
             UserManager<ApplicationUser> userManager,
             RoleManager<IdentityRole> roleManager,
             IDbPortal DbPortal,
-            IConfiguration config)
+            IConfiguration config,
+            Ilog log)
         {
             _userManager = userManager;
             _roleManager = roleManager;
             _DbPortal = DbPortal;
             _config = config ?? throw new System.ArgumentNullException(nameof(config));
+            _log = log ?? throw new ArgumentNullException(nameof(log));
         }
 
         public IActionResult Index()
@@ -229,7 +234,8 @@ namespace TribalSvcPortal.Controllers
                     WordPressHelper wordPressHelper = new WordPressHelper(_userManager,
                                                                           _roleManager,
                                                                           _DbPortal,
-                                                                          _config);
+                                                                          _config,
+                                                                          _log);
                     int isWPUserAdded = await wordPressHelper.SetupWordPressAccess(uidx, org_id, AccessLevel, StatusInd);
                     TempData["Success"] = "Record successfully added.";
                 }
@@ -242,11 +248,17 @@ namespace TribalSvcPortal.Controllers
         }
 
         [HttpPost]
-        public JsonResult OrgUserDelete(int id, string id2)
+        public async Task<JsonResult> OrgUserDelete(int id, string id2)
         {
-            int SuccID = _DbPortal.DeleteT_PRT_ORG_USERS(id);
+            T_PRT_ORG_USERS orgUser = _DbPortal.GetT_PRT_ORG_USERS_ByOrgUserID(id);
+            int SuccID = _DbPortal.DeleteT_PRT_ORG_USERS(orgUser);
             if (SuccID > 0)
+            {
+                WordPressHelper.SetUserManager(_userManager);
+                ApplicationUser appUser = await WordPressHelper.GetApplicationUser(orgUser.Id);
+                _DbPortal.UpdateT_PRT_USERS_WordPressUserId(appUser, 0);
                 return Json("Success");
+            }
             else
                 return Json("Unable to delete user from organization.");
         }

@@ -70,16 +70,6 @@ namespace TribalSvcPortal.Controllers
             return View(model);
         }
 
-        public IActionResult Maps(string id)
-        {
-            var model = new HomeViewModel
-            {
-                selOrg = id
-            };
-
-            return View(model);
-        }
-
         public IActionResult api(string id)
         {
             var model = new apisViewModel
@@ -330,26 +320,6 @@ namespace TribalSvcPortal.Controllers
             XmlElement _e = xmlDoc.CreateElement("facid", _fieldName, "http://www.exchangenetwork.net/schema/facilityid/3");
             _e.InnerText = _fieldVal;
             _parentElement.AppendChild(_e);
-        }
-
-
-        public IActionResult Services(string id)
-        {
-            var model = new ServiceViewModel
-            {
-            };
-
-            return View(model);
-        }
-
-        public IActionResult Events(string id)
-        {
-            var model = new HomeViewModel
-            {
-                selOrg = id
-            };
-
-            return View(model);
         }
 
         public IActionResult About()
