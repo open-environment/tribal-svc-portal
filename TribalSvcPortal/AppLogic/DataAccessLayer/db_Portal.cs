@@ -79,6 +79,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
         List<UserOrgDisplayType> GetT_PRT_ORG_USERS_ByOrgID(string OrgID);
         int InsertUpdateT_PRT_ORG_USERS(int? oRG_USER_IDX, string oRG_ID, string _Id, string aCCESS_LEVEL, string sTATUS_IND, string cREATE_USER);
         int DeleteT_PRT_ORG_USERS(int id);
+        int DeleteT_PRT_ORG_USERS(T_PRT_ORG_USERS entity);
         bool IsUserAnOrgAdmin(string UserID, string OrgID);
 
 
@@ -100,6 +101,8 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
 
         //**************************** T_PRT_USERS ***********************************************
         int UpdateT_PRT_USERS_LoginDate(ApplicationUser user);
+        int UpdateT_PRT_USERS_PasswordEncrypt(ApplicationUser user, string Password);
+        int UpdateT_PRT_USERS_WordPressUserId(ApplicationUser user, int WordPressUserId);
 
         //*****************SYS_LOG**********************************
         List<T_PRT_SYS_LOG> GetT_PRT_SYS_LOG();
@@ -674,7 +677,21 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
                 return 0;
             }
         }
+        public int DeleteT_PRT_ORG_USERS(T_PRT_ORG_USERS entity)
+        {
+            try
+            {
+                ctx.T_PRT_ORG_USERS.Remove(entity);
+                ctx.SaveChanges();
 
+                return 1;
+            }
+            catch (Exception ex)
+            {
+                _log.LogEFException(ex);
+                return 0;
+            }
+        }
         public bool IsUserAnOrgAdmin(string UserID, string OrgID)
         {
             try
@@ -1028,7 +1045,35 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             }
         }
 
-
+        public int UpdateT_PRT_USERS_PasswordEncrypt(ApplicationUser user, string Password)
+        {
+            try
+            {
+                user.PasswordEncrypt = Utils.Encrypt(Password);
+                ctx.SaveChanges();
+                return 1;
+            }
+            catch (Exception ex)
+            {
+                _log.LogEFException(ex);
+                return 0;
+            }
+        }
+        
+        public int UpdateT_PRT_USERS_WordPressUserId(ApplicationUser user, int WordPressUserId)
+        {
+            try
+            {
+                user.WordPressUserId = WordPressUserId;
+                ctx.SaveChanges();
+                return 1;
+            }
+            catch (Exception ex)
+            {
+                _log.LogEFException(ex);
+                return 0;
+            }
+        }
         //*****************SYS_LOG**********************************
         public List<T_PRT_SYS_LOG> GetT_PRT_SYS_LOG()
         {

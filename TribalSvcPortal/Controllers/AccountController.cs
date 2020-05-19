@@ -86,7 +86,7 @@ namespace TribalSvcPortal.Controllers
 
                 // To enable password failures to trigger account lockout, set lockoutOnFailure: true
                 var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, lockoutOnFailure: true);
-
+                
                 if (result.Succeeded)
                 {
                     //update last login datetime
@@ -272,6 +272,14 @@ namespace TribalSvcPortal.Controllers
                 if (result.Succeeded)
                 {
                     _logger.LogInformation("User created a new account with password.");
+                    
+                    //Encrypt and store password to database
+                    //used for WordPress user management
+                    var _user = await _userManager.FindByEmailAsync(model.Email);
+                    if(_user != null)
+                    {
+                        _DbPortal.UpdateT_PRT_USERS_PasswordEncrypt(_user, model.Password);
+                    }
 
                     var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
                     var callbackUrl = Url.EmailConfirmationLink(user.Id, code, Request.Scheme);
@@ -549,6 +557,7 @@ namespace TribalSvcPortal.Controllers
             var result = await _userManager.ResetPasswordAsync(user, model.Code, model.Password);
             if (result.Succeeded)
             {
+                _DbPortal.UpdateT_PRT_USERS_PasswordEncrypt(user, model.Password);
                 return RedirectToAction(nameof(ResetPasswordConfirmation));
             }
             AddErrors(result);

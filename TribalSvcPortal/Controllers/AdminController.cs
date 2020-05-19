@@ -2,12 +2,18 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.Extensions.Configuration;
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
+using TribalSvcPortal.AppLogic.BusinessLogicLayer;
 using TribalSvcPortal.AppLogic.DataAccessLayer;
 using TribalSvcPortal.Data.Models;
 using TribalSvcPortal.ViewModels.AdminViewModels;
+using WordPressPCL;
+using WordPressPCL.Models;
 
 namespace TribalSvcPortal.Controllers
 {
@@ -17,15 +23,23 @@ namespace TribalSvcPortal.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IDbPortal _DbPortal;
+        private readonly IConfiguration _config;
+        private readonly Ilog _log;
+
+        //private static WordPressClient _clientAuth;
 
         public AdminController(
             UserManager<ApplicationUser> userManager,
             RoleManager<IdentityRole> roleManager,
-            IDbPortal DbPortal)
+            IDbPortal DbPortal,
+            IConfiguration config,
+            Ilog log)
         {
             _userManager = userManager;
             _roleManager = roleManager;
             _DbPortal = DbPortal;
+            _config = config ?? throw new System.ArgumentNullException(nameof(config));
+            _log = log ?? throw new ArgumentNullException(nameof(log));
         }
 
         public IActionResult Index()
@@ -38,7 +52,7 @@ namespace TribalSvcPortal.Controllers
         //******************************* ROLES **********************************************************
         [Authorize(Roles = "PortalAdmin")]
         public IActionResult RoleList()
-        {           
+        {
             var roles = _roleManager.Roles.ToList();
             return View(roles);
         }
@@ -55,7 +69,8 @@ namespace TribalSvcPortal.Controllers
             //all users
             var allUsers = _userManager.Users.ToList();
 
-            var model = new RoleEditViewModel {
+            var model = new RoleEditViewModel
+            {
                 T_PRT_ROLES = _role,
                 Users_In_Role = RolesInUser.Select(x => new SelectListItem
                 {
@@ -107,7 +122,7 @@ namespace TribalSvcPortal.Controllers
 
         //******************************* USERS **********************************************************
         public IActionResult UserList()
-        {           
+        {
             var users = _userManager.Users.ToList();
             return View(users);
         }
@@ -149,7 +164,7 @@ namespace TribalSvcPortal.Controllers
         [Authorize(Roles = "PortalAdmin")]
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<ActionResult> UserEdit(UserEditViewModel model, string submitButton)
-        {           
+        {
 
             ApplicationUser _user = await _userManager.FindByIdAsync(model.appUser.Id);
             if (_user != null)
@@ -188,7 +203,7 @@ namespace TribalSvcPortal.Controllers
 
         [HttpPost]
         public async Task<JsonResult> UserDelete(string id)
-        {          
+        {
             var user = await _userManager.FindByIdAsync(id);
             if (user != null)
             {
@@ -205,17 +220,26 @@ namespace TribalSvcPortal.Controllers
 
         //******************************* ORG USERS **********************************************************
         [HttpPost]
-        public IActionResult OrgUserEdit(int? edit_oRG_USER_IDX, string uidx, string org_id, string AccessLevel, string StatusInd)
+        public async Task<IActionResult> OrgUserEdit(int? edit_oRG_USER_IDX, string uidx, string org_id, string AccessLevel, string StatusInd)
         {
             if (ModelState.IsValid)
-            {             
+            {
 
                 int newID = _DbPortal.InsertUpdateT_PRT_ORG_USERS(edit_oRG_USER_IDX, org_id, uidx, AccessLevel, StatusInd, User.Identity.Name);
 
                 if (newID == 0)
                     TempData["Error"] = "Unable to add user to organization.";
                 else
+                {
+                    WordPressHelper wordPressHelper = new WordPressHelper(_userManager,
+                                                                          _roleManager,
+                                                                          _DbPortal,
+                                                                          _config,
+                                                                          _log);
+                    int isWPUserAdded = await wordPressHelper.SetupWordPressAccess(uidx, org_id, AccessLevel, StatusInd);
                     TempData["Success"] = "Record successfully added.";
+                }
+
             }
             else
                 TempData["Error"] = "Unable to add user to organization.";
@@ -224,11 +248,17 @@ namespace TribalSvcPortal.Controllers
         }
 
         [HttpPost]
-        public JsonResult OrgUserDelete(int id, string id2)
-        {           
-            int SuccID = _DbPortal.DeleteT_PRT_ORG_USERS(id);
+        public async Task<JsonResult> OrgUserDelete(int id, string id2)
+        {
+            T_PRT_ORG_USERS orgUser = _DbPortal.GetT_PRT_ORG_USERS_ByOrgUserID(id);
+            int SuccID = _DbPortal.DeleteT_PRT_ORG_USERS(orgUser);
             if (SuccID > 0)
+            {
+                WordPressHelper.SetUserManager(_userManager);
+                ApplicationUser appUser = await WordPressHelper.GetApplicationUser(orgUser.Id);
+                _DbPortal.UpdateT_PRT_USERS_WordPressUserId(appUser, 0);
                 return Json("Success");
+            }
             else
                 return Json("Unable to delete user from organization.");
         }
@@ -238,7 +268,7 @@ namespace TribalSvcPortal.Controllers
         [Authorize(Roles = "PortalAdmin")]
         public IActionResult ClientList()
         {
-          
+
             var model = _DbPortal.GetT_PRT_CLIENTS();
             return View(model);
         }
@@ -273,11 +303,11 @@ namespace TribalSvcPortal.Controllers
 
         //******************************* ORGANIZATIONS **********************************************************
         public IActionResult OrgList()
-        {           
+        {
             var model = _DbPortal.GetT_PRT_ORGANIZATIONS();
             return View(model);
         }
-        
+
         public IActionResult OrgEdit(string id)
         {
             var model = new OrgEditViewModel
@@ -293,7 +323,7 @@ namespace TribalSvcPortal.Controllers
             }
             return View(model);
         }
-        
+
         [HttpPost, ValidateAntiForgeryToken]
         public IActionResult OrgEdit(T_PRT_ORGANIZATIONS org)
         {
@@ -349,7 +379,7 @@ namespace TribalSvcPortal.Controllers
 
         //************************************ ORGANIZATION USER CLIENT  ***************************************
         public IActionResult OrgUserClients(int id)
-        {           
+        {
             var model = new OrgUserEditViewModel
             {
                 UserIDX = _DbPortal.GetT_PRT_ORG_USERS_ByOrgUserID(id).Id,
@@ -369,7 +399,7 @@ namespace TribalSvcPortal.Controllers
         public IActionResult OrgUserClientEdit(int org_user_idx, string client_id, string AdminInd, string StatusInd, string returnUrl)
         {
             if (ModelState.IsValid)
-            {                
+            {
                 int newID = _DbPortal.InsertUpdateT_PRT_ORG_USERS_CLIENT(null, org_user_idx, client_id, (AdminInd == "1" ? true : false), StatusInd, User.Identity.Name);
 
                 if (newID == 0)
@@ -385,7 +415,7 @@ namespace TribalSvcPortal.Controllers
 
         [HttpPost]
         public IActionResult OrgUserClientDelete(int id, string id2)
-        {    
+        {
             int SuccID = _DbPortal.DeleteT_PRT_ORG_USER_CLIENT(id);
             if (SuccID > 0)
                 TempData["Success"] = "Record has been deleted.";
@@ -445,7 +475,7 @@ namespace TribalSvcPortal.Controllers
                             Text = x.USER_NAME
                         });
                     }
-                }               
+                }
             };
 
             return View(model);
@@ -460,8 +490,8 @@ namespace TribalSvcPortal.Controllers
         {
             T_PRT_APP_SETTINGS_CUSTOM custSettings = _DbPortal.GetT_PRT_APP_SETTINGS_CUSTOM();
             var model = new SettingsViewModel
-            {                
-            app_settings = _DbPortal.GetT_PRT_APP_SETTING_List(),
+            {
+                app_settings = _DbPortal.GetT_PRT_APP_SETTING_List(),
                 TermsAndConditions = custSettings.TERMS_AND_CONDITIONS,
                 Announcements = custSettings.ANNOUNCEMENTS
             };
@@ -474,7 +504,7 @@ namespace TribalSvcPortal.Controllers
         {
             if (ModelState.IsValid)
             {
-               string UserID = _userManager.GetUserId(User);
+                string UserID = _userManager.GetUserId(User);
 
                 int SuccID = _DbPortal.InsertUpdateT_PRT_APP_SETTING(model.edit_app_setting.SETTING_IDX, model.edit_app_setting.SETTING_NAME, model.edit_app_setting.SETTING_VALUE, false, null, UserID);
                 if (SuccID > 0)
