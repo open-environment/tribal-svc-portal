@@ -81,7 +81,8 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
         int DeleteT_PRT_ORG_USERS(int id);
         int DeleteT_PRT_ORG_USERS(T_PRT_ORG_USERS entity);
         bool IsUserAnOrgAdmin(string UserID, string OrgID);
-
+        T_PRT_ORG_USERS GetUserOrg(string UserID, string OrgID);
+        int GetOrgUsersCount(string UserID);
 
         //******************************T_PRT_ORG_USERS_CLIENT***********************************************
         T_PRT_ORG_USER_CLIENT GetT_PRT_ORG_USERS_CLIENT_ByID(int _OrgUserClientIDX);
@@ -709,7 +710,36 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
                 return false;
             }
         }
+        public T_PRT_ORG_USERS GetUserOrg(string UserID, string OrgID)
+        {
+            try
+            {
+                var xxx = (from a in ctx.T_PRT_ORG_USERS
+                           where a.Id == UserID
+                           && a.ORG_ID == OrgID
+                           select a).FirstOrDefault();
 
+                return xxx;
+            }
+            catch (Exception ex)
+            {
+                _log.LogEFException(ex);
+                return null;
+            }
+        }
+
+        public int GetOrgUsersCount(string UserID)
+        {
+            try
+            {
+                return ctx.T_PRT_ORG_USERS.Where(x => x.Id == UserID).Count();
+            }
+            catch (Exception ex)
+            {
+                _log.LogEFException(ex);
+                return 0;
+            }
+        }
 
         //******************************ORG_USER_CLIENT***********************************************
         public T_PRT_ORG_USER_CLIENT GetT_PRT_ORG_USERS_CLIENT_ByID(int _OrgUserClientIDX)

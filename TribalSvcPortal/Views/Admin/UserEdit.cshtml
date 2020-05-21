@@ -34,22 +34,29 @@
                     </div>
                 </div>
             }
-            <div class="row">
-                <div class="col-md-3">
-                    <div class="form-group">
-                        <label>First Name</label>
-                        @Html.TextBoxFor(model => model.appUser.FIRST_NAME, new { @class = "form-control" })
-                        @Html.ValidationMessageFor(model => model.appUser.FIRST_NAME)
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="form-group">
-                        <label>Last Name</label>
-                        @Html.TextBoxFor(model => model.appUser.LAST_NAME, new { @class = "form-control" })
-                        @Html.ValidationMessageFor(model => model.appUser.LAST_NAME)
-                    </div>
-                </div>
+    <div class="row">
+        <div class="col-md-3">
+            <div class="form-group">
+                <label>First Name</label>
+                @Html.TextBoxFor(model => model.appUser.FIRST_NAME, new { @class = "form-control" })
+                @Html.ValidationMessageFor(model => model.appUser.FIRST_NAME)
             </div>
+        </div>
+        <div class="col-md-3">
+            <div class="form-group">
+                <label>Last Name</label>
+                @Html.TextBoxFor(model => model.appUser.LAST_NAME, new { @class = "form-control" })
+                @Html.ValidationMessageFor(model => model.appUser.LAST_NAME)
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="form-group">
+                <label>WordPress User ID</label>
+                @Html.TextBoxFor(model => model.appUser.WordPressUserId, new { @class = "form-control" })
+                @Html.ValidationMessageFor(model => model.appUser.WordPressUserId)
+            </div>
+        </div>
+    </div>
 
 
             <p>
