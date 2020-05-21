@@ -19,7 +19,7 @@ namespace TribalSvcPortal.Data.Models
         public DateTime? CREATE_DT { get; set; }
         public string MODIFY_USER_ID { get; set; }
         public DateTime? MODIFY_DT { get; set; }
-
+        public int WordPressUserId { get; set; }
         public T_PRT_ORGANIZATIONS ORG_ { get; set; }
         public ICollection<T_PRT_ORG_USER_CLIENT> T_PRT_ORG_USER_CLIENT { get; set; }
     }

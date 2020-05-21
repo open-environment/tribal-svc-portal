@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using TribalSvcPortal.AppLogic.BusinessLogicLayer;
 using TribalSvcPortal.AppLogic.DataAccessLayer;
 using TribalSvcPortal.Data.Models;
+using TribalSvcPortal.Services;
 using TribalSvcPortal.ViewModels.AdminViewModels;
 using WordPressPCL;
 using WordPressPCL.Models;
@@ -25,6 +26,7 @@ namespace TribalSvcPortal.Controllers
         private readonly IDbPortal _DbPortal;
         private readonly IConfiguration _config;
         private readonly Ilog _log;
+        private readonly IEmailSender _emailSender;
 
         //private static WordPressClient _clientAuth;
 
@@ -33,13 +35,15 @@ namespace TribalSvcPortal.Controllers
             RoleManager<IdentityRole> roleManager,
             IDbPortal DbPortal,
             IConfiguration config,
-            Ilog log)
+            Ilog log,
+            IEmailSender emailSender)
         {
             _userManager = userManager;
             _roleManager = roleManager;
             _DbPortal = DbPortal;
             _config = config ?? throw new System.ArgumentNullException(nameof(config));
             _log = log ?? throw new ArgumentNullException(nameof(log));
+            _emailSender = emailSender;
         }
 
         public IActionResult Index()
@@ -190,6 +194,7 @@ namespace TribalSvcPortal.Controllers
                     _user.LAST_NAME = model.appUser.LAST_NAME;
                     _user.Email = model.appUser.Email;
                     _user.UserName = model.appUser.Email;
+                    _user.WordPressUserId = model.appUser.WordPressUserId;
                     SuccID = await _userManager.UpdateAsync(_user);
                 }
 
@@ -235,7 +240,8 @@ namespace TribalSvcPortal.Controllers
                                                                           _roleManager,
                                                                           _DbPortal,
                                                                           _config,
-                                                                          _log);
+                                                                          _log,
+                                                                          _emailSender);
                     int isWPUserAdded = await wordPressHelper.SetupWordPressAccess(uidx, org_id, AccessLevel, StatusInd);
                     TempData["Success"] = "Record successfully added.";
                 }
@@ -256,7 +262,35 @@ namespace TribalSvcPortal.Controllers
             {
                 WordPressHelper.SetUserManager(_userManager);
                 ApplicationUser appUser = await WordPressHelper.GetApplicationUser(orgUser.Id);
-                _DbPortal.UpdateT_PRT_USERS_WordPressUserId(appUser, 0);
+                WordPressHelper wordPressHelper = new WordPressHelper(_userManager,
+                                                                          _roleManager,
+                                                                          _DbPortal,
+                                                                          _config,
+                                                                          _log,
+                                                                          _emailSender);
+                int OrgUserCount = _DbPortal.GetOrgUsersCount(orgUser.Id);
+                if(OrgUserCount == 0)
+                {
+                    //if we have user in wordpress, make it inactive
+                    if(appUser.WordPressUserId > 0)
+                    {
+                       //string wordPressUri = wordPressHelper.SetWordPressUri(orgUser.ORG_ID);
+                       // string userName = wordPressHelper.GetUserName();
+                       // string password = wordPressHelper.GetPassword();
+                        int wpuid = 0;
+                        Int32.TryParse(appUser.WordPressUserId.ToString(), out wpuid);
+                        //WordPressClient wordPressClient = await wordPressHelper.GetAuthenticatedWordPressClient(wordPressUri, userName, password);
+                        WordPressClient wordPressClient = await wordPressHelper.GetAuthenticatedWordPressClient(orgUser.ORG_ID);
+                        bool isUserUpdated = await wordPressHelper.UpdateWordPressUser(appUser, wordPressClient, wpuid, "inactive");
+                    }
+                }
+                else
+                {
+                    //revoke access from the site/organization from wordpress
+                    int wpuid = 0;
+                    Int32.TryParse(appUser.WordPressUserId.ToString(), out wpuid);
+                    wordPressHelper.AddRemoveUserSite(wpuid, orgUser.ORG_ID, 0);
+                }
                 return Json("Success");
             }
             else
