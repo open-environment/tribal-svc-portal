@@ -741,6 +741,8 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             }
         }
 
+
+
         //******************************ORG_USER_CLIENT***********************************************
         public T_PRT_ORG_USER_CLIENT GetT_PRT_ORG_USERS_CLIENT_ByID(int _OrgUserClientIDX)
         {
