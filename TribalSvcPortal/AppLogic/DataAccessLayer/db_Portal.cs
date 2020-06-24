@@ -81,6 +81,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
         int DeleteT_PRT_ORG_USERS(int id);
         int DeleteT_PRT_ORG_USERS(T_PRT_ORG_USERS entity);
         bool IsUserAnOrgAdmin(string UserID, string OrgID);
+        bool IsUserAnyOrgAdmin(string UserID);
         T_PRT_ORG_USERS GetUserOrg(string UserID, string OrgID);
         int GetOrgUsersCount(string UserID);
 
@@ -678,6 +679,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
                 return 0;
             }
         }
+
         public int DeleteT_PRT_ORG_USERS(T_PRT_ORG_USERS entity)
         {
             try
@@ -693,6 +695,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
                 return 0;
             }
         }
+
         public bool IsUserAnOrgAdmin(string UserID, string OrgID)
         {
             try
@@ -710,6 +713,31 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
                 return false;
             }
         }
+
+        /// <summary>
+        /// Is the user an overall admin of any organization
+        /// </summary>
+        /// <param name="UserID"></param>
+        /// <returns></returns>
+        public bool IsUserAnyOrgAdmin(string UserID)
+        {
+            try
+            {
+                var xxx = (from a in ctx.T_PRT_ORG_USERS
+                           where a.Id == UserID
+                           && a.ACCESS_LEVEL == "A"
+                           && a.STATUS_IND == "A"
+                           select a).Count();
+
+                return xxx > 0;
+            }
+            catch (Exception ex)
+            {
+                _log.LogEFException(ex);
+                return false;
+            }
+        }
+
         public T_PRT_ORG_USERS GetUserOrg(string UserID, string OrgID)
         {
             try
