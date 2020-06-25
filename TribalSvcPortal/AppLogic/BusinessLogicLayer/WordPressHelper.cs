@@ -54,7 +54,7 @@ namespace TribalSvcPortal.AppLogic.BusinessLogicLayer
                 ApplicationUser user = await _userManager.FindByIdAsync(uidx);
                 if (user != null)
                 {
-                    _log.InsertT_PRT_SYS_LOG("Info", "we have a vlaid user.");
+                    _log.InsertT_PRT_SYS_LOG("Info", "we have a valid user.");
                     int OrgUserCount = _DbPortal.GetOrgUsersCount(uidx);
                     SetWordPressUri(org_id);
                     _log.InsertT_PRT_SYS_LOG("Info", WordPressUri);
@@ -93,7 +93,15 @@ namespace TribalSvcPortal.AppLogic.BusinessLogicLayer
                                     {
                                         _log.InsertT_PRT_SYS_LOG("Info", "User does not exis, add new user as administrator.");
                                         User createdUser = await CreateWordPressUser(user, wordPressClient, org_id);
-                                        _DbPortal.UpdateT_PRT_USERS_WordPressUserId(user, createdUser.Id);
+                                        if(createdUser != null)
+                                        {
+                                            _DbPortal.UpdateT_PRT_USERS_WordPressUserId(user, createdUser.Id);
+                                        }
+                                        else
+                                        {
+                                            _log.InsertT_PRT_SYS_LOG("Error", "New user could not be added.");
+                                        }
+                                        
                                     }
                                 }
                             }
