@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -14,6 +15,7 @@ using TribalSvcPortal.AppLogic.DataAccessLayer;
 using TribalSvcPortal.Data.Models;
 using TribalSvcPortal.Services;
 using TribalSvcPortal.ViewModels.ManageViewModels;
+using WordPressPCL;
 
 namespace TribalSvcPortal.Controllers
 {
@@ -28,6 +30,8 @@ namespace TribalSvcPortal.Controllers
         private readonly ILogger _logger;
         private readonly UrlEncoder _urlEncoder;
         private readonly IDbPortal _DbPortal;
+        private readonly IConfiguration _config;
+        private readonly Ilog _log;
 
         private const string AuthenticatorUriFormat = "otpauth://totp/{0}:{1}?secret={2}&issuer={0}&digits=6";
         private const string RecoveryCodesKey = nameof(RecoveryCodesKey);
@@ -39,7 +43,9 @@ namespace TribalSvcPortal.Controllers
           IEmailSender emailSender,
           ILogger<ManageController> logger,
           UrlEncoder urlEncoder, 
-          IDbPortal DbPortal)
+          IDbPortal DbPortal,
+          IConfiguration config,
+          Ilog log)
         {
             _userManager = userManager;
             _roleManager = roleManager;
@@ -48,6 +54,8 @@ namespace TribalSvcPortal.Controllers
             _logger = logger;
             _urlEncoder = urlEncoder;
             _DbPortal = DbPortal;
+            _log = log;
+            _config = config;
         }
 
         [TempData]
@@ -174,10 +182,94 @@ namespace TribalSvcPortal.Controllers
                 AddErrors(changePasswordResult);
                 return View(model);
             }
+            _log.InsertT_PRT_SYS_LOG("Info", "Password changed successfully, begin wordpress activities.");
+            string wpMessage = "";
+            WordPressHelper wordPressHelper = new WordPressHelper(_userManager,
+                                                                          _roleManager,
+                                                                          _DbPortal,
+                                                                          _config,
+                                                                          _log,
+                                                                          _emailSender);
+            //We need this password to setup in WordPress
+            _DbPortal.UpdateT_PRT_USERS_PasswordEncrypt(user, model.NewPassword);
+            if (user.WordPressUserId == null || user.WordPressUserId <= 0)
+            {
+                _log.InsertT_PRT_SYS_LOG("Info", "WordPressUserId not set, hence create new user.");
+                List<UserOrgDisplayType> userOrgDisplayTypes = _DbPortal.GetT_PRT_ORG_USERS_ByUserID(user.Id);
+                if(userOrgDisplayTypes != null && userOrgDisplayTypes.Count > 0)
+                {
+                    _log.InsertT_PRT_SYS_LOG("Info", "User-Org relation found.");
+                    int isWordPressUserCreated = 0;
+                    foreach(UserOrgDisplayType uodt in userOrgDisplayTypes)
+                    {
+                        IList<string> sites = "ABSHAWNEE,KICKAPOO,MCNCREEK,SFNOES".Split(",");
+                        if (sites.Contains(uodt.ORG_ID.Trim().ToUpper()))
+                        {
+                            if (uodt.ACCESS_LEVEL == "A" && uodt.STATUS_IND == "A")
+                            {
+                                _log.InsertT_PRT_SYS_LOG("Info", "Create user for org:" + uodt.ORG_NAME);
+                                if (isWordPressUserCreated == 0)
+                                {
+                                    isWordPressUserCreated = await wordPressHelper.SetupWordPressAccess(user.Id, uodt.ORG_ID, uodt.ACCESS_LEVEL, uodt.STATUS_IND);
+                                    if (isWordPressUserCreated == 0)
+                                    {
+                                        _log.InsertT_PRT_SYS_LOG("Info", "User could not be created for org:" + uodt.ORG_NAME);
+                                        wpMessage = "(Something went wrong with WordPress related activity!)";
+                                    }
+                                    _log.InsertT_PRT_SYS_LOG("Info", "User created for org:" + uodt.ORG_NAME);
+                                }
+                                else
+                                {
+                                    _log.InsertT_PRT_SYS_LOG("Info", "Assign user to remaining sites/organizations: " + uodt.ORG_NAME);
+                                    //Assign user to remaining sites
+                                    int wpuid = 0;
+                                    Int32.TryParse(user.WordPressUserId.ToString(), out wpuid);
+                                    var isUserUpdated = wordPressHelper.AddRemoveUserSite(wpuid, uodt.ORG_ID, 1);
+                                    if (isUserUpdated == false)
+                                    {
+                                        _log.InsertT_PRT_SYS_LOG("Info", "User could not be assigned to remaining sites/organizations for: " + uodt.ORG_NAME);
+                                        wpMessage = "(Something went wrong with WordPress related activity!)";
+                                    }
+                                    _log.InsertT_PRT_SYS_LOG("Info", "User assigned to remaining sites/organizations for: " + uodt.ORG_NAME);
+                                }
 
+                            }
+                        }
+                            
+                    }
+                }
+            } else
+            {
+                _log.InsertT_PRT_SYS_LOG("Info", "WordPressUserId is set hence we update password for all the sites/organizations.");
+                List<UserOrgDisplayType> userOrgDisplayTypes = _DbPortal.GetT_PRT_ORG_USERS_ByUserID(user.Id);
+                Boolean isPasswordUpdated = false;
+                foreach (UserOrgDisplayType uodt in userOrgDisplayTypes)
+                {
+                    IList<string> sites = "ABSHAWNEE,KICKAPOO,MCNCREEK,SFNOES".Split(",");
+
+                    if (sites.Contains(uodt.ORG_ID.Trim().ToUpper()))
+                    {
+                        if (uodt.ACCESS_LEVEL == "A" && uodt.STATUS_IND == "A")
+                        {
+                            int wpuid = 0;
+                            Int32.TryParse(user.WordPressUserId.ToString(), out wpuid);
+                            WordPressClient wordPressClient = await wordPressHelper.GetAuthenticatedWordPressClient(uodt.ORG_ID);
+                            string role = "administrator";
+                            if (uodt.ACCESS_LEVEL != "A" || uodt.STATUS_IND != "A") role = "inactive";
+                            isPasswordUpdated = await wordPressHelper.UpdateWordPressUser(user, wordPressClient, wpuid, role);
+                            if (isPasswordUpdated == false)
+                            {
+                                _log.InsertT_PRT_SYS_LOG("Info", "Password could not be updated for org: " + uodt.ORG_NAME);
+                                wpMessage = "(Something went wrong with WordPress related activity!)";
+                            }
+                            _log.InsertT_PRT_SYS_LOG("Info", "Password updated for org: " + uodt.ORG_NAME);
+                        }
+                    }
+                }
+            }
             await _signInManager.SignInAsync(user, isPersistent: false);
             _logger.LogInformation("User changed their password successfully.");
-            StatusMessage = "Your password has been changed.";
+            StatusMessage = "Your password has been changed. " + wpMessage;
 
             return RedirectToAction(nameof(ChangePassword));
         }
