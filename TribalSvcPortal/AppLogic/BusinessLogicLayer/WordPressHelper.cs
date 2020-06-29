@@ -39,22 +39,22 @@ namespace TribalSvcPortal.AppLogic.BusinessLogicLayer
             _log = log ?? throw new ArgumentNullException(nameof(log));
             _emailSender = emailSender;
 
-            WordPressBaseUri = _config.GetSection("WordPress").GetValue<string>("WordPressUri");
-            UserName = _config.GetSection("WordPress").GetValue<string>("UserName");
-            Password = _config.GetSection("WordPress").GetValue<string>("Password");
-            FromEmail = _config.GetSection("WordPress").GetValue<string>("FromEmail");
+            WordPressBaseUri = _DbPortal.GetT_PRT_APP_SETTING("WORDPRESS_URI");
+            UserName = _DbPortal.GetT_PRT_APP_SETTING("WORDPRESS_USERNAME");
+            Password = Utils.Decrypt(_DbPortal.GetT_PRT_APP_SETTING("WORDPRESS_PWD"));
+
         }
 
         public async Task<int> SetupWordPressAccess(string uidx, string org_id, string AccessLevel, string StatusInd)
         {
             _log.InsertT_PRT_SYS_LOG("Info", "SetupWordPressAccess called.");
-            int actResult = 0;
+            int actResult = 1;
             try
             {
                 ApplicationUser user = await _userManager.FindByIdAsync(uidx);
                 if (user != null)
                 {
-                    _log.InsertT_PRT_SYS_LOG("Info", "we have a vlaid user.");
+                    _log.InsertT_PRT_SYS_LOG("Info", "we have a valid user.");
                     int OrgUserCount = _DbPortal.GetOrgUsersCount(uidx);
                     SetWordPressUri(org_id);
                     _log.InsertT_PRT_SYS_LOG("Info", WordPressUri);
@@ -76,6 +76,7 @@ namespace TribalSvcPortal.AppLogic.BusinessLogicLayer
                                 {
                                     //This situation is unlikly to occure, since we do an upsert
                                     //before reaching here
+                                    actResult = 0;
                                     _log.InsertT_PRT_SYS_LOG("ERROR", "Org-User not found.");
                                 }
                                 else
@@ -93,7 +94,16 @@ namespace TribalSvcPortal.AppLogic.BusinessLogicLayer
                                     {
                                         _log.InsertT_PRT_SYS_LOG("Info", "User does not exis, add new user as administrator.");
                                         User createdUser = await CreateWordPressUser(user, wordPressClient, org_id);
-                                        _DbPortal.UpdateT_PRT_USERS_WordPressUserId(user, createdUser.Id);
+                                        if(createdUser != null)
+                                        {
+                                            _DbPortal.UpdateT_PRT_USERS_WordPressUserId(user, createdUser.Id);
+                                        }
+                                        else
+                                        {
+                                            actResult = 0;
+                                            _log.InsertT_PRT_SYS_LOG("Error", "New user could not be added.");
+                                        }
+                                        
                                     }
                                 }
                             }
@@ -113,7 +123,7 @@ namespace TribalSvcPortal.AppLogic.BusinessLogicLayer
                                 }
                             }
 
-                            actResult = 1;
+                            
                         }
                         else
                         {
@@ -134,22 +144,26 @@ namespace TribalSvcPortal.AppLogic.BusinessLogicLayer
                             }
                             else
                             {
+                                actResult = 0;
                                 _log.InsertT_PRT_SYS_LOG("Error", "Issue with wordpress user id.");
                             }
                         }
                     }
                     else
                     {
+                        actResult = 0;
                         _log.InsertT_PRT_SYS_LOG("Error", "JWT token is not valid.");
                     }
                 }
                 else
                 {
+                    actResult = 0;
                     _log.InsertT_PRT_SYS_LOG("Error", "user is null.");
                 }
             }
             catch (Exception ex)
             {
+                actResult = 0;
                 _log.InsertT_PRT_SYS_LOG("ERROR", ex.Message + " : " + ex.StackTrace);
                 //Log errors
             }
@@ -217,9 +231,9 @@ namespace TribalSvcPortal.AppLogic.BusinessLogicLayer
                     Email = user.Email,
                     //UserName = user.UserName,
                     //In wordpress email can't be stored as username
-                    //also, installed plugin to use email as login in wordpress
-                    //hence, UserName is not important here
-                    //or validate username for wordpress and set it here
+                    //we have used plugin to use email as login in wordpress
+                    //hence, Email is stored as user name
+                    //or if you want username, then validate for wordpress with following method
                     //UserName = GetWordPressUserName(user),
                     UserName = user.Email,
                     Password = Utils.Decrypt(user.PasswordEncrypt),
@@ -251,9 +265,9 @@ namespace TribalSvcPortal.AppLogic.BusinessLogicLayer
                     Email = user.Email,
                     //UserName = user.UserName,
                     //In wordpress email can't be stored as username
-                    //also, installed plugin to use email as login in wordpress
-                    //hence, UserName is not important here
-                    //or validate username for wordpress and set it here
+                    //we have used plugin to use email as login in wordpress
+                    //hence, Email is stored as user name
+                    //or if you want username, then validate for wordpress with following method
                     //UserName = GetWordPressUserName(user),
                     UserName = user.Email,
                     Password = Utils.Decrypt(user.PasswordEncrypt),
@@ -315,7 +329,8 @@ namespace TribalSvcPortal.AppLogic.BusinessLogicLayer
             bool actResult = false;
             try
             {
-                string endPoint = "http://40.77.28.231.xip.io/wp-json";
+                _log.InsertT_PRT_SYS_LOG("Info", "Inside AddRemoveUserSite");
+                string endPoint = string.Format("{0}/wp-json", WordPressBaseUri); 
                 endPoint = string.Format("{0}/wl/v1/manageusersite", endPoint);
                 var client = new RestClient(endPoint);
                 client.Timeout = -1;
@@ -325,7 +340,14 @@ namespace TribalSvcPortal.AppLogic.BusinessLogicLayer
                 request.AddQueryParameter("user_sync_unsync", syncunsync.ToString()); //1 = Add user to site
                 IRestResponse response = client.Execute(request);
                 string res = response.Content;
-                if (res.Equals("true")) actResult = true;
+                if (res.Contains("true"))
+                {
+                    _log.InsertT_PRT_SYS_LOG("Info", "Addition/Removal of site was successful.");
+                    actResult = true;
+                } else
+                {
+                    _log.InsertT_PRT_SYS_LOG("Error", res);
+                }
             }
             catch (Exception ex)
             {
