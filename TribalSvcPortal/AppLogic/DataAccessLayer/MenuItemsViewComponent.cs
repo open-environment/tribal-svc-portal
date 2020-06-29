@@ -51,7 +51,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
                         .SetAbsoluteExpiration(TimeSpan.FromHours(1))
                         .AddExpirationToken(new CancellationChangeToken(cts.Token));
 
-                    _model.IsOrgClientAdmin = _DbPortal.IsUserAnOrgClientAdmin(_UserIDX);
+                    _model.IsOrgClientAdmin = _DbPortal.IsUserAnOrgClientAdmin(_UserIDX) || _DbPortal.IsUserAnyOrgAdmin(_UserIDX);
                     _model._clients = _DbPortal.GetT_PRT_ORG_USERS_CLIENT_DistinctClientByUserID(_UserIDX);
                     
                     _memoryCache.Set(CacheKey, _model, cacheEntryOptions);

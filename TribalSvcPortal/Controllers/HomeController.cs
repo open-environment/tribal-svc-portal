@@ -53,9 +53,13 @@ namespace TribalSvcPortal.Controllers
                 Announcement = _DbPortal.GetT_PRT_APP_SETTINGS_CUSTOM().ANNOUNCEMENTS
             };
 
-            //if agency user doesn't have access to any clients yet, display warning
             if (_UserIDX != null)
             {
+                //retrieve listing of clients user has access to
+                model._clients = _DbPortal.GetT_PRT_ORG_USERS_CLIENT_DistinctClientByUserID(_UserIDX);
+
+
+                //if agency user doesn't have access to any clients yet, display warning
                 List<UserOrgDisplayType> _userOrgs = _DbPortal.GetT_PRT_ORG_USERS_ByUserID(_UserIDX);
                 if (_userOrgs != null && _userOrgs.Count == 1 && _userOrgs[0].ACCESS_LEVEL == "U")
                 {
