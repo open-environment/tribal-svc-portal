@@ -16,6 +16,9 @@ using System.Xml;
 using System.Xml.Linq;
 using System;
 using Newtonsoft.Json;
+using Microsoft.AspNetCore.Http;
+using System.Text.Encodings.Web;
+using Microsoft.Extensions.Configuration;
 
 namespace TribalSvcPortal.Controllers
 {
@@ -26,19 +29,25 @@ namespace TribalSvcPortal.Controllers
         private readonly IDbPortal _DbPortal;
         private readonly IDbOpenDump _DbOpenDump;
         private readonly IEmailSender _emailSender;
+        private readonly UrlEncoder _urlEncoder;
+        private readonly IConfiguration _config;
 
         public HomeController(
             UserManager<ApplicationUser> userManager,
             RoleManager<IdentityRole> roleManager,
             IDbPortal DbPortal,
             IDbOpenDump DbOpenDump,
-            IEmailSender emailSender)
+            IEmailSender emailSender,
+            UrlEncoder urlEncoder,
+            IConfiguration config)
         {
             _userManager = userManager;
             _roleManager = roleManager;
             _DbPortal = DbPortal;
             _DbOpenDump = DbOpenDump;
             _emailSender = emailSender;
+            _urlEncoder = urlEncoder;
+            _config = config;
         }
 
         public IActionResult Index(string id)
@@ -401,6 +410,21 @@ namespace TribalSvcPortal.Controllers
                 TempData["Error"] = "Application has already been initialized.";
 
             return View();
+        }
+
+        [AllowAnonymous]
+        public async Task<IActionResult> GetOpenWatersLinkAsync(string clientid)
+        {
+            
+            string _UserIDX = _userManager.GetUserId(User);
+            ApplicationUser user = await _userManager.FindByIdAsync(_UserIDX);
+            var payload = user.UserName + "###" + user.PasswordEncrypt + "###" + _UserIDX;
+            Encoding unicode = Encoding.Unicode;
+            var plbytes = unicode.GetBytes(payload);
+            var plb64 = Convert.ToBase64String(plbytes);
+            payload = _urlEncoder.Encode(plb64);
+            var url = string.Format("{0}?pl={1}", _config["ClientAppExternalLoginEndpoint"], payload);
+            return Ok(url);
         }
     }
 }

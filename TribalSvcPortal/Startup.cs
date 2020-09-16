@@ -44,6 +44,7 @@ namespace TribalSvcPortal
             .AddEntityFrameworkStores<ApplicationDbContext>()
             .AddDefaultTokenProviders();
 
+            services.AddCors();
             //configure the web application to use MVC
             services.AddMvc();
 
@@ -65,7 +66,6 @@ namespace TribalSvcPortal
                 .AddInMemoryClients(IdentityServerConfig.GetClients2(Configuration, new log(Configuration)))
                 .AddAspNetIdentity<ApplicationUser>()
                 .AddProfileService<CustomProfileService>();
-
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -81,7 +81,8 @@ namespace TribalSvcPortal
             {
                 app.UseExceptionHandler("/Home/Error");
             }
-
+            app.UseCors(builder =>
+                builder.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin().AllowCredentials());
             app.UseStaticFiles();
 
             app.UseIdentityServer();

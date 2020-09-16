@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Security.Claims;
 using System.Text.Encodings.Web;
 using System.Threading;
@@ -32,6 +33,7 @@ namespace TribalSvcPortal.Controllers
         private readonly IDbPortal _DbPortal;
         private readonly IMemoryCache _memoryCache;
         private readonly ILogger<AccountController> _logger;
+        private readonly Ilog _log;
 
         public AccountController(
             IIdentityServerInteractionService interaction,
@@ -40,7 +42,8 @@ namespace TribalSvcPortal.Controllers
             IEmailSender emailSender,
             IDbPortal DbPortal,
             IMemoryCache memoryCache,
-            ILogger<AccountController> logger)
+            ILogger<AccountController> logger,
+            Ilog log)
         {
             _interaction = interaction;
             _userManager = userManager;
@@ -49,6 +52,7 @@ namespace TribalSvcPortal.Controllers
             _DbPortal = DbPortal;
             _memoryCache = memoryCache;
             _logger = logger;
+            _log = log;
         }
 
         [TempData]
@@ -67,26 +71,26 @@ namespace TribalSvcPortal.Controllers
 
         [HttpPost]
         [AllowAnonymous]
-        [ValidateAntiForgeryToken]       
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(LoginViewModel model, string returnUrl = null)
         {
             ViewData["ReturnUrl"] = returnUrl;
             if (ModelState.IsValid)
             {
-                var user = _userManager.FindByNameAsync(model.Email).Result;
-             
+                var user = _userManager.FindByEmailAsync(model.Email).Result;
+
                 if (user != null)
                 {
                     if (!_userManager.IsEmailConfirmedAsync(user).Result)
                     {
-                        ModelState.AddModelError("","Email not confirmed!");
+                        ModelState.AddModelError("", "Email not confirmed!");
                         return View(model);
                     }
                 }
 
                 // To enable password failures to trigger account lockout, set lockoutOnFailure: true
                 var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, lockoutOnFailure: true);
-                
+
                 if (result.Succeeded)
                 {
                     //update last login datetime
@@ -120,6 +124,118 @@ namespace TribalSvcPortal.Controllers
 
             // If we got this far, something failed, redisplay form
             return View(model);
+        }
+
+        [HttpPost]
+        [AllowAnonymous]
+        [IgnoreAntiforgeryToken]
+        [AcceptVerbs("JWTLogin")]
+        public async Task<IActionResult> JWTLogin([FromBody] JWTLoginModel model)
+        {
+            _log.InsertT_PRT_SYS_LOG("Info", "JWTLogin Method called.");
+            string actResult = string.Empty;
+
+            model.isLoggedIn = false;
+            model.isLockedOut = false;
+            model.roles = null;
+            model.errMsg = "";
+            Response.StatusCode = StatusCodes.Status500InternalServerError;
+
+            var user = _userManager.FindByNameAsync(model.email).Result;
+            if (user == null)
+            {
+                model.errMsg = "User with email not found!";
+                _log.InsertT_PRT_SYS_LOG("Error", "User with email not found!");
+                return Ok(model);
+            }
+            model.UserId = user.Id;
+            model.firstName = user.FIRST_NAME;
+            model.lastName = user.LAST_NAME;
+            model.openWaterUserIdx = user.OpenWaterUserIDX;
+
+            if (user != null)
+            {
+                if (!_userManager.IsEmailConfirmedAsync(user).Result)
+                {
+                    model.errMsg = "Email not confirmed!";
+                    _log.InsertT_PRT_SYS_LOG("Error", "Email not confirmed!");
+                    return Ok(model);
+                }
+            }
+
+            // To enable password failures to trigger account lockout, set lockoutOnFailure: true
+            var result = await _signInManager.PasswordSignInAsync(model.email, Utils.Decrypt(model.password), model.rememberMe, lockoutOnFailure: true);
+
+            if (result.Succeeded)
+            {
+                //update last login datetime
+                _DbPortal.UpdateT_PRT_USERS_LoginDate(user);
+
+                //remove Left Menu memorycache for user, so it can be repopulated from db
+                //string CacheKey = "UserMenuData" + user.Id;
+                //_memoryCache.Remove(CacheKey);
+
+                _logger.LogInformation("User logged in.");
+                _log.InsertT_PRT_SYS_LOG("Info", "User logged in.");
+                model.isLoggedIn = true;
+                var _roles = await _userManager.GetRolesAsync(user);
+                model.roles = _roles.ToList();
+                List<UserOrgDisplayType> orgUsers = _DbPortal.GetT_PRT_ORG_USERS_ByUserID_WithClientList(user.Id);
+                model.orgUsers = orgUsers;
+                bool isAdmin = false;
+                if (orgUsers != null)
+                {
+                    foreach (var o in orgUsers)
+                    {
+                        if (o.OrgUserClientDisplay != null)
+                        {
+                            foreach (var c in o.OrgUserClientDisplay)
+                            {
+                                if (c.CLIENT_ID.ToLower() == "open_waters" && c.ADMIN_IND == true)
+                                {
+                                    isAdmin = true;
+                                    break;
+                                }
+                            }
+                        }
+
+                    }
+                }
+
+                model.isAdmin = isAdmin;
+                Response.StatusCode = StatusCodes.Status200OK;
+                return Ok(model);
+                //return RedirectToLocal(returnUrl);
+            }
+            /*
+            if (result.RequiresTwoFactor)
+            {
+                return RedirectToAction(nameof(LoginWith2fa), new { returnUrl, model.RememberMe });
+            }
+            */
+            if (result.IsLockedOut)
+            {
+                _logger.LogWarning("User account locked out.");
+                _log.InsertT_PRT_SYS_LOG("Info", "User account locked out.");
+                model.errMsg = "User account locked out.";
+                //return RedirectToAction(nameof(Lockout));
+                //return Ok(model);
+            }
+            else
+            {
+                //ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+                //return View(model);
+                model.errMsg = "Invalid login attempt.";
+                _log.InsertT_PRT_SYS_LOG("Error", "Invalid login attempt.");
+                //return Ok(model);
+            }
+            // If we got this far, something failed, redisplay form
+            if (Response.StatusCode != StatusCodes.Status200OK)
+            {
+                model.errMsg = "Something went wrong!";
+                _log.InsertT_PRT_SYS_LOG("Error", "Something went wrong!");
+            }
+            return Ok(model);
         }
 
         [HttpGet]
@@ -257,11 +373,12 @@ namespace TribalSvcPortal.Controllers
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Register(RegisterViewModel model, string returnUrl = null)
-        {           
+        {
             ViewData["ReturnUrl"] = returnUrl;
             if (ModelState.IsValid)
             {
-                var user = new ApplicationUser {
+                var user = new ApplicationUser
+                {
                     UserName = model.Email,
                     Email = model.Email,
                     FIRST_NAME = model.FirstName,
@@ -272,11 +389,11 @@ namespace TribalSvcPortal.Controllers
                 if (result.Succeeded)
                 {
                     _logger.LogInformation("User created a new account with password.");
-                    
+
                     //Encrypt and store password to database
                     //used for WordPress user management
                     var _user = await _userManager.FindByEmailAsync(model.Email);
-                    if(_user != null)
+                    if (_user != null)
                     {
                         _DbPortal.UpdateT_PRT_USERS_PasswordEncrypt(_user, model.Password);
                     }
@@ -286,7 +403,7 @@ namespace TribalSvcPortal.Controllers
                     bool EmailSucc = _emailSender.SendEmail(null, model.Email, null, null, null, null, "EMAIL_CONFIRM", "callbackUrl", callbackUrl);
 
                     //if users email is associated with an organization, then associate user with org
-                    List <T_PRT_ORGANIZATIONS> orgs = _DbPortal.GetT_PRT_ORGANIZATIONS_ByEmail(model.Email);
+                    List<T_PRT_ORGANIZATIONS> orgs = _DbPortal.GetT_PRT_ORGANIZATIONS_ByEmail(model.Email);
                     if (orgs != null && orgs.Count == 1)
                     {
                         _DbPortal.InsertUpdateT_PRT_ORG_USERS(null, orgs[0].ORG_ID, user.Id, "U", "A", user.Id);
@@ -327,10 +444,11 @@ namespace TribalSvcPortal.Controllers
         public async Task<IActionResult> Logout(string logoutId)
         {
             // build a model so the logout page knows what to display
-            var vm = new LogoutViewModel {
+            var vm = new LogoutViewModel
+            {
                 LogoutId = logoutId,
                 ShowLogoutPrompt = true
-                };
+            };
 
             var user = Request.HttpContext.User;
 
@@ -576,6 +694,49 @@ namespace TribalSvcPortal.Controllers
         public IActionResult AccessDenied()
         {
             return View();
+        }
+
+        [HttpPost]
+        [AllowAnonymous]
+        [IgnoreAntiforgeryToken]
+        [AcceptVerbs("GetNewUserData")]
+        public async Task<IActionResult> GetNewUserData([FromQuery] string userid)
+        {
+            string actResult = string.Empty;
+            JWTLoginModel model = new JWTLoginModel();
+            Response.StatusCode = StatusCodes.Status500InternalServerError;
+
+            var user = _userManager.FindByIdAsync(userid).Result;
+            if (user != null)
+            {
+                model.UserId = user.Id;
+                model.email = user.Email;
+                model.firstName = user.FIRST_NAME;
+                model.lastName = user.LAST_NAME;
+                model.password = user.PasswordEncrypt;
+                var _roles = await _userManager.GetRolesAsync(user);
+                model.roles = _roles.ToList();
+                List<UserOrgDisplayType> orgUsers = _DbPortal.GetT_PRT_ORG_USERS_ByUserID_WithClientList(user.Id);
+                bool isAdmin = false;
+                foreach (var o in orgUsers)
+                {
+                    foreach (var c in o.OrgUserClientDisplay)
+                    {
+                        if (c.CLIENT_ID.ToLower() == "open_waters" && c.ADMIN_IND == true)
+                        {
+                            isAdmin = true;
+                            break;
+                        }
+                    }
+                }
+                model.isAdmin = isAdmin;
+                model.orgUsers = orgUsers;
+                return Ok(model);
+            }
+
+            // If we got this far, something failed, redisplay form
+            model.errMsg = "Something went wrong!";
+            return Ok(model);
         }
 
         #region Helpers

@@ -57,6 +57,16 @@ namespace TribalSvcPortal
             };
         }
 
+        public static IEnumerable<ApiResource> GetApiResources()
+        {
+            return new List<ApiResource>
+            {
+                new ApiResource("openwatersapi", "OpenWater2 API Resource")
+                {
+                    Scopes = {new Scope("api.read")}
+                }
+            };
+        }
     }
 
     internal class CustomProfileService : IProfileService

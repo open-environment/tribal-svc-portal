@@ -147,6 +147,21 @@
         jQuery(document).ready(function () {
             Main.init();
         });
+        function GetOpenWatersLink(clientid){
+                    $.ajax({
+                        type: "GET",
+                        url: '@Url.Action("GetOpenWatersLinkAsync", "Home")',
+                        data: { clientid: clientid },
+                        contentType: "application/json",
+                        traditional: true,
+                        success: function (response) {
+                            //location.href = response;
+                            var win = window.open(response, '_blank');
+                            win.focus();
+                        },
+                        error: function () {}
+                    });
+        }
     </script>
     @Html.Partial("_Alerts")
     @RenderSection("Scripts", required: false)

@@ -14,6 +14,7 @@ namespace TribalSvcPortal.Data.Models
         public DateTime? LAST_LOGIN_DT { get; set; }
         public string PasswordEncrypt { get; set; }
         public int? WordPressUserId { get; set; }
+        public int? OpenWaterUserIDX { get; set; }
     }
 
 }
