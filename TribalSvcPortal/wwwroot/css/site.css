@@ -373,15 +373,26 @@ ul, ol {
     padding: 0;
 }
 
+.containerz {
+    padding-right: 15px;
+    padding-left: 15px;
+    margin-right: auto;
+    margin-left: auto;
+}
 
 @media (min-width: 1200px) {
-    .container {
+    .containerz {
         width: 1170px;
+        margin-right: auto;
+        margin-left: auto;
     }
 }
+
 @media (min-width: 992px) {
-    .container {
+    .containerz {
         width: 970px;
+        margin-right: auto;
+        margin-left: auto;
     }
 }
 
@@ -443,6 +454,76 @@ ul, ol {
     }
 }
 
+.lead {
+    font-family: 'Open Sans', sans-serif;
+    font-size: 18px;
+    font-weight: 100;
+    line-height: 1.4;
+}
+
+.member-biography > h3 {
+    color: #666666
+}
+.icon-theme-colored a {
+    color: #6AB43E;
+}
+
+.icon-theme-colored.icon-bordered a {
+    border-color: #6AB43E;
+}
+    .icon-theme-colored.icon-bordered a:hover {
+        background-color: #6AB43E;
+        color: #fff;
+    }
+
+
+.styled-icons a {
+    float: none;
+    text-align: center;
+    transition: all 0.3s ease-in-out;
+}
+.styled-icons.icon-sm a {
+    font-size: 13px;
+    height: 30px;
+    line-height: 30px;
+    margin: 2px 7px 2px 0;
+   
+}
+.styled-icons.icon-bordered a {
+    border: 1px solid #777777;
+}
+.styled-icons a {
+    transition: all 0.3s ease-in-out;
+}
+
+.lachy:hover {
+    -webkit-animation: wiggle 0.5s infinite;
+}
+
+@-webkit-keyframes wiggle {
+    0% {
+        -webkit-transform: rotate(4deg);
+        color: #61a738;
+    }
+
+    50% {
+        -webkit-transform: rotate(-4deg);
+        color: #6AB43E;
+    }
+
+    100% {
+        -webkit-transform: rotate(4deg);
+        color: #61a738;
+    }
+}
+
+
+.section-title p {
+    font-size: 14px;
+    font-style: italic;
+}
+
+
 
 .text-theme-colored {
     color: #6AB43E !important;
@@ -494,6 +575,12 @@ ul, ol {
 .pt-0 {
     padding-top: 0 !important;
 }
+.pt-5 {
+    padding-top: 5px !important;
+}
+.pt-10 {
+    padding-top: 10px !important;
+}
 .pt-20 {
     padding-top: 20px !important;
 }
@@ -511,6 +598,10 @@ ul, ol {
 }
 .pt-150 {
     padding-top: 150px !important;
+}
+.mlr-10 {
+    margin-left: 10px !important;
+    margin-right: 10px !important;
 }
 .mlr-20 {
     margin-left: 20px !important;

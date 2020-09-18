@@ -1,6 +1,11 @@
 ﻿@model TribalSvcPortal.ViewModels.HomeViewModels.HomeViewModel
 @{
-    ViewData["Title"] = "Tribal Services Portal";
+    ViewData["Title"] = "Tribal Secure Services Portal";
+    if (User.Identity.IsAuthenticated)
+    {
+        ViewData["Title"] = "Your Secured Services";
+    }
+
     ViewData["HideTitle"] = !User.Identity.IsAuthenticated;
 }
 
@@ -10,11 +15,11 @@
         <div class="item bg-img-cover"></div>
     </section>
     <section class="wrapper z-index-1" style="margin-top: -80px;">
-        <div class="container mlr-100">
+        <div class="container mlr-20">
             <div class="row">
                 <div class="call-to-action bg-theme-colored p-30">
                     <div class="col-md-9">
-                        <h3 class="text-white mt-10" style="font-size: 20px;">Welcome to the Tribal Services Portal. Create an account for personalized preferences</h3>
+                        <h3 class="text-white mt-10" style="font-size: 20px;">Welcome to the Tribal <b>Secure Services</b> Portal. Log in to access secure tribal services</h3>
                     </div>
                     <div class="col-md-3" style="min-width:300px;">
                         <a class="btn btn-lg btn-dark-beige" href="@Url.Action("Login", "Account", new { ReturnUrl = ViewBag.ReturnUrl })" style="margin-right:20px; border-width: 4px; color:#fff;  border-color: #fff; border-radius: 20px;"><i class="clip-arrow-right"></i> Log In</a>
@@ -24,19 +29,65 @@
             </div>
         </div>
     </section>
-}
 
-@if (!string.IsNullOrEmpty(Model.Announcement))
-{
-    <div class="alert alert-block alert-info fade in">
-        <button data-dismiss="alert" class="close" type="button">×</button>
-        @Html.Raw(Model.Announcement)
-        @*@Html.Raw(HttpUtility.HtmlDecode(Model.Announcement))*@
-    </div>
-}
 
-@if (User.Identity.IsAuthenticated)
+    <section id="campaign" class="bg-silver-light">
+        <div class="containerz pb-40 pt-20">
+            <div class="section-title text-center">
+                <div class="row">
+                    <div class="col-md-8 col-md-offset-2  fadeInUp" data-wow-duration="1s" data-wow-delay="0.3s" style="visibility: visible; animation-duration: 1s; animation-delay: 0.3s; padding-bottom:25px">
+                        <h2 class="text-uppercase line-bottom-center mt-0">Available <span class="text-theme-colored">Secured Services</span></h2>
+                        The Tribal Services Secured Portal offers the following services for tribal agencies and tribal members
+                    </div>
+                </div>
+            </div>
+            <div class="row ">
+
+                <div class="col-xs-12 col-sm-6 col-md-4 pb-sm-20">
+                    <h3 class="line-bottom mt-0">Open <span class="text-theme-colored">Waters</span></h3>
+                    <div class="image-box-thum">
+                        <img src="~/images/open_waters_logo.png" alt="" class="img-fullwidth" style="max-width:300px;">
+                    </div>
+                    <div class="image-box-details pt-10 pb-sm-20">
+                        <p class="lead mb-15">Upload and manage water quality sampling data, then submit it to EPA</p>
+                    </div>
+                </div>
+
+                <div class="col-xs-12 col-sm-6 col-md-4 pb-sm-20">
+                    <h3 class="line-bottom mt-0">Emergency <span class="text-theme-colored">Hound</span></h3>
+                    <div class="image-box-thum">
+                        <img src="~/images/emergency_hound_logo.png" alt="" class="img-fullwidth" style="max-width:300px;">
+                    </div>
+                    <div class="image-box-details pt-10 pb-sm-20">
+                        <p class="lead mb-15">Maintain an inventory of available resources, track emergency incidents, and response efforts.</p>
+                    </div>
+                </div>
+
+                <div class="col-xs-12 col-sm-6 col-md-4 pb-sm-20">
+                    <h3 class="line-bottom mt-0">Open <span class="text-theme-colored">Dump</span></h3>
+                    <div class="image-box-thum">
+                        <img src="~/images/open_dump_logo.png" alt="" class="img-fullwidth" style="max-width:300px;">
+                    </div>
+                    <div class="image-box-details pt-10 pb-sm-20">
+                        <p class="lead mb-15">Inventory open dumps located on tribal lands and estimate cleanup costs</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+}
+else
 {
+    if (!string.IsNullOrEmpty(Model.Announcement))
+    {
+        <div class="alert alert-block alert-info fade in">
+            <button data-dismiss="alert" class="close" type="button">×</button>
+            @Html.Raw(Model.Announcement)
+            @*@Html.Raw(HttpUtility.HtmlDecode(Model.Announcement))*@
+        </div>
+    }
+
     if (Model.WarnNoClientInd)
     {
         <div class="alert alert-block alert-warning fade in">
@@ -52,296 +103,195 @@
             </p>
         </div>
     }
+
+    <div class="row pt-20">
+
+        @foreach (var _client in Model._clients)
+        {
+            if (_client.CLIENT_NAME == "Open Waters")
+            {
+                <div class="col-xs-12 col-sm-6 col-md-4 pb-sm-20">
+                    <h3 class="line-bottom mt-0">Open <span class="text-theme-colored">Waters</span></h3>
+                    <div class="image-box-thum">
+                        <img src="~/images/open_waters_logo.png" alt="" class="img-fullwidth" style="max-width:300px;">
+                    </div>
+                    <div class="image-box-details pt-10 pb-sm-20">
+                        <a href="@_client.CLIENT_URL" class="btn btn-sm btn-theme-colored">Explore</a>
+                        <p class="lead mb-15">Upload and manage water quality sampling data, then submit it to EPA</p>
+                    </div>
+                </div>
+            }
+            else if (_client.CLIENT_NAME == "Emergency Hound Web")
+            {
+                <div class="col-xs-12 col-sm-6 col-md-4 pb-sm-20">
+                    <h3 class="line-bottom mt-0">Emergency <span class="text-theme-colored">Hound</span></h3>
+                    <div class="image-box-thum">
+                        <img src="~/images/emergency_hound_logo.png" alt="" class="img-fullwidth" style="max-width:300px;">
+                    </div>
+                    <div class="image-box-details pt-10 pb-sm-20">
+                        @*<a href="@_client.CLIENT_URL" class="btn btn-sm btn-theme-colored">Explore</a>*@
+                        <a href="#" class="btn btn-sm btn-theme-colored">Currently Offline</a>
+                        <p class="lead mb-15">Maintain an inventory of available resources, track emergency incidents, and response efforts.</p>
+                    </div>
+                </div>
+            }
+            else if (_client.CLIENT_NAME == "Open Dump")
+            {
+                <div class="col-xs-12 col-sm-6 col-md-4 pb-sm-20">
+                    <h3 class="line-bottom mt-0">Open <span class="text-theme-colored">Dump</span></h3>
+                    <div class="image-box-thum">
+                        <img src="~/images/open_dump_logo.png" alt="" class="img-fullwidth" style="max-width:300px;">
+                    </div>
+                    <div class="image-box-details pt-10 pb-sm-20">
+                        <a href="@_client.CLIENT_URL" class="btn btn-sm btn-theme-colored">Explore</a>
+                        <p class="lead mb-15">Inventory open dumps located on tribal lands and estimate cleanup costs</p>
+                    </div>
+                </div>
+            }
+        }
+    </div>
+
 }
 
-<section class="wrapper ">
-    <div class="container mlr-20">
-        <div class="row">
-            <div class="col-xs-12 col-sm-6 col-md-4 pb-sm-20">
-                <h3 class="line-bottom mt-0">Explore <span class="text-theme-colored">Open Data</span></h3>
 
-                <div id="bx1" class="bxslider bx-nav-top" data-nav="true">
-                    <div class="item">
-                        <div class="image-box-thum">
-                            <img src="~/images/maps.jpg" alt="Maps data">
-                        </div>
-                        <div class="image-box-details pt-20 pb-sm-20">
-                            <p class="lead mb-15"><span class="text-theme-colored">Environmental Maps</span> to visualize tribal data</p>
-                            <p class="desc mb-10">Includes locations of open dumps, water quality monitoring stations, tribal land status, and more...</p>
-                            <a href="@Url.Action("Maps", "Home", new { id = Model.selOrg })" class="btn btn-sm btn-theme-colored mt-10">Explore</a>
-                        </div>
-                    </div>
-                    <div class="item">
-                        <div class="image-box-thum">
-                            <img src="~/images/api.png" alt="API data">
-                        </div>
-                        <div class="image-box-details pt-20 pb-sm-20">
-                            <p class="lead mb-15"><span class="text-theme-colored">Data APIs</span> for developers</p>
-                            <p class="desc mb-10">Find data, tools, and resources to conduct research, develop applications, and more...</p>
-                            <a href="@Url.Action("api", "Home", new { id = Model.selOrg })" class="btn btn-sm btn-theme-colored mt-10">Explore</a>
-                        </div>
+<section id="volunteers" class="wrapper wrapper-grey" style="background-color:#616161">
+    <div class="containerz">
+        <div class="section-title">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5 class="font-weight-300 text-white m-0">Browse now</h5>
+                    <h2 class="text-white text-uppercase font-28 mt-0">Our <span class="text-theme-colored font-weight-400">public portal sites</span></h2>
+                    <div class="icon">
+                        <i class="fa fa-hospital-o text-white"></i>
                     </div>
                 </div>
-
-
-            </div>
-            <div class="col-xs-12 col-sm-6 col-md-4 pb-sm-20">
-                <h3 class="line-bottom mt-0">Available <span class="text-theme-colored">Services</span></h3>
-                <div id="bx2" class="bxslider bx-nav-top" data-nav="true">
-                    <div class="item" style="visibility:hidden;">
-                        <div class="campaign bg-silver-light mb-30">
-                            <div class="thumb">
-                                <img src="~/images/opendump.jpg" alt="" class="img-fullwidth">
-                                <div class="campaign-overlay"></div>
-                            </div>
-                            <div class="campaign-details clearfix p-15 pt-10 pb-10">
-                                <h4 class="event-title font-weight-700 mt-0"><a href="#">Report an Open Dump Site</a></h4>
-                                <p>Citizens can use this site to notify your Tribal Environmental Program of local dump sites. <a class="text-theme-colored ml-5" href="#"> →</a></p>
-                                <div class="campaign-bottom border-top clearfix mt-20">
-                                    <a class="btn btn-xs btn-theme-colored font-weight-600 font-11 pull-right flip11 mt-10" href="@Url.Action("Services", "Home")">Report a Dump</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="item" style="visibility:hidden;">
-                        <div class="campaign bg-silver-light maxwidth500 mb-30">
-                            <div class="thumb">
-                                <img src="~/images/arborcare.jpg" alt="" class="img-fullwidth">
-                                <div class="campaign-overlay"></div>
-                            </div>
-                            <div class="campaign-details clearfix p-15 pt-10 pb-10">
-                                <h4 class="event-title font-weight-700 mt-0"><a href="#">Residential Tree Service</a></h4>
-                                <p>Tribal citizens can make a request online for residential tree removal and pruning services <a class="text-theme-colored ml-5" href="#"> →</a></p>
-                                <div class="campaign-bottom border-top clearfix mt-20">
-                                    <a class="btn btn-xs btn-theme-colored font-weight-600 font-11 pull-right flip11 mt-10" href="@Url.Action("Services", "Home")">Request Service</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="item" style="visibility:hidden;">
-                        <div class="campaign bg-silver-light maxwidth500 mb-30">
-                            <div class="thumb">
-                                <img src="~/images/driveway.jpg" alt="" class="img-fullwidth">
-                                <div class="campaign-overlay"></div>
-                            </div>
-                            <div class="campaign-details clearfix p-15 pt-10 pb-10">
-                                <h4 class="event-title font-weight-700 mt-0"><a href="#">Tribal Driveways</a></h4>
-                                <p>Tribal citizens can make a request online for repair or replacement of accessible driveways <a class="text-theme-colored ml-5" href="#"> →</a></p>
-                                <div class="campaign-bottom border-top clearfix mt-20">
-                                    <a class="btn btn-xs btn-theme-colored font-weight-600 font-11 pull-right flip11 mt-10" href="@Url.Action("Services", "Home")">Request Service</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                <div class="col-md-6">
+                    <p class="text-white">No account is needed to view the public environmental services offered by our partner tribal agencies. Click the links below to learn about the tribal services they offer</p>
                 </div>
             </div>
-            <div class="col-xs-12 col-sm-12 col-md-4 pb-sm-20">
-                <h3 class="line-bottom mt-0">Upcoming <span class="text-theme-colored">Events</span></h3>
-                <div id="bx3" class="bxslider bx-nav-top" data-count="3">
-                    <div class="event media mt-0 mb-20 no-bg no-border">
-                        <div class="event-date media-left text-center flip11 bg-theme-colored p-15 pt-20">
-                            <ul>
-                                <li class="font-24 text-white font-weight-600 border-bottom pb-10">28</li>
-                                <li class="font-18 text-white text-uppercase">Feb</li>
-                            </ul>
-                        </div>
-                        <div class="media-body pl-20">
-                            <div class="event-content pull-left">
-                                <h4 class="event-title media-heading font-weight-700 mb-0"><a href="#">Checotah Trash-Off Day</a></h4>
-                                <span class="inline-block text-gray-darkgray mr-10 font-11"><i class="clip-clock-2 mr-5 text-theme-colored"></i> 5:00 pm - 7:30 pm</span>
-                                <span class="text-gray-darkgray font-11"><i class="clip-map mr-5"></i> Okmulgee, OK</span>
-                                <p class="mt-5">Residents are being asked to help clean up during the spring Checotah Trash-Off event.</p>
+        </div>
+        <div class="section-content">
+            <div class="row">
+                <div class="col-sm-6 col-md-3 col-lg-3 pb-sm-30">
+                    <div class="team-member">
+                        <div class="volunteer-thumb"> <img src="~/images/seal_mcn.png" alt="" class="img-fullwidth img-responsive" style="background-color:#cacaca; width:270px; padding:15px"> </div>
+                        <div class="bg-silver-light text-center pt-20 pb-20" style="max-width:270px;">
+                            <div class="member-biography">
+                                <h3 class="mt-0 mlr-10">Muscogee Creek Nation</h3>
                             </div>
-                        </div>
-                    </div>
-                    <div class="event media mt-0 mb-20 no-bg no-border">
-                        <div class="event-date media-left text-center flip11 bg-theme-colored p-15 pt-20">
-                            <ul>
-                                <li class="font-24 text-white font-weight-600 border-bottom pb-10">22</li>
-                                <li class="font-18 text-white text-uppercase">Apr</li>
-                            </ul>
-                        </div>
-                        <div class="media-body pl-20">
-                            <div class="event-content pull-left">
-                                <h4 class="event-title media-heading font-weight-700 mb-0"><a href="#">Annual Earth Day Event</a></h4>
-                                <span class="inline-block text-gray-darkgray mr-10 font-11"><i class="clip-clock-2 mr-5 text-theme-colored"></i> 2:00 pm - 4:00 pm</span>
-                                <span class="text-gray-darkgray font-11"><i class="clip-map mr-5"></i> Okmulgee, OK</span>
-                                <p class="mt-5">Join us for this annual traditional event</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="event media mt-0 mb-20 no-bg no-border">
-                        <div class="event-date media-left text-center flip11 bg-theme-colored p-15 pt-20">
-                            <ul>
-                                <li class="font-24 text-white font-weight-600 border-bottom pb-10">15</li>
-                                <li class="font-18 text-white text-uppercase">May</li>
-                            </ul>
-                        </div>
-                        <div class="media-body pl-20">
-                            <div class="event-content pull-left">
-                                <h4 class="event-title media-heading font-weight-700 mb-0"><a href="#">Kickapoo Cleanup Day</a></h4>
-                                <span class="inline-block text-gray-darkgray mr-10 font-11"><i class="clip-clock-2 mr-5 text-theme-colored"></i> 5:00 pm - 7:30 pm</span>
-                                <span class="text-gray-darkgray font-11"><i class="clip-map mr-5"></i> McLoud, OK</span>
-                                <p class="mt-5">Join us for this annual traditional event</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="event media mt-0 mb-20 no-bg no-border">
-                        <div class="event-date media-left text-center flip11 bg-theme-colored p-15">
-                            <ul>
-                                <li class="font-24 text-white font-weight-600 border-bottom pb-10">24</li>
-                                <li class="font-18 text-white text-uppercase">Sep</li>
-                            </ul>
-                        </div>
-                        <div class="media-body pl-20">
-                            <div class="event-content pull-left">
-                                <h4 class="event-title media-heading font-weight-700 mb-0"><a href="#">Seminole Nation Days</a></h4>
-                                <span class="inline-block text-gray-darkgray mr-10 font-11"><i class="clip-clock-2 mr-5 text-theme-colored"></i> 5.00 pm - 7.30 pm</span>
-                                <span class="text-gray-darkgray font-11"><i class="clip-map mr-5"></i> Seminole, OK</span>
-                                <p class="mt-5">Join us for this annual traditional event</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="event media mt-0 mb-20 no-bg no-border">
-                        <div class="event-date media-left text-center flip11 bg-theme-colored p-15">
-                            <ul>
-                                <li class="font-24 text-white font-weight-600 border-bottom pb-10">28</li>
-                                <li class="font-18 text-white text-uppercase">Feb</li>
-                            </ul>
-                        </div>
-                        <div class="media-body pl-20">
-                            <div class="event-content pull-left flip11">
-                                <h4 class="event-title media-heading font-weight-700 mb-0"><a href="#">Gear up for giving</a></h4>
-                                <span class="inline-block text-gray-darkgray mr-10 font-11"><i class="clip-clock-2 mr-5 text-theme-colored"></i> 5:00 pm - 7:30 pm</span>
-                                <span class="text-gray-darkgray font-11"><i class="clip-map mr-5"></i> Semniole, OK</span>
-                                <p class="mt-5">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Commod</p>
-                            </div>
+                            <p>
+                                <a href="http://40.77.28.231.xip.io/mcn/" class="btn btn-success mb-20">Public Portal</a>
+                                @*<a href="#" class="btn btn-success mb-20">Public Portal (coming)</a>*@
+                            </p>
                         </div>
                     </div>
                 </div>
-                <a class="text-theme-colored font-weight-600 inline-block mt-15" href="#">more events →</a>
+                <div class="col-sm-6 col-md-3 col-lg-3 pb-sm-30">
+                    <div class="team-member">
+                        <div class="volunteer-thumb"> <img src="~/images/seal_kickapoo.png" alt="" class="img-fullwidth img-responsive" style="background-color:#cacaca; width:270px; padding:15px"> </div>
+                        <div class="bg-silver-light text-center pt-20 pb-20" style="max-width:270px;">
+                            <div class="member-biography">
+                                <h3 class="mt-0 mlr-1">Kickapoo <br />Tribe</h3>
+                            </div>
+                            <p>
+                                <a href="http://40.77.28.231.xip.io/kickapootribe/" class="btn btn-success mb-20">Public Portal</a>
+                                @*<a href="#" class="btn btn-success mb-20">Public Portal (coming)</a>*@
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6 col-md-3 col-lg-3 pb-sm-30">
+                    <div class="team-member">
+                        <div class="volunteer-thumb"> <img src="~/images/seal_absentee.png" alt="" class="img-fullwidth img-responsive" style="background-color:#cacaca; width:270px; padding:15px"> </div>
+                        <div class="bg-silver-light text-center pt-20 pb-20" style="max-width:270px;">
+                            <div class="member-biography">
+                                <h3 class="mt-0 mlr-1">Absentee Shawnee Tribe</h3>
+                            </div>
+                            <p>
+                                <a href="http://40.77.28.231.xip.io/abshawnee/" class="btn btn-success mb-20">Public Portal</a>
+                                @*<a href="#" class="btn btn-success mb-20">Public Portal (coming)</a>*@
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-sm-6 col-md-3 col-lg-3 pb-sm-30">
+                    <div class="team-member">
+                        <div class="volunteer-thumb"> <img src="~/images/seal_SacAndFox.png" alt="" class="img-fullwidth img-responsive" style="background-color:#cacaca; width:270px; padding:15px"> </div>
+                        <div class="bg-silver-light text-center pt-20 pb-20" style="max-width:270px;">
+                            <div class="member-biography">
+                                <h3 class="mt-0 mlr-1">Sac and Fox <br />Nation</h3>
+                            </div>
+                            <p>
+                                <a href="http://40.77.28.231.xip.io/sfnoes/" class="btn btn-success mb-20">Public Portal</a>
+                                @*<a href="#" class="btn btn-success mb-20">Public Portal (coming)</a>*@
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+
             </div>
         </div>
     </div>
 </section>
 
 
-<section class="wrapper wrapper-grey">
-    <div class="container mlr-20">
-        <div class="row">
-            <div class="col-md-12">
-                <h2 style="color:#6AB43E" class="center">What It Is</h2>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-lg-offset-1 col-md-7">
-                <p class="" style="font-size:16px; padding-top:20px; padding-bottom:20px;">
-                    The <strong>Tribal Services Portal</strong> is an web platform for environmental data and services, serving multiple tribal organizations in Oklahoma.
-                </p>
-                <p class="" style="font-size:16px; padding-top:20px; padding-bottom:20px;">
-                    The Portal centralizes environmental services, available data, and visualizations into one location, and provides single-sign-on across these services.
-                </p>
-            </div>
-            <div class="col-sm-3">
-                <img src="http://placehold.it/360x210" alt="" class="img-fullwidth">
-            </div>
-        </div>
-    </div>
-</section>
 
-
-<section class="wrapper">
-    <div class="container mlr-20">
-        <div class="row">
-            <div class="col-md-12" style="padding-bottom:35px;">
-                <h2 style="color:#6AB43E" class="center">Participating Tribes</h2>
-            </div>
-        </div>
-
-        <div class="row text-center">
-            <div class="col-sm-3 ">
-                <div style="border-bottom: 1px solid #eee;">
-                    <img src="~/images/seal_mcn.png">
-                    <h4 style="color:#6AB43E">Muscogee (Creek) Nation</h4>
-                </div>
-            </div>
-            <div class="col-sm-3 ">
-                <div style="border-bottom: 1px solid #eee;">
-                    <img src="~/images/seal_seminole.png">
-                    <h4 style="color:#6AB43E">Seminole Nation</h4>
-                </div>
-            </div>
-            <div class="col-sm-3 ">
-                <div style="border-bottom: 1px solid #eee;">
-                    <img src="~/images/seal_kickapoo.png">
-                    <h4 style="color:#6AB43E">Kickapoo Tribe of Oklahoma</h4>
-                </div>
-            </div>
-            <div class="col-sm-3 ">
-                <div style="border-bottom: 1px solid #eee;">
-                    <img src="~/images/seal_pot.png">
-                    <h4 style="color:#6AB43E">Citizen Potawatomi Nation</h4>
-                </div>
-            </div>
-
-        </div>
-
-    </div>
-</section>
 
 @section Scripts {
 
-    <script src="https://cdn.jsdelivr.net/bxslider/4.2.12/jquery.bxslider.min.js"></script>
-    <script type="text/javascript">
-        $(document).ready(function () {
+    @*<script src="https://cdn.jsdelivr.net/bxslider/4.2.12/jquery.bxslider.min.js"></script>
+        <script type="text/javascript">
+            $(document).ready(function () {
 
-            /* ---------------------------------------------------------------------- */
-            /* ----------------------------- BxSlider  ------------------------------ */
-            /* ---------------------------------------------------------------------- */
-            var $bxslider = $('#bx3');
-            if ($bxslider.length > 0) {
-                $bxslider.bxSlider({
-                    mode: 'vertical',
-                    minSlides: ($bxslider.data("count") === undefined) ? 2 : $bxslider.data("count"),
-                    slideMargin: 20,
-                    infiniteLoop: false,
-                    hideControlOnEnd: true,
-                    pager: false,
-                    prevText: '<i class="clip-arrow-left"></i>',
-                    nextText: '<i class="clip-arrow-right"></i>'
-                });
-            }
+                /* ---------------------------------------------------------------------- */
+                /* ----------------------------- BxSlider  ------------------------------ */
+                /* ---------------------------------------------------------------------- */
+                var $bxslider = $('#bx3');
+                if ($bxslider.length > 0) {
+                    $bxslider.bxSlider({
+                        mode: 'vertical',
+                        minSlides: ($bxslider.data("count") === undefined) ? 2 : $bxslider.data("count"),
+                        slideMargin: 20,
+                        infiniteLoop: false,
+                        hideControlOnEnd: true,
+                        pager: false,
+                        prevText: '<i class="clip-arrow-left"></i>',
+                        nextText: '<i class="clip-arrow-right"></i>'
+                    });
+                }
 
-            var $bxslider2 = $('#bx2');
-            if ($bxslider2.length > 0) {
-                $bxslider2.bxSlider({
-                    minSlides: ($bxslider2.data("count") === undefined) ? 2 : $bxslider2.data("count"),
-                    slideMargin: 20,
-                    infiniteLoop: true,
-                    auto: true,
-                    pager: true,
-                    prevText: '<i class="clip-arrow-left"></i>',
-                    nextText: '<i class="clip-arrow-right"></i>',
-                    onSliderLoad: function () {
-                        $(".item").css("visibility", "visible");
-                    }
-                });
-            }
+                var $bxslider2 = $('#bx2');
+                if ($bxslider2.length > 0) {
+                    $bxslider2.bxSlider({
+                        minSlides: ($bxslider2.data("count") === undefined) ? 2 : $bxslider2.data("count"),
+                        slideMargin: 20,
+                        infiniteLoop: true,
+                        auto: true,
+                        pager: true,
+                        prevText: '<i class="clip-arrow-left"></i>',
+                        nextText: '<i class="clip-arrow-right"></i>',
+                        onSliderLoad: function () {
+                            $(".item").css("visibility", "visible");
+                        }
+                    });
+                }
 
-            var $bxslider = $('#bx1');
-            if ($bxslider.length > 0) {
-                $bxslider.bxSlider({
-                    minSlides: ($bxslider.data("count") === undefined) ? 2 : $bxslider.data("count"),
-                    slideMargin: 20,
-                    pause: 5000,
-                    infiniteLoop: true,
-                    auto: true,
-                    pager: true,
-                    prevText: '<i class="clip-arrow-left"></i>',
-                    nextText: '<i class="clip-arrow-right"></i>'
-                });
-            }
+                var $bxslider = $('#bx1');
+                if ($bxslider.length > 0) {
+                    $bxslider.bxSlider({
+                        minSlides: ($bxslider.data("count") === undefined) ? 2 : $bxslider.data("count"),
+                        slideMargin: 20,
+                        pause: 5000,
+                        infiniteLoop: true,
+                        auto: true,
+                        pager: true,
+                        prevText: '<i class="clip-arrow-left"></i>',
+                        nextText: '<i class="clip-arrow-right"></i>'
+                    });
+                }
 
-        });
-    </script>
+            });
+        </script>*@
 }

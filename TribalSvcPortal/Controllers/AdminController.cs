@@ -414,19 +414,27 @@ namespace TribalSvcPortal.Controllers
         //************************************ ORGANIZATION USER CLIENT  ***************************************
         public IActionResult OrgUserClients(int id)
         {
-            var model = new OrgUserEditViewModel
+            T_PRT_ORG_USERS _orgUser = _DbPortal.GetT_PRT_ORG_USERS_ByOrgUserID(id);
+            if (_orgUser != null)
             {
-                UserIDX = _DbPortal.GetT_PRT_ORG_USERS_ByOrgUserID(id).Id,
-                OrgUserIDX = id,
-                OrgUserClients = _DbPortal.GetT_PRT_ORG_USERS_CLIENT_ByOrgUserID(id),
-                ddl_Clients = _DbPortal.GetT_PRT_CLIENTS().Select(x => new SelectListItem
+                var model = new OrgUserEditViewModel
                 {
-                    Value = x.CLIENT_ID,
-                    Text = x.CLIENT_NAME
-                })
-            };
+                    OrgUserIDX = id,
+                    OrgUserClients = _DbPortal.GetT_PRT_ORG_USERS_CLIENT_ByOrgUserID(id),
+                    UserIDX = _orgUser.Id,
+                    ddl_Clients = _DbPortal.GetT_PRT_CLIENTS().Select(x => new SelectListItem
+                    {
+                        Value = x.CLIENT_ID,
+                        Text = x.CLIENT_NAME
+                    })
+                };
 
-            return View(model);
+                return View(model);
+            }
+            else {
+                TempData["Error"] = "No matching record found.";
+                return RedirectToAction("UserList");
+            }
         }
 
         [HttpPost]

@@ -18,57 +18,58 @@
                     <th>Status</th>
                 </tr>
             </thead>
-
-            @foreach (var item in Model.OrgUserClients)
+            @if (Model.OrgUserClients != null)
             {
-                <tr>
-                    <td>
-                        @Html.HiddenFor(model => item.ORG_USER_CLIENT_IDX)
-                        @Html.HiddenFor(model => item.CLIENT_ID)
-                        @Html.HiddenFor(model => item.ADMIN_IND)
-                        @Html.HiddenFor(model => item.STATUS_IND)
-                        <a href="#modal-form" class="btn btn-rounded btn-xs btn-info modal-it" data-toggle="modal"><i class="glyphicon glyphicon-pencil"></i></a>
-                        <div class="delete-section" style="display:inline">
-                            <a class=" btn btn-rounded btn-xs btn-danger delete-link"><i class="glyphicon glyphicon-remove"></i></a>
-                            <div class="btn btn-rounded btn-xs btn-warning delete-confirm" style="display:none" data-delete-id="@item.ORG_USER_CLIENT_IDX" data-delete-id2="@Model.OrgUserIDX" data-delete-p="/Admin/OrgUserClientDelete"><b>Confirm Delete</b></div>
-                        </div>
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.ORG_ID)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.UserName)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.CLIENT_ID)
-                    </td>
-                    <td>
-                        @if (item.ADMIN_IND == true)
-                        {
-                            <span class="label label-success"> Admin</span>
-                        }
-                        else
-                        {
-                            <span class="label label-beige"> User</span>
-                        }
-                    </td>
-                    <td>
-                        @if (item.STATUS_IND == "A")
-                        {
-                            <span class="label label-success"> Active</span>
-                        }
-                        else if (item.STATUS_IND == "P")
-                        {
-                            <span class="label label-warning"> Pending</span>
-                        }
-                        else if (item.STATUS_IND == "R")
-                        {
-                            <span class="label label-danger"> Requested</span>
-                        }
-                    </td>
-                </tr>
+                foreach (var item in Model.OrgUserClients)
+                {
+                    <tr>
+                        <td>
+                            @Html.HiddenFor(model => item.ORG_USER_CLIENT_IDX)
+                            @Html.HiddenFor(model => item.CLIENT_ID)
+                            @Html.HiddenFor(model => item.ADMIN_IND)
+                            @Html.HiddenFor(model => item.STATUS_IND)
+                            <a href="#modal-form" class="btn btn-rounded btn-xs btn-info modal-it" data-toggle="modal"><i class="glyphicon glyphicon-pencil"></i></a>
+                            <div class="delete-section" style="display:inline">
+                                <a class=" btn btn-rounded btn-xs btn-danger delete-link"><i class="glyphicon glyphicon-remove"></i></a>
+                                <div class="btn btn-rounded btn-xs btn-warning delete-confirm" style="display:none" data-delete-id="@item.ORG_USER_CLIENT_IDX" data-delete-id2="@Model.OrgUserIDX" data-delete-p="/Admin/OrgUserClientDelete"><b>Confirm Delete</b></div>
+                            </div>
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.ORG_ID)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.UserName)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.CLIENT_ID)
+                        </td>
+                        <td>
+                            @if (item.ADMIN_IND == true)
+                            {
+                                <span class="label label-success"> Admin</span>
+                            }
+                            else
+                            {
+                                <span class="label label-beige"> User</span>
+                            }
+                        </td>
+                        <td>
+                            @if (item.STATUS_IND == "A")
+                            {
+                                <span class="label label-success"> Active</span>
+                            }
+                            else if (item.STATUS_IND == "P")
+                            {
+                                <span class="label label-warning"> Pending</span>
+                            }
+                            else if (item.STATUS_IND == "R")
+                            {
+                                <span class="label label-danger"> Requested</span>
+                            }
+                        </td>
+                    </tr>
+                }
             }
-
         </table>
 
     </div>
