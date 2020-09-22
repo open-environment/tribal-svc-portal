@@ -180,29 +180,8 @@ namespace TribalSvcPortal.Controllers
                 model.isLoggedIn = true;
                 var _roles = await _userManager.GetRolesAsync(user);
                 model.roles = _roles.ToList();
-                List<UserOrgDisplayType> orgUsers = _DbPortal.GetT_PRT_ORG_USERS_ByUserID_WithClientList(user.Id);
-                model.orgUsers = orgUsers;
-                bool isAdmin = false;
-                if (orgUsers != null)
-                {
-                    foreach (var o in orgUsers)
-                    {
-                        if (o.OrgUserClientDisplay != null)
-                        {
-                            foreach (var c in o.OrgUserClientDisplay)
-                            {
-                                if (c.CLIENT_ID.ToLower() == "open_waters" && c.ADMIN_IND == true)
-                                {
-                                    isAdmin = true;
-                                    break;
-                                }
-                            }
-                        }
-
-                    }
-                }
-
-                model.isAdmin = isAdmin;
+                model.orgUsers = GetOrgUserWithClients(user.Id, "open_waters"); ;
+                model.isAdmin = GetIsAdmin(model.orgUsers); 
                 Response.StatusCode = StatusCodes.Status200OK;
                 return Ok(model);
                 //return RedirectToLocal(returnUrl);
@@ -236,6 +215,49 @@ namespace TribalSvcPortal.Controllers
                 _log.InsertT_PRT_SYS_LOG("Error", "Something went wrong!");
             }
             return Ok(model);
+        }
+
+        private bool GetIsAdmin(List<UserOrgDisplayType> orgUsers)
+        {
+            bool actResult = false;
+            if (orgUsers != null)
+            {
+                foreach (var o in orgUsers)
+                {
+                    if (o.OrgUserClientDisplay != null)
+                    {
+                        foreach (var c in o.OrgUserClientDisplay)
+                        {
+                            if (c.CLIENT_ID.ToLower() == "open_waters" && c.ADMIN_IND == true)
+                            {
+                                actResult = true;
+                                break;
+                            }
+                        }
+                    }
+
+                }
+            }
+            return actResult;
+        }
+
+        private List<UserOrgDisplayType> GetOrgUserWithClients(string userid, string clientid)
+        {
+            List<UserOrgDisplayType> actResult = null;
+            try
+            {
+                actResult = _DbPortal.GetT_PRT_ORG_USERS_ByUserID_WithClientList_WithAlias(userid, clientid);
+                if(actResult != null)
+                {
+                    // Include organizations with client assigned as open waters
+                    actResult = actResult.Where(ou => ou.OrgUserClientDisplay.Any(oucd => oucd.CLIENT_ID == "open_waters" && oucd.ORG_USER_CLIENT_IDX != 0)).ToList();
+                }
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+            return actResult;
         }
 
         [HttpGet]
@@ -716,21 +738,8 @@ namespace TribalSvcPortal.Controllers
                 model.password = user.PasswordEncrypt;
                 var _roles = await _userManager.GetRolesAsync(user);
                 model.roles = _roles.ToList();
-                List<UserOrgDisplayType> orgUsers = _DbPortal.GetT_PRT_ORG_USERS_ByUserID_WithClientList(user.Id);
-                bool isAdmin = false;
-                foreach (var o in orgUsers)
-                {
-                    foreach (var c in o.OrgUserClientDisplay)
-                    {
-                        if (c.CLIENT_ID.ToLower() == "open_waters" && c.ADMIN_IND == true)
-                        {
-                            isAdmin = true;
-                            break;
-                        }
-                    }
-                }
-                model.isAdmin = isAdmin;
-                model.orgUsers = orgUsers;
+                model.orgUsers = GetOrgUserWithClients(user.Id, "open_waters");
+                model.isAdmin = GetIsAdmin(model.orgUsers);
                 return Ok(model);
             }
 
