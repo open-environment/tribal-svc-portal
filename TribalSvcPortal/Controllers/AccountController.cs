@@ -151,7 +151,7 @@ namespace TribalSvcPortal.Controllers
             model.UserId = user.Id;
             model.firstName = user.FIRST_NAME;
             model.lastName = user.LAST_NAME;
-            model.openWaterUserIdx = user.OpenWaterUserIDX;
+            //model.openWaterUserIdx = user.OpenWaterUserIDX;
 
             if (user != null)
             {
@@ -423,7 +423,7 @@ namespace TribalSvcPortal.Controllers
                     var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
                     var callbackUrl = Url.EmailConfirmationLink(user.Id, code, Request.Scheme);
                     bool EmailSucc = _emailSender.SendEmail(null, model.Email, null, null, null, null, "EMAIL_CONFIRM", "callbackUrl", callbackUrl);
-
+                    _log.InsertT_PRT_SYS_LOG("info-cburl", callbackUrl);
                     //if users email is associated with an organization, then associate user with org
                     List<T_PRT_ORGANIZATIONS> orgs = _DbPortal.GetT_PRT_ORGANIZATIONS_ByEmail(model.Email);
                     if (orgs != null && orgs.Count == 1)
