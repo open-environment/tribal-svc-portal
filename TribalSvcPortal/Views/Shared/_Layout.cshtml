@@ -147,16 +147,16 @@
         jQuery(document).ready(function () {
             Main.init();
         });
-        function GetOpenWatersLink(clientid){
+        function GetOpenWatersLink(clientid) {
                     $.ajax({
                         type: "GET",
-                        url: '@Url.Action("GetOpenWatersLinkAsync", "Home")',
+                        url: '@Url.Action("GetOpenWatersLink", "Home")',
                         data: { clientid: clientid },
                         contentType: "application/json",
                         traditional: true,
                         success: function (response) {
                             //location.href = response;
-                            var win = window.open(response, '_blank');
+                            var win = window.open(response, '_top');
                             win.focus();
                         },
                         error: function () {}

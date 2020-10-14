@@ -419,7 +419,7 @@ namespace TribalSvcPortal.Controllers
 
         [AllowAnonymous]
         //public async Task<IActionResult> GetOpenWatersLinkAsync(string clientid)
-        public IActionResult GetOpenWatersLinkAsync(string clientid)
+        public IActionResult GetOpenWatersLink(string clientid)
         {
             var url = string.Format("{0}", _config["ClientAppExternalLoginEndpoint"]);
             //string _UserIDX = _userManager.GetUserId(User);

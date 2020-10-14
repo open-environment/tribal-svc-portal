@@ -893,6 +893,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
                 var xxx = (from a in ctx.T_PRT_ORG_USER_CLIENT
                            join b in ctx.T_PRT_ORG_USERS on a.ORG_USER_IDX equals b.ORG_USER_IDX
                            join c in ctx.T_PRT_ORG_CLIENT_ALIAS on new { a.CLIENT_ID, b.ORG_ID } equals new { c.CLIENT_ID, c.ORG_ID }
+                           join d in ctx.Users on b.Id equals d.Id
                            where b.Id == _UserIDX
                            select new OrgUserClientDisplayType
                            {
@@ -903,7 +904,8 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
                                 STATUS_IND = a.STATUS_IND,
                                 ORG_ID = b.ORG_ID,
                                 UserID = b.Id,
-                                ORG_CLIENT_ALIAS = c.ORG_CLIENT_ALIAS
+                                ORG_CLIENT_ALIAS = c.ORG_CLIENT_ALIAS,
+                               UserName = d.FIRST_NAME
                            }).ToList();
 
                 return xxx;
