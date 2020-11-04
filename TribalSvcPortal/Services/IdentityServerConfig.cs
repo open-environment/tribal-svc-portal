@@ -48,7 +48,10 @@ namespace TribalSvcPortal
                 log.InsertT_PRT_SYS_LOG("info", dbclient.CLIENT_POST_LOGOUT_URI);
                 _client.AllowAccessTokensViaBrowser = true;
                 _client.AccessTokenLifetime = 3600;
-                _client.AllowedCorsOrigins = new List<string> { "https://openwater2clientdev.azurewebsites.net","http://localhost:4200" };
+                if(_client.ClientId == "open_waters")
+                {
+                    _client.AllowedCorsOrigins = config["AllowedCorsOrigin4OW"].Split(",");
+                }
                 _clients.Add(_client);
             }
 
