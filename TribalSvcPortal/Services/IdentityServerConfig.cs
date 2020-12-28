@@ -20,6 +20,7 @@ namespace TribalSvcPortal
     {
         public static IEnumerable<Client> GetClients2(IConfiguration config, Ilog log)
         {
+            log.InsertT_PRT_SYS_LOG("info", "GetClients2");
             var _DbPortal = new DbPortal(new ApplicationDbContext(new DbContextOptions<ApplicationDbContext>(), config),log);
 
             List<T_PRT_CLIENTS> dbclients = _DbPortal.GetT_PRT_CLIENTS();
@@ -30,17 +31,27 @@ namespace TribalSvcPortal
                 Client _client = new Client();
                 _client.ClientId = dbclient.CLIENT_ID;
                 _client.ClientName = dbclient.CLIENT_NAME;
+                log.InsertT_PRT_SYS_LOG("info", dbclient.CLIENT_NAME);
                 _client.AllowedGrantTypes = (dbclient.CLIENT_GRANT_TYPE == "HYBRID" ? GrantTypes.Hybrid : GrantTypes.Implicit);
+                
                 _client.RequireConsent = false;
                 _client.AllowedScopes = new List<string>
                 {
                     IdentityServerConstants.StandardScopes.OpenId,
                     IdentityServerConstants.StandardScopes.Profile,
                     IdentityServerConstants.StandardScopes.Email,
+                    "api.read"
                 };
                 _client.RedirectUris = new List<string> { dbclient.CLIENT_REDIRECT_URI };
+                log.InsertT_PRT_SYS_LOG("info", dbclient.CLIENT_REDIRECT_URI);
                 _client.PostLogoutRedirectUris = new List<string> { dbclient.CLIENT_POST_LOGOUT_URI };
-
+                log.InsertT_PRT_SYS_LOG("info", dbclient.CLIENT_POST_LOGOUT_URI);
+                _client.AllowAccessTokensViaBrowser = true;
+                _client.AccessTokenLifetime = 3600;
+                if(_client.ClientId == "open_waters")
+                {
+                    _client.AllowedCorsOrigins = config["AllowedCorsOrigin4OW"].Split(",");
+                }
                 _clients.Add(_client);
             }
 
@@ -57,6 +68,16 @@ namespace TribalSvcPortal
             };
         }
 
+        public static IEnumerable<ApiResource> GetApiResources()
+        {
+            return new List<ApiResource>
+            {
+                new ApiResource("openwatersapi", "OpenWater2 API Resource")
+                {
+                    Scopes = {new Scope("api.read")}
+                }
+            };
+        }
     }
 
     internal class CustomProfileService : IProfileService
@@ -88,7 +109,8 @@ namespace TribalSvcPortal
             List<OrgUserClientDisplayType> claims = _DbPortal.GetT_PRT_ORG_USERS_CLIENT_ByUserID(sub.ToString());
             foreach (OrgUserClientDisplayType claim in claims)
             {
-                cs.Add(new Claim(claim.CLIENT_ID, claim.ORG_CLIENT_ALIAS + ";" + claim.ADMIN_IND + ";" + claim.STATUS_IND));
+                string orgName = _DbPortal.GetT_PRT_ORGANIZATIONS_ByOrgID(claim.ORG_ID).ORG_NAME;
+                cs.Add(new Claim(claim.CLIENT_ID, claim.ORG_CLIENT_ALIAS + ";" + claim.ADMIN_IND + ";" + claim.STATUS_IND + ";" + claim.UserName + ";" + orgName));
             }
 
             context.IssuedClaims = cs;

@@ -436,7 +436,8 @@ namespace TribalSvcPortal.Controllers
         {
             if (ModelState.IsValid)
             {
-                int newID = _DbPortal.InsertUpdateT_PRT_ORG_USERS_CLIENT(null, org_user_idx, client_id, (AdminInd == "1" ? true : false), StatusInd, User.Identity.Name);
+                //int newID = _DbPortal.InsertUpdateT_PRT_ORG_USERS_CLIENT(null, org_user_idx, client_id, (AdminInd == "1" ? true : false), StatusInd, User.Identity.Name);
+                int newID = _DbPortal.InsertUpdateT_PRT_ORG_USERS_CLIENT(null, org_user_idx, client_id, (AdminInd == "True" ? true : false), StatusInd, User.Identity.Name);
 
                 if (newID == 0)
                     TempData["Error"] = "Error adding user";

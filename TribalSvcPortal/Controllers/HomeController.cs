@@ -16,6 +16,9 @@ using System.Xml;
 using System.Xml.Linq;
 using System;
 using Newtonsoft.Json;
+using Microsoft.AspNetCore.Http;
+using System.Text.Encodings.Web;
+using Microsoft.Extensions.Configuration;
 
 namespace TribalSvcPortal.Controllers
 {
@@ -26,19 +29,25 @@ namespace TribalSvcPortal.Controllers
         private readonly IDbPortal _DbPortal;
         private readonly IDbOpenDump _DbOpenDump;
         private readonly IEmailSender _emailSender;
+        private readonly UrlEncoder _urlEncoder;
+        private readonly IConfiguration _config;
 
         public HomeController(
             UserManager<ApplicationUser> userManager,
             RoleManager<IdentityRole> roleManager,
             IDbPortal DbPortal,
             IDbOpenDump DbOpenDump,
-            IEmailSender emailSender)
+            IEmailSender emailSender,
+            UrlEncoder urlEncoder,
+            IConfiguration config)
         {
             _userManager = userManager;
             _roleManager = roleManager;
             _DbPortal = DbPortal;
             _DbOpenDump = DbOpenDump;
             _emailSender = emailSender;
+            _urlEncoder = urlEncoder;
+            _config = config;
         }
 
         public IActionResult Index(string id)
@@ -63,7 +72,7 @@ namespace TribalSvcPortal.Controllers
                 List<UserOrgDisplayType> _userOrgs = _DbPortal.GetT_PRT_ORG_USERS_ByUserID(_UserIDX);
                 if (_userOrgs != null && _userOrgs.Count == 1 && _userOrgs[0].ACCESS_LEVEL == "U")
                 {
-                    List<OrgUserClientDisplayType> _orgUserClients = _DbPortal.GetT_PRT_ORG_USERS_CLIENT_ByOrgUserID(_userOrgs[0].ORG_USER_IDX??0);
+                    List<OrgUserClientDisplayType> _orgUserClients = _DbPortal.GetT_PRT_ORG_USERS_CLIENT_ByOrgUserID(_userOrgs[0].ORG_USER_IDX ?? 0);
                     if (_orgUserClients == null || _orgUserClients.Count == 0)
                     {
                         model.WarnNoClientInd = true;
@@ -95,13 +104,13 @@ namespace TribalSvcPortal.Controllers
         public IActionResult api(apisViewModel model)
         {
             if (model.sel_api == "OD_Sites" || model.sel_api == "OD_Assess")
-                return RedirectToAction("apidataod", "Home", new { api=model.sel_api, org = model.selOrg, county = model.selCounty, status = model.selStatus, score = model.selScore, fileType = model.selFormat });
+                return RedirectToAction("apidataod", "Home", new { api = model.sel_api, org = model.selOrg, county = model.selCounty, status = model.selStatus, score = model.selScore, fileType = model.selFormat });
 
             else
                 return null;
         }
 
-        
+
         [AllowAnonymous]
         public FileResult apidataod(string api, string org, string county, string status, string score, string fileType)
         {
@@ -190,10 +199,11 @@ namespace TribalSvcPortal.Controllers
 
 
                         //ASSESSMENTS**********************
-                        if (api == "OD_Assess") 
+                        if (api == "OD_Assess")
                         {
                             List<V_OD_ASSESSMENTS> _assesses = _DbOpenDump.getV_OD_ASSESSMENTS_BySiteIDX(_site.SITE_IDX);
-                            if (_assesses != null) {
+                            if (_assesses != null)
+                            {
                                 foreach (V_OD_ASSESSMENTS _assess in _assesses)
                                 {
                                     XmlElement _OpenDumpAssessment = xmlDoc.CreateElement("od", "OpenDumpAssessment", "http://www.exchangenetwork.net/schema/od/2");
@@ -205,7 +215,7 @@ namespace TribalSvcPortal.Controllers
                                         AddElement(xmlDoc, _OpenDumpAssessment, "SiteClosedDate", _assess.SiteClosedDate.GetValueOrDefault().ToString("yyyy-MM-dd"));
                                     AddElement(xmlDoc, _OpenDumpAssessment, "AssessmentDescription", _assess.AssessmentDescription);
                                     AddElement(xmlDoc, _OpenDumpAssessment, "AssessmentSiteObservations", _assess.AssessmentSiteObservations);
-                                    if (_assess.SiteSurfaceAreaValue!=null)
+                                    if (_assess.SiteSurfaceAreaValue != null)
                                         AddElement(xmlDoc, _OpenDumpAssessment, "SiteSurfaceAreaValue", _assess.SiteSurfaceAreaValue.ToString());
                                     if (_assess.SiteVolumeValue != null)
                                         AddElement(xmlDoc, _OpenDumpAssessment, "SiteVolumeValue", _assess.SiteVolumeValue.ToString());
@@ -276,7 +286,7 @@ namespace TribalSvcPortal.Controllers
                             }
                         }
 
-                         
+
                         xmlDoc.DocumentElement.AppendChild(_OpenDump);
                     }
 
@@ -405,6 +415,22 @@ namespace TribalSvcPortal.Controllers
                 TempData["Error"] = "Application has already been initialized.";
 
             return View();
+        }
+
+        [AllowAnonymous]
+        //public async Task<IActionResult> GetOpenWatersLinkAsync(string clientid)
+        public IActionResult GetOpenWatersLink(string clientid)
+        {
+            var url = string.Format("{0}", _config["ClientAppExternalLoginEndpoint"]);
+            //string _UserIDX = _userManager.GetUserId(User);
+            //ApplicationUser user = await _userManager.FindByIdAsync(_UserIDX);
+            //var payload = user.UserName + "###" + user.PasswordEncrypt + "###" + _UserIDX;
+            //Encoding unicode = Encoding.Unicode;
+            //var plbytes = unicode.GetBytes(payload);
+            //var plb64 = Convert.ToBase64String(plbytes);
+            //payload = _urlEncoder.Encode(plb64);
+            //var url = string.Format("{0}?pl={1}", _config["ClientAppExternalLoginEndpoint"], payload);
+            return Ok(url);
         }
     }
 }

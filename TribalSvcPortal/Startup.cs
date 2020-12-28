@@ -9,6 +9,8 @@ using TribalSvcPortal.Data.Models;
 using TribalSvcPortal.AppLogic.DataAccessLayer;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Cryptography;
+using IdentityServer4.Services;
+using Microsoft.Extensions.Logging;
 
 namespace TribalSvcPortal
 {
@@ -44,8 +46,10 @@ namespace TribalSvcPortal
             .AddEntityFrameworkStores<ApplicationDbContext>()
             .AddDefaultTokenProviders();
 
+            services.AddCors();
             //configure the web application to use MVC
             services.AddMvc();
+            services.AddSession();
 
             //cache memory of the left menu
             services.AddMemoryCache();
@@ -57,15 +61,32 @@ namespace TribalSvcPortal
             services.AddScoped<IEmailSender, EmailSender>();
             services.AddScoped<Ilog, log>();
 
-
-            //configure identity server with in-memory stores, keys, clients and scopes
-            services.AddIdentityServer()
-                .AddSigningCredential(CreateRsaSecurityKey(Configuration["SigningSecurityKey"]))
+            services.AddSingleton<ICorsPolicyService>((container) =>
+            {
+                {
+                    var logger = container.GetRequiredService<ILogger<DefaultCorsPolicyService>>();
+                    return new DefaultCorsPolicyService(logger)
+                    {
+                        AllowAll = true,
+                    };
+                };
+            });
+                //configure identity server with in-memory stores, keys, clients and scopes
+                services.AddIdentityServer()
+                //.AddSigningCredential(CreateRsaSecurityKey(Configuration["SigningSecurityKey"]))
+                .AddDeveloperSigningCredential()
+                .AddInMemoryApiResources(IdentityServerConfig.GetApiResources())
                 .AddInMemoryIdentityResources(IdentityServerConfig.GetIdentityResources())
                 .AddInMemoryClients(IdentityServerConfig.GetClients2(Configuration, new log(Configuration)))
                 .AddAspNetIdentity<ApplicationUser>()
                 .AddProfileService<CustomProfileService>();
 
+            services.ConfigureApplicationCookie(config =>
+            {
+                config.Cookie.Name = "Identity.Cookie";
+                config.LoginPath = "/Account/Login";
+                config.Cookie.SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Lax;
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -81,13 +102,15 @@ namespace TribalSvcPortal
             {
                 app.UseExceptionHandler("/Home/Error");
             }
-
+            app.UseCors(builder =>
+                builder.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin().AllowCredentials());
             app.UseStaticFiles();
 
             app.UseIdentityServer();
 
             //Identity is enabled:
             app.UseAuthentication();
+            app.UseSession();
 
             app.UseMvc(routes =>
             {
