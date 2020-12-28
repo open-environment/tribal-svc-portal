@@ -48,7 +48,7 @@ namespace TribalSvcPortal.Controllers
 
         public IActionResult Index()
         {
-            return View();
+            return RedirectToAction("UserList");
         }
 
 
@@ -100,23 +100,23 @@ namespace TribalSvcPortal.Controllers
             IdentityRole _role = await _roleManager.FindByIdAsync(model.T_PRT_ROLES.Id);
             if (_role != null)
             {
-                IdentityResult SuccID = new IdentityResult();
+                IdentityResult succId = new IdentityResult();
 
                 // ADDING ROLE TO USER
                 if (submitButton == "Add")
                 {
                     foreach (string u in model.Users_Not_In_Role_Selected)
-                        SuccID = await _userManager.AddToRoleAsync(_userManager.FindByIdAsync(u).Result, _role.Name);
+                        succId = await _userManager.AddToRoleAsync(_userManager.FindByIdAsync(u).Result, _role.Name);
                 }
                 // REMOVE ROLE FROM USER
                 else if (submitButton == "Remove")
                 {
                     foreach (string u in model.Users_In_Role_Selected)
-                        SuccID = await _userManager.RemoveFromRoleAsync(_userManager.FindByIdAsync(u).Result, _role.Name);
+                        succId = await _userManager.RemoveFromRoleAsync(_userManager.FindByIdAsync(u).Result, _role.Name);
                 }
 
 
-                if (SuccID.Succeeded)
+                if (succId.Succeeded)
                     TempData["Success"] = "Update successful.";
             }
 
@@ -161,6 +161,11 @@ namespace TribalSvcPortal.Controllers
                 })
             };
 
+            //forgot/reset password URL
+            var code = await _userManager.GeneratePasswordResetTokenAsync(model.appUser);
+            var callbackUrl = Url.ResetPasswordCallbackLink(model.appUser.Id, code, Request.Scheme);
+            model.ForgotPasswordURL = callbackUrl;
+
             return View(model);
         }
 
@@ -195,6 +200,7 @@ namespace TribalSvcPortal.Controllers
                     _user.Email = model.appUser.Email;
                     _user.UserName = model.appUser.Email;
                     _user.WordPressUserId = model.appUser.WordPressUserId;
+                    _user.EmailConfirmed = model.appUser.EmailConfirmed;
                     SuccID = await _userManager.UpdateAsync(_user);
                 }
 
@@ -236,12 +242,7 @@ namespace TribalSvcPortal.Controllers
                     TempData["Error"] = "Unable to add user to organization.";
                 else
                 {
-                    WordPressHelper wordPressHelper = new WordPressHelper(_userManager,
-                                                                          _roleManager,
-                                                                          _DbPortal,
-                                                                          _config,
-                                                                          _log,
-                                                                          _emailSender);
+                    WordPressHelper wordPressHelper = new WordPressHelper(_userManager, _DbPortal, _log, _emailSender);
                     int isWPUserAdded = await wordPressHelper.SetupWordPressAccess(uidx, org_id, AccessLevel, StatusInd);
                     TempData["Success"] = "Record successfully added.";
                 }
@@ -257,28 +258,22 @@ namespace TribalSvcPortal.Controllers
         public async Task<JsonResult> OrgUserDelete(int id, string id2)
         {
             T_PRT_ORG_USERS orgUser = _DbPortal.GetT_PRT_ORG_USERS_ByOrgUserID(id);
-            int SuccID = _DbPortal.DeleteT_PRT_ORG_USERS(orgUser);
-            if (SuccID > 0)
+            int succId = _DbPortal.DeleteT_PRT_ORG_USERS(orgUser);
+            if (succId > 0)
             {
                 WordPressHelper.SetUserManager(_userManager);
                 ApplicationUser appUser = await WordPressHelper.GetApplicationUser(orgUser.Id);
-                WordPressHelper wordPressHelper = new WordPressHelper(_userManager,
-                                                                          _roleManager,
-                                                                          _DbPortal,
-                                                                          _config,
-                                                                          _log,
-                                                                          _emailSender);
-                int OrgUserCount = _DbPortal.GetOrgUsersCount(orgUser.Id);
-                if(OrgUserCount == 0)
+                WordPressHelper wordPressHelper = new WordPressHelper(_userManager, _DbPortal, _log, _emailSender);
+                int orgUserCount = _DbPortal.GetOrgUsersCount(orgUser.Id);
+                if(orgUserCount == 0)
                 {
                     //if we have user in wordpress, make it inactive
                     if(appUser.WordPressUserId > 0)
                     {
-                       //string wordPressUri = wordPressHelper.SetWordPressUri(orgUser.ORG_ID);
-                       // string userName = wordPressHelper.GetUserName();
-                       // string password = wordPressHelper.GetPassword();
-                        int wpuid = 0;
-                        Int32.TryParse(appUser.WordPressUserId.ToString(), out wpuid);
+                        //string wordPressUri = wordPressHelper.SetWordPressUri(orgUser.ORG_ID);
+                        // string userName = wordPressHelper.GetUserName();
+                        // string password = wordPressHelper.GetPassword();
+                        int.TryParse(appUser.WordPressUserId.ToString(), out var wpuid);
                         //WordPressClient wordPressClient = await wordPressHelper.GetAuthenticatedWordPressClient(wordPressUri, userName, password);
                         WordPressClient wordPressClient = await wordPressHelper.GetAuthenticatedWordPressClient(orgUser.ORG_ID);
                         bool isUserUpdated = await wordPressHelper.UpdateWordPressUser(appUser, wordPressClient, wpuid, "inactive");
@@ -287,8 +282,7 @@ namespace TribalSvcPortal.Controllers
                 else
                 {
                     //revoke access from the site/organization from wordpress
-                    int wpuid = 0;
-                    Int32.TryParse(appUser.WordPressUserId.ToString(), out wpuid);
+                    int.TryParse(appUser.WordPressUserId.ToString(), out var wpuid);
                     wordPressHelper.AddRemoveUserSite(wpuid, orgUser.ORG_ID, 0);
                 }
                 return Json("Success");

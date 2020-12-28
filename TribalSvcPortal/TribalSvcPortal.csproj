@@ -14,6 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="Docs\admin_guide_readme.txt" />
     <None Remove="Docs\OpenDumpSurveyForm.pdf" />
   </ItemGroup>
 

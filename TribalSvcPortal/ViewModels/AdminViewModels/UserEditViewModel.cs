@@ -16,6 +16,7 @@ namespace TribalSvcPortal.ViewModels.AdminViewModels
         public List<UserOrgDisplayType> UserOrgs { get; set; }
         public IEnumerable<SelectListItem> ddl_Orgs { get; set; }
         public int? edit_oRG_USER_IDX { get; set; }
+        public string ForgotPasswordURL { get; set; }
     }
 
 

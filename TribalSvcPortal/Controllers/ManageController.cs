@@ -184,12 +184,7 @@ namespace TribalSvcPortal.Controllers
             }
             _log.InsertT_PRT_SYS_LOG("Info", "Password changed successfully, begin wordpress activities.");
             string wpMessage = "";
-            WordPressHelper wordPressHelper = new WordPressHelper(_userManager,
-                                                                          _roleManager,
-                                                                          _DbPortal,
-                                                                          _config,
-                                                                          _log,
-                                                                          _emailSender);
+            WordPressHelper wordPressHelper = new WordPressHelper(_userManager, _DbPortal, _log, _emailSender);
             //We need this password to setup in WordPress
             _DbPortal.UpdateT_PRT_USERS_PasswordEncrypt(user, model.NewPassword);
             if (user.WordPressUserId == null || user.WordPressUserId <= 0)
@@ -207,30 +202,30 @@ namespace TribalSvcPortal.Controllers
                         {
                             if (uodt.ACCESS_LEVEL == "A" && uodt.STATUS_IND == "A")
                             {
-                                _log.InsertT_PRT_SYS_LOG("Info", "Create user for org:" + uodt.ORG_NAME);
+                                //_log.InsertT_PRT_SYS_LOG("Info", "Create user for org:" + uodt.ORG_NAME);
                                 if (isWordPressUserCreated == 0)
                                 {
                                     isWordPressUserCreated = await wordPressHelper.SetupWordPressAccess(user.Id, uodt.ORG_ID, uodt.ACCESS_LEVEL, uodt.STATUS_IND);
                                     if (isWordPressUserCreated == 0)
                                     {
-                                        _log.InsertT_PRT_SYS_LOG("Info", "User could not be created for org:" + uodt.ORG_NAME);
+                                        //_log.InsertT_PRT_SYS_LOG("Info", "User could not be created for org:" + uodt.ORG_NAME);
                                         wpMessage = "(Something went wrong with WordPress related activity!)";
                                     }
-                                    _log.InsertT_PRT_SYS_LOG("Info", "User created for org:" + uodt.ORG_NAME);
+                                    //_log.InsertT_PRT_SYS_LOG("Info", "User created for org:" + uodt.ORG_NAME);
                                 }
                                 else
                                 {
-                                    _log.InsertT_PRT_SYS_LOG("Info", "Assign user to remaining sites/organizations: " + uodt.ORG_NAME);
+                                    //_log.InsertT_PRT_SYS_LOG("Info", "Assign user to remaining sites/organizations: " + uodt.ORG_NAME);
                                     //Assign user to remaining sites
                                     int wpuid = 0;
                                     Int32.TryParse(user.WordPressUserId.ToString(), out wpuid);
                                     var isUserUpdated = wordPressHelper.AddRemoveUserSite(wpuid, uodt.ORG_ID, 1);
                                     if (isUserUpdated == false)
                                     {
-                                        _log.InsertT_PRT_SYS_LOG("Info", "User could not be assigned to remaining sites/organizations for: " + uodt.ORG_NAME);
+                                        //_log.InsertT_PRT_SYS_LOG("Info", "User could not be assigned to remaining sites/organizations for: " + uodt.ORG_NAME);
                                         wpMessage = "(Something went wrong with WordPress related activity!)";
                                     }
-                                    _log.InsertT_PRT_SYS_LOG("Info", "User assigned to remaining sites/organizations for: " + uodt.ORG_NAME);
+                                    //_log.InsertT_PRT_SYS_LOG("Info", "User assigned to remaining sites/organizations for: " + uodt.ORG_NAME);
                                 }
 
                             }

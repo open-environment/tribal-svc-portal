@@ -51,18 +51,32 @@
         </div>
         <div class="col-md-3">
             <div class="form-group">
+                <label>Email Verified</label>
+                @Html.CheckBoxFor(model => model.appUser.EmailConfirmed, new { @class = "form-control" })
+                @Html.ValidationMessageFor(model => model.appUser.EmailConfirmed)
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="form-group">
                 <label>WordPress User ID</label>
                 @Html.TextBoxFor(model => model.appUser.WordPressUserId, new { @class = "form-control" })
                 @Html.ValidationMessageFor(model => model.appUser.WordPressUserId)
             </div>
         </div>
+        <div id="Furl" class="col-md-12 collapse">
+            <div class="form-group">
+                <label>Reset Password Link</label>
+                @Html.TextBoxFor(model => model.ForgotPasswordURL, new { @class = "form-control" })
+            </div>
+        </div>
     </div>
 
 
-            <p>
-                <button type="submit" class="btn btn-eecip">Save</button>
-                <a class=" btn btn-warning" href="@Url.Action("UserList")">Back to List</a>
-            </p>
+    <p>
+        <button type="submit" class="btn btn-eecip">Save</button>
+        <a class=" btn btn-warning" href="@Url.Action("UserList")">Back to List</a>
+        <a class=" btn btn-info pull-right" href="#Furl" data-toggle="collapse">Show Reset Password Link</a>
+    </p>
 
         }
 

@@ -503,6 +503,7 @@ namespace TribalSvcPortal.Controllers
                     var code = await _userManager.GeneratePasswordResetTokenAsync(user);
                     var callbackUrl = Url.ResetPasswordCallbackLink(user.Id, code, Request.Scheme);
                     _emailSender.SendEmail(null, model.Email, null, null, null, null, "RESET_PASSWORD", "callbackUrl", callbackUrl);
+                    return RedirectToAction(nameof(ForgotPasswordConfirmation));
                 }
 
             }
