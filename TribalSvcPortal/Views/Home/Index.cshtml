@@ -172,63 +172,33 @@ else
         </div>
         <div class="section-content">
             <div class="row">
-                <div class="col-sm-6 col-md-3 col-lg-3 pb-sm-30">
-                    <div class="team-member">
-                        <div class="volunteer-thumb"> <img src="~/images/seal_mcn.png" alt="" class="img-fullwidth img-responsive" style="background-color:#cacaca; width:270px; padding:15px"> </div>
-                        <div class="bg-silver-light text-center pt-20 pb-20" style="max-width:270px;">
-                            <div class="member-biography">
-                                <h3 class="mt-0 mlr-10">Muscogee Creek Nation</h3>
-                            </div>
-                            <p>
-                                <a href="http://40.77.28.231.xip.io/mcn/" class="btn btn-success mb-20">Public Portal</a>
-                                @*<a href="#" class="btn btn-success mb-20">Public Portal (coming)</a>*@
-                            </p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-sm-6 col-md-3 col-lg-3 pb-sm-30">
-                    <div class="team-member">
-                        <div class="volunteer-thumb"> <img src="~/images/seal_kickapoo.png" alt="" class="img-fullwidth img-responsive" style="background-color:#cacaca; width:270px; padding:15px"> </div>
-                        <div class="bg-silver-light text-center pt-20 pb-20" style="max-width:270px;">
-                            <div class="member-biography">
-                                <h3 class="mt-0 mlr-1">Kickapoo <br />Tribe</h3>
-                            </div>
-                            <p>
-                                <a href="http://40.77.28.231.xip.io/kickapootribe/" class="btn btn-success mb-20">Public Portal</a>
-                                @*<a href="#" class="btn btn-success mb-20">Public Portal (coming)</a>*@
-                            </p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-sm-6 col-md-3 col-lg-3 pb-sm-30">
-                    <div class="team-member">
-                        <div class="volunteer-thumb"> <img src="~/images/seal_absentee.png" alt="" class="img-fullwidth img-responsive" style="background-color:#cacaca; width:270px; padding:15px"> </div>
-                        <div class="bg-silver-light text-center pt-20 pb-20" style="max-width:270px;">
-                            <div class="member-biography">
-                                <h3 class="mt-0 mlr-1">Absentee Shawnee Tribe</h3>
-                            </div>
-                            <p>
-                                <a href="http://40.77.28.231.xip.io/abshawnee/" class="btn btn-success mb-20">Public Portal</a>
-                                @*<a href="#" class="btn btn-success mb-20">Public Portal (coming)</a>*@
-                            </p>
-                        </div>
-                    </div>
-                </div>
 
-                <div class="col-sm-6 col-md-3 col-lg-3 pb-sm-30">
-                    <div class="team-member">
-                        <div class="volunteer-thumb"> <img src="~/images/seal_SacAndFox.png" alt="" class="img-fullwidth img-responsive" style="background-color:#cacaca; width:270px; padding:15px"> </div>
-                        <div class="bg-silver-light text-center pt-20 pb-20" style="max-width:270px;">
-                            <div class="member-biography">
-                                <h3 class="mt-0 mlr-1">Sac and Fox <br />Nation</h3>
+                @if (Model._WordPressOrgs != null){
+                    foreach (var zzz in Model._WordPressOrgs)
+                    {
+                        <div class="col-sm-6 col-md-3 col-lg-3 pb-sm-30">
+                            <div class="team-member">
+                                <div class="volunteer-thumb"> <img src="~/images/@(zzz.ORG_SEAL)" alt="" class="img-fullwidth img-responsive" style="background-color:#cacaca; width:270px; padding:15px"> </div>
+                                <div class="bg-silver-light text-center pt-20 pb-20" style="max-width:270px;">
+                                    <div class="member-biography">
+                                        @if (zzz.ORG_NAME.Length < 28)
+                                        {
+                                            <h3 class="mt-0 mlr-10">@zzz.ORG_NAME</h3>
+                                        }
+                                        else
+                                        {
+                                            <h3 class="mt-0 mlr-10" style="font-size:20px">@zzz.ORG_NAME</h3>
+                                        }
+                                    </div>
+                                    <p>
+                                        <a href="@(zzz.WORDPRESS_URL)" class="btn btn-success mb-20">Public Portal</a>
+                                    </p>
+                                </div>
                             </div>
-                            <p>
-                                <a href="http://40.77.28.231.xip.io/sfnoes/" class="btn btn-success mb-20">Public Portal</a>
-                                @*<a href="#" class="btn btn-success mb-20">Public Portal (coming)</a>*@
-                            </p>
                         </div>
-                    </div>
-                </div>
+
+                    }
+                }
 
 
             </div>
@@ -236,62 +206,3 @@ else
     </div>
 </section>
 
-
-
-
-@section Scripts {
-
-    @*<script src="https://cdn.jsdelivr.net/bxslider/4.2.12/jquery.bxslider.min.js"></script>
-        <script type="text/javascript">
-            $(document).ready(function () {
-
-                /* ---------------------------------------------------------------------- */
-                /* ----------------------------- BxSlider  ------------------------------ */
-                /* ---------------------------------------------------------------------- */
-                var $bxslider = $('#bx3');
-                if ($bxslider.length > 0) {
-                    $bxslider.bxSlider({
-                        mode: 'vertical',
-                        minSlides: ($bxslider.data("count") === undefined) ? 2 : $bxslider.data("count"),
-                        slideMargin: 20,
-                        infiniteLoop: false,
-                        hideControlOnEnd: true,
-                        pager: false,
-                        prevText: '<i class="clip-arrow-left"></i>',
-                        nextText: '<i class="clip-arrow-right"></i>'
-                    });
-                }
-
-                var $bxslider2 = $('#bx2');
-                if ($bxslider2.length > 0) {
-                    $bxslider2.bxSlider({
-                        minSlides: ($bxslider2.data("count") === undefined) ? 2 : $bxslider2.data("count"),
-                        slideMargin: 20,
-                        infiniteLoop: true,
-                        auto: true,
-                        pager: true,
-                        prevText: '<i class="clip-arrow-left"></i>',
-                        nextText: '<i class="clip-arrow-right"></i>',
-                        onSliderLoad: function () {
-                            $(".item").css("visibility", "visible");
-                        }
-                    });
-                }
-
-                var $bxslider = $('#bx1');
-                if ($bxslider.length > 0) {
-                    $bxslider.bxSlider({
-                        minSlides: ($bxslider.data("count") === undefined) ? 2 : $bxslider.data("count"),
-                        slideMargin: 20,
-                        pause: 5000,
-                        infiniteLoop: true,
-                        auto: true,
-                        pager: true,
-                        prevText: '<i class="clip-arrow-left"></i>',
-                        nextText: '<i class="clip-arrow-right"></i>'
-                    });
-                }
-
-            });
-        </script>*@
-}

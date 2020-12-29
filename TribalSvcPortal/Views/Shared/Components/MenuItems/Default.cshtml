@@ -107,6 +107,15 @@
                 </a>
                 <ul class="sub-menu" style="display:block;">
 
+                    @foreach (var zzz in Model._myOrgAdmins)
+                    {
+                        <li class="">
+                            <a href="@(zzz.WORDPRESS_URL)admin" target="_blank">
+                                <span class="title">@(zzz.ORG_ID) Wordpress Admin</span>
+                            </a>
+                        </li>
+                    }
+
                     @if (Model.IsOrgClientAdmin)
                     {
                         <li class="@Html.ActivePage("Admin", "ManageUsers")">
@@ -136,24 +145,24 @@
                                 </li>
                                 <li class="lvl3 @Html.ActivePage("Admin", "RoleList,RoleEdit")">
                                     <a href="@Url.Action("RoleList", "Admin")">
-                                        <span class="title">Roles </span>
+                                        <span class="title">Roles</span>
                                     </a>
                                 </li>
                                 <li class="lvl3 @Html.ActivePage("Admin", "ClientList,ClientEdit")">
                                     <a href="@Url.Action("ClientList", "Admin")">
-                                        <span class="title">Clients </span>
+                                        <span class="title">Clients</span>
                                     </a>
                                 </li>
                                 <li class="lvl3 @Html.ActivePage("Admin", "OrgList,OrgEdit")">
                                     <a href="@Url.Action("OrgList", "Admin")">
-                                        <span class="title">Organizations </span>
+                                        <span class="title">Organizations</span>
                                     </a>
                                 </li>
                             </ul>
                         </li>
                         <li class="@Html.ActivePage("Admin", "EmailConfig")">
                             <a href="@Url.Action("EmailConfig", "Admin")">
-                                <span class="title">Email Config </span>
+                                <span class="title">Email Config</span>
                             </a>
                         </li>
                         <li>

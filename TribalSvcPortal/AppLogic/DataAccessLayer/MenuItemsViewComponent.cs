@@ -53,7 +53,8 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
 
                     _model.IsOrgClientAdmin = _DbPortal.IsUserAnOrgClientAdmin(_UserIDX) || _DbPortal.IsUserAnyOrgAdmin(_UserIDX);
                     _model._clients = _DbPortal.GetT_PRT_ORG_USERS_CLIENT_DistinctClientByUserID(_UserIDX);
-                    
+                    _model._myOrgAdmins = _DbPortal.GetT_PRT_ORGANIZATIONS_UserIsAdmin(_UserIDX);
+
                     _memoryCache.Set(CacheKey, _model, cacheEntryOptions);
                 }
                 return View(_model);

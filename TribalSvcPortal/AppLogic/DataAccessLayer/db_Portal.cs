@@ -65,6 +65,8 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
         //******************************T_PRT_ORGANIZATIONS***********************************************
         List<T_PRT_ORGANIZATIONS> GetT_PRT_ORGANIZATIONS();
         T_PRT_ORGANIZATIONS GetT_PRT_ORGANIZATIONS_ByOrgID(string OrgID);
+        List<T_PRT_ORGANIZATIONS> GetT_PRT_ORGANIZATIONS_UserIsAdmin(string UserID);
+        List<T_PRT_ORGANIZATIONS> GetT_PRT_ORGANIZATIONS_HaveWordPress();
         string InsertUpdateT_PRT_ORGANIZATIONS(string oRG_ID, string oRG_NAME);
         List<T_PRT_ORGANIZATIONS> GetT_PRT_ORGANIZATIONS_ByEmail(string Email);
 
@@ -365,6 +367,40 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             }
         }
 
+        public List<T_PRT_ORGANIZATIONS> GetT_PRT_ORGANIZATIONS_UserIsAdmin(string UserID)
+        {
+            try
+            {
+                return (from a in ctx.T_PRT_ORGANIZATIONS 
+                        join b in ctx.T_PRT_ORG_USERS on a.ORG_ID equals b.ORG_ID
+                        where b.Id == UserID
+                        && b.ACCESS_LEVEL == "A"
+                        && b.STATUS_IND == "A"
+                        select a).ToList();
+            }
+            catch (Exception ex)
+            {
+                _log.LogEFException(ex);
+                return null;
+            }
+        }
+
+        public List<T_PRT_ORGANIZATIONS> GetT_PRT_ORGANIZATIONS_HaveWordPress()
+        {
+            try
+            {
+                return (from a in ctx.T_PRT_ORGANIZATIONS
+                        where a.WORDPRESS_URL != null
+                        select a).ToList();
+            }
+            catch (Exception ex)
+            {
+                _log.LogEFException(ex);
+                return null;
+            }
+        }
+        
+
         public string InsertUpdateT_PRT_ORGANIZATIONS(string oRG_ID, string oRG_NAME)
         {
             try
@@ -544,6 +580,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
                 return null;
             }
         }
+
         public List<UserOrgDisplayType> GetT_PRT_ORG_USERS_ByUserID_WithClientList_WithAlias(string UserId, string ClientId)
         {
             try
@@ -610,6 +647,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
                 return null;
             }
         }
+
         public List<UserOrgDisplayType> GetT_PRT_ORG_USERS_ByUserID_WithClientList(string UserId)
         {
             try
@@ -790,13 +828,11 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
         {
             try
             {
-                var xxx = (from a in ctx.T_PRT_ORG_USERS
+                return (from a in ctx.T_PRT_ORG_USERS
                            where a.Id == UserID
                            && a.ACCESS_LEVEL == "A"
                            && a.STATUS_IND == "A"
-                           select a).Count();
-
-                return xxx > 0;
+                           select a).Any();
             }
             catch (Exception ex)
             {

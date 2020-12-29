@@ -67,6 +67,8 @@ namespace TribalSvcPortal.Controllers
                 //retrieve listing of clients user has access to
                 model._clients = _DbPortal.GetT_PRT_ORG_USERS_CLIENT_DistinctClientByUserID(_UserIDX);
 
+                //retrieve listing of organizations that have wordpress sites defined
+                model._WordPressOrgs = _DbPortal.GetT_PRT_ORGANIZATIONS_HaveWordPress();
 
                 //if agency user doesn't have access to any clients yet, display warning
                 List<UserOrgDisplayType> _userOrgs = _DbPortal.GetT_PRT_ORG_USERS_ByUserID(_UserIDX);

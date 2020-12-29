@@ -20,8 +20,8 @@ namespace TribalSvcPortal
     {
         public static IEnumerable<Client> GetClients2(IConfiguration config, Ilog log)
         {
-            log.InsertT_PRT_SYS_LOG("info", "GetClients2");
-            var _DbPortal = new DbPortal(new ApplicationDbContext(new DbContextOptions<ApplicationDbContext>(), config),log);
+            //log.InsertT_PRT_SYS_LOG("info", "GetClients2");
+            var _DbPortal = new DbPortal(new ApplicationDbContext(new DbContextOptions<ApplicationDbContext>(), config), log);
 
             List<T_PRT_CLIENTS> dbclients = _DbPortal.GetT_PRT_CLIENTS();
 
@@ -31,7 +31,7 @@ namespace TribalSvcPortal
                 Client _client = new Client();
                 _client.ClientId = dbclient.CLIENT_ID;
                 _client.ClientName = dbclient.CLIENT_NAME;
-                log.InsertT_PRT_SYS_LOG("info", dbclient.CLIENT_NAME);
+                //log.InsertT_PRT_SYS_LOG("info", dbclient.CLIENT_NAME);
                 _client.AllowedGrantTypes = (dbclient.CLIENT_GRANT_TYPE == "HYBRID" ? GrantTypes.Hybrid : GrantTypes.Implicit);
                 
                 _client.RequireConsent = false;
@@ -43,9 +43,9 @@ namespace TribalSvcPortal
                     "api.read"
                 };
                 _client.RedirectUris = new List<string> { dbclient.CLIENT_REDIRECT_URI };
-                log.InsertT_PRT_SYS_LOG("info", dbclient.CLIENT_REDIRECT_URI);
+                //log.InsertT_PRT_SYS_LOG("info", dbclient.CLIENT_REDIRECT_URI);
                 _client.PostLogoutRedirectUris = new List<string> { dbclient.CLIENT_POST_LOGOUT_URI };
-                log.InsertT_PRT_SYS_LOG("info", dbclient.CLIENT_POST_LOGOUT_URI);
+                //log.InsertT_PRT_SYS_LOG("info", dbclient.CLIENT_POST_LOGOUT_URI);
                 _client.AllowAccessTokensViaBrowser = true;
                 _client.AccessTokenLifetime = 3600;
                 if(_client.ClientId == "open_waters")

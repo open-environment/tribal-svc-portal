@@ -15,6 +15,8 @@ namespace TribalSvcPortal.Data.Models
 
         public string ORG_ID { get; set; }
         public string ORG_NAME { get; set; }
+        public string WORDPRESS_URL { get; set; }
+        public string ORG_SEAL { get; set; }
 
         public ICollection<T_PRT_DOCUMENTS> T_PRT_DOCUMENTS { get; set; }
         public ICollection<T_PRT_ORG_EMAIL_RULE> T_PRT_ORG_EMAIL_RULE { get; set; }

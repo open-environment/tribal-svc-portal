@@ -120,7 +120,7 @@
                                                         }
                                                     </td>
                                                     <td>
-                                                        @if (Client.STATUS_IND == null)
+                                                        @if (Client.STATUS_IND == null || Client.STATUS_IND == "")
                                                         {
                                                             <button id="btnReqAccess" type="submit" class="btn btn-yellow btnReqAccess" data-client="@Client.CLIENT_ID" data-orguser="@item.ORG_USER_IDX">Request Access</button>
                                                         }

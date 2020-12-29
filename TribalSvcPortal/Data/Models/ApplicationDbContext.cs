@@ -345,6 +345,12 @@ namespace TribalSvcPortal.Data.Models
                 entity.Property(e => e.ORG_NAME)
                     .IsRequired()
                     .HasMaxLength(100);
+
+                entity.Property(e => e.WORDPRESS_URL)
+                    .HasMaxLength(200);
+
+                entity.Property(e => e.ORG_SEAL)
+                .HasMaxLength(50);
             });
 
             modelBuilder.Entity<T_PRT_REF_DOC_STATUS_TYPE>(entity =>

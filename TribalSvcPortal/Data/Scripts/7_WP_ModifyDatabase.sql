@@ -51,3 +51,10 @@ update [T_PRT_ORGANIZATIONS] set WORDPRESS_URL='http://40.77.28.231.xip.io/kicka
 update [T_PRT_ORGANIZATIONS] set WORDPRESS_URL='http://40.77.28.231.xip.io/sfnoes/' where ORG_ID='SFNOES';
 update [T_PRT_ORGANIZATIONS] set WORDPRESS_URL='http://40.77.28.231.xip.io/abshawnee/' where ORG_ID='ABSHAWNEE';
 
+
+ALTER TABLE dbo.[T_PRT_ORGANIZATIONS] ADD ORG_SEAL varchar(50);
+GO
+update [T_PRT_ORGANIZATIONS] set ORG_SEAL='seal_mcn.png' where ORG_ID='MCNCREEK';
+update [T_PRT_ORGANIZATIONS] set ORG_SEAL='seal_kickapoo.png' where ORG_ID='KICKAPOO';
+update [T_PRT_ORGANIZATIONS] set ORG_SEAL='seal_SacAndFox.png' where ORG_ID='SFNOES';
+update [T_PRT_ORGANIZATIONS] set ORG_SEAL='seal_absentee.png' where ORG_ID='ABSHAWNEE';
