@@ -405,6 +405,8 @@ namespace TribalSvcPortal.Data.Models
                 entity.Property(e => e.PRICE_PER_TON).HasColumnType("decimal(10, 2)");
             });
 
+
+
             modelBuilder.Entity<T_OD_REF_THREAT_FACTORS>(entity =>
             {
                 entity.HasKey(e => e.THREAT_FACTOR_IDX);

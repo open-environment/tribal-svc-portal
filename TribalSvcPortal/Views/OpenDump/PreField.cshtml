@@ -114,7 +114,7 @@
                                             </div>
                                             <div class="col-lg-6 col-md-6 col-sm-6">
                                                 <div class="row" style="background-color:#4F4F4F; padding:6px;">
-                                                    <label style="color:white; font-size:11pt;">Auto-populated</label>
+                                                    <label style="color:white; font-size:11pt;">Auto-populated (after save)</label>
                                                 </div>
                                                 <div class="row">
                                                     <label class="col-sm-4 control-label" style="text-align: right;">
@@ -162,8 +162,8 @@
                                                                     <tr class="thead-inverse">
                                                                         <th></th>
                                                                         <th>Parcel Num</th>
-                                                                        <th>Owner</th>
-                                                                        <th>Acres</th>
+                                                                        @*<th>Owner</th>
+                                                                            <th>Acres</th>*@
                                                                     </tr>
                                                                 </thead>
                                                                 @foreach (var item in Model.T_OD_SITE_PARCELs)
@@ -172,18 +172,18 @@
                                                                         <td>
                                                                             <div class="delete-section" style="display:inline">
                                                                                 <a class=" btn btn-rounded btn-xs btn-danger delete-link"><i class="glyphicon glyphicon-remove"></i></a>
-                                                                                <div class="btn btn-rounded btn-xs btn-warning delete-confirm" style="display:none" data-delete-id="@item.SITE_PARCEL_IDX" data-delete-p="/OpenDump/SiteParcelDelete"><b>Confirm Delete</b></div>
+                                                                                <div class="btn btn-rounded btn-xs btn-warning delete-confirm" style="display:none" data-delete-id="@item.SITE_PARCEL_IDX" data-delete-p="/OpenDump/ParcelDelete"><b>Confirm Delete</b></div>
                                                                             </div>
                                                                         </td>
                                                                         <td>
                                                                             @Html.DisplayFor(model => item.PARCEL_NUM)
                                                                         </td>
-                                                                        <td>
-                                                                            @Html.DisplayFor(model => item.OWNER)
-                                                                        </td>
-                                                                        <td>
-                                                                            @Html.DisplayFor(model => item.ACRES)
-                                                                        </td>
+                                                                        @*<td>
+                                                                                @Html.DisplayFor(model => item.OWNER)
+                                                                            </td>
+                                                                            <td>
+                                                                                @Html.DisplayFor(model => item.ACRES)
+                                                                            </td>*@
                                                                     </tr>
                                                                 }
 
@@ -338,6 +338,7 @@
 @section scripts {
     @await Html.PartialAsync("_ValidationScriptsPartial")
     <script src="~/js/jquery.are-you-sure.js"></script>
+    <script src="~/js/confirm_delete.js"></script>
     <script type="text/javascript">
 
         //warn user if leaving unsaved page
@@ -420,7 +421,7 @@
                             basemap: "topo"
                         });
 
-                        //define marker style 
+                        //define marker style
                         var s = new SimpleMarkerSymbol().setStyle(SimpleMarkerSymbol.STYLE_CIRCLE).setColor(new Color([255, 0, 0, 2]));
 
                         map.on("load", showMap);

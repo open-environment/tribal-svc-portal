@@ -1066,7 +1066,7 @@ namespace TribalSvcPortal.Data.Models
                     .IsUnicode(false);
 
                 entity.Property(e => e.PARCEL_NUM)
-                    .HasMaxLength(20)
+                    .HasMaxLength(40)
                     .IsUnicode(false);
             });
 

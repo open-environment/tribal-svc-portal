@@ -6,13 +6,10 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Primitives;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
-using System.Text.Encodings.Web;
-using System.Threading;
 using System.Threading.Tasks;
 using TribalSvcPortal.AppLogic.BusinessLogicLayer;
 using TribalSvcPortal.AppLogic.DataAccessLayer;
@@ -151,7 +148,6 @@ namespace TribalSvcPortal.Controllers
             model.UserId = user.Id;
             model.firstName = user.FIRST_NAME;
             model.lastName = user.LAST_NAME;
-            //model.openWaterUserIdx = user.OpenWaterUserIDX;
 
             if (user != null)
             {
@@ -379,7 +375,7 @@ namespace TribalSvcPortal.Controllers
 
         [HttpGet]
         [AllowAnonymous]
-        public IActionResult Register(string returnUrl = null)
+        public IActionResult PortalRegister(string returnUrl = null)
         {
             ViewData["ReturnUrl"] = returnUrl;
             T_PRT_APP_SETTINGS_CUSTOM cust = _DbPortal.GetT_PRT_APP_SETTINGS_CUSTOM();
@@ -394,7 +390,7 @@ namespace TribalSvcPortal.Controllers
         [HttpPost]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Register(RegisterViewModel model, string returnUrl = null)
+        public async Task<IActionResult> PortalRegister(RegisterViewModel model, string returnUrl = null)
         {
             ViewData["ReturnUrl"] = returnUrl;
             if (ModelState.IsValid)
@@ -422,8 +418,9 @@ namespace TribalSvcPortal.Controllers
 
                     var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
                     var callbackUrl = Url.EmailConfirmationLink(user.Id, code, Request.Scheme);
-                    bool EmailSucc = _emailSender.SendEmail(null, model.Email, null, null, null, null, "EMAIL_CONFIRM", "callbackUrl", callbackUrl);
-                    _log.InsertT_PRT_SYS_LOG("info-cburl", callbackUrl);
+                    bool emailSucc = _emailSender.SendEmail(null, model.Email, null, null, null, null, "EMAIL_CONFIRM", "callbackUrl", callbackUrl);
+                    //_log.InsertT_PRT_SYS_LOG("info-cburl", callbackUrl);
+
                     //if users email is associated with an organization, then associate user with org
                     List<T_PRT_ORGANIZATIONS> orgs = _DbPortal.GetT_PRT_ORGANIZATIONS_ByEmail(model.Email);
                     if (orgs != null && orgs.Count == 1)

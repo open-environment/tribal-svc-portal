@@ -3,13 +3,21 @@
     ViewData["Title"] = "Site Parcels";
     ViewData["SubTitle"] = "Parcels for " + Model.T_PRT_SITES.SITE_NAME;
 }
-<link rel="stylesheet" href="https://js.arcgis.com/4.10/esri/css/main.css">
+<link rel="stylesheet" href="https://js.arcgis.com/4.12/esri/css/main.css">
 <style>
-    #mapDiv {
-        padding: 0;
-        margin: 0;
-        height: 1000px;
-        width: 1000px;
+
+
+    #info {
+        background: #fff;
+        box-shadow: 0 0 5px #888;
+        left: 1em;
+        padding: 0.5em;
+        position: absolute;
+        top: 1em;
+        z-index: 40;
+    }
+
+    #viewDiv {
     }
 </style>
 
@@ -22,11 +30,22 @@
         </div>
     </div>
     <div class="panel-body">
+        
+
+        @if (Model.T_OD_SITE_PARCELS != null && Model.T_OD_SITE_PARCELS.Count == 0)
+        {
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="form-group">
+                        Select Parcel Layer:
+                        @Html.DropDownList("selLayer", Model.ddlLayers, "", new { @class = "form-control" })
+                    </div>
+                </div>
+            </div>
+        }
         <div class="row">
             <div class="col-md-12">
-                <div id="mapDiv"></div>
-
-
+                <div id="viewDiv" style="width: 100%; height: 600px;"></div>
             </div>
         </div>
         <div class="row">
@@ -39,54 +58,197 @@
 </section>
 
 @section scripts {
+<script src="https://js.arcgis.com/4.12/"></script>
+<script>
 
-    <script src="https://js.arcgis.com/4.10/"></script>
+    require(["esri/config", "esri/Map", "esri/views/MapView", "esri/layers/FeatureLayer"],
+        function (esriConfig, Map, MapView, FeatureLayer) {
 
-    <script>
-        require([
-            "esri/Map",
-            "esri/views/MapView",
-            "esri/layers/FeatureLayer",
-
-            //"esri/symbols/SimpleFillSymbol", "esri/symbols/SimpleLineSymbol",
-
-            //"esri/renderers/SimpleRenderer",
-            //"esri/Color", "dojo/number", "dojo/dom-style",
-
-            //"esri/layers/GraphicsLayer",
-            //"esri/Graphic",
-            //"dijit/TooltipDialog", "dijit/popup", "dojo/domReady!"
-        ], function (Map, MapView,
-            FeatureLayer,
-            //SimpleFillSymbol, SimpleLineSymbol,
-            //SimpleRenderer,
-            //Color, number, domStyle,
-
-            //GraphicsLayer,
-            //Graphic, TooltipDialog, dijitPopup
-        ) {
+            esriConfig.apiKey = "AAPKcebe2d84aa974ca6935caf819b4fd0bb4_MwoHe4WRpOOE0Rz5khtcE2WsY7FmQURsFN6FBXXm017C7Gnqpe8K-RpaAfmekg";
 
             var map = new Map({
                 basemap: "streets"
             });
 
-            var dialog;
-
             var view = new MapView({
-                container: "mapDiv",
+                container: "viewDiv",
                 map: map,
                 zoom: 16,
-                center: [-95.96, 35.92] // longitude, latitude
+                center: [@Model.T_PRT_SITES.LONGITUDE, @Model.T_PRT_SITES.LATITUDE] // longitude, latitude
             });
 
-            //var featureLayer = new FeatureLayer({
-            //    url: "https://arcdev1.mcngis.net/arcgisserver/rest/services/Parcels/TulsaParcels/MapServer",
-            //    outFields: ["*"],
-            //    popupTemplate: template
-            //});
 
-            //map.add(featureLayer);
+            // Create a custom popup action for adding parcel
+            var addParcelAction = {
+                title: "Add Parcel",
+                id: "addParcelAction",
+                className: "esri-icon-plus-circled"
+            };
+
+            //defines the layout of the popup template for base parcel layer
+            var baseParcelPopupTemplate = { // autocasts as new PopupTemplate()
+                title: "Selected Parcel",
+                actions: [addParcelAction],
+                content: [{
+                    type: "fields",
+                    fieldInfos: [{
+                        fieldName: "PARCELID",
+                        label: "ParcelID"
+                    }, {
+                        fieldName: "county_nam",
+                        label: "County"
+                    }, {
+                        fieldName: "ownerid",
+                        label: "ownerid"
+                    }, {
+                        fieldName: "sec",
+                        label: "Section"
+                    }, {
+                        fieldName: "twn",
+                        label: "Township"
+                    }, {
+                        fieldName: "rng",
+                        label: "Range"
+                    }, {
+                        fieldName: "situs",
+                        label: "situs"
+                    }, {
+                        fieldName: "acres",
+                        label: "Acres"
+                    }]
+                }]
+            };
+
+
+            //defines the source of the baseParcelLayer
+            var baseParcelLayer = new FeatureLayer({
+                //url: "https://arcdev1.mcngis.net/arcgisserver/rest/services/Parcels/TulsaParcels/MapServer",
+                //url: "https://bearclan.geomcn.net/server/rest/services/Creek_CAMA/MapServer",
+                url: "@Model.defaultPARCEL_LAYER",
+                popupTemplate: baseParcelPopupTemplate
+            });
+
+            //SQL query of site's parcels
+            var parcelsList2 = [];
+            @foreach (var d in Model.T_OD_SITE_PARCELS)
+            {
+                @:parcelsList2.push("@d.PARCEL_NUM");
+            }
+
+            const parcelLayerSQL = ["PARCELID in ('" + parcelsList2.join("', '") + "')"];
+            let whereClause = parcelLayerSQL[0];
+
+
+            //function that applies the query to the base layer, then calls displayResults function
+            function queryFeatureLayer(extent) {
+                const parcelQuery = {
+                    where: whereClause,  // Set by select element
+                    spatialRelationship: "intersects", // Relationship operation to apply
+                    geometry: extent, // Restricted to visible extent of the map
+                    outFields: ["*"], // Attributes to return
+                    returnGeometry: true
+                };
+
+                baseParcelLayer.queryFeatures(parcelQuery)
+                    .then((results) => {
+                        displayResults(results);
+                    }).catch((error) => {
+                        console.log(error.error);
+                    });
+            }
+
+
+            //function that defines selected parcel polygon style and pop and adds to map
+            function displayResults(results) {
+                // Create a blue polygon for selected parcels
+                const symbol = {
+                    type: "simple-fill",
+                    color: [20, 130, 200, 0.5]
+                };
+
+                const popupTemplate = {
+                    title: "Parcel {PARCELID}",
+                    content: "County: {county_nam} <br> Owner ID: {ownerid} <br> Acres: {acres} <br/> "
+                };
+
+                // Assign styles and popup to features
+                results.features.map((feature) => {
+                    feature.symbol = symbol;
+                    feature.popupTemplate = popupTemplate;
+                    return feature;
+                });
+
+                // Clear display
+                view.popup.close();
+                view.graphics.removeAll();
+                // Add features to graphics layer
+                view.graphics.addMany(results.features);
+            }
+
+
+            //******************** PAGE LOAD START ********************************//
+            @if(Model.T_OD_SITE_PARCELS != null && Model.T_OD_SITE_PARCELS.Count > 0) {
+                <text>
+                //on page load, display the site's parcels
+                queryFeatureLayer(view.extent);
+
+                //on page load, add base parcel layer to map
+                map.add(baseParcelLayer);
+                </text>
+            }
+            //******************** PAGE LOAD ENDS ********************************//
+
+
+
+            //******************** LAYER DROPDOWN START ********************************//
+            $("#selLayer").on("change", function () {
+                baseParcelLayer = new FeatureLayer({
+                    url: $(this).val(),
+                    popupTemplate: baseParcelPopupTemplate
+                });
+                map.add(baseParcelLayer);
+            });
+            //******************** LAYER DROPDOWN END ********************************//
+
+
+            //******************** ADD PARCEL START ********************************//
+            // This event fires for each click on any action
+            view.popup.on("trigger-action", function (event) {
+                if (event.action.id === "addParcelAction") {
+                    var attributes = view.popup.selectedFeature.attributes;
+
+                    var selParcelLayer = $("#selLayer").val();
+                    console.log(selParcelLayer);
+
+                    $.ajax({
+                        type: "POST",
+                        url: "@Url.Action("ParcelAdd", "OpenDump")",
+                        data: {
+                            "site": '@Model.T_PRT_SITES.SITE_IDX',
+                            "parcel": attributes.PARCELID,
+                            "parcelLayerURL": selParcelLayer
+                        },
+                        success: function (response) {
+                            if (response == "Success")
+                                alert("Success");
+                            else
+                                alert("Error adding parcel");
+                        },
+                        failure: function (response) {
+                            alert(response.responseText);
+                        },
+                        error: function (response) {
+                            alert(response.responseText);
+                        }
+                    });
+
+                }
+            });
+            //******************** ADD PARCEL END ********************************//
+
         });
-    </script>
+
+
+</script>
 
 }

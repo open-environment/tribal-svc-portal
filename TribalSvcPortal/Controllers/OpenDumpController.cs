@@ -206,10 +206,8 @@ namespace TribalSvcPortal.Controllers
             //first determine if the lat or long has changed
             T_PRT_SITES _oldSite = _DbPortal.GetT_PRT_SITES_BySITEIDX(model.TPrtSite.SITE_IDX);
             if (_oldSite != null && _oldSite.LATITUDE != null)
-            {
                 if ((_oldSite.LATITUDE == model.TPrtSite.LATITUDE) && (_oldSite.LONGITUDE == model.TPrtSite.LONGITUDE))
                     newLocation = false;
-            }
 
 
             //************************* TWP RANGE SECT COUNTY*********************************
@@ -220,11 +218,11 @@ namespace TribalSvcPortal.Controllers
                 {
                     using (var client = new HttpClient())
                     {
-
                         client.BaseAddress = new Uri("http://maps.owrb.ok.gov/");
                         client.DefaultRequestHeaders.Accept.Clear();
                         client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
+                        //retrieve County from Oklahoma Water Resources Board
                         HttpResponseMessage responseCounty = client.GetAsync("arcgis/rest/services/Base/SDE_State_County_PLSS/MapServer/3/query?f=json&returnGeometry=false&geometry={" + model.TPrtSite.LONGITUDE + "," + model.TPrtSite.LATITUDE + " }&geometryType=esriGeometryPoint&inSR=4326&outFields=NAME").GetAwaiter().GetResult();
                         if (responseCounty.IsSuccessStatusCode)
                         {
@@ -235,6 +233,7 @@ namespace TribalSvcPortal.Controllers
                         }
 
 
+                        //retrieve Township Section Range from Oklahoma Water Resources Board
                         HttpResponseMessage response = client.GetAsync("arcgis/rest/services/Base/PLSS_10_ACRE_GRID/MapServer/5/query?f=json&returnGeometry=false&geometry={" + model.TPrtSite.LONGITUDE  + "," + model.TPrtSite.LATITUDE + " }&geometryType=esriGeometryPoint&inSR=4326&outFields=SECT,TOWNSHIP,RANGE").GetAwaiter().GetResult();
                         if (response.IsSuccessStatusCode)
                         {
@@ -245,53 +244,53 @@ namespace TribalSvcPortal.Controllers
                             model.TPrtSite.SECTION = stuff.features[0].attributes.SECT; 
                         }
 
-
-
                     }
                 }
                 catch
-                { }
+                {
+                    TempData["Error"] = "Unable to retrieve township/section/range/county from OWRB";
+                }
             }
 
 
+            //INSERT/UPDATE PORTAL SITE
             Guid? newSiteID = _DbPortal.InsertUpdateT_PRT_SITES(model.TPrtSite.SITE_IDX, model.TPrtSite.ORG_ID, model.TPrtSite.SITE_NAME ?? "",
                     model.TPrtSite.EPA_ID ?? "", model.TPrtSite.LATITUDE, model.TPrtSite.LONGITUDE, model.TPrtSite.SITE_ADDRESS ?? "", _UserIDX, model.TPrtSite.LAND_STATUS,
                     model.TPrtSite.TWP, model.TPrtSite.RANGE, model.TPrtSite.SECTION, model.TPrtSite.COUNTY);
 
 
-
-
+            //INSERT/UPDATE OPEN DUMP SITE
             if (newSiteID != null)
             {
                 newSiteID = _DbOpenDump.InsertUpdateT_OD_SITES((Guid)newSiteID, model.TOdSite.REPORTED_BY, model.TOdSite.REPORTED_ON, model.TOdSite.COMMUNITY_IDX, model.TOdSite.SITE_SETTING_IDX,
-                    model.TOdSite.PF_AQUIFER_VERT_DIST, model.TOdSite.PF_SURF_WATER_HORIZ_DIST, model.TOdSite.PF_HOMES_DIST, null);
+                    model.TOdSite.PF_AQUIFER_VERT_DIST, model.TOdSite.PF_SURF_WATER_HORIZ_DIST, model.TOdSite.PF_HOMES_DIST, null, null);
 
-                if (newSiteID != null)
-                {
+                //if (newSiteID != null)
+                //{
 
                     //************************* UPDATE PARCELS *********************************
                     if (newLocation)
                     {
-                        try
-                        {
-                            using (var client = new HttpClient())
-                            {
-                                client.BaseAddress = new Uri("https://arcdev1.mcngis.net/");
-                                client.DefaultRequestHeaders.Accept.Clear();
-                                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                //        try
+                //        {
+                //            using (var client = new HttpClient())
+                //            {
+                //                client.BaseAddress = new Uri("https://arcdev1.mcngis.net/");
+                //                client.DefaultRequestHeaders.Accept.Clear();
+                //                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
-                                HttpResponseMessage response = client.GetAsync("arcgisserver/rest/services/Parcels/" + countyName ?? "" + "Parcels/MapServer/0/query?returnGeometry=false&geometry=" + model.TPrtSite.LONGITUDE + "," + model.TPrtSite.LATITUDE + "&geometryType=esriGeometryPoint&inSR=4326&distance=25&units=esriSRUnit_Meter&f=pjson").GetAwaiter().GetResult();
-                                if (response.IsSuccessStatusCode)
-                                {
-                                    var ddd = response.Content.ReadAsStringAsync().GetAwaiter().GetResult();
-                                    dynamic stuff = JsonConvert.DeserializeObject(ddd);
+                //                HttpResponseMessage response = client.GetAsync("arcgisserver/rest/services/Parcels/" + countyName ?? "" + "Parcels/MapServer/0/query?returnGeometry=false&geometry=" + model.TPrtSite.LONGITUDE + "," + model.TPrtSite.LATITUDE + "&geometryType=esriGeometryPoint&inSR=4326&distance=25&units=esriSRUnit_Meter&f=pjson").GetAwaiter().GetResult();
+                //                if (response.IsSuccessStatusCode)
+                //                {
+                //                    var ddd = response.Content.ReadAsStringAsync().GetAwaiter().GetResult();
+                //                    dynamic stuff = JsonConvert.DeserializeObject(ddd);
 
-                                    _DbOpenDump.InsertUpdateT_OD_SITE_PARCELS(null, newSiteID, stuff.features[0].attributes.Parcel_Num, null, null);
-                                }
-                            }
-                        }
-                        catch { }
-                    }
+                //                    _DbOpenDump.InsertUpdateT_OD_SITE_PARCELS(null, newSiteID, stuff.features[0].attributes.Parcel_Num, null, null);
+                //                }
+                //            }
+                //        }
+                //        catch { }
+                //    }
 
                     TempData["Success"] = "Update successful.";
                     return RedirectToAction("PreField", "OpenDump", new { id = newSiteID, returnURL = model.returnURL });
@@ -325,6 +324,60 @@ namespace TribalSvcPortal.Controllers
                 T_OD_SITE_PARCELS = _DbOpenDump.getT_OD_SITE_PARCELS_BySITEIDX((Guid)id)
             };
 
+            //populate default parcel layer if there is one
+            T_OD_SITES _ods = _DbOpenDump.getT_OD_SITES_BySITEIDX(model.T_PRT_SITES?.SITE_IDX ?? Guid.Empty);
+            if (_ods != null && !string.IsNullOrEmpty(_ods.PARCEL_LAYER))
+                model.defaultPARCEL_LAYER = _ods.PARCEL_LAYER;
+
+            //populate listing of parcel layers based on the site's ORG_ID
+            if (model.T_PRT_SITES != null && model.T_PRT_SITES.ORG_ID != null)
+                model.ddlLayers = _DbOpenDump.get_ddl_PARCEL_LAYERS(model.T_PRT_SITES.ORG_ID);
+
+            //validation 
+            if (model.T_PRT_SITES?.LATITUDE == null || model.T_PRT_SITES?.LONGITUDE == null)
+            {
+                ViewData["Error"] = "You cannot select parcels until a latitude or longitude is supplied.";
+                return RedirectToAction("PreField", new { id = model.T_PRT_SITES.SITE_IDX });
+            }
+
+            ////if there are no parcels defined yet for the site, then redirect the user 
+            //if (model.T_OD_SITE_PARCELS.Count == 0)
+            //{
+            //    return RedirectToAction("ParcelLayerSelect", new { id = model.T_PRT_SITES.SITE_IDX });
+            //}
+            return View(model);
+        }
+
+
+        [HttpPost]
+        public JsonResult ParcelAdd(Guid? site, string parcel, string parcelLayerURL)
+        {
+            if (site == null || parcel == null)
+                return Json("No record selected to add");
+            else
+            {
+                Guid? succID =_DbOpenDump.InsertUpdateT_OD_SITE_PARCELS(null, site, parcel, null, null);
+
+                if (succID != null)
+                {
+                    if (parcelLayerURL != null)
+                        _DbOpenDump.InsertUpdateT_OD_SITES(site.GetValueOrDefault(), null, null, null, null, null, null, null, null, parcelLayerURL);
+
+                    return Json("Success");
+                }
+                else
+                    return Json("Error adding parcel.");
+            }
+        }
+
+        [HttpGet]
+        public ActionResult ParcelLayerSelect(Guid? id) 
+        {
+            var model = new ParcelLayerSelectViewModel
+            {
+                T_PRT_SITES = _DbPortal.GetT_PRT_SITES_BySITEIDX((Guid)id)//,
+                //ddlLayers = _DbOpenDump.get_ddl_PARCEL_LAYERS()
+            };
             return View(model);
         }
 
@@ -335,6 +388,20 @@ namespace TribalSvcPortal.Controllers
             //IEnumerable<Claim> claims = identity.Claims;
 
             return View();
+        }
+
+
+        [HttpPost]
+        public JsonResult ParcelDelete(Guid id)
+        {
+            if (id != null)
+            {
+                int SuccID = _DbOpenDump.DeleteT_OD_SITE_PARCELS(id);
+                if (SuccID == 1)
+                    return Json("Success");
+            }
+
+            return Json("Unable to delete");
         }
 
 
@@ -1165,7 +1232,7 @@ namespace TribalSvcPortal.Controllers
                     if (SiteIDX != null)
                     {
                         T_OD_SITES y = ps.T_OD_SITES;
-                        SiteIDX = _DbOpenDump.InsertUpdateT_OD_SITES((Guid)SiteIDX, y.REPORTED_BY, y.REPORTED_ON, y.COMMUNITY_IDX, y.SITE_SETTING_IDX, y.PF_AQUIFER_VERT_DIST, y.PF_SURF_WATER_HORIZ_DIST, y.PF_HOMES_DIST, y.CURRENT_SITE_STATUS);
+                        SiteIDX = _DbOpenDump.InsertUpdateT_OD_SITES((Guid)SiteIDX, y.REPORTED_BY, y.REPORTED_ON, y.COMMUNITY_IDX, y.SITE_SETTING_IDX, y.PF_AQUIFER_VERT_DIST, y.PF_SURF_WATER_HORIZ_DIST, y.PF_HOMES_DIST, y.CURRENT_SITE_STATUS, null);
 
                         //import assessment
                         if (ps.T_OD_ASSESSMENTS != null)
@@ -1203,6 +1270,38 @@ namespace TribalSvcPortal.Controllers
                 model.TOdRefData = _DbOpenDump.get_T_OD_REF_DATA_by_category(selTag);
             }
             return View(model);
+        }
+
+        [HttpPost, ValidateAntiForgeryToken]
+        public ActionResult RefData(RefDataViewModel model)
+        {
+            if (model != null)
+            {
+                string _UserIDX = _userManager.GetUserId(User);
+
+                Guid? SuccID = _DbOpenDump.InsertUpdateT_OD_REF_DATA(model.edit_tag_idx, null, model.edit_tag, model.edit_tag_desc, null, _UserIDX);
+
+                if (SuccID != null)
+                {
+                    TempData["Success"] = "Update successful.";
+                    return RedirectToAction("RefData", "OpenDump", new { selTag = model.sel_ref_cat });
+                }
+            }
+
+            //error if got this far
+            TempData["Error"] = "Error updating data.";
+            return RedirectToAction("CleanupProjects");
+        }
+
+
+        [HttpPost]
+        public JsonResult RefDataDelete(Guid id)
+        {
+            int SuccID = _DbOpenDump.DeleteT_OD_REF_DATA(id);
+            if (SuccID == 1)
+                return Json("Success");
+
+            return Json("Unable to delete");
         }
 
         #endregion

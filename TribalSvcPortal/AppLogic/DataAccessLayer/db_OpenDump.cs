@@ -137,15 +137,18 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
         //************** ORGANIZATIONS **********************************
         List<SelectListItem> getT_OD_ORGANIZATIONS();
 
+
         //************** T_OD_SITES **********************************
         T_OD_SITES getT_OD_SITES_BySITEIDX(Guid Siteidx);
         List<OpenDumpSiteListDisplay> getT_OD_SITES_ListBySearch(string id, string searchStr, string selOrg, string selStatus);
-        Guid? InsertUpdateT_OD_SITES(Guid sITE_IDX, string rEPORTED_BY, DateTime? rEPORTED_ON, Guid? cOMMUNITY_IDX, Guid? sITE_SETTING_IDX, Guid? pF_AQUIFER_VERT_DIST, Guid? pF_SURF_WATER_HORIZ_DIST, Guid? pF_HOMES_DIST, string cURRENT_SITE_STATUS);
+        Guid? InsertUpdateT_OD_SITES(Guid sITE_IDX, string rEPORTED_BY, DateTime? rEPORTED_ON, Guid? cOMMUNITY_IDX, Guid? sITE_SETTING_IDX, Guid? pF_AQUIFER_VERT_DIST, Guid? pF_SURF_WATER_HORIZ_DIST, Guid? pF_HOMES_DIST, string cURRENT_SITE_STATUS, string pARCEL_LAYER);
         string UpdateT_OD_SITES_Status(Guid sITE_IDX);
 
 
         //************** V_OD_SITES **********************************
         List<V_OD_SITES> getV_OD_SITES_Search(string org, string county, string status, string score);
+
+
         //************** V_OD_ASSESSMENTS **********************************
         List<V_OD_ASSESSMENTS> getV_OD_ASSESSMENTS_Search(string org, string county, string status, string score);
         List<V_OD_ASSESSMENTS> getV_OD_ASSESSMENTS_BySiteIDX(Guid Siteidx);
@@ -154,6 +157,9 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
         //************** T_OD_SITE_PARCELS **********************************
         List<T_OD_SITE_PARCELS> getT_OD_SITE_PARCELS_BySITEIDX(Guid Siteidx);
         Guid? InsertUpdateT_OD_SITE_PARCELS(Guid? sITE_PARCEL_IDX, Guid? sITE_IDX, string pARCEL_NUM, string oWNER, string aCRES);
+        int DeleteT_OD_SITE_PARCELS(Guid sITE_PARCEL_IDX);
+        IEnumerable<SelectListItem> get_ddl_PARCEL_LAYERS(string orgID);
+
 
         //************** T_OD_DUMP_ASSESSMENTS **********************************
         T_OD_ASSESSMENTS getT_OD_ASSESSMENTS_ByAssessmentIDX(Guid aSSESSMENT_IDX);
@@ -179,9 +185,11 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
         Guid? InsertUpdateT_OD_Assessment_Content(Guid? aSSESSMENT_CONTENT_IDX, Guid? aSSESSMENT_IDX, Guid? rEF_WASTE_TYPE_IDX, decimal? wASTE_AMT, Guid? wASTE_UNIT_MSR, Guid? wASTE_DISPOSAL_METHOD, string wASTE_DISPOSAL_DIST, bool IS_CHECKED);
         List<CatSums> getT_OD_ASSESSMENT_CONTENT_DistinctCatSums(Guid aSSESSMENTS_IDX, string Cat);
 
+
         //************** T_OD_DUMP_ASSESSMENT_DOCUMENTS *********************************
         Guid? InsertUpdateT_OD_ASSESSMENT_DOCUMENTS(Guid? dOC_IDX, Guid aSSESSMENT_IDX);
         List<T_PRT_DOCUMENTS> GetT_PRT_DOCUMENTS_ByAssessmentIDX(Guid aSSESSMENT_IDX, string docType);
+
 
         //****************T_OD_CLEANUP_PROJECT ***********************************
         Guid? InsertUpdateT_OD_CLEANUP_PROJECT(Guid? cLEANUP_PROJECT_IDX, Guid? aSSESSMENT_IDX, string pROJECT_TYPE, string pROJECT_DESCRIPTION, DateTime? sTART_DATE,
@@ -193,9 +201,11 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
         List<CleanupProjectsDisplayType> getT_OD_CLEANUP_PROJECT_by_User(string UserID);
         int deleteT_OD_CLEANUP_PROJECT(Guid cLEANUP_PROJECT_IDX);
 
+
         //************** T_OD_CLEANUP_DOCUMENTS **********************************
         Guid? InsertUpdateT_OD_CLEANUP_DOCS(Guid? dOC_IDX, Guid cLEANUP_PROJECT_IDX);
         List<T_PRT_DOCUMENTS> GetT_PRT_DOCUMENTS_ByCleanupProjectIDX(Guid cLEANUP_PROJECT_IDX, string docType);
+
 
         //************** T_OD_CLEANUP_CLEANUP_DTL **********************************
         Guid? InsertUpdateT_OD_CLEANUP_CLEANUP_DTL(Guid? cLEANUP_CLEANUP_DTL_IDX, Guid? cLEANUP_PROJECT_IDX, string rEF_WASTE_TYPE_CAT, string rEF_ASSET_NAME, decimal? cLEANUP_COST);
@@ -203,12 +213,15 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
         decimal? getT_OD_CLEANUP_CLEANUP_DTL_Sum_by_ProjectIDX(Guid? cLEANUP_PROJECT_IDX);
         int deleteT_OD_CLEANUP_CLEANUP_DTL(Guid cLEANUP_CLEANUP_DTL_IDX);
 
+
         //************** T_OD_CLEANUP_TRANSPORT_DTL **********************************
         List<CleanupTransportDetailsType> getT_OD_CLEANUP_TRANSPORT_DTL_by_ProjectIDX(Guid? cLEANUP_PROJECT_IDX);
+
 
         //************** T_OD_CLEANUP_DISPOSAL_DTL **********************************
         Guid? InsertUpdateT_OD_CLEANUP_DISPOSAL_DTL(Guid? cLEANUP_DISPOSAL_DTL_IDX, Guid? cLEANUP_PROJECT_IDX, Guid? rEF_DISPOSAL_IDX, decimal? dISPOSAL_WEIGHT_LBS, decimal? dISPOSAL_COST, decimal? pRICE_PER_TON);
         List<CleanupDisposalDetailsType> getT_OD_CLEANUP_DISPOSAL_DTL_by_ProjectIDX(Guid? cLEANUP_PROJECT_IDX);
+
 
         //****************T_OD_CLEANUP_ACTIVITIES **********************************
         T_OD_CLEANUP_ACTIVITIES getT_OD_CLEANUP_ACTIVITIES_by_IDX(Guid? cLEANUP_ACTIVITY_IDX);
@@ -218,16 +231,19 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             string mODIFY_BY, decimal? cLEANUP_UNIT_COST, string qUANTITY, string qUANTITY_UNIT);
         int DeleteT_OD_CLEANUP_ACTIVITIES(Guid cLEANUP_ACTIVITY_IDX);
 
+
         //************** T_OD_REF_DATA **************************************************
         IEnumerable<SelectListItem> get_ddl_T_OD_REF_DATA_by_category(string cat_name, string org_id);
         List<T_OD_REF_DATA> get_T_OD_REF_DATA_by_category(string cat_name);
         List<SelectListItem> get_ddl_T_OD_REF_DATA_CATEGORIES();
-
+        int DeleteT_OD_REF_DATA(Guid rEF_DATA_IDX);
+        Guid? InsertUpdateT_OD_REF_DATA(Guid? rEF_DATA_IDX, string rEF_DATA_CAT_NAME, string rEF_DATA_VAL, string rEF_DATA_DESC, string oRG_ID, string mODIFY_BY);
 
         //************** T_OD_REF_THREAT_FACTORS ****************************************
         List<T_OD_REF_THREAT_FACTORS> getT_OD_REF_THREAT_FACTORS();
         IEnumerable<SelectListItem> get_ddl_OD_REF_THREAT_FACTORS_by_type(string factor_type);
         T_OD_REF_THREAT_FACTORS getT_OD_REF_THREAT_FACTOR_ByID(Guid threatFactorIDX);
+
 
         //************** T_OD_REF_WASTE_TYPE **************************************
         T_OD_REF_WASTE_TYPE get_T_OD_REF_WASTE_TYPE_by_WasteType(Guid rEF_WASTE_TYPE_IDX);
@@ -236,12 +252,15 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
         //************** T_OD_REF_WASTE_TYPE_UNITS **************************************
         IEnumerable<SelectListItem> get_ddl_T_OD_REF_WASTE_TYPE_UNITS_by_WasteType(Guid rEF_WASTE_TYPE_IDX);
 
+
         //************** T_OD_REF_DISPOSAL **********************************************
         IEnumerable<SelectListItem> get_ddl_ref_disposal();
         T_OD_REF_DISPOSAL getT_OD_REF_DISPOSAL_byID(Guid rEF_DISPOSAL_IDX);
 
+
         //************** REF_CLEANUP_TYPE **********************************
         IEnumerable<SelectListItem> get_ddl_CLEANUP_PROJECT_TYPE();
+
 
         //util
         int CalcCleanupEstimate(Guid CleanupProjectIDX, bool CalcCleanupCleanupDtl, bool CalcDisposalDtl, bool CalcTransportDtl);
@@ -356,7 +375,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
         }
 
         public Guid? InsertUpdateT_OD_SITES(Guid sITE_IDX, string rEPORTED_BY, DateTime? rEPORTED_ON, Guid? cOMMUNITY_IDX, Guid? sITE_SETTING_IDX, Guid? pF_AQUIFER_VERT_DIST,
-            Guid? pF_SURF_WATER_HORIZ_DIST, Guid? pF_HOMES_DIST, string cURRENT_SITE_STATUS)
+            Guid? pF_SURF_WATER_HORIZ_DIST, Guid? pF_HOMES_DIST, string cURRENT_SITE_STATUS, string pARCEL_LAYER)
         {
             try
             {
@@ -382,6 +401,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
                 if (pF_SURF_WATER_HORIZ_DIST != null) e.PF_SURF_WATER_HORIZ_DIST = pF_SURF_WATER_HORIZ_DIST;
                 if (pF_HOMES_DIST != null) e.PF_HOMES_DIST = pF_HOMES_DIST;
                 if (cURRENT_SITE_STATUS != null) e.CURRENT_SITE_STATUS = cURRENT_SITE_STATUS;
+                if (pARCEL_LAYER != null) e.PARCEL_LAYER = pARCEL_LAYER;
 
                 if (insInd)
                     ctx.T_OD_SITES.Add(e);
@@ -507,25 +527,22 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
                 Boolean insInd = false;
 
                 T_OD_SITE_PARCELS e = (from c in ctx.T_OD_SITE_PARCELS
-                                where c.SITE_PARCEL_IDX == sITE_PARCEL_IDX
-                                select c).FirstOrDefault();
-
-                if (e == null)
-                    e = (from c in ctx.T_OD_SITE_PARCELS
                          where c.SITE_IDX == sITE_IDX
-                         && e.PARCEL_NUM == pARCEL_NUM
+                         && c.PARCEL_NUM == pARCEL_NUM
                          select c).FirstOrDefault();
 
                 //insert case
                 if (e == null)
                 {
                     insInd = true;
-                    e = new T_OD_SITE_PARCELS();
-                    e.SITE_PARCEL_IDX = Guid.NewGuid();
-                    e.SITE_IDX = (Guid)sITE_IDX;
+                    e = new T_OD_SITE_PARCELS
+                    {
+                        SITE_PARCEL_IDX = Guid.NewGuid(),
+                        SITE_IDX = (Guid)sITE_IDX,
+                        PARCEL_NUM = pARCEL_NUM
+                    };
                 }
 
-                if (pARCEL_NUM != null) e.PARCEL_NUM = pARCEL_NUM;
                 if (oWNER != null) e.OWNER = oWNER;
                 if (aCRES != null) e.ACRES = aCRES;
 
@@ -541,6 +558,45 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             }
         }
 
+        public int DeleteT_OD_SITE_PARCELS(Guid sITE_PARCEL_IDX)
+        {
+            try
+            {
+                var xxx = new T_OD_SITE_PARCELS { SITE_PARCEL_IDX = sITE_PARCEL_IDX };
+                ctx.Entry(xxx).State = EntityState.Deleted;
+                ctx.SaveChanges();
+
+                return 1;
+            }
+            catch (Exception ex)
+            {
+                _log.LogEFException(ex);
+                return 0;
+            }
+        }
+
+        //************** REF_CLEANUP_TYPE **********************************
+        public IEnumerable<SelectListItem> get_ddl_PARCEL_LAYERS(string orgID)
+        {
+            try
+            {
+
+                return (from a in ctx.T_OD_REF_DATA
+                        where a.ORG_ID == orgID
+                        && a.REF_DATA_CAT_NAME == "Parcel Layer"
+                        orderby a.REF_DATA_DESC ascending
+                        select new SelectListItem
+                        {
+                            Value = a.REF_DATA_VAL,
+                            Text = a.REF_DATA_DESC
+                        }).ToList();
+            }
+            catch (Exception ex)
+            {
+                _log.LogEFException(ex);
+                return null;
+            }
+        }
 
 
         //************** T_OD_DUMP_ASSESSMENTS **********************************
@@ -1758,6 +1814,69 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
                 return null;
             }
         }
+
+        public int DeleteT_OD_REF_DATA(Guid rEF_DATA_IDX)
+        {
+            try
+            {
+                var xxx = new T_OD_REF_DATA { REF_DATA_IDX = rEF_DATA_IDX };
+                ctx.Entry(xxx).State = EntityState.Deleted;
+                ctx.SaveChanges();
+
+                return 1;
+            }
+            catch (Exception ex)
+            {
+                _log.LogEFException(ex);
+                return 0;
+            }
+        }
+
+        public Guid? InsertUpdateT_OD_REF_DATA(Guid? rEF_DATA_IDX, string rEF_DATA_CAT_NAME, string rEF_DATA_VAL, string rEF_DATA_DESC, string oRG_ID, string mODIFY_BY)
+        {
+            try
+            {
+                Boolean insInd = false;
+
+                //first grab from PK
+                T_OD_REF_DATA e = (from c in ctx.T_OD_REF_DATA
+                                             where c.REF_DATA_IDX == rEF_DATA_IDX
+                                             select c).FirstOrDefault();
+
+                //insert case
+                if (e == null)
+                {
+                    insInd = true;
+                    e = new T_OD_REF_DATA();
+                    e.REF_DATA_IDX = Guid.NewGuid();
+                    e.CREATE_USER_ID = mODIFY_BY;
+                    e.CREATE_DT = System.DateTime.Now;
+                }
+                else
+                {
+                    e.MODIFY_USER_ID = mODIFY_BY;
+                    e.MODIFY_DT = System.DateTime.Now;
+                }
+
+                if (rEF_DATA_CAT_NAME != null) e.REF_DATA_CAT_NAME = rEF_DATA_CAT_NAME;
+                if (rEF_DATA_VAL != null) e.REF_DATA_VAL = rEF_DATA_VAL;
+                if (rEF_DATA_DESC != null) e.REF_DATA_DESC = rEF_DATA_DESC;
+                if (oRG_ID != null) e.ORG_ID = oRG_ID;
+
+                if (insInd)
+                    ctx.T_OD_REF_DATA.Add(e);
+
+                ctx.SaveChanges();
+                return e.REF_DATA_IDX;
+            }
+            catch (Exception ex)
+            {
+                _log.LogEFException(ex);
+                return null;
+            }
+
+        }
+
 
 
         //************** T_OD_REF_THREAT_FACTORS **********************************

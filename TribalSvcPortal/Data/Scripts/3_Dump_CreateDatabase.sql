@@ -27,7 +27,7 @@
 
 
 --BUILD SCAFFOLDING script (Open Packages Manager (under tools) and run this command:)
-Scaffold-DbContext -UseDatabaseNames "Server=.\SQLEXPRESS;Database=TRIBAL_SVC_PORTAL;Trusted_Connection=True;" Microsoft.EntityFrameworkCore.SqlServer -OutputDir Data/Models -t T_OD_CLEANUP_DOCS, T_OD_CLEANUP_ACTIVITIES, T_OD_CLEANUP_CLEANUP_DTL, T_OD_CLEANUP_TRANSPORT_DTL, T_OD_CLEANUP_DISPOSAL_DTL, T_OD_CLEANUP_PROJECT, T_OD_ASSESSMENT_CONTENT, T_OD_ASSESSMENT_DOCS, T_OD_ASSESSMENTS, T_OD_SITES, T_OD_SITE_PARCELS, T_OD_REF_WASTE_TYPE, T_OD_REF_WASTE_TYPE_UNITS, T_OD_REF_WASTE_TYPE_CAT_CLEANUP, T_OD_REF_WASTE_TYPE_CAT, T_OD_REF_CLEANUP_ASSETS, T_OD_REF_THREAT_FACTORS, T_OD_REF_DATA, T_OD_REF_DATA_CATEGORIES, T_OD_REF_DISPOSAL, V_OD_SITES  -f -Context "ApplicationDbContextTemp"
+Scaffold-DbContext -UseDatabaseNames "Server=.\SQLEXPRESS;Database=TRIBAL_SVC_PORTAL;Trusted_Connection=True;" Microsoft.EntityFrameworkCore.SqlServer -OutputDir Data/Models -t T_OD_CLEANUP_DOCS, T_OD_CLEANUP_ACTIVITIES, T_OD_CLEANUP_CLEANUP_DTL, T_OD_CLEANUP_TRANSPORT_DTL, T_OD_CLEANUP_DISPOSAL_DTL, T_OD_CLEANUP_PROJECT, T_OD_ASSESSMENT_CONTENT, T_OD_ASSESSMENT_DOCS, T_OD_ASSESSMENTS, T_OD_SITES, T_OD_SITE_PARCELS, T_OD_REF_WASTE_TYPE, T_OD_REF_WASTE_TYPE_UNITS, T_OD_REF_WASTE_TYPE_CAT_CLEANUP, T_OD_REF_WASTE_TYPE_CAT, T_OD_REF_CLEANUP_ASSETS, T_OD_REF_THREAT_FACTORS, T_OD_REF_DATA, T_OD_REF_DATA_CATEGORIES, T_OD_REF_DISPOSAL, V_OD_SITES, V_OD_ASSESSMENTS  -f -Context "ApplicationDbContextTemp"
 */
 use [TRIBAL_SVC_PORTAL]
 
@@ -165,7 +165,7 @@ GO
 CREATE TABLE [T_OD_SITE_PARCELS] (
 	[SITE_PARCEL_IDX] uniqueidentifier NOT NULL,
 	[SITE_IDX] uniqueidentifier NOT NULL,
-	[PARCEL_NUM] varchar(20) NULL,
+	[PARCEL_NUM] varchar(40) NULL,
 	[OWNER] varchar(100) NULL,
 	[ACRES] varchar(20) NULL,
     CONSTRAINT [PK_T_OD_SITE_PARCELS] PRIMARY KEY ([SITE_PARCEL_IDX]),
@@ -337,7 +337,12 @@ CREATE TABLE [T_OD_CLEANUP_DOCS]
 );
 
 
+
+
+
 GO
+
+
 
 --********************************* VIEWS*********************************************************************************************************************
 --********************************* VIEWS*********************************************************************************************************************

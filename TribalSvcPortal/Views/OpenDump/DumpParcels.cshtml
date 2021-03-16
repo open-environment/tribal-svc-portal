@@ -31,47 +31,42 @@
     #viewDiv {
         padding: 0;
         margin: 0;
-        height:1000px;
+        height: 1000px;
         width: 1000px;
     }
 </style>
 
 <div id="viewDiv"></div>
 @*<div id="mapDiv">
-    <div id="info">
-        Hover over a parcel to get more information.
-    </div>
-</div>*@
+        <div id="info">
+            Hover over a parcel to get more information.
+        </div>
+    </div>*@
 
 
 @section scripts {
-
     <script src="https://js.arcgis.com/4.10/"></script>
-
     <script>
         require([
+            "esri/config",
             "esri/Map",
             "esri/views/MapView",
             "esri/layers/FeatureLayer",
-
             //"esri/symbols/SimpleFillSymbol", "esri/symbols/SimpleLineSymbol",
-
-            //"esri/renderers/SimpleRenderer", 
+            //"esri/renderers/SimpleRenderer",
             //"esri/Color", "dojo/number", "dojo/dom-style",
-
             //"esri/layers/GraphicsLayer",
             //"esri/Graphic",
             //"dijit/TooltipDialog", "dijit/popup", "dojo/domReady!"
-        ], function (Map, MapView,
-            FeatureLayer,
+        ], function (esriConfig, Map, MapView, FeatureLayer,
             //SimpleFillSymbol, SimpleLineSymbol,
-            //SimpleRenderer, 
+            //SimpleRenderer,
             //Color, number, domStyle,
-
             //GraphicsLayer,
             //Graphic, TooltipDialog, dijitPopup
         ) {
 
+            //esriConfig.apiKey = "AAPKf814d3d01985439ba7f862140a663e00hz33Wo3bT64i2ir3SDPx6UhDTLqkOSMXCu9Y-KfGIWPPjVJ5pHdBmdMNkEl1Pgr2";
             var map = new Map({
                 basemap: "streets"
             });
@@ -82,19 +77,18 @@
                 container: "viewDiv",
                 map: map,
                 zoom: 16,
-                center: [-95.96, 35.92] // longitude, latitude
+                center: [-96.59, 36.02] // longitude, latitude
             });
 
-
             /*************************************************************
- * The PopupTemplate content is the text that appears inside the
- * popup. {fieldName} can be used to reference the value of an
- * attribute of the selected feature. HTML elements can be used
- * to provide structure and styles within the content. The
- * fieldInfos property is an array of objects (each object representing
- * a field) that is use to format number fields and customize field
- * aliases in the popup and legend.
- **************************************************************/
+* The PopupTemplate content is the text that appears inside the
+* popup. {fieldName} can be used to reference the value of an
+* attribute of the selected feature. HTML elements can be used
+* to provide structure and styles within the content. The
+* fieldInfos property is an array of objects (each object representing
+* a field) that is use to format number fields and customize field
+* aliases in the popup and legend.
+**************************************************************/
 
             var template = { // autocasts as new PopupTemplate()
                 title: "Selected Parcel",
@@ -104,12 +98,20 @@
                     // in the content, it defaults to whatever may be set within the popupTemplate.
                     type: "fields",
                     fieldInfos: [{
-                        fieldName: "Parcel_Num",
-                        label: "Parcel #",
+                        fieldName: "PARCELID",
+                        label: "ParcelID",
                         visible: true
                     }, {
-                        fieldName: "Address",
-                        label: "Address",
+                        fieldName: "lot",
+                        label: "lot",
+                        visible: true
+                    }, {
+                        fieldName: "block",
+                        label: "block",
+                        visible: true
+                    }, {
+                        fieldName: "occDescr",
+                        label: "occDescr",
                         visible: true
                     }, {
                         fieldName: "Owner",
@@ -117,28 +119,84 @@
                         visible: true
                     }, {
                         fieldName: "Acres",
-                            label: "Acres",
+                        label: "Acres",
                         visible: true
-                        }, {
-                            fieldName: "Latitude",
-                            label: "Latitude",
-                            visible: true
-                        }, {
-                            fieldName: "Longitude",
-                            label: "Longitude",
-                            visible: true
-                        }]
+                    }, {
+                        fieldName: "Latitude",
+                        label: "Latitude",
+                        visible: true
+                    }, {
+                        fieldName: "Longitude",
+                        label: "Longitude",
+                        visible: true
+                    }]
                 }]
             };
 
-            var featureLayer = new FeatureLayer({
-                url: "https://arcdev1.mcngis.net/arcgisserver/rest/services/Parcels/TulsaParcels/MapServer",
-                outFields: ["*"],
+            var parcelLayer = new FeatureLayer({
+                //url: "https://arcdev1.mcngis.net/arcgisserver/rest/services/Parcels/TulsaParcels/MapServer",
+                url: "https://bearclan.geomcn.net/server/rest/services/Creek_CAMA/MapServer",
                 popupTemplate: template
             });
 
-            map.add(featureLayer);
+            //SQL query array
+            const parcelLayerSQL = ["PARCELID='0000-20-018-007-0-006-00'"];
+            let whereClause = parcelLayerSQL[0];
 
+            function queryFeatureLayer(/*extent*/) {
+                console.log('querying');
+                const parcelQuery = {
+                    where: whereClause,  // Set by select element
+                    spatialRelationship: "intersects", // Relationship operation to apply                    
+                    //geometry: extent, // Restricted to visible extent of the map
+                    outFields: ["*"], // Attributes to return
+                    returnGeometry: true
+                };
+
+                parcelLayer.queryFeatures(parcelQuery)
+                    .then((results) => {
+                        console.log("Feature count: " + results.features.length)
+                        displayResults(results);
+                    }).catch((error) => {
+                        console.log(error.error);
+                    });
+            }
+
+            queryFeatureLayer(/*view.extent*/);
+
+            map.add(parcelLayer);
+
+
+            function displayResults(results) {
+                // Create a blue polygon
+                const symbol = {
+                    type: "simple-fill",
+                    color: [20, 130, 200, 0.5],
+                    outline: {
+                        color: "white",
+                        width: .5
+                    },
+                };
+
+                const popupTemplate = {
+                    title: "Parcel {APN}",
+                    content: "Type: {UseType} <br> Land value: {Roll_LandValue} <br> Tax Rate City: {TaxRateCity}"
+                };
+
+                // Assign styles and popup to features
+                results.features.map((feature) => {
+                    feature.symbol = symbol;
+                    feature.popupTemplate = popupTemplate;
+                    return feature;
+                });
+
+                // Clear display
+                view.popup.close();
+                view.graphics.removeAll();
+                // Add features to graphics layer
+                view.graphics.addMany(results.features);
+
+            }
 
 
             //dialog = new TooltipDialog({
@@ -201,5 +259,5 @@
 
         });
     </script>
-    
+
 }

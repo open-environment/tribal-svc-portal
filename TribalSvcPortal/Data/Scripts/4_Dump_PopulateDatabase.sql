@@ -240,3 +240,21 @@ INSERT INTO T_OD_REF_DISPOSAL (DISPOSAL_NAME,PRICE_PER_TON) values ('Compost Lan
 INSERT INTO T_OD_REF_DISPOSAL (DISPOSAL_NAME,PRICE_PER_TON) values ('Metals Recycler',22.00);
 INSERT INTO T_OD_REF_DISPOSAL (DISPOSAL_NAME,PRICE_PER_TON) values ('Tire Recycler',26.00);
 INSERT INTO T_OD_REF_DISPOSAL (DISPOSAL_NAME,PRICE_PER_TON) values ('Tire Incinerator',31.00);
+
+
+--******PARCEL LAYERS REF DATA
+INSERT INTO T_OD_REF_DATA_CATEGORIES (REF_DATA_CAT_NAME, REF_DATA_CAT_DESC) VALUES ('Parcel Layer', 'Parcel Layer');
+
+INSERT INTO T_OD_REF_DATA (REF_DATA_IDX, ORG_ID, REF_DATA_CAT_NAME, REF_DATA_DESC, REF_DATA_VAL) values (newid(), 'MCNCREEK','Parcel Layer','Creek_CAMA','http://bearclan.geomcn.net/server/rest/services/Creek_CAMA/MapServer');
+INSERT INTO T_OD_REF_DATA (REF_DATA_IDX, ORG_ID, REF_DATA_CAT_NAME, REF_DATA_DESC, REF_DATA_VAL) values (newid(), 'MCNCREEK','Parcel Layer','Hughes_CAMA','http://bearclan.geomcn.net/server/rest/services/Hughes_CAMA/MapServer');
+INSERT INTO T_OD_REF_DATA (REF_DATA_IDX, ORG_ID, REF_DATA_CAT_NAME, REF_DATA_DESC, REF_DATA_VAL) values (newid(), 'MCNCREEK','Parcel Layer','Mayes_CAMA','http://bearclan.geomcn.net/server/rest/services/Mayes_CAMA/MapServer');
+INSERT INTO T_OD_REF_DATA (REF_DATA_IDX, ORG_ID, REF_DATA_CAT_NAME, REF_DATA_DESC, REF_DATA_VAL) values (newid(), 'MCNCREEK','Parcel Layer','McIntosh_CAMA','http://bearclan.geomcn.net/server/rest/services/McIntosh_CAMA/MapServer');
+INSERT INTO T_OD_REF_DATA (REF_DATA_IDX, ORG_ID, REF_DATA_CAT_NAME, REF_DATA_DESC, REF_DATA_VAL) values (newid(), 'MCNCREEK','Parcel Layer','Muskogee_CAMA','http://bearclan.geomcn.net/server/rest/services/Muskogee_CAMA/MapServer');
+INSERT INTO T_OD_REF_DATA (REF_DATA_IDX, ORG_ID, REF_DATA_CAT_NAME, REF_DATA_DESC, REF_DATA_VAL) values (newid(), 'MCNCREEK','Parcel Layer','Okfuskee_CAMA','http://bearclan.geomcn.net/server/rest/services/Okfuskee_CAMA/MapServer');
+INSERT INTO T_OD_REF_DATA (REF_DATA_IDX, ORG_ID, REF_DATA_CAT_NAME, REF_DATA_DESC, REF_DATA_VAL) values (newid(), 'MCNCREEK','Parcel Layer','Okmulgee_CAMA','http://bearclan.geomcn.net/server/rest/services/Okmulgee_CAMA/MapServer');
+INSERT INTO T_OD_REF_DATA (REF_DATA_IDX, ORG_ID, REF_DATA_CAT_NAME, REF_DATA_DESC, REF_DATA_VAL) values (newid(), 'MCNCREEK','Parcel Layer','Rogers_CAMA','http://bearclan.geomcn.net/server/rest/services/Rogers_CAMA/MapServer');
+INSERT INTO T_OD_REF_DATA (REF_DATA_IDX, ORG_ID, REF_DATA_CAT_NAME, REF_DATA_DESC, REF_DATA_VAL) values (newid(), 'MCNCREEK','Parcel Layer','Seminole_CAMA','http://bearclan.geomcn.net/server/rest/services/Seminole_CAMA/MapServer');
+INSERT INTO T_OD_REF_DATA (REF_DATA_IDX, ORG_ID, REF_DATA_CAT_NAME, REF_DATA_DESC, REF_DATA_VAL) values (newid(), 'MCNCREEK','Parcel Layer','Tulsa_CAMA','http://bearclan.geomcn.net/server/rest/services/Tulsa_CAMA/MapServer');
+INSERT INTO T_OD_REF_DATA (REF_DATA_IDX, ORG_ID, REF_DATA_CAT_NAME, REF_DATA_DESC, REF_DATA_VAL) values (newid(), 'MCNCREEK','Parcel Layer','Wagoner_CAMA','http://bearclan.geomcn.net/server/rest/services/Wagoner_CAMA/MapServer');
+
+

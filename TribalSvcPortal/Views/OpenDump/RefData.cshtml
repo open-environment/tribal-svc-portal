@@ -7,72 +7,143 @@
 <!-- render the top dropdown -->
 @using (Html.BeginForm("RefData", "OpenDump", FormMethod.Post, new { @class = "form-horizontal" }))
 {
-    <div class="form-group">
-        <label class="col-sm-2 control-label">
-            Data Category:
-        </label>
-        <div class="col-sm-6">
-            @Html.DropDownListFor(model => model.sel_ref_cat, Model.ddl_ref_cats, "", new { @class = "form-control", @onchange = "document.location.href = '/OpenDump/RefData?selTag=' + this.options[this.selectedIndex].value;" })
-        </div>
+<div class="form-group">
+    <label class="col-sm-2 control-label">
+        Data Category:
+    </label>
+    <div class="col-sm-6">
+        @Html.DropDownListFor(model => model.sel_ref_cat, Model.ddl_ref_cats, "", new { @class = "form-control", @onchange = "document.location.href = '/OpenDump/RefData?selTag=' + this.options[this.selectedIndex].value;" })
     </div>
+</div>
 }
 
 
 @if (!string.IsNullOrEmpty(Model.sel_ref_cat))
 {
-    <div class="row">
-        <div class="col-sm-12">
-            <section class="panel panel-default">
-                <div class="table-responsive">
-                    <table class="table table-striped m-b-none" data-ride="datatables">
-                        <thead class="thead-inverse">
-                            <tr>
-                                <th style="min-width: 70px;"></th>
-                                <th>Name</th>
-                                <th>Description</th>
-                                <th>Category</th>
-                                <th>Organization</th>
-                            </tr>
-                        </thead>
-                        @foreach (var item in Model.TOdRefData)
-                        {
+<div class="row">
+    <div class="col-sm-12">
+        <section class="panel panel-default">
+            <div class="table-responsive">
+                <table class="table table-striped m-b-none" data-ride="datatables">
+                    <thead class="thead-inverse">
                         <tr>
-                            <td>
-                                @if (User.IsInRole("OpenDumpAdmin") || (item.ORG_ID != null))
+                            <th style="min-width: 70px;"></th>
+                            <th>Name</th>
+                            <th>Description</th>
+                            <th>Category</th>
+                            <th>Organization</th>
+                        </tr>
+                    </thead>
+                    @foreach (var item in Model.TOdRefData)
+                        {
+                    <tr>
+                        <td>
+                            @if (User.IsInRole("OpenDumpAdmin") || (item.ORG_ID != null))
                                 {
 
-                                    <a href="#modal-form" class="btn btn-rounded btn-xs btn-info modal-it" data-toggle="modal"><i class="glyphicon glyphicon-pencil"></i></a>
-                                    <div class="delete-section" style="display:inline">
-                                        <a class=" btn btn-rounded btn-xs btn-danger delete-link"><i class="glyphicon glyphicon-remove"></i></a>
-                                        <div class="btn btn-rounded btn-xs btn-warning delete-confirm" style="display:none" data-delete-id="@item.REF_DATA_IDX" data-delete-p="/OpenDump/RefTagsDelete"><b>Confirm Delete</b></div>
-                                    </div>
-                                    @Html.HiddenFor(modelItem => item.REF_DATA_IDX)
-                                    @Html.HiddenFor(modelItem => item.REF_DATA_CAT_NAME)
-                                    @Html.HiddenFor(modelItem => item.REF_DATA_VAL)
-                                    @Html.HiddenFor(modelItem => item.REF_DATA_DESC)
-                                    @Html.HiddenFor(modelItem => item.ORG_ID)
+                            <a href="#modal-form" class="btn btn-rounded btn-xs btn-info modal-it" data-toggle="modal" data-id="@item.REF_DATA_IDX" data-val="@item.REF_DATA_VAL" data-desc="@item.REF_DATA_DESC"><i class="glyphicon glyphicon-pencil"></i></a>
+                            <div class="delete-section" style="display:inline">
+                                <a class=" btn btn-rounded btn-xs btn-danger delete-link"><i class="glyphicon glyphicon-remove"></i></a>
+                                <div class="btn btn-rounded btn-xs btn-warning delete-confirm" style="display:none" data-delete-id="@item.REF_DATA_IDX" data-delete-p="/OpenDump/RefDataDelete"><b>Confirm Delete</b></div>
+                            </div>
+                            @Html.HiddenFor(modelItem => item.REF_DATA_IDX)
+                            @Html.HiddenFor(modelItem => item.REF_DATA_CAT_NAME)
+                            @Html.HiddenFor(modelItem => item.REF_DATA_VAL)
+                            @Html.HiddenFor(modelItem => item.REF_DATA_DESC)
+                            @Html.HiddenFor(modelItem => item.ORG_ID)
                                 }
-                            </td>
-                            <td>
-                                @Html.DisplayFor(modelItem => item.REF_DATA_VAL)
-                            </td>
-                            <td>
-                                @Html.DisplayFor(modelItem => item.REF_DATA_DESC)
-                            </td>
-                            <td>
-                                @Html.DisplayFor(modelItem => item.REF_DATA_CAT_NAME)
-                            </td>
-                            <td>
-                                @Html.DisplayFor(modelItem => item.ORG_ID)
-                            </td>
-                        </tr>
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.REF_DATA_VAL)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.REF_DATA_DESC)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.REF_DATA_CAT_NAME)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.ORG_ID)
+                        </td>
+                    </tr>
                         }
-                    </table>
+                </table>
+            </div>
+        </section>
+        <p>
+            <a id="add-it" href="#modal-form" data-toggle="modal" class="add-it btn btn-rounded  btn-rounded btn-success"><i class="glyphicon glyphicon-plus"></i> Add New</a>
+        </p>
+    </div>
+</div>
+}
+
+
+<!-- START MODAL FORM  -->
+<div class="modal fade" id="modal-form" style="display: none;" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 style="float: left" class="modal-title">Edit Ref Data</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                @using (Html.BeginForm("RefData", "OpenDump", FormMethod.Post))
+                {
+                @Html.AntiForgeryToken()
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label>ID</label>
+                            @Html.TextBoxFor(model => model.edit_tag_idx, new { @class = "form-control", @readonly = "readonly" })
+                        </div>
+                    </div>
                 </div>
-            </section>
-            <p>
-                <a id="add-it" href="#modal-form" data-toggle="modal" class="add-it btn btn-rounded  btn-rounded btn-success"><i class="glyphicon glyphicon-plus"></i> Add New</a>
-            </p>
+                <div>
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label>Value</label>
+                            @Html.TextBoxFor(model => model.edit_tag, new { @class = "form-control" })
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label>Description</label>
+                            @Html.TextBoxFor(model => model.edit_tag_desc, new { @class = "form-control" })
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <button id="btnSave" type="submit" class="btn btn-eecip">Save</button>
+                        <button type="submit" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    </div>
+                </div>
+                }
+            </div>
         </div>
     </div>
+</div>
+<!-- END MODAL FORM -->
+
+
+@section scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+    <script src="~/js/confirm_delete.js"></script>
+    <script type="text/javascript">
+
+        ////load modal
+        $(document).on('click', '.modal-it', function () {
+            $("#edit_tag_idx").val($(this).attr('data-id'));
+            $("#edit_tag").val($(this).attr('data-val'));
+            $("#edit_tag_desc").val($(this).attr('data-desc'));
+        });
+
+    </script>
+
+
 }
