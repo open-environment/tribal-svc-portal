@@ -264,3 +264,4 @@ __pycache__/
 *.pyc
 /.localhistory/C/Users/bilaa/Source/Repos/tribal-svc-portal/TribalSvcPortal/1545512801$Program.cs
 /.localhistory/C/Users/bilaa/Source/Repos/tribal-svc-portal/TribalSvcPortal
+/TribalSvcPortal/Data/Scripts/1_Prt_CreateDatabase.sql
