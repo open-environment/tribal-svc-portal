@@ -5,12 +5,9 @@ namespace TribalSvcPortal.Data.Models
 {
     public partial class V_OD_ASSESSMENTS
     {
-        public V_OD_ASSESSMENTS()
-        {
-        }
         public Guid SITE_IDX { get; set; }
         public Guid ASSESSMENT_IDX { get; set; }
-        public DateTime? SiteAssessmentDate { get; set; }
+        public DateTime SiteAssessmentDate { get; set; }
         public string SiteAssessedBy { get; set; }
         public string AssessmentTypeText { get; set; }
         public string SiteStatusText { get; set; }

@@ -25,6 +25,8 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
         public string CurrentSiteStatus { get; set; }
         public T_OD_ASSESSMENTS LastAssessment { get; set; }
         public int? HEALTH_THREAT_SCORE { get; set; }
+        public bool PUB_IND { get; set; }
+
         public T_OD_CLEANUP_PROJECT LatestCleanupProject { get; set; }
     }
 
@@ -141,7 +143,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
         //************** T_OD_SITES **********************************
         T_OD_SITES getT_OD_SITES_BySITEIDX(Guid Siteidx);
         List<OpenDumpSiteListDisplay> getT_OD_SITES_ListBySearch(string id, string searchStr, string selOrg, string selStatus);
-        Guid? InsertUpdateT_OD_SITES(Guid sITE_IDX, string rEPORTED_BY, DateTime? rEPORTED_ON, Guid? cOMMUNITY_IDX, Guid? sITE_SETTING_IDX, Guid? pF_AQUIFER_VERT_DIST, Guid? pF_SURF_WATER_HORIZ_DIST, Guid? pF_HOMES_DIST, string cURRENT_SITE_STATUS, string pARCEL_LAYER);
+        Guid? InsertUpdateT_OD_SITES(Guid sITE_IDX, string rEPORTED_BY, DateTime? rEPORTED_ON, Guid? cOMMUNITY_IDX, Guid? sITE_SETTING_IDX, Guid? pF_AQUIFER_VERT_DIST, Guid? pF_SURF_WATER_HORIZ_DIST, Guid? pF_HOMES_DIST, string cURRENT_SITE_STATUS, string pARCEL_LAYER, bool? pUB_IND);
         string UpdateT_OD_SITES_Status(Guid sITE_IDX);
 
 
@@ -350,6 +352,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
                             ReportedOn = e.REPORTED_ON,
                             Latitude = d.LATITUDE,
                             Longitude = d.LONGITUDE,
+                            PUB_IND = e.PUB_IND,
                             LastAssessment = (from v1 in ctx.T_OD_ASSESSMENTS
                                              where v1.SITE_IDX == d.SITE_IDX
                                              orderby v1.ASSESSMENT_DT descending
@@ -375,7 +378,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
         }
 
         public Guid? InsertUpdateT_OD_SITES(Guid sITE_IDX, string rEPORTED_BY, DateTime? rEPORTED_ON, Guid? cOMMUNITY_IDX, Guid? sITE_SETTING_IDX, Guid? pF_AQUIFER_VERT_DIST,
-            Guid? pF_SURF_WATER_HORIZ_DIST, Guid? pF_HOMES_DIST, string cURRENT_SITE_STATUS, string pARCEL_LAYER)
+            Guid? pF_SURF_WATER_HORIZ_DIST, Guid? pF_HOMES_DIST, string cURRENT_SITE_STATUS, string pARCEL_LAYER, bool? pUB_IND)
         {
             try
             {
@@ -402,6 +405,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
                 if (pF_HOMES_DIST != null) e.PF_HOMES_DIST = pF_HOMES_DIST;
                 if (cURRENT_SITE_STATUS != null) e.CURRENT_SITE_STATUS = cURRENT_SITE_STATUS;
                 if (pARCEL_LAYER != null) e.PARCEL_LAYER = pARCEL_LAYER;
+                if (pUB_IND != null) e.PUB_IND = pUB_IND ?? false;
 
                 if (insInd)
                     ctx.T_OD_SITES.Add(e);
@@ -1057,6 +1061,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             {
                 return (from a in ctx.T_OD_ASSESSMENT_CONTENT
                         where a.ASSESSMENT_IDX == aSSESSMENT_IDX
+                        && a.WASTE_DISPOSAL_METHOD != null
                         group a by new { a.WASTE_DISPOSAL_METHOD } into grp
                         select new DispSums
                         {

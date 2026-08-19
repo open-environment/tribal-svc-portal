@@ -22,9 +22,11 @@ namespace TribalSvcPortal.Data.Models
         public string MODIFY_USER_ID { get; set; }
         public DateTime? MODIFY_DT { get; set; }
 
-        public T_PRT_REF_DOC_STATUS_TYPE DOC_STATUS_TYPENavigation { get; set; }
-        public T_PRT_REF_DOC_TYPE DOC_TYPENavigation { get; set; }
-        public T_PRT_ORGANIZATIONS ORG_ { get; set; }
-        public T_PRT_REF_SHARE_TYPE SHARE_TYPENavigation { get; set; }
+        public virtual T_PRT_REF_DOC_STATUS_TYPE DOC_STATUS_TYPENavigation { get; set; }
+        public virtual T_PRT_REF_DOC_TYPE DOC_TYPENavigation { get; set; }
+        public virtual T_PRT_ORGANIZATIONS ORG { get; set; }
+        public virtual T_PRT_REF_SHARE_TYPE SHARE_TYPENavigation { get; set; }
+        public virtual T_OD_ASSESSMENT_DOCS T_OD_ASSESSMENT_DOCS { get; set; }
+        public virtual T_OD_CLEANUP_DOCS T_OD_CLEANUP_DOCS { get; set; }
     }
 }

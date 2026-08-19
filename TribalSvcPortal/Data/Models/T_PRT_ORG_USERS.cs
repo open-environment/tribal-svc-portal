@@ -20,7 +20,8 @@ namespace TribalSvcPortal.Data.Models
         public string MODIFY_USER_ID { get; set; }
         public DateTime? MODIFY_DT { get; set; }
         public int? WordPressUserId { get; set; }
-        public T_PRT_ORGANIZATIONS ORG_ { get; set; }
-        public ICollection<T_PRT_ORG_USER_CLIENT> T_PRT_ORG_USER_CLIENT { get; set; }
+
+        public virtual ICollection<T_PRT_ORG_USER_CLIENT> T_PRT_ORG_USER_CLIENT { get; set; }
+        public virtual T_PRT_ORGANIZATIONS ORG { get; set; }
     }
 }

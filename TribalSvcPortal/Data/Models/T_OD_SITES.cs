@@ -20,12 +20,13 @@ namespace TribalSvcPortal.Data.Models
         public Guid? PF_HOMES_DIST { get; set; }
         public string CURRENT_SITE_STATUS { get; set; }
         public string PARCEL_LAYER { get; set; }
+        public bool PUB_IND { get; set; }
 
-        public T_OD_REF_DATA COMMUNITY_IDXNavigation { get; set; }
-        public T_OD_REF_THREAT_FACTORS PF_AQUIFER_VERT_DISTNavigation { get; set; }
-        public T_OD_REF_THREAT_FACTORS PF_HOMES_DISTNavigation { get; set; }
-        public T_OD_REF_THREAT_FACTORS PF_SURF_WATER_HORIZ_DISTNavigation { get; set; }
-        public T_OD_REF_DATA SITE_SETTING_IDXNavigation { get; set; }
-        public ICollection<T_OD_ASSESSMENTS> T_OD_ASSESSMENTS { get; set; }
+        public virtual T_OD_REF_DATA COMMUNITY_IDXNavigation { get; set; }
+        public virtual T_OD_REF_THREAT_FACTORS PF_AQUIFER_VERT_DISTNavigation { get; set; }
+        public virtual T_OD_REF_THREAT_FACTORS PF_HOMES_DISTNavigation { get; set; }
+        public virtual T_OD_REF_THREAT_FACTORS PF_SURF_WATER_HORIZ_DISTNavigation { get; set; }
+        public virtual T_OD_REF_DATA SITE_SETTING_IDXNavigation { get; set; }
+        public virtual ICollection<T_OD_ASSESSMENTS> T_OD_ASSESSMENTS { get; set; }
     }
 }

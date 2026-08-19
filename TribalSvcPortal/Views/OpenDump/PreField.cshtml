@@ -29,35 +29,33 @@
                         @Html.HiddenFor(model => model.TPrtSite.SITE_IDX)
                         @Html.HiddenFor(model => model.returnURL)
                         @Html.ValidationSummary(true, "", new { @class = "text-danger" })
-                        <div class="row">
-                            <div class="col-sm-12" style="margin-bottom:10px;">
-                                <div>
-                                    <label class="col-sm-1 control-label" style="margin-top:8px;">
-                                        Site Name
-                                    </label>
-                                    <div class="col-sm-3">
-                                        @Html.TextBoxFor(model => model.TPrtSite.SITE_NAME, new { @class = "form-control", @placeholder = "", @maxlength = "100", required = "required" })
-                                        @Html.ValidationMessageFor(model => model.TPrtSite.SITE_NAME, "", new { @class = "text-danger" })
-                                    </div>
-                                </div>
-                                <div>
-                                    <label class="col-sm-1 control-label" style="margin-top:8px;">
-                                        Organization
-                                    </label>
-                                    <div class="col-sm-3">
-                                        @Html.DropDownListFor(model => model.TPrtSite.ORG_ID, Model.OrgList, new { @class = "form-control", required = "required" })
-                                    </div>
-                                </div>
-                                <div>
-                                    <label class="col-sm-1 control-label" style="margin-top:8px;">
-                                        EPA ID
-                                    </label>
-                                    <div class="col-sm-3">
-                                        @Html.TextBoxFor(model => model.TPrtSite.EPA_ID, new { @class = "form-control", @placeholder = "", @maxlength = "50" })
-                                    </div>
-                                </div>
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>Site Name</label>
+                                @Html.TextBoxFor(model => model.TPrtSite.SITE_NAME, new { @class = "form-control", @placeholder = "", @maxlength = "100", required = "required" })
+                                @Html.ValidationMessageFor(model => model.TPrtSite.SITE_NAME, "", new { @class = "text-danger" })
                             </div>
                         </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Organization</label>
+                                @Html.DropDownListFor(model => model.TPrtSite.ORG_ID, Model.OrgList, new { @class = "form-control", required = "required" })
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <label>EPA ID</label>
+                                @Html.TextBoxFor(model => model.TPrtSite.EPA_ID, new { @class = "form-control", @placeholder = "", @maxlength = "50" })
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <label>Share w/Public</label>
+                                @Html.CheckBoxFor(model => model.TOdSite.PUB_IND, new { @class = "form-control", @style= "box-shadow: none;" })
+                            </div>
+                        </div>
+                    </div>
                         <div class="row">
                             <div class="col-md-12">
                                 <section class="panel panel-default">

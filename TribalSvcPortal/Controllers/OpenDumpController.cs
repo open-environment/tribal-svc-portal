@@ -256,14 +256,14 @@ namespace TribalSvcPortal.Controllers
             //INSERT/UPDATE PORTAL SITE
             Guid? newSiteID = _DbPortal.InsertUpdateT_PRT_SITES(model.TPrtSite.SITE_IDX, model.TPrtSite.ORG_ID, model.TPrtSite.SITE_NAME ?? "",
                     model.TPrtSite.EPA_ID ?? "", model.TPrtSite.LATITUDE, model.TPrtSite.LONGITUDE, model.TPrtSite.SITE_ADDRESS ?? "", _UserIDX, model.TPrtSite.LAND_STATUS,
-                    model.TPrtSite.TWP, model.TPrtSite.RANGE, model.TPrtSite.SECTION, model.TPrtSite.COUNTY);
+                    model.TPrtSite.TWP, model.TPrtSite.RANGE, model.TPrtSite.SECTION, model.TPrtSite.COUNTY, null);
 
 
             //INSERT/UPDATE OPEN DUMP SITE
             if (newSiteID != null)
             {
                 newSiteID = _DbOpenDump.InsertUpdateT_OD_SITES((Guid)newSiteID, model.TOdSite.REPORTED_BY, model.TOdSite.REPORTED_ON, model.TOdSite.COMMUNITY_IDX, model.TOdSite.SITE_SETTING_IDX,
-                    model.TOdSite.PF_AQUIFER_VERT_DIST, model.TOdSite.PF_SURF_WATER_HORIZ_DIST, model.TOdSite.PF_HOMES_DIST, null, null);
+                    model.TOdSite.PF_AQUIFER_VERT_DIST, model.TOdSite.PF_SURF_WATER_HORIZ_DIST, model.TOdSite.PF_HOMES_DIST, null, null, model.TOdSite.PUB_IND);
 
                 //if (newSiteID != null)
                 //{
@@ -271,30 +271,33 @@ namespace TribalSvcPortal.Controllers
                     //************************* UPDATE PARCELS *********************************
                     if (newLocation)
                     {
-                //        try
-                //        {
-                //            using (var client = new HttpClient())
-                //            {
-                //                client.BaseAddress = new Uri("https://arcdev1.mcngis.net/");
-                //                client.DefaultRequestHeaders.Accept.Clear();
-                //                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                    //        try
+                    //        {
+                    //            using (var client = new HttpClient())
+                    //            {
+                    //                client.BaseAddress = new Uri("https://arcdev1.mcngis.net/");
+                    //                client.DefaultRequestHeaders.Accept.Clear();
+                    //                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
-                //                HttpResponseMessage response = client.GetAsync("arcgisserver/rest/services/Parcels/" + countyName ?? "" + "Parcels/MapServer/0/query?returnGeometry=false&geometry=" + model.TPrtSite.LONGITUDE + "," + model.TPrtSite.LATITUDE + "&geometryType=esriGeometryPoint&inSR=4326&distance=25&units=esriSRUnit_Meter&f=pjson").GetAwaiter().GetResult();
-                //                if (response.IsSuccessStatusCode)
-                //                {
-                //                    var ddd = response.Content.ReadAsStringAsync().GetAwaiter().GetResult();
-                //                    dynamic stuff = JsonConvert.DeserializeObject(ddd);
+                    //                HttpResponseMessage response = client.GetAsync("arcgisserver/rest/services/Parcels/" + countyName ?? "" + "Parcels/MapServer/0/query?returnGeometry=false&geometry=" + model.TPrtSite.LONGITUDE + "," + model.TPrtSite.LATITUDE + "&geometryType=esriGeometryPoint&inSR=4326&distance=25&units=esriSRUnit_Meter&f=pjson").GetAwaiter().GetResult();
+                    //                if (response.IsSuccessStatusCode)
+                    //                {
+                    //                    var ddd = response.Content.ReadAsStringAsync().GetAwaiter().GetResult();
+                    //                    dynamic stuff = JsonConvert.DeserializeObject(ddd);
 
-                //                    _DbOpenDump.InsertUpdateT_OD_SITE_PARCELS(null, newSiteID, stuff.features[0].attributes.Parcel_Num, null, null);
-                //                }
-                //            }
-                //        }
-                //        catch { }
-                //    }
+                    //                    _DbOpenDump.InsertUpdateT_OD_SITE_PARCELS(null, newSiteID, stuff.features[0].attributes.Parcel_Num, null, null);
+                    //                }
+                    //            }
+                    //        }
+                    //        catch { }
+                    //    }
+                    //TempData["Success"] = "Update successful.";
+                    //return RedirectToAction("PreField", "OpenDump", new { id = newSiteID, returnURL = model.returnURL });
 
-                    TempData["Success"] = "Update successful.";
-                    return RedirectToAction("PreField", "OpenDump", new { id = newSiteID, returnURL = model.returnURL });
                 }
+                TempData["Success"] = "Update successful.";
+                return RedirectToAction("PreField", "OpenDump", new { id = newSiteID, returnURL = model.returnURL });
+
             }
 
             //error if got this far
@@ -361,7 +364,7 @@ namespace TribalSvcPortal.Controllers
                 if (succID != null)
                 {
                     if (parcelLayerURL != null)
-                        _DbOpenDump.InsertUpdateT_OD_SITES(site.GetValueOrDefault(), null, null, null, null, null, null, null, null, parcelLayerURL);
+                        _DbOpenDump.InsertUpdateT_OD_SITES(site.GetValueOrDefault(), null, null, null, null, null, null, null, null, parcelLayerURL, null);
 
                     return Json("Success");
                 }
@@ -1226,13 +1229,13 @@ namespace TribalSvcPortal.Controllers
                 {
                     //import prt site
                     T_PRT_SITES x = ps.T_PRT_SITES;
-                    Guid? SiteIDX = _DbPortal.InsertUpdateT_PRT_SITES(x.SITE_IDX, model.selOrg, x.SITE_NAME, x.EPA_ID, x.LATITUDE, x.LONGITUDE, x.SITE_ADDRESS, x.CREATE_USER_ID, x.LAND_STATUS, null, null, null, null);
+                    Guid? SiteIDX = _DbPortal.InsertUpdateT_PRT_SITES(x.SITE_IDX, model.selOrg, x.SITE_NAME, x.EPA_ID, x.LATITUDE, x.LONGITUDE, x.SITE_ADDRESS, x.CREATE_USER_ID, x.LAND_STATUS, null, null, null, null, null);
 
                     //import OD site
                     if (SiteIDX != null)
                     {
                         T_OD_SITES y = ps.T_OD_SITES;
-                        SiteIDX = _DbOpenDump.InsertUpdateT_OD_SITES((Guid)SiteIDX, y.REPORTED_BY, y.REPORTED_ON, y.COMMUNITY_IDX, y.SITE_SETTING_IDX, y.PF_AQUIFER_VERT_DIST, y.PF_SURF_WATER_HORIZ_DIST, y.PF_HOMES_DIST, y.CURRENT_SITE_STATUS, null);
+                        SiteIDX = _DbOpenDump.InsertUpdateT_OD_SITES((Guid)SiteIDX, y.REPORTED_BY, y.REPORTED_ON, y.COMMUNITY_IDX, y.SITE_SETTING_IDX, y.PF_AQUIFER_VERT_DIST, y.PF_SURF_WATER_HORIZ_DIST, y.PF_HOMES_DIST, y.CURRENT_SITE_STATUS, null, null);
 
                         //import assessment
                         if (ps.T_OD_ASSESSMENTS != null)

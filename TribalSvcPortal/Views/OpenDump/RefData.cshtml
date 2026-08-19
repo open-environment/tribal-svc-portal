@@ -2,8 +2,8 @@
 @{
     ViewBag.Title = "Open Dump Reference Data";
     ViewBag.SubTitle = "Edit the reference data used by the Open Dump Module.";
+    var appPath = Url.Content("~/");
 }
-
 <!-- render the top dropdown -->
 @using (Html.BeginForm("RefData", "OpenDump", FormMethod.Post, new { @class = "form-horizontal" }))
 {
@@ -12,7 +12,9 @@
         Data Category:
     </label>
     <div class="col-sm-6">
-        @Html.DropDownListFor(model => model.sel_ref_cat, Model.ddl_ref_cats, "", new { @class = "form-control", @onchange = "document.location.href = '/OpenDump/RefData?selTag=' + this.options[this.selectedIndex].value;" })
+        @Html.DropDownListFor(model => model.sel_ref_cat, Model.ddl_ref_cats, "", new { @class = "form-control", 
+                    @onchange = $"document.location.href = '{appPath}OpenDump/RefData?selTag=' + this.options[this.selectedIndex].value;"
+                })
     </div>
 </div>
 }

@@ -8,6 +8,7 @@ namespace TribalSvcPortal.Data.Models
         public Guid DOC_IDX { get; set; }
         public Guid CLEANUP_PROJECT_IDX { get; set; }
 
-        public T_OD_CLEANUP_PROJECT CLEANUP_PROJECT_IDXNavigation { get; set; }
+        public virtual T_OD_CLEANUP_PROJECT CLEANUP_PROJECT_IDXNavigation { get; set; }
+
     }
 }

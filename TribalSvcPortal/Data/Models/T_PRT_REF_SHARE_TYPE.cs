@@ -14,6 +14,6 @@ namespace TribalSvcPortal.Data.Models
         public string SHARE_DESC { get; set; }
         public bool? ACT_IND { get; set; }
 
-        public ICollection<T_PRT_DOCUMENTS> T_PRT_DOCUMENTS { get; set; }
+        public virtual ICollection<T_PRT_DOCUMENTS> T_PRT_DOCUMENTS { get; set; }
     }
 }

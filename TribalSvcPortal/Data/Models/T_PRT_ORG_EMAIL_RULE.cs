@@ -10,6 +10,6 @@ namespace TribalSvcPortal.Data.Models
         public int? MODIFY_USERIDX { get; set; }
         public DateTime? MODIFY_DT { get; set; }
 
-        public T_PRT_ORGANIZATIONS ORG_ { get; set; }
+        public virtual T_PRT_ORGANIZATIONS ORG { get; set; }
     }
 }

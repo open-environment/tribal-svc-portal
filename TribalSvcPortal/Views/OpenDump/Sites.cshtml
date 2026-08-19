@@ -90,6 +90,7 @@
                             }
                             <th>Site Name</th>
                             <th>Address</th>
+                            <th>Share w/Public</th>
                             <th>Reported</th>
                             <th>Status</th>
                             <th>Last Assessed</th>
@@ -101,63 +102,73 @@
                     {
                         @foreach (var item in Model.sites)
                         {
-                            <tr>
-                                <td style="min-width:65px">
-                                    <a href="@Url.Action("PreField", "OpenDump", new { id = item.SiteIdx, returnURL = "Sites" })" class="btn btn-rounded btn-xs btn-info"><i class="glyphicon glyphicon-pencil"></i></a>
-                                    <div class="delete-section" style="display:inline">
-                                        <a class=" btn btn-rounded btn-xs btn-danger delete-link"><i class="glyphicon glyphicon-remove"></i></a>
-                                        <div class="btn btn-rounded btn-xs btn-warning delete-confirm" style="display:none" data-delete-id="@item.SiteIdx" data-delete-p="/OpenDump/SiteDelete"><b>Confirm Delete</b></div>
-                                    </div>
-                                </td>
-                                @if (Model.ddl_Org.Count() > 1)
-                                {
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.OrgName)
-                                    </td>
-                                }
-                                <td>
-                                    @Html.DisplayFor(modelItem => item.SiteName)
-                                </td>
-                                <td>
-                                    @Html.DisplayFor(modelItem => item.SiteAddress)
-                                </td>
-                                <td>
-                                    @Html.DisplayFor(modelItem => item.ReportedBy)
-                                    @Html.DisplayFor(modelItem => item.ReportedOn)
-                                </td>
-                                <td>
-                                    @Html.DisplayFor(modelItem => item.CurrentSiteStatus)
-                                </td>
-                                <td>
-                                    @if (item.LastAssessment != null && item.LastAssessment.ASSESSMENT_DT != DateTime.MinValue)
-                                    {
-                                        @Convert.ToDateTime(item.LastAssessment.ASSESSMENT_DT).ToString("MM/dd/yyyy")
-                                    }
-                                </td>
-                                <td>
-                                    @if (item.HEALTH_THREAT_SCORE != null)
-                                    {
-                                        if (item.HEALTH_THREAT_SCORE > 400)
-                                        {
-                                            <span class="label label-danger"> High @Html.DisplayFor(modelItem => item.HEALTH_THREAT_SCORE)</span>
-                                        }
-                                        else if (item.HEALTH_THREAT_SCORE > 250)
-                                        {
-                                            <span class="label label-warning">Medium (@Html.DisplayFor(modelItem => item.HEALTH_THREAT_SCORE))</span>
-                                        }
-                                        else
-                                        {
-                                            <span class="label label-success">Low @Html.DisplayFor(modelItem => item.HEALTH_THREAT_SCORE)</span>
-                                        }
-                                    }
-                                </td>
-                                <td>
-                                    @if (item.LatestCleanupProject != null)
-                                    {
-                                        <text>$ </text> @Html.DisplayFor(modelItem => item.LatestCleanupProject.COST_TOTAL_AMT)
-                                    }
-                                </td>
-                            </tr>
+                <tr>
+                    <td style="min-width:65px">
+                        <a href="@Url.Action("PreField", "OpenDump", new { id = item.SiteIdx, returnURL = "Sites" })" class="btn btn-rounded btn-xs btn-info"><i class="glyphicon glyphicon-pencil"></i></a>
+                        <div class="delete-section" style="display:inline">
+                            <a class=" btn btn-rounded btn-xs btn-danger delete-link"><i class="glyphicon glyphicon-remove"></i></a>
+                            <div class="btn btn-rounded btn-xs btn-warning delete-confirm" style="display:none" data-delete-id="@item.SiteIdx" data-delete-p="/OpenDump/SiteDelete"><b>Confirm Delete</b></div>
+                        </div>
+                    </td>
+                    @if (Model.ddl_Org.Count() > 1)
+                    {
+                        <td>
+                            @Html.DisplayFor(modelItem => item.OrgName)
+                        </td>
+                    }
+                    <td>
+                        @Html.DisplayFor(modelItem => item.SiteName)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.SiteAddress)
+                    </td>
+                    <td>
+                        @if (item.PUB_IND)
+                        {
+                            <span>Yes</span>
+                        }
+                        else
+                        {
+                            <span>No</span>
+                        }
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.ReportedBy)
+                        @Html.DisplayFor(modelItem => item.ReportedOn)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.CurrentSiteStatus)
+                    </td>
+                    <td>
+                        @if (item.LastAssessment != null && item.LastAssessment.ASSESSMENT_DT != DateTime.MinValue)
+                        {
+                            @Convert.ToDateTime(item.LastAssessment.ASSESSMENT_DT).ToString("MM/dd/yyyy")
+                        }
+                    </td>
+                    <td>
+                        @if (item.HEALTH_THREAT_SCORE != null)
+                        {
+                            if (item.HEALTH_THREAT_SCORE > 400)
+                            {
+                                <span class="label label-danger"> High @Html.DisplayFor(modelItem => item.HEALTH_THREAT_SCORE)</span>
+                            }
+                            else if (item.HEALTH_THREAT_SCORE > 250)
+                            {
+                                <span class="label label-warning">Medium (@Html.DisplayFor(modelItem => item.HEALTH_THREAT_SCORE))</span>
+                            }
+                            else
+                            {
+                                <span class="label label-success">Low @Html.DisplayFor(modelItem => item.HEALTH_THREAT_SCORE)</span>
+                            }
+                        }
+                    </td>
+                    <td>
+                        @if (item.LatestCleanupProject != null)
+                        {
+                            <text>$ </text> @Html.DisplayFor(modelItem => item.LatestCleanupProject.COST_TOTAL_AMT)
+                        }
+                    </td>
+                </tr>
                         }
                     }
 

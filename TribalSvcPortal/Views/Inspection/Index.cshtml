@@ -1,0 +1,115 @@
+﻿@model TribalSvcPortal.ViewModels.InspectionViewModels.IndexViewModel
+@{
+    ViewBag.Title = "Inspection Result Reports";
+    ViewBag.SubTitle = "Retrieve and view inspection results";
+}
+
+
+<!-- START: MAIN CONTENT -->
+<section class="panel panel-default">
+    <header class="panel-heading">Inspections</header>
+    <div class="panel-body">
+        <div style="display: flex; gap: 10px;">
+        @using (Html.BeginForm("ImportPlumbing", "Inspection", FormMethod.Post, new { @class = "form-inline m-b-xs" }))
+        {
+            @Html.AntiForgeryToken()
+            <button type="submit" class="btn btn-primary">Retrieve Plumbing</button>
+        }
+        @using (Html.BeginForm("ImportElectrical", "Inspection", FormMethod.Post, new { @class = "form-inline m-b-xs" }))
+        {
+            @Html.AntiForgeryToken()
+                <button type="submit" class="btn btn-primary">Retrieve Electrical/Mech</button>
+        }
+        @using (Html.BeginForm("ImportFire", "Inspection", FormMethod.Post, new { @class = "form-inline m-b-xs" }))
+        {
+            @Html.AntiForgeryToken()
+                <button type="submit" class="btn btn-primary">Retrieve Fire</button>
+        }
+        @using (Html.BeginForm("ImportBuilding", "Inspection", FormMethod.Post, new { @class = "form-inline m-b-xs" }))
+        {
+            @Html.AntiForgeryToken()
+                <button type="submit" class="btn btn-primary">Retrieve Building</button>
+        }
+            @using (Html.BeginForm("ImportLife", "Inspection", FormMethod.Post, new { @class = "form-inline m-b-xs" }))
+            {
+                @Html.AntiForgeryToken()
+                <button type="submit" class="btn btn-primary">Retrieve Life Safety</button>
+            }
+        </div>
+        <br/>
+        @using (Html.BeginForm("Index", "Inspection", FormMethod.Get, new { @class = "form-inline" }))
+        {
+            <div class="form-group" style="margin-right:10px;">
+                <label for="selAssessType" class="control-label">Inspection Type</label><br>
+                @Html.DropDownListFor(m => m.selAssessType, Model.ddl_AssessType, "", new { @class = "form-control", style = "width:auto; display:inline-block;" })
+            </div>
+            <div class="form-group" style="margin-right:10px;">
+                <label for="str" class="control-label">Facility Name</label><br>
+                @Html.TextBoxFor(m => m.str, new { @class = "form-control", @style = "width:auto; display:inline-block;" })
+            </div>
+            <div class="form-group" style="margin-right:10px;">
+                <label for="str" class="control-label">Building Use</label><br>
+                @Html.TextBoxFor(m => m.bldg, new { @class = "form-control", @style = "width:auto; display:inline-block;" })
+            </div>
+            <div class="form-group" style="vertical-align:bottom;">
+                <input type="submit" value="Filter" class="btn btn-eecip" />
+            </div>
+        }
+        <div class="table-responsive">
+            <table class="table table-hover table-striped m-b-none" data-ride="datatables">
+                <thead>
+                    <tr class="thead-inverse">
+                        <th style="min-width:70px">
+                        </th>
+                        <th>Year</th>
+                        <th>Site ID</th>
+                        <th>Site Name</th>
+                        <th>Building Use</th>
+                        <th>Assessment Type</th>
+                        <th>Date of Assessment</th>
+                        <th>Assessed by</th>
+                    </tr>
+                </thead>
+                @if (Model != null && Model.Assessments != null)
+                {
+                    foreach (var item in Model.Assessments)
+                    {
+                        <tr>
+                            <td style="min-width:65px">
+@*                                 <a href="@Url.Action("Details", "Inspection", new { id = item.ASSESSMENT_IDX })" class="btn btn-rounded btn-xs btn-info">
+                                    <i class="glyphicon glyphicon-pencil"></i>
+                                </a> *@
+                                <a href="@Url.Action("InspectionReport", "Inspection", new { id = item.ASSESSMENT_IDX })" title="Print PDF" class="btn btn-rounded btn-xs btn-eecip">
+                                    <i class="clip-file-pdf"></i>
+                                </a>
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.YR)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.SITE_ID)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.SITE_NAME)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.BUILDING_TYPE)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.INSP_TYP)
+                            </td>
+                            <td>
+                                @Convert.ToDateTime(item.ASSESSMENT_DT).ToString("MM/dd/yyyy")
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.ASSESSED_BY)
+                            </td>
+                        </tr>
+                    }
+                }
+
+
+            </table>
+        </div>
+    </div>
+</section>

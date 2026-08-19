@@ -13,6 +13,6 @@ namespace TribalSvcPortal.Data.Models
         public string REF_DATA_CAT_NAME { get; set; }
         public string REF_DATA_CAT_DESC { get; set; }
 
-        public ICollection<T_OD_REF_DATA> T_OD_REF_DATA { get; set; }
+        public virtual ICollection<T_OD_REF_DATA> T_OD_REF_DATA { get; set; }
     }
 }

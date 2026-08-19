@@ -2,6 +2,7 @@
 @{
     ViewBag.Title = "Manage User Access Rights";
     ViewBag.SubTitle = "Manage which users can access the client applications for the tribe you manage.";
+    var appPath = Url.Content("~/");
 }
 
 <!-- render the top dropdown -->
@@ -12,7 +13,9 @@
             Tribal Application:
         </label>
         <div class="col-sm-6">
-            @Html.DropDownListFor(model => model.selOrgUserClient, Model.ddl_AdminOfOrgClients, "", new { @class = "form-control", @onchange = "document.location.href = '/Admin/ManageUsers/' + this.options[this.selectedIndex].value;" })
+            @Html.DropDownListFor(model => model.selOrgUserClient, Model.ddl_AdminOfOrgClients, "", new { @class = "form-control",
+                    @onchange = $"document.location.href = '{appPath}Admin/ManageUsers/' + this.options[this.selectedIndex].value;"
+                })
         </div>
     </div>
 }

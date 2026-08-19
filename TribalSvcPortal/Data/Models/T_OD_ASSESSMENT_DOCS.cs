@@ -8,6 +8,6 @@ namespace TribalSvcPortal.Data.Models
         public Guid DOC_IDX { get; set; }
         public Guid ASSESSMENT_IDX { get; set; }
 
-        public T_OD_ASSESSMENTS ASSESSMENT_IDXNavigation { get; set; }
+        public virtual T_OD_ASSESSMENTS ASSESSMENT_IDXNavigation { get; set; }
     }
 }

@@ -33,11 +33,11 @@ namespace TribalSvcPortal.Data.Models
         public string CLEANUP_BY { get; set; }
         public string CLEANUP_BY_TITLE { get; set; }
 
-        public T_OD_ASSESSMENTS ASSESSMENT_IDXNavigation { get; set; }
-        public ICollection<T_OD_CLEANUP_ACTIVITIES> T_OD_CLEANUP_ACTIVITIES { get; set; }
-        public ICollection<T_OD_CLEANUP_CLEANUP_DTL> T_OD_CLEANUP_CLEANUP_DTL { get; set; }
-        public ICollection<T_OD_CLEANUP_DISPOSAL_DTL> T_OD_CLEANUP_DISPOSAL_DTL { get; set; }
-        public ICollection<T_OD_CLEANUP_DOCS> T_OD_CLEANUP_DOCS { get; set; }
-        public ICollection<T_OD_CLEANUP_TRANSPORT_DTL> T_OD_CLEANUP_TRANSPORT_DTL { get; set; }
+        public virtual T_OD_ASSESSMENTS ASSESSMENT_IDXNavigation { get; set; }
+        public virtual ICollection<T_OD_CLEANUP_ACTIVITIES> T_OD_CLEANUP_ACTIVITIES { get; set; }
+        public virtual ICollection<T_OD_CLEANUP_CLEANUP_DTL> T_OD_CLEANUP_CLEANUP_DTL { get; set; }
+        public virtual ICollection<T_OD_CLEANUP_DISPOSAL_DTL> T_OD_CLEANUP_DISPOSAL_DTL { get; set; }
+        public virtual ICollection<T_OD_CLEANUP_DOCS> T_OD_CLEANUP_DOCS { get; set; }
+        public virtual ICollection<T_OD_CLEANUP_TRANSPORT_DTL> T_OD_CLEANUP_TRANSPORT_DTL { get; set; }
     }
 }

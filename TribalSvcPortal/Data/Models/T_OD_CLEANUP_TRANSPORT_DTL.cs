@@ -13,6 +13,6 @@ namespace TribalSvcPortal.Data.Models
         public decimal? HOURLY_RATE { get; set; }
         public decimal? TRANSPORT_COST { get; set; }
 
-        public T_OD_CLEANUP_PROJECT CLEANUP_PROJECT_IDXNavigation { get; set; }
+        public virtual T_OD_CLEANUP_PROJECT CLEANUP_PROJECT_IDXNavigation { get; set; }
     }
 }

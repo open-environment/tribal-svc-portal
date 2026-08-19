@@ -12,6 +12,6 @@ namespace TribalSvcPortal.Data.Models
         public decimal? DISPOSAL_COST { get; set; }
         public decimal? PRICE_PER_TON { get; set; }
 
-        public T_OD_CLEANUP_PROJECT CLEANUP_PROJECT_IDXNavigation { get; set; }
+        public virtual T_OD_CLEANUP_PROJECT CLEANUP_PROJECT_IDXNavigation { get; set; }
     }
 }

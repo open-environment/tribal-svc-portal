@@ -2,6 +2,7 @@
 @{
     ViewData["Title"] = "Email Template Configuration";
     ViewData["SubTitle"] = "Configure the email templates used to send out emails.";
+    var appPath = Url.Content("~/");
 }
 
 <!-- render the top dropdown -->
@@ -12,7 +13,9 @@
             Email Template:
         </label>
         <div class="col-sm-6">
-            @Html.DropDownListFor(model => model.selTemplate, Model.ddl_EmailTemplate, "", new { @class = "form-control", @onchange = "document.location.href = '/Admin/EmailConfig?id=' + this.options[this.selectedIndex].value;" })
+            @Html.DropDownListFor(model => model.selTemplate, Model.ddl_EmailTemplate, "", new { @class = "form-control",
+                    @onchange = $"document.location.href = '{appPath}Admin/EmailConfig?id=' + this.options[this.selectedIndex].value;"
+                })
         </div>
     </div>
 }

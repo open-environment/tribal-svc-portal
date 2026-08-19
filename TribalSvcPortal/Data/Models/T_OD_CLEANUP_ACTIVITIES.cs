@@ -18,6 +18,6 @@ namespace TribalSvcPortal.Data.Models
         public string QUANTITY { get; set; }
         public string QUANTITY_UNIT { get; set; }
 
-        public T_OD_CLEANUP_PROJECT CLEANUP_PROJECT_IDXNavigation { get; set; }
+        public virtual T_OD_CLEANUP_PROJECT CLEANUP_PROJECT_IDXNavigation { get; set; }
     }
 }

@@ -36,17 +36,17 @@ namespace TribalSvcPortal.Data.Models
         public string MODIFY_USER_ID { get; set; }
         public DateTime? MODIFY_DT { get; set; }
 
-        public T_OD_REF_DATA ASSESSMENT_TYPE_IDXNavigation { get; set; }
-        public T_OD_REF_THREAT_FACTORS HF_ACCESS_CONTROLNavigation { get; set; }
-        public T_OD_REF_THREAT_FACTORS HF_BURNINGNavigation { get; set; }
-        public T_OD_REF_THREAT_FACTORS HF_DRAINAGENavigation { get; set; }
-        public T_OD_REF_THREAT_FACTORS HF_FENCINGNavigation { get; set; }
-        public T_OD_REF_THREAT_FACTORS HF_FLOODINGNavigation { get; set; }
-        public T_OD_REF_THREAT_FACTORS HF_PUBLIC_CONCERNNavigation { get; set; }
-        public T_OD_REF_THREAT_FACTORS HF_RAINFALLNavigation { get; set; }
-        public T_OD_SITES SITE_IDXNavigation { get; set; }
-        public ICollection<T_OD_ASSESSMENT_CONTENT> T_OD_ASSESSMENT_CONTENT { get; set; }
-        public ICollection<T_OD_ASSESSMENT_DOCS> T_OD_ASSESSMENT_DOCS { get; set; }
-        public ICollection<T_OD_CLEANUP_PROJECT> T_OD_CLEANUP_PROJECT { get; set; }
+        public virtual T_OD_REF_DATA ASSESSMENT_TYPE_IDXNavigation { get; set; }
+        public virtual T_OD_REF_THREAT_FACTORS HF_ACCESS_CONTROLNavigation { get; set; }
+        public virtual T_OD_REF_THREAT_FACTORS HF_BURNINGNavigation { get; set; }
+        public virtual T_OD_REF_THREAT_FACTORS HF_DRAINAGENavigation { get; set; }
+        public virtual T_OD_REF_THREAT_FACTORS HF_FENCINGNavigation { get; set; }
+        public virtual T_OD_REF_THREAT_FACTORS HF_FLOODINGNavigation { get; set; }
+        public virtual T_OD_REF_THREAT_FACTORS HF_PUBLIC_CONCERNNavigation { get; set; }
+        public virtual T_OD_REF_THREAT_FACTORS HF_RAINFALLNavigation { get; set; }
+        public virtual T_OD_SITES SITE_IDXNavigation { get; set; }
+        public virtual ICollection<T_OD_ASSESSMENT_CONTENT> T_OD_ASSESSMENT_CONTENT { get; set; }
+        public virtual ICollection<T_OD_ASSESSMENT_DOCS> T_OD_ASSESSMENT_DOCS { get; set; }
+        public virtual ICollection<T_OD_CLEANUP_PROJECT> T_OD_CLEANUP_PROJECT { get; set; }
     }
 }

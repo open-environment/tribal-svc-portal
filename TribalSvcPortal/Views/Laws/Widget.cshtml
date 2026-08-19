@@ -1,0 +1,46 @@
+﻿@{
+    ViewBag.Pub = true;
+    Layout = "";
+    ViewBag.Title = "Substance & Laws/Regulations Search";
+}
+<link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
+<link rel="stylesheet" href="~/css/fonts.css" />
+<link rel="stylesheet" href="~/css/site.css" />
+<style>
+    .widgetAir {
+        width: 214px;
+        min-height: 139px;
+        padding: 8px 5px 0px 5px;
+        margin: 5px 5px 0px 5px;
+        font-family: Arial, Helvetica, sans-serif;
+        background-color: green;
+        background-repeat: no-repeat;
+        float: left;
+        font-size: 12px;
+        color: #fff;
+        border-top-left-radius: 10px;
+        border-top-right-radius: 10px;
+    }
+</style>
+<div class="widgetAir">
+    <h4 style="font-weight:bold">MCN/EPA Law/Regulation Search</h4>
+    <hr style="margin:0; " />
+    <form action="@Url.Action("Index","Laws" )" name="airs" method="get" id="airs" target="blank">
+        <label for="ghg">Search EPA and MCN Laws & Regulations</label>
+        <table cellspacing="0" cellpadding="0" border="0">
+            <tbody>
+                <tr align="left">
+                    <td>
+                        <input id="ghg" style="border: white 1px solid; height: 26px; width: 179px; color: black;" maxlength="150" size="25" name="pLocation">
+                    </td>
+                    <td width="25">
+                        <img />
+                        <button type="submit" form="airs" align="middle" value="Go" class="btn btn-xs  btn-success" style="height:26px;border-radius:0">
+                            <img src="~/images/mag-glass.png" style="width:12px;" alt="buttonpng" border="0" />
+                        </button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </form>
+</div>

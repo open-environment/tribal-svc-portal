@@ -117,8 +117,9 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
         List<T_PRT_SYS_EMAIL_LOG> GetT_PRT_SYS_EMAIL_LOG();
 
         //**************************** T_PRT_SITES ***********************************************
-        Guid? InsertUpdateT_PRT_SITES(Guid? sITE_IDX, string oRG_ID, string sITE_NAME, string ePA_ID, decimal? lATITUDE, decimal? lONGITUDE, string sITE_ADDRESS, string UserIDX, string lAND_STATUS, string tWP, string rANGE, int? sECTION, string cOUNTY);
+        Guid? InsertUpdateT_PRT_SITES(Guid? sITE_IDX, string oRG_ID, string sITE_NAME, string ePA_ID, decimal? lATITUDE, decimal? lONGITUDE, string sITE_ADDRESS, string UserIDX, string lAND_STATUS, string tWP, string rANGE, int? sECTION, string cOUNTY, string sITE_ID);
         T_PRT_SITES GetT_PRT_SITES_BySITEIDX(Guid Siteidx);
+        T_PRT_SITES GetT_PRT_SITES_BySITEID(string SiteID);
         int DeleteT_PRT_SITES(Guid sITE_IDX);
         IEnumerable<SelectListItem> get_ddl_T_PRT_LAND_STATUS();
         List<SelectListItem> getT_PRT_SITES_UniqueCounties();
@@ -1274,7 +1275,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
 
         //*****************SITES *************************************
         public Guid? InsertUpdateT_PRT_SITES(Guid? sITE_IDX, string oRG_ID, string sITE_NAME, string ePA_ID, decimal? lATITUDE, decimal? lONGITUDE, string sITE_ADDRESS, string UserIDX, string lAND_STATUS,
-            string tWP, string rANGE, int? sECTION, string cOUNTY)
+            string tWP, string rANGE, int? sECTION, string cOUNTY, string sITE_ID)
         {
             try
             {
@@ -1310,6 +1311,7 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
                 if (rANGE != null) e.RANGE = rANGE;
                 if (sECTION != null) e.SECTION = sECTION;
                 if (cOUNTY != null) e.COUNTY = cOUNTY;
+                if (sITE_ID != null) e.SITE_ID = sITE_ID;
 
                 if (insInd)
                     ctx.T_PRT_SITES.Add(e);
@@ -1330,6 +1332,21 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
             {
                 return (from a in ctx.T_PRT_SITES
                         where a.SITE_IDX == Siteidx
+                        select a).FirstOrDefault();
+            }
+            catch (Exception ex)
+            {
+                _log.LogEFException(ex);
+                return null;
+            }
+        }
+
+        public T_PRT_SITES GetT_PRT_SITES_BySITEID(string SiteID)
+        {
+            try
+            {
+                return (from a in ctx.T_PRT_SITES
+                        where a.SITE_ID == SiteID
                         select a).FirstOrDefault();
             }
             catch (Exception ex)
@@ -1463,9 +1480,9 @@ namespace TribalSvcPortal.AppLogic.DataAccessLayer
         {
             try
             {
-                ctx.Database.ExecuteSqlCommand("DELETE FROM T_OD_ASSESSMENT_DOCS where DOC_IDX = {0}", DocIDX);
-                ctx.Database.ExecuteSqlCommand("DELETE FROM T_OD_CLEANUP_DOCS where DOC_IDX = {0}", DocIDX);
-                ctx.Database.ExecuteSqlCommand("DELETE FROM T_PRT_DOCUMENTS where DOC_IDX = {0}", DocIDX);
+                ctx.Database.ExecuteSqlRaw("DELETE FROM T_OD_ASSESSMENT_DOCS where DOC_IDX = {0}", DocIDX);
+                ctx.Database.ExecuteSqlRaw("DELETE FROM T_OD_CLEANUP_DOCS where DOC_IDX = {0}", DocIDX);
+                ctx.Database.ExecuteSqlRaw("DELETE FROM T_PRT_DOCUMENTS where DOC_IDX = {0}", DocIDX);
 
                 return 1;
             }

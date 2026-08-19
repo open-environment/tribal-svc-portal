@@ -15,7 +15,7 @@ namespace TribalSvcPortal.Data.Models
         public bool? PER_UNIT_IND { get; set; }
         public string ORG_ID { get; set; }
 
-        public T_OD_REF_CLEANUP_ASSETS REF_ASSET_NAMENavigation { get; set; }
-        public T_OD_REF_WASTE_TYPE_CAT REF_WASTE_TYPE_CATNavigation { get; set; }
+        public virtual T_OD_REF_CLEANUP_ASSETS REF_ASSET_NAMENavigation { get; set; }
+        public virtual T_OD_REF_WASTE_TYPE_CAT REF_WASTE_TYPE_CATNavigation { get; set; }
     }
 }

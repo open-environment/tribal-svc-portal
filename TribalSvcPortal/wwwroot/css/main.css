@@ -351,12 +351,12 @@ a.bricky:hover {
 .go-top {
     cursor: pointer;
     display: block;
-    width: 30px;
-    height: 30px;
+    width: 28px;
+    height: 28px;
     font-size: 16px;
     margin-bottom: 0;
     margin-right: 0;
-    margin-top: -2px;
+    margin-top: 0;
     text-decoration: none;
     line-height: 30px;
     text-align: center;
@@ -1632,7 +1632,7 @@ ul.main-navigation-menu > li > ul.sub-menu > li > ul.sub-menu > li > ul.sub-menu
  /* ---------------------------------------------------------------------- */
 .footer {
     font-size: 12px;
-    padding: 8px 20px 5px;
+/*    padding: 8px 20px 5px;*/
     position: relative;
 }
 
@@ -1653,7 +1653,9 @@ ul.main-navigation-menu > li > ul.sub-menu > li > ul.sub-menu > li > ul.sub-menu
     border-top-width: 1px;
     border-top-style: solid;
 }
-
+.footer-right {
+    padding-top: 5px;
+}
 /* ---------------------------------------------------------------------- */
 /*	Breadcrumb
  /* ---------------------------------------------------------------------- */

@@ -22,7 +22,8 @@ namespace TribalSvcPortal.Data.Models
         public string MODIFY_USER_ID { get; set; }
         public DateTime? MODIFY_DT { get; set; }
 
-        public ICollection<T_OD_ASSESSMENT_CONTENT> T_OD_ASSESSMENT_CONTENT { get; set; }
-        public ICollection<T_OD_REF_WASTE_TYPE_UNITS> T_OD_REF_WASTE_TYPE_UNITS { get; set; }
+        public virtual T_PRT_REF_UNITS DEFAULT_UNIT_MSR_IDXNavigation { get; set; }
+        public virtual ICollection<T_OD_ASSESSMENT_CONTENT> T_OD_ASSESSMENT_CONTENT { get; set; }
+        public virtual ICollection<T_OD_REF_WASTE_TYPE_UNITS> T_OD_REF_WASTE_TYPE_UNITS { get; set; }
     }
 }

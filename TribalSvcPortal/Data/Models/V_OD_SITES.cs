@@ -5,9 +5,6 @@ namespace TribalSvcPortal.Data.Models
 {
     public partial class V_OD_SITES
     {
-        public V_OD_SITES()
-        {
-        }
         public Guid SITE_IDX { get; set; }
         public string FacilitySiteIdentitifer { get; set; }
         public string FacilitySiteName { get; set; }

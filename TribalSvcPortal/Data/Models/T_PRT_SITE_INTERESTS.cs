@@ -13,6 +13,6 @@ namespace TribalSvcPortal.Data.Models
         public string MODIFY_USER_ID { get; set; }
         public DateTime? MODIFY_DT { get; set; }
 
-        public T_PRT_SITES SITE_IDXNavigation { get; set; }
+        public virtual T_PRT_SITES SITE_IDXNavigation { get; set; }
     }
 }

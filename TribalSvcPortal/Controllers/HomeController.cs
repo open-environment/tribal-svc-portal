@@ -17,7 +17,6 @@ using System.Xml.Linq;
 using System;
 using Newtonsoft.Json;
 using Microsoft.AspNetCore.Http;
-using System.Text.Encodings.Web;
 using Microsoft.Extensions.Configuration;
 
 namespace TribalSvcPortal.Controllers
@@ -28,8 +27,8 @@ namespace TribalSvcPortal.Controllers
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IDbPortal _DbPortal;
         private readonly IDbOpenDump _DbOpenDump;
+        private readonly IDbLaws _DbLaws;
         private readonly IEmailSender _emailSender;
-        private readonly UrlEncoder _urlEncoder;
         private readonly IConfiguration _config;
 
         public HomeController(
@@ -37,23 +36,21 @@ namespace TribalSvcPortal.Controllers
             RoleManager<IdentityRole> roleManager,
             IDbPortal DbPortal,
             IDbOpenDump DbOpenDump,
+            IDbLaws DbLaws,
             IEmailSender emailSender,
-            UrlEncoder urlEncoder,
             IConfiguration config)
         {
             _userManager = userManager;
             _roleManager = roleManager;
             _DbPortal = DbPortal;
             _DbOpenDump = DbOpenDump;
+            _DbLaws = DbLaws;
             _emailSender = emailSender;
-            _urlEncoder = urlEncoder;
             _config = config;
         }
 
         public IActionResult Index(string id)
         {
-            string _UserIDX = _userManager.GetUserId(User);
-
             //initialize model
             var model = new HomeViewModel
             {
@@ -62,6 +59,7 @@ namespace TribalSvcPortal.Controllers
                 Announcement = _DbPortal.GetT_PRT_APP_SETTINGS_CUSTOM().ANNOUNCEMENTS
             };
 
+            string _UserIDX = _userManager.GetUserId(User);
             if (_UserIDX != null)
             {
                 //retrieve listing of clients user has access to
@@ -114,7 +112,7 @@ namespace TribalSvcPortal.Controllers
 
 
         [AllowAnonymous]
-        public FileResult apidataod(string api, string org, string county, string status, string score, string fileType)
+        public FileResult apidataod(string api, string org, string county, string status, string score, string fileType)    
         {
             try
             {
@@ -209,7 +207,7 @@ namespace TribalSvcPortal.Controllers
                                 foreach (V_OD_ASSESSMENTS _assess in _assesses)
                                 {
                                     XmlElement _OpenDumpAssessment = xmlDoc.CreateElement("od", "OpenDumpAssessment", "http://www.exchangenetwork.net/schema/od/2");
-                                    AddElement(xmlDoc, _OpenDumpAssessment, "SiteAssessmentDate", _assess.SiteAssessmentDate.GetValueOrDefault().ToString("yyyy-MM-dd"));
+                                    AddElement(xmlDoc, _OpenDumpAssessment, "SiteAssessmentDate", _assess.SiteAssessmentDate.ToString("yyyy-MM-dd"));
                                     AddElement(xmlDoc, _OpenDumpAssessment, "SiteAssessedBy", _assess.SiteAssessedBy);
                                     AddElement(xmlDoc, _OpenDumpAssessment, "AssessmentTypeText", _assess.AssessmentTypeText);
                                     AddElement(xmlDoc, _OpenDumpAssessment, "SiteStatusText", _assess.SiteStatusText);
@@ -324,6 +322,27 @@ namespace TribalSvcPortal.Controllers
 
         }
 
+        [AllowAnonymous]
+        public JsonResult apidatalaws(string api, string q)
+        {
+            try
+            {
+                if (q != null && q.Length > 3)
+                {
+                    var _laws = _DbLaws.getT_LAWS_LAWS(q);
+                    string _lawsJson = JsonConvert.SerializeObject(_laws);
+                    return Json(_lawsJson);
+                }
+                else
+                    return Json("Error");
+            }
+            catch
+            { }
+
+            return null;
+
+        }
+
         private static void AddElement(XmlDocument xmlDoc, XmlElement _parentElement, string _fieldName, string _fieldVal)
         {
             XmlElement _e = xmlDoc.CreateElement("od", _fieldName, "http://www.exchangenetwork.net/schema/od/2");
@@ -419,20 +438,5 @@ namespace TribalSvcPortal.Controllers
             return View();
         }
 
-        [AllowAnonymous]
-        //public async Task<IActionResult> GetOpenWatersLinkAsync(string clientid)
-        public IActionResult GetOpenWatersLink(string clientid)
-        {
-            var url = string.Format("{0}", _config["ClientAppExternalLoginEndpoint"]);
-            //string _UserIDX = _userManager.GetUserId(User);
-            //ApplicationUser user = await _userManager.FindByIdAsync(_UserIDX);
-            //var payload = user.UserName + "###" + user.PasswordEncrypt + "###" + _UserIDX;
-            //Encoding unicode = Encoding.Unicode;
-            //var plbytes = unicode.GetBytes(payload);
-            //var plb64 = Convert.ToBase64String(plbytes);
-            //payload = _urlEncoder.Encode(plb64);
-            //var url = string.Format("{0}?pl={1}", _config["ClientAppExternalLoginEndpoint"], payload);
-            return Ok(url);
-        }
     }
 }

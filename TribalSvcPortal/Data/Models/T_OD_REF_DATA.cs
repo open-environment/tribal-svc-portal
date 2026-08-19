@@ -22,9 +22,9 @@ namespace TribalSvcPortal.Data.Models
         public string MODIFY_USER_ID { get; set; }
         public DateTime? MODIFY_DT { get; set; }
 
-        public T_OD_REF_DATA_CATEGORIES REF_DATA_CAT_NAMENavigation { get; set; }
-        public ICollection<T_OD_ASSESSMENTS> T_OD_ASSESSMENTS { get; set; }
-        public ICollection<T_OD_SITES> T_OD_SITESCOMMUNITY_IDXNavigation { get; set; }
-        public ICollection<T_OD_SITES> T_OD_SITESSITE_SETTING_IDXNavigation { get; set; }
+        public virtual T_OD_REF_DATA_CATEGORIES REF_DATA_CAT_NAMENavigation { get; set; }
+        public virtual ICollection<T_OD_ASSESSMENTS> T_OD_ASSESSMENTS { get; set; }
+        public virtual ICollection<T_OD_SITES> T_OD_SITESCOMMUNITY_IDXNavigation { get; set; }
+        public virtual ICollection<T_OD_SITES> T_OD_SITESSITE_SETTING_IDXNavigation { get; set; }
     }
 }

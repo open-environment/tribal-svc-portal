@@ -55,7 +55,6 @@ var Main = function () {
         $windowHeight = $(window).height();
         $pageArea = $windowHeight - $('body > .navbar').outerHeight() - $('body > .footer').outerHeight();
         runContainerHeight();
-
     };
     //function to adapt the Main Content height to the Main Navigation height
     var runContainerHeight = function () {

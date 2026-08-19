@@ -1,41 +1,4 @@
-﻿    /****************MSFT ASP DEFAULT CSS *****************************/
-body {
-    padding-top: 50px;
-    padding-bottom: 20px;
-}
-
-/* Wrapping element */
-/* Set some basic padding to keep content from hitting the edges */
-.body-content {
-    padding-left: 15px;
-    padding-right: 15px;
-}
-
-/* Carousel */
-.carousel-caption p {
-    font-size: 20px;
-    line-height: 1.4;
-}
-
-/* Make .svg files in the carousel display properly in older browsers */
-.carousel-inner .item img[src$=".svg"] {
-    width: 100%;
-}
-
-/* Hide/rearrange for smaller screens */
-@media screen and (max-width: 767px) {
-    /* Hide captions */
-    .carousel-caption {
-        display: none;
-    }
-}
-
-/* QR code generator */
-#qrCode {
-    margin: 15px;
-}
-
-
+﻿
 
 /****************SITE CUSTOM CSS *****************************/
 html {
@@ -43,6 +6,8 @@ html {
     margin: 0;
     padding: 0;
 }
+
+
 
 .text-bold {
     font-weight: 600;
@@ -52,10 +17,6 @@ html {
     color: #9d9d9d;
 }
 
-.label-eecip-bluegreen, .badge-eecip-bluegreen {
-    background-color: #6AB43E !important;
-    border-color: #6AB43E !important;
-}
 
 .page-header {
     margin: 10px 0 10px 0;
@@ -63,6 +24,54 @@ html {
     .page-header > h1 {
         margin-bottom: 0;   
     }
+
+
+
+
+/***************     TOP AND LEFT MENU STYLING     ******************/
+.navbar-inverse {
+    background-color: #393939;
+}
+
+    .navbar-inverse .navbar-brand i, .navbar-inverse .navbar-brand:hover i {
+        color: #A9D2A2;
+    }
+
+.nav > li.dropdown .dropdown-toggle .badge-green {
+    background-color: #097e00;
+    border: none;
+}
+
+ul.main-navigation-menu > li a > i {
+    color: #6AB43E;
+}
+
+ul.main-navigation-menu > li.active > a {
+    background-color: #6AB43E; /*#82B9DE;*/
+}
+
+    ul.main-navigation-menu > li.active > a .selected:before {
+        color: #6AB43E !important;
+    }
+
+.clip-chevron-left {
+    color: #6AB43E;
+}
+
+.clip-chevron-right {
+    color: #6AB43E;
+}
+
+.subsubheader {
+    color: #888888;
+    font-family: 'Raleway', sans-serif;
+    font-size: 14px;
+    font-weight: 300;
+    letter-spacing: 0;
+}
+
+
+
 
 @media (min-width: 768px) {
     .modal-dialog {
@@ -92,9 +101,6 @@ textarea.input-validation-error, input.input-validation-error[type="text"], inpu
     box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
 }
 
-/*.table {
-    margin-bottom: 0px;
-}*/
 
 .thead-default th {
     color: #464a4c;
@@ -195,169 +201,6 @@ input[type="file"] {
 /******************************************************************/
 /*************************ECO FRONT PAGE STYLING ******************/
 /******************************************************************/
-/* -------- BX Slider ---------- */
-.bx-wrapper {
-    margin: 0 auto 7px;
-    padding: 0;
-    *zoom: 1;
-    position: relative;
-}
-    .bx-wrapper img {
-        max-width: 100%;
-        display: block;
-    }
-    .bx-wrapper .bx-viewport {
-        left: 0;
-        transform: translateZ(0px);
-    }
-    .bx-wrapper .bx-pager, .bx-wrapper .bx-controls-auto {
-        position: absolute;
-        bottom: -30px;
-        width: 100%;
-    }
-    .bx-wrapper .bx-loading {
-        min-height: 50px;
-        background: url('../images/bxslider/bx_loader.gif') center center no-repeat #fff;
-        height: 100%;
-        width: 100%;
-        position: absolute;
-        top: 0;
-        left: 0;
-        z-index: 2000;
-    }
-    .bx-wrapper .bx-pager {
-        text-align: center;
-        font-size: .85em;
-        font-family: Arial;
-        font-weight: bold;
-        color: #666;
-        padding-top: 20px;
-    }
-        .bx-wrapper .bx-pager .bx-pager-item, .bx-wrapper .bx-controls-auto .bx-controls-auto-item {
-            display: inline-block;
-            *zoom: 1;
-            *display: inline;
-        }
-
-        .bx-wrapper .bx-pager.bx-default-pager a {
-            background: #666;
-            text-indent: -9999px;
-            display: block;
-            width: 10px;
-            height: 10px;
-            margin: 0 5px;
-            outline: 0;
-            -moz-border-radius: 5px;
-            -webkit-border-radius: 5px;
-            border-radius: 5px;
-        }
-            .bx-wrapper .bx-pager.bx-default-pager a:hover, .bx-wrapper .bx-pager.bx-default-pager a.active {
-                background: #000;
-            }
-    .bx-wrapper .bx-controls-auto {
-        text-align: center;
-    }
-
-        .bx-wrapper .bx-controls-auto .bx-start {
-            display: block;
-            text-indent: -9999px;
-            width: 10px;
-            height: 11px;
-            outline: 0;
-            background: url(bxslider/images/arrow-left.png) no-repeat scroll 0 0;
-            margin: 0 3px;
-        }
-
-            .bx-wrapper .bx-controls-auto .bx-start:hover, .bx-wrapper .bx-controls-auto .bx-start.active {
-                background-position: -86px 0;
-            }
-
-        .bx-wrapper .bx-controls-auto .bx-stop {
-            display: block;
-            text-indent: -9999px;
-            width: 9px;
-            height: 11px;
-            outline: 0;
-            background: url(bxslider/images/arrow-right.png) no-repeat scroll 0 0;
-            margin: 0 3px;
-        }
-
-            .bx-wrapper .bx-controls-auto .bx-stop:hover, .bx-wrapper .bx-controls-auto .bx-stop.active {
-                background-position: -86px -33px;
-            }
-
-    .bx-wrapper .bx-controls.bx-has-controls-auto.bx-has-pager .bx-pager {
-        text-align: left;
-        width: 80%;
-    }
-
-    .bx-wrapper .bx-controls.bx-has-controls-auto.bx-has-pager .bx-controls-auto {
-        right: 0;
-        width: 35px;
-    }
-    /* IMAGE CAPTIONS */
-
-    .bx-wrapper .bx-prev {
-        left: 10px;
-        background: url(bxslider/images/arrow-left.png) no-repeat scroll 0 0;
-    }
-
-    .bx-wrapper .bx-next {
-        right: 10px;
-        background: url(bxslider/images/arrow-right.png) no-repeat scroll 0 0;
-    }
-
-    .bx-wrapper .bx-prev:hover {
-        background-position: 0 0;
-    }
-
-    .bx-wrapper .bx-next:hover {
-        background-position: -43px 0;
-    }
-
-    .bx-wrapper .bx-controls-direction a {
-        position: absolute;
-        top: 50%;
-        margin-top: -16px;
-        outline: 0;
-        width: 32px;
-        height: 32px;
-        text-indent: -9999px;
-        z-index: 9999;
-    }
-        .bx-wrapper .bx-controls-direction a.disabled {
-            display: none;
-        }
-
-.bx-controls .bx-controls-direction > a {
-    background: #eee none repeat scroll 0 0;
-    border: medium none;
-    height: auto;
-    line-height: 28px;
-    padding: 0 12px;
-    width: auto;
-    text-indent: 0;
-    top: -30px;
-    z-index: 0;
-}
-
-    .bx-controls .bx-controls-direction > a:hover {
-        background: #ddd;
-    }
-
-    .bx-controls .bx-controls-direction > a i {
-        color: #888;
-    }
-
-.bx-controls .bx-controls-direction .bx-prev {
-    right: 35px;
-    left: auto;
-}
-
-.bx-controls .bx-controls-direction .bx-next {
-    right: 0;
-}
-
 
 .bg-img-cover {
     background-size: cover !important;
@@ -653,48 +496,6 @@ ul, ol {
 
 
 
-
-/***************     TOP AND LEFT MENU STYLING     ******************/
-.navbar-inverse {
-    background-color: #393939;
-}
-
-    .navbar-inverse .navbar-brand i, .navbar-inverse .navbar-brand:hover i {
-        color: #A9D2A2;
-    }
-
-.nav > li.dropdown .dropdown-toggle .badge-green {
-    background-color: #097e00;
-    border: none;
-}
-
-ul.main-navigation-menu > li a > i {
-    color: #6AB43E;
-}
-
-ul.main-navigation-menu > li.active > a {
-    background-color: #6AB43E; /*#82B9DE;*/
-}
-
-    ul.main-navigation-menu > li.active > a .selected:before {
-        color: #6AB43E !important;
-    }
-
-.clip-chevron-left {
-    color: #6AB43E;
-}
-
-.clip-chevron-right {
-    color: #6AB43E;
-}
-
-.subsubheader {
-    color: #888888;
-    font-family: 'Raleway', sans-serif;
-    font-size: 14px;
-    font-weight: 300;
-    letter-spacing: 0;
-}
 
 /***************     FACET STYLING     ******************/
 .facetHead {

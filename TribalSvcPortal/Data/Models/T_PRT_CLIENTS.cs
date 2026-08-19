@@ -20,7 +20,7 @@ namespace TribalSvcPortal.Data.Models
         public byte[] CLIENT_IMAGE { get; set; }
         public bool CLIENT_LOCAL_IND { get; set; }
 
-        public ICollection<T_PRT_CLIENT_ROLES> T_PRT_CLIENT_ROLES { get; set; }
-        public ICollection<T_PRT_ORG_USER_CLIENT> T_PRT_ORG_USER_CLIENT { get; set; }
+        public virtual ICollection<T_PRT_CLIENT_ROLES> T_PRT_CLIENT_ROLES { get; set; }
+        public virtual ICollection<T_PRT_ORG_USER_CLIENT> T_PRT_ORG_USER_CLIENT { get; set; }
     }
 }

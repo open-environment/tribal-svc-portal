@@ -9,6 +9,6 @@ namespace TribalSvcPortal.Data.Models
         public string CLIENT_ROLE_NAME { get; set; }
         public string CLIENT_ID { get; set; }
 
-        public T_PRT_CLIENTS CLIENT_ { get; set; }
+        public virtual T_PRT_CLIENTS CLIENT { get; set; }
     }
 }

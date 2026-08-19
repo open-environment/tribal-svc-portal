@@ -10,5 +10,7 @@ namespace TribalSvcPortal.Data.Models
         public string PARCEL_NUM { get; set; }
         public string OWNER { get; set; }
         public string ACRES { get; set; }
+
+        public virtual T_PRT_SITES SITE_IDXNavigation { get; set; }
     }
 }

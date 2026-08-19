@@ -1,0 +1,308 @@
+﻿@model TribalSvcPortal.ViewModels.OpenDumpViewModels.CleanupActualViewModel
+@{
+    ViewBag.Pub = true;
+    ViewBag.Title = "Substance & Laws/Regulations Search";
+    ViewBag.SubTitle = "Search Federal (EPA) or Tribal Regulations and Lists of Substances";
+}
+<style>
+    .flexRow {
+        height: calc(100vh - 160px);
+        flex-flow: row;
+        overflow-x: hidden;
+    }
+
+    .flexColumn {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+
+        .flexColumn .stretchContent {
+            flex: 1 1 auto;
+        }
+
+        .flexColumn .fixHeader30 {
+            flex: 0 1 30px;
+        }
+
+    .flexRowInterior {
+        height: 100%;
+        flex-flow: row;
+        overflow-x: hidden;
+    }
+
+    .table-responsive {
+        max-height: calc(100vh - 430px);
+    }
+
+
+    .table tbody tr.highlight td {
+        background-color: #ddd;
+    }
+</style>
+
+<div class="flexRow" style="overflow-x:hidden">
+    <div class="flexColumn">
+        <ul class="nav nav-tabs fixHeader30">
+            <li class="active"><a href="#laws" data-toggle="tab" style="font-size: 20px;">Laws/Regulations</a></li>
+            <li class=""><a href="#substance" data-toggle="tab" style="font-size: 20px;">Substance Lists</a></li>
+        </ul>
+        <div class="tab-content stretchContent" style=" border-width: 1px; border-color: #d1d1d1; border-style: solid;">
+        <!-- ******************************************************************** LAWS TAB ********************************************************************  -->
+        <div class="tab-pane active row flexRowInterior" id="laws" style="padding:15px">
+
+
+                <div class="col-md-6 flexColumn">
+
+                    <div class="row1 tree1">
+                        <p>QUERY PARAMETERS</p>
+                        <div class="col-md-12">
+                            <form id="frmSearch" name="frmSearch" class="form-group">
+                                <label>Enter in Search Terms</label>
+                                <div class="input-group">
+                                    <input id="txtSearch" type="text" class="form-control" autocomplete="off">
+                                    <span class="input-group-btn">
+                                        <input type="submit" name="Submit" value="Search" class="btn btn-primary" />
+                                    </span>
+                                </div>
+                                <span class="help-block m-b-none">
+                                    <label> <input type="checkbox" id="chkEPA" value="1" checked="checked"> Include Federal CFR &nbsp;&nbsp;&nbsp;</label>
+                                    <label> <input type="checkbox" id="chkMCN" value="1" checked="checked"> Include Muscogee Code</label>
+                                </span>
+                            </form>
+                        </div>
+                        <p>RESULTS</p>
+                        <div class="col-md-12">
+                            <div class="table-responsive">
+                                <table id="tblLaws" class="table table-hover table-striped m-b-none" data-ride="datatables">
+                                    <thead>
+                                        <tr class="thead-inverse">
+                                            <th>Source</th>
+                                            <th>Citation</th>
+                                            <th>Title</th>
+                                            <th>View</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tbody1">
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <div id="pnlRight" class="col-md-6 flexColumn" style="height:100%; display:none;">
+
+                    <div class="row1 header1">
+                        <button type="button" id="btnPrev" class="btn btn-xs btn-primary"><< Prev</button>
+                        <button type="button" id="btnParent" class="btn btn-xs btn-primary">Parent ^</button>
+                        <button type="button" id="btnNext" value="Save" class="btn btn-xs btn-primary">Next >></button>
+                    </div>
+
+                    <div class="row1 stretchContent" style="background-color:white;">
+                        <embed id="iFramePDF" class="iFramePDF" src="" width="100%" height="100%" frameborder="1" type="application/pdf" />
+                    </div>
+                </div>
+
+        </div>
+
+        <!-- ******************************************************************** SUBSTANCE TAB ********************************************************************  -->
+        <div class="tab-pane row flexRowInterior" id="substance" style="padding:15px">
+
+
+                <div class="col-md-6 flexColumn">
+
+                    <div class="row1 tree1">
+                        <div class="col-md-12">
+                            <form id="frmSearchSub" name="frmSearchSub" class="form-group">
+                                <div class="input-group">
+                                    <span class="input-group-btn">
+                                        <input type="submit" name="Submit" value="Display" class="btn btn-primary" />
+                                    </span>
+                                </div>
+                            </form>
+                        </div>
+                        <p>RESULTS</p>
+                        <div class="col-md-12">
+                            <div class="table-responsive">
+                                <table id="tblSubstances" class="table table-hover table-striped m-b-none" data-ride="datatables">
+                                    <thead>
+                                        <tr class="thead-inverse">
+                                            <th>Citation</th>
+                                            <th>Title</th>
+                                            <th>View</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tbody1">
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <div id="pnlRightSub" class="col-md-6 flexColumn" style="height:100%; display:none;">
+
+                    <div class="row1 header1">
+                    </div>
+
+                    <div class="row1 stretchContent" style="background-color:white;">
+                        <embed id="iFramePDFSub" class="iFramePDF" src="" width="100%" height="100%" frameborder="1" type="application/pdf" />
+                    </div>
+                </div>
+
+        </div>
+        </div>
+    </div>
+
+</div>
+
+@section Scripts{
+    <script type="text/javascript">
+        var _objid = 0;
+        var _parentobjid = 0;
+        var _locURL = '@Url.Action("apidatalaws","Home")';
+        $(document).ready(function () {
+
+            //click search button (search Laws)
+            $("#frmSearch").on('submit', function (e) {
+
+                //empty any previous results
+                $('#tblLaws tbody').empty();
+
+                //stop form submission
+                e.preventDefault();
+
+                //retrieve results from EPA
+                if ($("#chkEPA").is(':checked'))
+                {
+                    $.getJSON('https://sor-lrs-api.epa.gov/lrswebservices/v2/Autocomplete/CFR/Title',
+                        {
+                            queryText: $("#txtSearch").val(),
+                            qualifier: "contains"
+                        },
+                        function (data) {
+                            if (data) {
+                                $.each(data, function (i, field) {
+                                    $('#tblLaws tbody').append('<tr><td>Federal</td><td>' + field.citation + '</td><td>' + field.title + '</td><td><a data-id="' + field.id + '" class="btn btn-success dtl">View</a></td></tr>');
+                                });
+                            }
+                        });
+                }
+
+                //retrieve results from MCN
+                if ($("#chkMCN").is(':checked'))
+                {
+                    $.getJSON(_locURL,
+                        {
+                            q: $("#txtSearch").val(),
+                        },
+                        function (data) {
+                            if (data) {
+                                console.log(data);
+                                $.each(JSON.parse(data), function (i, field) {
+                                    $('#tblLaws tbody').append('<tr><td>MCN</td><td>' + field.citation + '</td><td>' + field.title + '</td><td><a data-id="' + field.id + '" data-url="' + field.url + '" class="btn btn-success dtl">View</a></td></tr>');
+                                });
+                            }
+                        });
+                }
+            });
+
+
+            //search Substances from EPA
+            $("#frmSearchSub").on('submit', function (e) {
+
+                //empty any previous results
+                $('#tblSubstances tbody').empty();
+
+                //stop form submission
+                e.preventDefault();
+
+                //retrieve results
+                $.getJSON('https://sor-lrs-api.epa.gov/lrswebservices/v2/SubstanceList',
+                    {
+                        qualifier: "contains"
+                    },
+                    function (data) {
+                        if (data) {
+                            $.each(data.children, function (i, field) {
+                                $('#tblSubstances tbody').append('<tr><td>' + field.objectName + '</td><td>' + field.attributes["List Name"] + '</td><td><a data-id="' + field.objectId + '" data-url="' + field.associations[0].attributes["URL"] + '" class="btn btn-success dtl">View</a></td></tr>');
+                            });
+                        }
+                    });
+
+            });
+
+
+
+            //SELECT ITEM FROM SEARCH RESULTS
+            $("#tblLaws").on('click', '.dtl', function () {
+
+                $(this).parent().parent().addClass('highlight').siblings().removeClass('highlight');
+
+                _objid = parseInt($(this).attr("data-id"));
+                _objurl = $(this).attr("data-url");
+                console.log(_objurl);
+                if (_objurl === undefined) {
+                    $.getJSON('https://sor-lrs-api.epa.gov/lrswebservices/v2/CFR/' + _objid, { qualifier: "contains" },
+                        function (data) {
+                            $("#pnlRight").show();
+                            _parentobjid = data.parent.objectId;
+                            $("#iFramePDF").attr('src', 'https://docs.google.com/gview?url=' + data.attributes.URL + '&embedded=true');
+                        });
+                }
+                else {
+                    $("#pnlRight").show();
+                    $("#iFramePDF").attr('src', 'https://docs.google.com/gview?url=' + _objurl + '&embedded=true');
+                }
+            });
+
+
+            //SELECT ITEM FROM SUBSTANCE SEARCH RESULTS
+            $("#tblSubstances").on('click', '.dtl', function () {
+
+                $(this).parent().parent().addClass('highlight').siblings().removeClass('highlight');
+                _objURL = $(this).attr("data-url");
+                if (_objURL) {
+                    $("#pnlRightSub").show();
+                    $("#iFramePDFSub").attr('src', 'https://docs.google.com/gview?url=' + _objURL + '&embedded=true');
+                }
+
+            });
+
+
+            //PREVIOUS BUTTON
+            $("#laws").on('click', '#btnPrev', function () {
+                _objid = _objid - 1;
+                $.getJSON('https://sor-lrs-api.epa.gov/lrswebservices/v2/CFR/' + _objid, { qualifier: "contains" },
+                    function (data) {
+                        _parentobjid = data.parent.objectId;
+                        $("#iFramePDF").attr('src', 'https://docs.google.com/gview?url=' + data.attributes.URL + '&embedded=true');
+                    });
+            });
+
+            //NEXT BUTTON
+            $("#laws").on('click', '#btnNext', function () {
+                _objid = _objid + 1;
+                $.getJSON('https://sor-lrs-api.epa.gov/lrswebservices/v2/CFR/' + _objid, { qualifier: "contains" },
+                    function (data) {
+                        _parentobjid = data.parent.objectId;
+                        $("#iFramePDF").attr('src', 'https://docs.google.com/gview?url=' + data.attributes.URL + '&embedded=true');
+                    });
+            });
+
+            //PARENT BUTTON
+            $("#laws").on('click', '#btnParent', function () {
+                _objid = _parentobjid;
+                $.getJSON('https://sor-lrs-api.epa.gov/lrswebservices/v2/CFR/' + _objid, { qualifier: "contains" },
+                    function (data) {
+                        _parentobjid = data.parent.objectId;
+                        $("#iFramePDF").attr('src', 'https://docs.google.com/gview?url=' + data.attributes.URL + '&embedded=true');
+                    });
+            });
+
+
+        });
+    </script>
+}

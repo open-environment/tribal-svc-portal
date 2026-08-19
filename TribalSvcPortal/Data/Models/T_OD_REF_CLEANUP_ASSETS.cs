@@ -12,6 +12,6 @@ namespace TribalSvcPortal.Data.Models
 
         public string REF_ASSET_NAME { get; set; }
 
-        public ICollection<T_OD_REF_WASTE_TYPE_CAT_CLEANUP> T_OD_REF_WASTE_TYPE_CAT_CLEANUP { get; set; }
+        public virtual ICollection<T_OD_REF_WASTE_TYPE_CAT_CLEANUP> T_OD_REF_WASTE_TYPE_CAT_CLEANUP { get; set; }
     }
 }

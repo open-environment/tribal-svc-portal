@@ -18,6 +18,6 @@ namespace TribalSvcPortal.Data.Models
         public string MODIFY_USER_ID { get; set; }
         public DateTime? MODIFY_DT { get; set; }
 
-        public ICollection<T_PRT_DOCUMENTS> T_PRT_DOCUMENTS { get; set; }
+        public virtual ICollection<T_PRT_DOCUMENTS> T_PRT_DOCUMENTS { get; set; }
     }
 }

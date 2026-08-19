@@ -62,6 +62,19 @@ namespace TribalSvcPortal.Data.Models
         public virtual DbSet<V_OD_SITES> V_OD_SITES { get; set; }
         public virtual DbSet<V_OD_ASSESSMENTS> V_OD_ASSESSMENTS { get; set; }
 
+        public virtual DbSet<T_LAW_LAWS> T_LAW_LAWS { get; set; }
+        public virtual DbSet<V_INSP_ASSESSMENTS> V_INSP_ASSESSMENTS { get; set; }
+
+
+        public virtual DbSet<T_INSP_ASSESS_BUILDING> T_INSP_ASSESS_BUILDING { get; set; }
+        public virtual DbSet<T_INSP_ASSESS_FIRE> T_INSP_ASSESS_FIRE { get; set; }
+        public virtual DbSet<T_INSP_ASSESS_ELECTRICAL> T_INSP_ASSESS_ELECTRICAL { get; set; }
+        public virtual DbSet<T_INSP_ASSESS_MECHANICAL> T_INSP_ASSESS_MECHANICAL { get; set; }
+
+        public virtual DbSet<T_INSP_ASSESS_PLUMBING> T_INSP_ASSESS_PLUMBING { get; set; }
+        public virtual DbSet<T_INSP_ASSESS_LIFE> T_INSP_ASSESS_LIFE { get; set; }
+
+        public virtual DbSet<T_INSP_SITES> T_INSP_SITES { get; set; }
         //**************** END TABLES *******************************************************
 
 
@@ -126,7 +139,7 @@ namespace TribalSvcPortal.Data.Models
 
                 entity.Property(e => e.CLIENT_ROLE_NAME).HasMaxLength(100);
 
-                entity.HasOne(d => d.CLIENT_)
+                entity.HasOne(d => d.CLIENT)
                     .WithMany(p => p.T_PRT_CLIENT_ROLES)
                     .HasForeignKey(d => d.CLIENT_ID)
                     .HasConstraintName("FK_T_PRT_CLIENT_ROLES_C");
@@ -221,7 +234,7 @@ namespace TribalSvcPortal.Data.Models
                     .HasForeignKey(d => d.DOC_TYPE)
                     .HasConstraintName("FK__T_PRT_DOC__DOC_T__320C68B7");
 
-                entity.HasOne(d => d.ORG_)
+                entity.HasOne(d => d.ORG)
                     .WithMany(p => p.T_PRT_DOCUMENTS)
                     .HasForeignKey(d => d.ORG_ID)
                     .OnDelete(DeleteBehavior.ClientSetNull)
@@ -263,7 +276,7 @@ namespace TribalSvcPortal.Data.Models
 
                 entity.Property(e => e.MODIFY_DT).HasColumnType("datetime2(0)");
 
-                entity.HasOne(d => d.ORG_)
+                entity.HasOne(d => d.ORG)
                     .WithMany(p => p.T_PRT_ORG_EMAIL_RULE)
                     .HasForeignKey(d => d.ORG_ID)
                     .HasConstraintName("FK__T_PRT_ORG__ORG_I__2F1AED73");
@@ -327,7 +340,7 @@ namespace TribalSvcPortal.Data.Models
                     .IsRequired()
                     .HasMaxLength(1);
 
-                entity.HasOne(d => d.ORG_)
+                entity.HasOne(d => d.ORG)
                     .WithMany(p => p.T_PRT_ORG_USERS)
                     .HasForeignKey(d => d.ORG_ID)
                     .HasConstraintName("FK_T_PRT_ORG_USERS_T");
@@ -528,7 +541,7 @@ namespace TribalSvcPortal.Data.Models
 
                 entity.Property(e => e.TWP).HasMaxLength(3);
 
-                entity.HasOne(d => d.ORG_)
+                entity.HasOne(d => d.ORG)
                     .WithMany(p => p.T_PRT_SITES)
                     .HasForeignKey(d => d.ORG_ID)
                     .OnDelete(DeleteBehavior.ClientSetNull)
@@ -1123,7 +1136,960 @@ namespace TribalSvcPortal.Data.Models
                 entity.HasKey(e => e.ASSESSMENT_IDX);
                 entity.Property(e => e.ASSESSMENT_IDX).ValueGeneratedNever();
             });
+
             /*************** TABLE COLUMNS END   *******************/
+
+
+            /*************** INSP COLUMNS START *******************/
+            modelBuilder.Entity<T_INSP_ASSESS_BUILDING>(entity =>
+            {
+                entity.HasKey(e => e.ASSESSMENT_IDX);
+
+                entity.Property(e => e.ASSESSMENT_IDX).HasDefaultValueSql("(newid())");
+
+                entity.Property(e => e.ASSESSED_BY).HasMaxLength(100);
+
+                entity.Property(e => e.ASSESSMENT_DT).HasPrecision(0);
+
+                entity.Property(e => e.Ceiling)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Closures)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Doors)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Exterior)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Floor)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Foundation)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.MODIFY_DT).HasPrecision(0);
+
+                entity.Property(e => e.MODIFY_USER_ID).HasMaxLength(450);
+
+                entity.Property(e => e.Notes).IsUnicode(false);
+
+                entity.Property(e => e.Panic)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Roof)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Stairs)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Title)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Walkway)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Walls)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Windows)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.HasOne(d => d.SITE_IDXNavigation)
+                    .WithMany(p => p.T_INSP_ASSESS_BUILDING)
+                    .HasForeignKey(d => d.SITE_IDX)
+                    .HasConstraintName("FK_T_INSP_ASSESSMENTS_B");
+            });
+
+
+            modelBuilder.Entity<T_INSP_ASSESS_FIRE>(entity =>
+            {
+                entity.HasKey(e => e.ASSESSMENT_IDX);
+
+                entity.Property(e => e.ASSESSMENT_IDX).HasDefaultValueSql("(newid())");
+
+                entity.Property(e => e.AED)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.AED_Expiration).HasColumnType("datetime");
+
+                entity.Property(e => e.ASSESSED_BY).HasMaxLength(100);
+
+                entity.Property(e => e.ASSESSMENT_DT).HasPrecision(0);
+
+                entity.Property(e => e.Ceiling_Condition)
+                    .HasMaxLength(20)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Ceiling_Type)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Compliance)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Doc_EmergLight)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Doc_EmergPwr)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Doc_EvacDrill)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Doc_FireAlarm)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Doc_FireSprinkler5)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Doc_FireSprinklerAnn)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Doc_Generator)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Doc_KitchenHoodSys)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.ELec_Covers)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Egress_DoorsKey)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Egress_DoorsOpen)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Egress_Evac)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Egress_Latch)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Egress_Path)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Egress_Signs)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Egress_Storage)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Elec_Adapters)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Elec_Appliances)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Elec_Clearance)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Elec_Cords)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Elec_GFI)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Elec_Heater)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Elec_NoCord)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Elec_Panels)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.FacContact)
+                    .HasMaxLength(80)
+                    .IsUnicode(false);
+
+                entity.Property(e=>e.Facility_Use).HasMaxLength(100).IsUnicode(false);
+
+                entity.Property(e => e.FireDept_Access)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.FireDept_AccessKeys)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.FireDept_Address)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.FireDept_Valves)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.FireExt_Collar)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.FireExt_Doc)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.FireExt_Mounted)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.FireExt_Sys)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Fuel_Extinguisher)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Fuel_Materials)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Fuel_Signs)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Fuel_Valves)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Hazmat_704)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Hazmat_EmptyTanks)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Hazmat_Liquids)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Hazmat_Quantities)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Hazmat_SDS)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Hazmat_Shelving)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Hazmat_Tanks)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.MODIFY_DT).HasPrecision(0);
+
+                entity.Property(e => e.MODIFY_USER_ID).HasMaxLength(450);
+
+                entity.Property(e => e.Risers_Deficiencies)
+                    .HasMaxLength(100)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Risers_Gauges)
+                    .HasMaxLength(100)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Risers_Inspected)
+                    .HasMaxLength(100)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Risers_Plate)
+                    .HasMaxLength(100)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Risers_Sprinkler)
+                    .HasMaxLength(100)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Risers_Tagged)
+                    .HasMaxLength(100)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Sprinkler_Cond)
+                    .HasMaxLength(20)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Storage_Combust)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Storage_Cylinders)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Storage_Food)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Storage_Housekeeping)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Storage_OilRags)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Storage_Sprinklers)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Title)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Vent_BrandDate)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Vent_Caps)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Vent_Cleanliness)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Vent_Exhaust)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Vent_Extinguishers)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Vent_GasValve)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Vent_Gauge)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Vent_Hydro)
+                    .HasMaxLength(200)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Vent_PullStation)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Vent_ServiceDate).HasColumnType("datetime");
+
+                entity.HasOne(d => d.SITE_IDXNavigation)
+    .WithMany(p => p.T_INSP_ASSESS_FIRE)
+    .HasForeignKey(d => d.SITE_IDX)
+    .HasConstraintName("FK_T_INSP_ASSESSMENTS_F");
+            });
+
+
+
+            modelBuilder.Entity<T_INSP_ASSESS_ELECTRICAL>(entity =>
+            {
+                entity.HasKey(e => e.ASSESSMENT_IDX);
+
+                entity.Property(e => e.ASSESSMENT_IDX).HasDefaultValueSql("(newid())");
+
+                entity.Property(e => e.ASSESSED_BY).HasMaxLength(100);
+
+                entity.Property(e => e.ASSESSMENT_DT).HasPrecision(0);
+
+                entity.Property(e => e.Comp_Codes).HasMaxLength(10);
+
+                entity.Property(e => e.Comp_Records).HasMaxLength(10);
+
+                entity.Property(e => e.Comp_Signage).HasMaxLength(10);
+
+                entity.Property(e => e.Compliance)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Contact)
+                    .HasMaxLength(80)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Elec_Label)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Elec_Rust)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Elec_Space)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Gen_Address)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Gen_Hazard)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Gen_Site)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Ground_Connections).HasMaxLength(10);
+
+                entity.Property(e => e.Ground_Corrosion).HasMaxLength(10);
+
+                entity.Property(e => e.Ground_Electrode).HasMaxLength(10);
+
+                entity.Property(e => e.Light_Exit).HasMaxLength(10);
+
+                entity.Property(e => e.Light_Fixtures).HasMaxLength(10);
+
+                entity.Property(e => e.Light_Ill).HasMaxLength(10);
+
+                entity.Property(e => e.MODIFY_DT).HasPrecision(0);
+
+                entity.Property(e => e.MODIFY_USER_ID).HasMaxLength(450);
+
+                entity.Property(e => e.Outlet_Func)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Outlet_GFCI).HasMaxLength(10);
+
+                entity.Property(e => e.Outlet_Tamper).HasMaxLength(10);
+
+                entity.Property(e => e.Surge_Func).HasMaxLength(10);
+
+                entity.Property(e => e.Surge_Protectors).HasMaxLength(10);
+
+                entity.Property(e => e.Title)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Wiring_Damage)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Wiring_Secured)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Wiring_Separate)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.HasOne(d => d.SITE_IDXNavigation)
+                    .WithMany(p => p.T_INSP_ASSESS_ELECTRICAL)
+                    .HasForeignKey(d => d.SITE_IDX)
+                    .HasConstraintName("FK_T_INSP_ASSESSMENTS_E");
+            });
+
+            modelBuilder.Entity<T_INSP_ASSESS_MECHANICAL>(entity =>
+            {
+                entity.HasKey(e => e.ASSESSMENT_IDX);
+
+                entity.Property(e => e.ASSESSMENT_IDX).HasDefaultValueSql("(newid())");
+
+                entity.Property(e => e.ASSESSED_BY).HasMaxLength(100);
+
+                entity.Property(e => e.ASSESSMENT_DT).HasPrecision(0);
+
+                entity.Property(e => e.Comp_Codes).HasMaxLength(10);
+
+                entity.Property(e => e.Comp_Records).HasMaxLength(10);
+
+                entity.Property(e => e.Comp_Signage).HasMaxLength(10);
+
+                entity.Property(e => e.Compliance)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Contact)
+                    .HasMaxLength(80)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Duct_Insulation)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Duct_Leak)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Duct_Obstruction)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Equip_Doc).HasMaxLength(10);
+
+                entity.Property(e => e.Equip_Guards).HasMaxLength(10);
+
+                entity.Property(e => e.Equip_Operational)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.HVAC_Clean)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.HVAC_Filters)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.HVAC_Therm)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.MODIFY_DT).HasPrecision(0);
+
+                entity.Property(e => e.MODIFY_USER_ID).HasMaxLength(450);
+
+                entity.Property(e => e.Piping_Insulation)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Piping_Leaks)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Piping_Valves)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Title)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Vent_Air).HasMaxLength(10);
+
+                entity.Property(e => e.Vent_Airflow).HasMaxLength(10);
+
+                entity.Property(e => e.Vent_Exhaust).HasMaxLength(10);
+
+                entity.HasOne(d => d.SITE_IDXNavigation)
+                    .WithMany(p => p.T_INSP_ASSESS_MECHANICAL)
+                    .HasForeignKey(d => d.SITE_IDX)
+                    .HasConstraintName("FK_T_INSP_ASSESSMENTS_M");
+            });
+
+
+            modelBuilder.Entity<T_INSP_ASSESS_PLUMBING>(entity =>
+            {
+                entity.HasKey(e => e.ASSESSMENT_IDX);
+
+                entity.Property(e => e.ASSESSMENT_IDX).HasDefaultValueSql("(newid())");
+
+                entity.Property(e => e.ASSESSED_BY).HasMaxLength(100);
+
+                entity.Property(e => e.ASSESSMENT_DT).HasPrecision(0);
+
+                entity.Property(e => e.Backflow)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Dishwasher)
+                    .HasMaxLength(12)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Drains)
+                    .HasMaxLength(12)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Heater_Type)
+                    .HasMaxLength(12)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.MODIFY_DT).HasPrecision(0);
+
+                entity.Property(e => e.MODIFY_USER_ID).HasMaxLength(450);
+
+                entity.Property(e => e.Meter_Location)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Sewer_Loc)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Shower_Tub)
+                    .HasMaxLength(12)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Sink_Faucet)
+                    .HasMaxLength(12)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Supply_Lines)
+                    .HasMaxLength(12)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Title)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Toilet_Urinal)
+                    .HasMaxLength(12)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.WaterPSI)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Water_Heater)
+                    .HasMaxLength(12)
+                    .IsUnicode(false);
+
+                entity.HasOne(d => d.SITE_IDXNavigation)
+                    .WithMany(p => p.T_INSP_ASSESS_PLUMBING)
+                    .HasForeignKey(d => d.SITE_IDX)
+                    .HasConstraintName("FK_T_INSP_ASSESSMENTS_S");
+            });
+
+            modelBuilder.Entity<T_INSP_ASSESS_LIFE>(entity =>
+            {
+                entity.HasKey(e => e.ASSESSMENT_IDX);
+
+                entity.Property(e => e.ASSESSMENT_IDX).HasDefaultValueSql("(newid())");
+
+                entity.Property(e => e.ASSESSED_BY).HasMaxLength(100);
+
+                entity.Property(e => e.ASSESSMENT_DT).HasPrecision(0);
+
+                entity.Property(e => e.AddressVisible)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.BuildingType)
+                    .HasMaxLength(256)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Ceiling)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Closures)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Doors)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Elec_Ground)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Elec_Hazard)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Elec_Label)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Elec_Lighting)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Elec_Notes).IsUnicode(false);
+
+                entity.Property(e => e.Elec_Obstruct)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Elec_Outlet)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Elec_Panel)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Elec_Sign)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Elec_Surge)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Exterior)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Fire_EmergLight)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Fire_Evac)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Fire_EvacDrill)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Fire_Exit)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Fire_ExtinAnnual)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Fire_Extinguisher)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Fire_FireAlarm)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Fire_Food)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Fire_Hazard)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Fire_HoodSup)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Fire_KitchenHood)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Fire_Notes).IsUnicode(false);
+
+                entity.Property(e => e.Fire_Piled)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Fire_Plate)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Fire_SDS)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Fire_Sprinklers1)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Fire_Sprinklers5)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Fire_Storage)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Floor)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Foundation)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.MODIFY_DT).HasPrecision(0);
+
+                entity.Property(e => e.MODIFY_USER_ID).HasMaxLength(450);
+
+                entity.Property(e => e.Mech_Duct)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Mech_Equip)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Mech_Filters)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Mech_Notes).IsUnicode(false);
+
+                entity.Property(e => e.Mech_Pipe)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Mech_Register)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Mech_Therm)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Mech_VentAir)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Mech_VentSyst)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Notes).IsUnicode(false);
+
+                entity.Property(e => e.Panic)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Plum_Backflow)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Plum_Dish)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Plum_Drain)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Plum_Heater)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Plum_Notes).IsUnicode(false);
+
+                entity.Property(e => e.Plum_Sink)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Plum_Toilet)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Plum_Tub)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Plum_Water)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Roof)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Stairs)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Title)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Walkway)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Walls)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Windows)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.HasOne(d => d.SITE_IDXNavigation)
+                    .WithMany(p => p.T_INSP_ASSESS_LIFE)
+                    .HasForeignKey(d => d.SITE_IDX)
+                    .HasConstraintName("FK_T_INSP_ASSESSMENTS_LF");
+            });
+
+            modelBuilder.Entity<T_INSP_SITES>(entity =>
+            {
+                entity.HasKey(e => e.SITE_IDX)
+                    .HasName("PK_T_INSP_SITE_DTL");
+
+                entity.Property(e => e.SITE_IDX).ValueGeneratedNever();
+
+                entity.Property(e => e.LAST_UPDATE_BY)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.LAST_UPDATE_DT).HasPrecision(0);
+
+
+            });
+
+
+            modelBuilder.Entity<V_INSP_ASSESSMENTS>(entity =>
+            {
+                entity.HasNoKey();
+
+                entity.ToView("V_INSP_ASSESSMENTS");
+
+                entity.Property(e => e.ASSESSED_BY).HasMaxLength(100);
+
+                entity.Property(e => e.ASSESSMENT_DT).HasPrecision(0);
+
+                entity.Property(e => e.INSP_TYP)
+                    .IsRequired()
+                    .HasMaxLength(8)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.SITE_ID)
+                    .HasMaxLength(30)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.SITE_NAME)
+                    .IsRequired()
+                    .HasMaxLength(100)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.BUILDING_TYPE).HasMaxLength(256);
+
+            });
+            /*************** INSP COLUMNS END   *******************/
 
         }
     }

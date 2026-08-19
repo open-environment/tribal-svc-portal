@@ -81,13 +81,22 @@
                         </ul>
                     </li>
                 }
-                else if (MenuItem.CLIENT_NAME == "Open Waters")
+                else if (MenuItem.CLIENT_NAME == "Inspections")
                 {
-                    <li class="lvl1">
-                        <a href="JavaScript:void(0);" onclick="GetOpenWatersLink('@MenuItem.CLIENT_ID'); return false;">
-                            <i class="clip-new-tab"></i>
-                            <span class="title">@MenuItem.CLIENT_NAME</span>
+                    <li class="open">
+                        <a href="javascript:void(0)">
+                            <i class="clip-search"></i>
+                            <span class="title">Inspection</span>
+                            <i class="icon-arrow"></i>
+                            <span class="selected"></span>
                         </a>
+                        <ul class="sub-menu" style="display:block;">
+                            <li class="@Html.ActivePage("Inspection", "Index")">
+                                <a href="@Url.Action("Index", "Inspection")">
+                                    <span class="title">Inspections</span>
+                                </a>
+                            </li>
+                        </ul>
                     </li>
                 }
             }
